@@ -28,16 +28,14 @@ describe("text_length state factories", () => {
     const textBlock = workspace.newBlock("text");
     textBlock.setFieldValue("blue", "TEXT");
     textLengthBlock
-      .getInput("VALUE")
-      .connection.connect(textBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textBlock.outputConnection!);
     const numVariable = workspace.createVariable("num_test", "Number");
     const numVariableBlock = workspace.newBlock(
       "variables_set_number"
     ) as BlockSvg;
     numVariableBlock.setFieldValue(numVariable.getId(), "VAR");
     numVariableBlock
-      .getInput("VALUE")
-      .connection.connect(textLengthBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textLengthBlock.outputConnection!);
 
     connectToArduinoBlock(numVariableBlock);
 
@@ -69,8 +67,7 @@ describe("text_length state factories", () => {
       "VAR"
     );
     textLengthBlock
-      .getInput("VALUE")
-      .connection.connect(getStringVariableBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getStringVariableBlock.outputConnection!);
 
     const eventTest3 = createTestEvent(numVariableBlock.id);
     const [state1Test3, state2Test3] = eventToFrameFactory(eventTest3).frames;

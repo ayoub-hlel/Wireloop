@@ -1,11 +1,11 @@
 <script lang="ts">
     import type { Help } from '../../../help/help-model';
     import  { HelpType } from '../../../help/help-model';
-    import _ from 'lodash';
+    import get from 'lodash/get';
     export let help: Help;
-    let pictureUrl = _.get(help, 'help.data.url');
-    let altText = _.get(help, 'help.data.alt');
-    let youtubeId = _.get(help, 'help.data.youtubeid');
+    let pictureUrl = get(help, 'help.data.url');
+    let altText = get(help, 'help.data.alt');
+    let youtubeId = get(help, 'help.data.youtubeid');
 
 </script>
 

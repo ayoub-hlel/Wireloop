@@ -235,7 +235,7 @@ describe('Convex User Data Contract', () => {
       (mockConvex.mutation as any).mockRejectedValue(new Error('Invalid URL format'));
 
       try {
-        await mockConvx.mutation('users:updateUserProfile', {
+        await mockConvex.mutation('users:updateUserProfile', {
           website: 'not-a-url',
         });
       } catch (error) {

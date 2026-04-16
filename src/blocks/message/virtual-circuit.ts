@@ -16,12 +16,12 @@ export const arduinoMessageUpdate: SyncComponent = (state, _, draw, frame) => {
   const messageState = state as ArduinoReceiveMessageState;
   const arduino = findMicronControllerEl(draw);
 
-  if (!arduino) {
+  if (!arduino || !frame) {
     return;
   }
 
   if (!messageState.hasMessage && !frame.sendMessage) {
-    arduino.findOne("#MESSAGE").hide();
+    arduino.findOne("#MESSAGE")!.hide();
     findSvgElement("RX_LED", arduino as Svg).fill(LED_COLORS.LED_OFF);
     return;
   }
@@ -31,12 +31,12 @@ export const arduinoMessageUpdate: SyncComponent = (state, _, draw, frame) => {
 
   const message = getMessage(frame.sendMessage, messageState.message);
 
-  arduino.findOne("#MESSAGE").show();
+  arduino.findOne("#MESSAGE")!.show();
 
   const title = arduino.findOne("#MESSAGE_ARDUINO_TITLE") as Text;
   const textSvg1 = arduino.findOne("#MESSAGE_LINE_2") as Text;
   const textSvg2 = arduino.findOne("#MESSAGE_LINE_3") as Text;
-  arduino.findOne("#MESSAGE").show();
+  arduino.findOne("#MESSAGE")!.show();
   title.node.innerHTML = frame.sendMessage
     ? "Sending Message:"
     : "Incoming Message:";
@@ -52,7 +52,7 @@ export const arduinoMessageCreate: AfterComponentCreateHook<ArduinoReceiveMessag
   __,
   arduino
 ) => {
-  arduino.findOne("#MESSAGE").hide();
+  arduino.findOne("#MESSAGE")!.hide();
 };
 
 const getMessage = (sendMessage: string, receiveMessage: string) => {

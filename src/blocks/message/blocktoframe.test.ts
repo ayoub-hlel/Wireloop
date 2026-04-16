@@ -21,7 +21,7 @@ import type { ArduinoReceiveMessageState } from "./state";
 
 describe("arduino message state factories", () => {
   let workspace: Workspace;
-  let messageSetup;
+  let messageSetup: BlockSvg;
   let arduinoBlock: BlockSvg;
 
   afterEach(() => {
@@ -31,7 +31,7 @@ describe("arduino message state factories", () => {
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
     arduinoBlock.setFieldValue("1", "LOOP_TIMES");
-    messageSetup = workspace.newBlock("message_setup");
+    messageSetup = workspace.newBlock("message_setup") as BlockSvg;
 
     messageSetup.setFieldValue("TRUE", "receiving_message");
     messageSetup.setFieldValue("hello world", "message");
@@ -50,8 +50,7 @@ describe("arduino message state factories", () => {
       "Hello World!"
     );
     sendMessageBlock
-      .getInput("MESSAGE")
-      .connection.connect(textBlock.outputConnection);
+      .getInput("MESSAGE")!.connection!.connect(textBlock.outputConnection!);
 
     connectToArduinoBlock(sendMessageBlock);
 

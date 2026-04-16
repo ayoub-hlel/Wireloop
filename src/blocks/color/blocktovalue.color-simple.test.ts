@@ -51,12 +51,10 @@ describe("simple color state factories", () => {
 
     const randomColorBlock = workspace.newBlock("colour_random");
     colorPickerVariable
-      .getInput("VALUE")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
       .dispose(true);
     colorPickerVariable
-      .getInput("VALUE")
-      .connection.connect(randomColorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(randomColorBlock.outputConnection!);
 
     const event2 = createTestEvent(colorPickerVariable.id);
     const [state1event2] = eventToFrameFactory(event2).frames;

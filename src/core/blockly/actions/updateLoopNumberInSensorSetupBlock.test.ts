@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import Blockly, { BlockSvg } from "blockly";
+import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import { getAllBlocks } from "../helpers/block.helper";
 import _ from "lodash";
 import type { BlockEvent } from "../dto/event.type";
@@ -17,8 +18,8 @@ import {
 import { MicroControllerType } from "../../microcontroller/microcontroller";
 
 describe("changeLoopNumberInSensorBlock", () => {
-  let workspace;
-  let arduinoBlock;
+  let workspace: Workspace;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
@@ -84,16 +85,16 @@ describe("changeLoopNumberInSensorBlock", () => {
     const updateTempAction = updateBlockActions.find(
       (action) => action.blockId === tempSensor.id
     );
-    expect(updateTempAction.loop).toBe(4);
-    expect(updateTempAction.type).toBe(
+    expect(updateTempAction!.loop).toBe(4);
+    expect(updateTempAction!.type).toBe(
       ActionType.SETUP_SENSOR_BLOCK_LOOP_FIELD_UPDATE
     );
 
     const updateRfidAction = updateBlockActions.find(
       (action) => action.blockId === rfidSensor.id
     );
-    expect(updateRfidAction.loop).toBe(4);
-    expect(updateRfidAction.type).toBe(
+    expect(updateRfidAction!.loop).toBe(4);
+    expect(updateRfidAction!.type).toBe(
       ActionType.SETUP_SENSOR_BLOCK_LOOP_FIELD_UPDATE
     );
   });

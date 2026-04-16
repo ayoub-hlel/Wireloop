@@ -67,12 +67,10 @@ describe("rfid value factories", () => {
     );
 
     connectToArduinoBlock(hasCardVarBlock);
-    hasCardVarBlock.nextConnection.connect(
-      cardNumberVarBlock.previousConnection
-    );
-    cardNumberVarBlock.nextConnection.connect(
-      tagNumberVarBlock.previousConnection
-    );
+    hasCardVarBlock.nextConnection!.connect(
+      cardNumberVarBlock.previousConnection!);
+    cardNumberVarBlock.nextConnection!.connect(
+      tagNumberVarBlock.previousConnection!);
 
     const [
       setup,
@@ -117,7 +115,7 @@ const verifyComponent = (
   tag: string,
   cardNumer: string
 ) => {
-  const rfidState = findComponent<RfidState>(state, ArduinoComponentType.RFID);
+  const rfidState = findComponent<RfidState>(state, ArduinoComponentType.RFID)!;
 
   expect(rfidState.scannedCard).toBe(hasCard);
   expect(rfidState.tag).toBe(tag);
@@ -153,11 +151,11 @@ const createVariableBlock = (
     workspace,
     variableName,
     type,
-    getDefaultValue(type)
+    getDefaultValue(type) as string | number | boolean | { red: number; green: number; blue: number }
   );
-  varBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+  varBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
-  varBlock.getInput("VALUE").connection.connect(sensorBlock.outputConnection);
+  varBlock.getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
 
   return varBlock;
 };

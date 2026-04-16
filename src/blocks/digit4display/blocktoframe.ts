@@ -6,7 +6,7 @@ import {
   findComponent,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import { DigitilDisplayState } from "./state";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 
 export const digit4DisplaySetup: BlockToFrameTransformer = (
@@ -44,7 +44,7 @@ export const digitalDisplaySet: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const component = _.cloneDeep(
+  const component = cloneDeep(
     findComponent(
       previousState,
       ArduinoComponentType.DIGITAL_DISPLAY

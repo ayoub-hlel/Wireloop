@@ -1,4 +1,4 @@
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import type {
   ValueGenerator,
@@ -121,7 +121,7 @@ export const textIsEmpty: ValueGenerator = (
     previousState
   );
 
-  return _.isEmpty(value);
+  return isEmpty(value);
 };
 
 export const numberToText: ValueGenerator = (
@@ -177,5 +177,5 @@ export const changeCase: ValueGenerator = (
       return "";
   }
 
-  return _.isEmpty(value);
+  return isEmpty(value);
 };

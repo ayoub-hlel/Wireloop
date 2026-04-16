@@ -3,7 +3,9 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { onErrorMessage } from '../../help/alerts';
-    import { loginGoogleUser } from '../../auth/clerk-auth';
+    // TODO: CLERK_REMOVAL — do not delete yet.
+    // import { loginGoogleUser } from '../../auth/clerk-auth';
+    const loginGoogleUser = async () => {};
     
     /**
      * Handle Google login with Clerk
@@ -12,10 +14,10 @@
         try {
             await loginGoogleUser();
             await goto("/");
-        } catch(e) {
+        } catch(e: unknown) {
             console.error('Login error:', e);
-            // Handle specific Clerk error codes when implemented
-            if (e?.code === "clerk/cancelled-popup-request") {
+            const error = e as { code?: string };
+            if (error?.code === "clerk/cancelled-popup-request") {
                 return;
             }
             onErrorMessage("Sorry, please try again in 5 minutes. :)", e);

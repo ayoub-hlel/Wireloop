@@ -1,9 +1,10 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 import commonjs from "@rollup/plugin-commonjs";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [commonjs({ sourceMap: true }), sveltekit()],
+  plugins: [tailwindcss(), commonjs({ sourceMap: true }), sveltekit()],
   
   define: {
     // Prevent process references in client code

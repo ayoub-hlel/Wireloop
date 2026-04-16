@@ -9,7 +9,9 @@
   import projectStore from "../../stores/project.store";
   import { isPathOnHomePage } from "../../helpers/is-path-on-homepage";
   import { fade } from "svelte/transition";
-  import { logout } from "../../auth/clerk-auth";
+  // TODO: CLERK_REMOVAL — do not delete yet.
+  // import { logout } from "../../auth/clerk-auth";
+  const logout = async () => {};
   import { resetWorkspace, workspaceToXML } from "../../core/blockly/helpers/workspace.helper";
   import { saveCurrentProject } from "../../stores/project.store";
   import { wait } from "../../helpers/wait";
@@ -44,13 +46,12 @@
       return;
     }
     try {
-      // Get current workspace XML and save using Convex
-      const workspaceXml = workspaceToXML();
+      const workspaceXml = workspaceToXML() ?? '';
       await saveCurrentProject(workspaceXml);
       projectStore.set({ projectId: null, project: null });
       await goto("/");
       resetWorkspace();
-    } catch (e) {
+    } catch (e: unknown) {
       onErrorMessage("Error saving your project please try agian.", e);
     }
   }
@@ -74,22 +75,23 @@
 
     if (!canSave) return;
     try {
-      // Get current workspace XML and save using Convex
-      const workspaceXml = workspaceToXML();
+      const workspaceXml = workspaceToXML() ?? '';
       await saveCurrentProject(workspaceXml);
       showSaveSuccess = true;
       await wait(1500);
       canSave = true;
       showSaveSuccess = false;
-    } catch (e) {
+    } catch (e: unknown) {
       onErrorMessage("Error saving your project please try agian.", e);
     }
   }
 
   async function onSignOut() {
     try {
-      await logout();
-    } catch (e) {
+      // TODO: CLERK_REMOVAL — do not delete yet.
+      // await logout();
+      console.log('Clerk logout commented out');
+    } catch (e: unknown) {
       onErrorMessage("Please try again in 5 minutes", e);
     }
   }
@@ -104,7 +106,7 @@
       title="Home"
       use:tooltip={navTooltipStyle}
       href="/{params}"
-      class:active={isPathOnHomePage($page.url.pathname)}
+      class:active={isPathOnHomePage($page.url.pathname ?? '')}
     >
       <i class="fa fa-home" title="Simulator" use:tooltip={navTooltipStyle} />
     </a>
@@ -176,7 +178,7 @@
       href="/"
       title="Home"
       use:tooltip={navTooltipStyle}
-      class:active={isPathOnHomePage($page.url.pathname)}
+      class:active={isPathOnHomePage($page.url.pathname ?? '')}
     >
       <i class="fa fa-home" />
     </a>
@@ -297,7 +299,7 @@
     width: calc((100% - 170px) / 10);
     text-align: center;
     padding: 2px 0;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
     color: white;
     font-size: 3rem;
     cursor: pointer;

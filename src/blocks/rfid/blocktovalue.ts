@@ -11,7 +11,7 @@ export const rfidScannedCard: ValueGenerator = (
   previousState
 ) => {
   return findComponent<RfidState>(previousState, ArduinoComponentType.RFID)
-    .scannedCard;
+    ?.scannedCard;
 };
 
 export const rfidTag: ValueGenerator = (
@@ -21,7 +21,7 @@ export const rfidTag: ValueGenerator = (
   timeline,
   previousState
 ) => {
-  return findComponent<RfidState>(previousState, ArduinoComponentType.RFID).tag;
+  return findComponent<RfidState>(previousState, ArduinoComponentType.RFID)?.tag;
 };
 
 export const rfidCardNumber: ValueGenerator = (
@@ -32,5 +32,5 @@ export const rfidCardNumber: ValueGenerator = (
   previousState
 ) => {
   return findComponent<RfidState>(previousState, ArduinoComponentType.RFID)
-    .cardNumber;
+    ?.cardNumber;
 };

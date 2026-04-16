@@ -19,7 +19,7 @@ export const updateLoopNumberInSensorSetupBlock = (
     return [];
   }
 
-  const newLoopNumber = +newValue > 0 ? +newValue : 1;
+  const newLoopNumber = +newValue! > 0 ? +newValue! : 1;
 
   return blocks
     .filter((block) => block.type === BlockType.SENSOR_SETUP)
@@ -27,7 +27,7 @@ export const updateLoopNumberInSensorSetupBlock = (
       (block) =>
         // Only update the blocks where the current loop value is greater than the one in the block.
         // This is because what is in the block right now is still valid
-        +block.fieldValues.find((field) => field.name === "LOOP").value >
+        +block.fieldValues.find((field) => field.name === "LOOP")!.value >
         newLoopNumber
     )
     .map((block) => {

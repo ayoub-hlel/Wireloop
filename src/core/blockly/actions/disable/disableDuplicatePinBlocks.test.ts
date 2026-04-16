@@ -14,7 +14,7 @@ import {
 
 describe("disableDuplicatePinBlocks", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
@@ -95,7 +95,7 @@ describe("disableDuplicatePinBlocks", () => {
 
     const setupBlockAction = actions.find((a) => a.blockId === sensorBlock.id);
 
-    expect(setupBlockAction.warningText).toBe(
+    expect(setupBlockAction!.warningText).toBe(
       "This blocks has these duplicate pins: " +
         ARDUINO_PINS.PIN_5 +
         ", " +
@@ -104,13 +104,13 @@ describe("disableDuplicatePinBlocks", () => {
 
     const servo3Action = actions.find((a) => a.blockId == servoBlock3.id);
 
-    expect(servo3Action.warningText).toBe(
+    expect(servo3Action!.warningText).toBe(
       "This blocks has these duplicate pins: " + ARDUINO_PINS.PIN_9
     );
 
     const servo1Action = actions.find((a) => a.blockId === servoBlock1.id);
 
-    expect(servo1Action.warningText).toBe(
+    expect(servo1Action!.warningText).toBe(
       "This blocks has these duplicate pins: " + ARDUINO_PINS.PIN_5
     );
   });

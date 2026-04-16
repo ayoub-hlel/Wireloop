@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import Blockly, { Workspace } from "blockly";
+import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import { getAllBlocks } from "../helpers/block.helper";
 import _ from "lodash";
 import type { BlockEvent } from "../dto/event.type";
@@ -19,7 +20,7 @@ import type { UltraSonicSensor } from "../../../blocks/ultrasonic_sensor/state";
 
 describe("saveSensorSetupBlockData", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();

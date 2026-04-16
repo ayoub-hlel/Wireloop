@@ -13,13 +13,13 @@ export const updateCommentIsButtonPressedBlock = (
     "Checks if the state of the defined pin is LOW";
   const buttonMessage = "Checks if the state of the defined pin is HIGH";
 
-  const pinsToMessages = buttonSetupBlocks.reduce((acc, block) => {
+  const pinsToMessages = buttonSetupBlocks.reduce((acc: Record<string, string>, block) => {
     const pin = findFieldValue(block, "PIN");
     const isPullupResistor =
       findFieldValue(block, "PULLUP_RESISTOR") === "TRUE";
     acc[pin] = isPullupResistor ? pullupResistorButtonMessage : buttonMessage;
     return acc;
-  }, {});
+  }, {} as Record<string, string>);
 
   return blockEvent.blocks
     .filter((block) => block.blockName === "is_button_pressed")

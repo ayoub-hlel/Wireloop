@@ -1,5 +1,5 @@
 import "../../core/blockly/blocks";
-import type { Workspace } from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import {
@@ -15,7 +15,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 describe("time state factories", () => {
   let workspace: Workspace;
-  let timesetup;
+  let timesetup: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -23,7 +23,7 @@ describe("time state factories", () => {
 
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
-    timesetup = workspace.newBlock("time_setup");
+    timesetup = workspace.newBlock("time_setup") as BlockSvg;
 
     timesetup.setFieldValue(".3", "time_in_seconds");
   });

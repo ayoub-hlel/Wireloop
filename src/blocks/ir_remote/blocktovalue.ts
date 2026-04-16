@@ -13,7 +13,7 @@ export const irRemoteHasCode: ValueGenerator = (
   return findComponent<IRRemoteState>(
     previousState,
     ArduinoComponentType.IR_REMOTE
-  ).hasCode;
+  )?.hasCode;
 };
 
 export const irRemoteGetCode: ValueGenerator = (
@@ -26,5 +26,5 @@ export const irRemoteGetCode: ValueGenerator = (
   return findComponent<IRRemoteState>(
     previousState,
     ArduinoComponentType.IR_REMOTE
-  ).code;
+  )?.code;
 };

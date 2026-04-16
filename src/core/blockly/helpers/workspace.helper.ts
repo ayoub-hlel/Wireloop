@@ -23,7 +23,7 @@ export const getArduinoCode = () => {
 };
 
 export const workspaceToXML = () => {
-  let workspace = getWorkspace();
+  const workspace = getWorkspace();
   if (!workspace) return;
   const xml = Blockly.Xml.workspaceToDom(workspace);
   return Blockly.Xml.domToText(xml);

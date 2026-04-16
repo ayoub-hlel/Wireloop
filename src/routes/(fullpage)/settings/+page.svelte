@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { FormGroup, Input, Label, Button } from "@sveltestrap/sveltestrap";
-
   import { defaultSetting } from "../../../firebase/model";
   import type { Settings } from "../../../firebase/model";
   import { fbSaveSettings } from "../../../firebase/db";
   import authStore from "../../../stores/auth.store";
   import settingsStore from "../../../stores/settings.store";
   import FlashMessage from "../../../components/arduino-workflow-builder/ui/FlashMessage.svelte";
-  import _ from "lodash";
+  import isEqual from "lodash/isEqual";
   import { onErrorMessage } from "../../../help/alerts";
   import { MicroControllerType } from "../../../core/microcontroller/microcontroller";
   import { ledColors } from "../../../blocks/led/virtual-circuit";
@@ -17,10 +15,10 @@
 
   let showMessage = false;
 
-  let previousSettings = null;
+  let previousSettings: Settings | null = null;
 
   settingsStore.subscribe((newSettings) => {
-    settings = newSettings;
+    settings = newSettings as unknown as Settings;
   });
 
   async function onSaveSettings() {
@@ -28,15 +26,15 @@
   }
 
   async function onReset() {
-    await saveSettings(defaultSetting);
+    await saveSettings(defaultSetting as Settings);
   }
 
-  function changeLedColor(e) {
-    settings.ledColor = e.target.getAttribute("data-color");
+  function changeLedColor(e: Event) {
+    settings.ledColor = (e.target as HTMLElement).getAttribute("data-color") || "";
   }
 
   async function saveSettings(settings: Settings) {
-    if (_.isEqual(previousSettings, settings)) {
+    if (isEqual(previousSettings, settings)) {
       showMessage = true;
       console.log("blocked saved", previousSettings, settings);
       return;
@@ -44,56 +42,61 @@
 
     if (uid) {
       try {
-        await fbSaveSettings(uid, settings);
+        await fbSaveSettings(uid, settings as any);
         console.log("saved settings", settings);
-      } catch (e) {
+      } catch (e: any) {
         onErrorMessage("Please try again in 5 minutes.", e);
       }
     }
 
-    settingsStore.set(settings);
+    settingsStore.set(settings as any);
     previousSettings = { ...settings };
     showMessage = true;
   }
 
   authStore.subscribe((auth) => {
-    uid = auth.uid;
+    uid = auth.uid ?? '';
   });
 </script>
 
 {#if settings}
   <div class="row">
     <div class="col">
-      <FormGroup>
-        <Label for="boardType">MicroController</Label>
-        <Input bind:value={settings.boardType} type="select" id="boardType">
+      <div class="form-group">
+        <label for="boardType">MicroController</label>
+        <select bind:value={settings.boardType} id="boardType" class="form-control">
           <option value={MicroControllerType.ARDUINO_UNO}>Arduino Uno</option>
           <option value={MicroControllerType.ARDUINO_MEGA}>Arduino Mega</option>
-        </Input>
-      </FormGroup>
+        </select>
+      </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col">
-      <FormGroup>
-        <Label for="max-time-per-move">Milliseconds Per Move</Label>
-        <Input
+      <div class="form-group">
+        <label for="max-time-per-move">Milliseconds Per Move</label>
+        <input
           bind:value={settings.maxTimePerMove}
           type="number"
           id="max-time-per-move"
+          class="form-control"
         />
-      </FormGroup>
+      </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col">
-      <Input
-        type="switch"
-        bind:checked={settings.customLedColor}
-        label="Custom Led Color"
-      />
+      <div class="form-check">
+        <input
+          type="checkbox"
+          bind:checked={settings.customLedColor}
+          id="custom-led-color"
+          class="form-check-input"
+        />
+        <label for="custom-led-color" class="form-check-label">Custom Led Color</label>
+      </div>
     </div>
   </div>
 
@@ -103,16 +106,17 @@
         <div class="row">
           <div class="col color-container">
             {#each ledColors as color (color)}
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <div
+              <button
+                type="button"
                 class="color {color}"
                 on:click={changeLedColor}
                 style="background-color: {color};"
                 data-color={color}
                 class:selected={settings.ledColor == color}
                 id={color}
-              ></div>
+                aria-label="Select {color} LED color"
+                aria-pressed={settings.ledColor == color}
+              ></button>
             {/each}
           </div>
         </div>
@@ -122,36 +126,38 @@
 
   <div class="row">
     <div class="col">
-      <FormGroup>
-        <Label for="touch-skin-color">Touch sensor's finger color</Label>
-        <Input
+      <div class="form-group">
+        <label for="touch-skin-color">Touch sensor's finger color</label>
+        <input
           bind:value={settings.touchSkinColor}
           type="color"
           id="touch-skin-color"
+          class="form-control"
         />
-      </FormGroup>
+      </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col">
-      <FormGroup>
-        <Label for="background-color">Arduino's Background Color</Label>
-        <Input
+      <div class="form-group">
+        <label for="background-color">Arduino's Background Color</label>
+        <input
           bind:value={settings.backgroundColor}
           type="color"
           id="background-color"
+          class="form-control"
         />
-      </FormGroup>
+      </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col">
-      <Button type="button" color="success" on:click={onSaveSettings}>
+      <button type="button" class="btn btn-success me-2" on:click={onSaveSettings}>
         Save
-      </Button>
-      <Button type="button" color="warning" on:click={onReset}>Reset</Button>
+      </button>
+      <button type="button" class="btn btn-warning" on:click={onReset}>Reset</button>
     </div>
   </div>
 {/if}

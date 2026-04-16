@@ -1,4 +1,4 @@
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import type { BlockData } from "../../core/blockly/dto/block.type";
 import {
   VariableData,
@@ -24,9 +24,10 @@ const createListState = (
   block: BlockData,
   variables: VariableData[],
   timeline: Timeline,
-  previousState: ArduinoFrame = undefined
+  previousState: ArduinoFrame | undefined
 ) => {
   const newVariable = createVariable(block, variables, type);
+  if (!newVariable) return [];
 
   return [
     arduinoFrameByVariable(
@@ -46,13 +47,16 @@ const setItemInList = (
   block: BlockData,
   variables: VariableData[],
   timeline: Timeline,
-  previousState: ArduinoFrame = undefined
+  previousState: ArduinoFrame | undefined
 ): ArduinoFrame[] => {
-  const variableName = variables.find(
+  if (!previousState) return [];
+  const variableFound = variables.find(
     (v) => v.id === findFieldValue(block, "VAR")
-  ).name;
+  );
+  if (!variableFound) return [];
+  const variableName = variableFound.name;
 
-  const currentValue = _.cloneDeep([
+  const currentValue = cloneDeep([
     ...(previousState.variables[variableName].value as
       | string[]
       | Color[]
@@ -87,7 +91,7 @@ const setItemInList = (
 
   const newVariable: Variable = {
     type: previousState.variables[variableName].type,
-    value: _.cloneDeep(currentValue),
+    value: cloneDeep(currentValue),
     name: previousState.variables[variableName].name,
     id: previousState.variables[variableName].id,
   };
@@ -141,16 +145,23 @@ const createVariable = (
   block: BlockData,
   variables: VariableData[],
   type: VariableTypes
-): Variable => {
+): Variable | null => {
   const variableId = findFieldValue(block, "VAR");
   const size = +findFieldValue(block, "SIZE");
   const variableFound = variables.find((v) => v.id === variableId);
+  if (!variableFound) return null;
+
+  const defaultValue = type === VariableTypes.LIST_NUMBER ? 0
+    : type === VariableTypes.LIST_STRING ? ""
+    : type === VariableTypes.LIST_BOOLEAN ? false
+    : { r: 0, g: 0, b: 0 };
+
   return {
     id: variableId,
     type,
     name: variableFound.name,
-    value: _.range(0, size).map(() => null),
-  };
+    value: Array.from({ length: size }, () => defaultValue),
+  } as Variable;
 };
 
 export const setStringInList: BlockToFrameTransformer = (

@@ -1,7 +1,7 @@
-import Blockly, { CodeGenerator } from "blockly";
+import Blockly, { CodeGenerator, type Block } from "blockly";
 
-const setVariableFunction = function (defaultValue) {
-  return function (block, generator: CodeGenerator) {
+const setVariableFunction = function (defaultValue: string | number) {
+  return function (block: Block, generator: CodeGenerator) {
     const variableName = generator.getVariableName(block.getFieldValue("VAR"));
     const variableValue = Blockly["Arduino"].valueToCode(
       block,
@@ -13,7 +13,7 @@ const setVariableFunction = function (defaultValue) {
   };
 };
 
-const getVariableFunction = function (block, generator: CodeGenerator) {
+const getVariableFunction = function (block: Block, generator: CodeGenerator) {
   const variableName = generator.getVariableName(block.getFieldValue("VAR"));
 
   return [variableName, Blockly["Arduino"].ORDER_ATOMIC];

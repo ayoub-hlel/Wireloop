@@ -17,14 +17,11 @@ import {
 
 import type { Element, Text } from "@svgdotjs/svg.js";
 import { MotorShieldState, MOTOR_DIRECTION } from "./state";
-
-import _ from "lodash";
-import { Svg } from "@svgdotjs/svg.js";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import { MicroController } from "../../core/microcontroller/microcontroller";
 import { findComponentConnection } from "../../core/virtual-circuit/svg-helpers";
-let motorSpin1TimerId;
-let motorSpin2TimerId;
+let motorSpin1TimerId: ReturnType<typeof setInterval> | undefined = undefined;
+let motorSpin2TimerId: ReturnType<typeof setInterval> | undefined = undefined;
 
 export const motorPosition: PositionComponent<MotorShieldState> = (
   state,
@@ -39,9 +36,9 @@ export const motorCreate: AfterComponentCreateHook<MotorShieldState> = (
   motorEl
 ) => {
   if (state.numberOfMotors === 1) {
-    motorEl.findOne("#MOTOR_2").hide();
+    motorEl.findOne("#MOTOR_2")!.hide();
   } else {
-    motorEl.findOne("#MOTOR_2").show();
+    motorEl.findOne("#MOTOR_2")!.show();
   }
 };
 export const createMotorWires: CreateWire<MotorShieldState> = (
@@ -53,7 +50,7 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createComponentWire(
     holes[0],
     isDown,
@@ -95,7 +92,7 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
     holes[3],
     isDown,
     motorEl,
-    state.in3,
+    state.in3!,
     draw,
     arduino,
     id,
@@ -106,7 +103,7 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
     holes[4],
     isDown,
     motorEl,
-    state.in4,
+    state.in4!,
     draw,
     arduino,
     id,
@@ -117,7 +114,7 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
     holes[5],
     isDown,
     motorEl,
-    state.en2,
+    state.en2!,
     draw,
     arduino,
     id,
@@ -127,16 +124,17 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
 };
 
 export const motorUpdate: SyncComponent = (
-  state: MotorShieldState,
+  state: any,
   motorEl
 ) => {
-  setDirectionAndSpeed(motorEl, 1, state.speed1, state.direction1);
-  setDirectionAndSpeed(motorEl, 2, state.speed2, state.direction2);
-  if (state.numberOfMotors === 1) {
-    setMotorSpin(motorEl, 1, state.speed1, state.direction1);
+  const motorState = state as MotorShieldState;
+  setDirectionAndSpeed(motorEl, 1, motorState.speed1, motorState.direction1);
+  setDirectionAndSpeed(motorEl, 2, motorState.speed2, motorState.direction2);
+  if (motorState.numberOfMotors === 1) {
+    setMotorSpin(motorEl, 1, motorState.speed1, motorState.direction1);
   } else {
-    setMotorSpin(motorEl, 1, state.speed1, state.direction1);
-    setMotorSpin(motorEl, 2, state.speed2, state.direction2);
+    setMotorSpin(motorEl, 1, motorState.speed1, motorState.direction1);
+    setMotorSpin(motorEl, 2, motorState.speed2, motorState.direction2);
   }
 };
 
@@ -170,13 +168,13 @@ function setDirectionAndSpeed(
   direction: MOTOR_DIRECTION
 ) {
   if (speed === 0) {
-    motorEl.findOne(`#MOTOR_${motor}_SPEED`).node.innerHTML = `Motor stopped!`;
-    motorEl.findOne(`#MOTOR_${motor}_DIRECTION`).node.innerHTML = "";
+    motorEl.findOne(`#MOTOR_${motor}_SPEED`)!.node.innerHTML = `Motor stopped!`;
+    motorEl.findOne(`#MOTOR_${motor}_DIRECTION`)!.node.innerHTML = "";
     return;
   }
-  motorEl.findOne(`#MOTOR_${motor}_SPEED`).node.innerHTML = `Speed: ${speed}`;
+  motorEl.findOne(`#MOTOR_${motor}_SPEED`)!.node.innerHTML = `Speed: ${speed}`;
 
-  motorEl.findOne(`#MOTOR_${motor}_DIRECTION`).node.innerHTML = `Direction: ${
+  motorEl.findOne(`#MOTOR_${motor}_DIRECTION`)!.node.innerHTML = `Direction: ${
     direction == MOTOR_DIRECTION.CLOCKWISE ? "Clockwise" : "AntiClockwise"
   }`;
 }

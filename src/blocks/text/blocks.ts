@@ -93,7 +93,7 @@ Blockly.Blocks["text_changeCase"] = {
     this.setStyle("text_blocks");
     this.appendValueInput("TEXT")
       .setCheck("String")
-      .appendField(new Blockly.FieldDropdown(OPERATORS), "CASE");
+      .appendField(new Blockly.FieldDropdown(OPERATORS as Blockly.MenuOption[]), "CASE");
     this.setOutput(true, "String");
     this.setTooltip(Blockly.Msg["TEXT_CHANGECASE_TOOLTIP"]);
   },

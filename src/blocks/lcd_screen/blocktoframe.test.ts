@@ -95,15 +95,12 @@ describe("lcd  factories", () => {
 
     const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 3);
     lcdPrintLCDBlock
-      .getInput("ROW_1")
-      .connection.connect(textRowBlock1.outputConnection);
+      .getInput("ROW_1")!.connection!.connect(textRowBlock1.outputConnection!);
     lcdPrintLCDBlock
-      .getInput("ROW_2")
-      .connection.connect(textRowBlock2.outputConnection);
+      .getInput("ROW_2")!.connection!.connect(textRowBlock2.outputConnection!);
 
     lcdPrintLCDBlock
-      .getInput("DELAY")
-      .connection.connect(numBlock.outputConnection);
+      .getInput("DELAY")!.connection!.connect(numBlock.outputConnection!);
 
     connectToArduinoBlock(lcdPrintLCDBlock);
 
@@ -144,11 +141,10 @@ describe("lcd  factories", () => {
     const colNumBlock = createValueBlock(workspace, VariableTypes.NUMBER, 1);
 
     const printBlock = workspace.newBlock("lcd_screen_print") as BlockSvg;
-    printBlock.getInput("PRINT").connection.connect(textBlock.outputConnection);
-    printBlock.getInput("ROW").connection.connect(rowNumBlock.outputConnection);
+    printBlock.getInput("PRINT")!.connection!.connect(textBlock.outputConnection!);
+    printBlock.getInput("ROW")!.connection!.connect(rowNumBlock.outputConnection!);
     printBlock
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock.outputConnection!);
 
     const simpleForLoopRight = workspace.newBlock(
       "controls_repeat_ext"
@@ -161,11 +157,9 @@ describe("lcd  factories", () => {
     const lcdScrollRightBlock = workspace.newBlock("lcd_scroll");
     lcdScrollRightBlock.setFieldValue("RIGHT", "DIR");
     simpleForLoopRight
-      .getInput("DO")
-      .connection.connect(lcdScrollRightBlock.previousConnection);
+      .getInput("DO")!.connection!.connect(lcdScrollRightBlock.previousConnection!);
     simpleForLoopRight
-      .getInput("TIMES")
-      .connection.connect(numberOfTimesRightBlock.outputConnection);
+      .getInput("TIMES")!.connection!.connect(numberOfTimesRightBlock.outputConnection!);
 
     const simpleForLoopLeft = workspace.newBlock(
       "controls_repeat_ext"
@@ -178,17 +172,14 @@ describe("lcd  factories", () => {
     const lcdScrollLeftBlock = workspace.newBlock("lcd_scroll");
     lcdScrollLeftBlock.setFieldValue("LEFT", "DIR");
     simpleForLoopLeft
-      .getInput("DO")
-      .connection.connect(lcdScrollLeftBlock.previousConnection);
+      .getInput("DO")!.connection!.connect(lcdScrollLeftBlock.previousConnection!);
     simpleForLoopLeft
-      .getInput("TIMES")
-      .connection.connect(numberOfTimesLeftBlock.outputConnection);
+      .getInput("TIMES")!.connection!.connect(numberOfTimesLeftBlock.outputConnection!);
 
     connectToArduinoBlock(printBlock);
-    printBlock.nextConnection.connect(simpleForLoopRight.previousConnection);
-    simpleForLoopRight.nextConnection.connect(
-      simpleForLoopLeft.previousConnection
-    );
+    printBlock.nextConnection!.connect(simpleForLoopRight.previousConnection!);
+    simpleForLoopRight.nextConnection!.connect(
+      simpleForLoopLeft.previousConnection!);
 
     const event = createTestEvent(lcdsetup.id);
 
@@ -288,11 +279,10 @@ describe("lcd  factories", () => {
     const colNumBlock = createValueBlock(workspace, VariableTypes.NUMBER, 20);
     const printBlock = workspace.newBlock("lcd_screen_print") as BlockSvg;
 
-    printBlock.getInput("PRINT").connection.connect(textBlock.outputConnection);
-    printBlock.getInput("ROW").connection.connect(rowNumBlock.outputConnection);
+    printBlock.getInput("PRINT")!.connection!.connect(textBlock.outputConnection!);
+    printBlock.getInput("ROW")!.connection!.connect(rowNumBlock.outputConnection!);
     printBlock
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock.outputConnection!);
 
     connectToArduinoBlock(printBlock);
 
@@ -306,7 +296,7 @@ describe("lcd  factories", () => {
     const lcdState = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
     expect(lcdState.rowsOfText[3]).toBe("                   T");
   });
 
@@ -322,14 +312,11 @@ describe("lcd  factories", () => {
     const printBlock1 = workspace.newBlock("lcd_screen_print") as BlockSvg;
 
     printBlock1
-      .getInput("PRINT")
-      .connection.connect(textBlock1.outputConnection);
+      .getInput("PRINT")!.connection!.connect(textBlock1.outputConnection!);
     printBlock1
-      .getInput("ROW")
-      .connection.connect(rowNumBlock1.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowNumBlock1.outputConnection!);
     printBlock1
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock1.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock1.outputConnection!);
 
     const textBlock2 = createValueBlock(
       workspace,
@@ -342,14 +329,11 @@ describe("lcd  factories", () => {
     const printBlock2 = workspace.newBlock("lcd_screen_print") as BlockSvg;
 
     printBlock2
-      .getInput("PRINT")
-      .connection.connect(textBlock2.outputConnection);
+      .getInput("PRINT")!.connection!.connect(textBlock2.outputConnection!);
     printBlock2
-      .getInput("ROW")
-      .connection.connect(rowNumBlock2.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowNumBlock2.outputConnection!);
     printBlock2
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock2.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock2.outputConnection!);
 
     connectToArduinoBlock(printBlock2);
     connectToArduinoBlock(printBlock1);
@@ -364,7 +348,7 @@ describe("lcd  factories", () => {
     const lcdState1 = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
 
     expect(lcdState1.rowsOfText[1]).toBe(" Score: 10          ");
 
@@ -374,7 +358,7 @@ describe("lcd  factories", () => {
     const lcdState2 = findComponent<LCDScreenState>(
       state3,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
 
     expect(lcdState2.rowsOfText[1]).toBe(" Score: 20          ");
 
@@ -398,11 +382,9 @@ describe("lcd  factories", () => {
 
     turnOnBlink.setFieldValue("BLINK", "BLINK");
     turnOnBlink
-      .getInput("ROW")
-      .connection.connect(rowBlockBlinkOn.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowBlockBlinkOn.outputConnection!);
     turnOnBlink
-      .getInput("COLUMN")
-      .connection.connect(colBlockBlinkOn.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colBlockBlinkOn.outputConnection!);
 
     const textBlock1 = createValueBlock(
       workspace,
@@ -415,14 +397,11 @@ describe("lcd  factories", () => {
     const printBlock1 = workspace.newBlock("lcd_screen_print") as BlockSvg;
 
     printBlock1
-      .getInput("PRINT")
-      .connection.connect(textBlock1.outputConnection);
+      .getInput("PRINT")!.connection!.connect(textBlock1.outputConnection!);
     printBlock1
-      .getInput("ROW")
-      .connection.connect(rowNumBlock1.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowNumBlock1.outputConnection!);
     printBlock1
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock1.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock1.outputConnection!);
 
     const colBlockBlinkOff = createValueBlock(
       workspace,
@@ -439,15 +418,13 @@ describe("lcd  factories", () => {
 
     turnoffBlink.setFieldValue("OFF", "BLINK");
     turnoffBlink
-      .getInput("ROW")
-      .connection.connect(rowBlockBlinkOff.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowBlockBlinkOff.outputConnection!);
     turnoffBlink
-      .getInput("COLUMN")
-      .connection.connect(colBlockBlinkOff.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colBlockBlinkOff.outputConnection!);
 
     connectToArduinoBlock(turnOnBlink);
-    turnOnBlink.nextConnection.connect(printBlock1.previousConnection);
-    printBlock1.nextConnection.connect(turnoffBlink.previousConnection);
+    turnOnBlink.nextConnection!.connect(printBlock1.previousConnection!);
+    printBlock1.nextConnection!.connect(turnoffBlink.previousConnection!);
 
     const event = createTestEvent(lcdsetup.id);
 
@@ -492,18 +469,15 @@ describe("lcd  factories", () => {
     const printBlock1 = workspace.newBlock("lcd_screen_print") as BlockSvg;
 
     printBlock1
-      .getInput("PRINT")
-      .connection.connect(textBlock1.outputConnection);
+      .getInput("PRINT")!.connection!.connect(textBlock1.outputConnection!);
     printBlock1
-      .getInput("ROW")
-      .connection.connect(rowNumBlock1.outputConnection);
+      .getInput("ROW")!.connection!.connect(rowNumBlock1.outputConnection!);
     printBlock1
-      .getInput("COLUMN")
-      .connection.connect(colNumBlock1.outputConnection);
+      .getInput("COLUMN")!.connection!.connect(colNumBlock1.outputConnection!);
 
     const clearBlock = workspace.newBlock("lcd_screen_clear");
 
-    printBlock1.nextConnection.connect(clearBlock.previousConnection);
+    printBlock1.nextConnection!.connect(clearBlock.previousConnection!);
 
     connectToArduinoBlock(printBlock1);
 
@@ -513,14 +487,14 @@ describe("lcd  factories", () => {
     const lcdState2 = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
 
     expect(lcdState2.rowsOfText[1]).toBe(" What is your name? ");
 
     const lcdState3 = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
 
     expect(lcdState3.rowsOfText[0]).toBe("                    ");
     expect(state3.explanation).toBe("Clearing the screen.");
@@ -533,7 +507,7 @@ describe("lcd  factories", () => {
     backLightOn.setFieldValue("ON", "BACKLIGHT");
     backLightOff.setFieldValue("OFF", "BACKLIGHT");
     connectToArduinoBlock(backLightOn);
-    backLightOn.nextConnection.connect(backLightOff.previousConnection);
+    backLightOn.nextConnection!.connect(backLightOff.previousConnection!);
 
     const event = createTestEvent(lcdsetup.id);
 
@@ -543,14 +517,14 @@ describe("lcd  factories", () => {
     const lcdState1 = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
     expect(lcdState1.backLightOn).toBeTruthy();
 
     expect(state3.explanation).toBe("Turning off backlight.");
     const lcdState2 = findComponent<LCDScreenState>(
       state3,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
     expect(lcdState2.backLightOn).toBeFalsy();
   });
 
@@ -567,7 +541,7 @@ describe("lcd  factories", () => {
     const lcdState = findComponent<LCDScreenState>(
       actualState,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
     expect(lcdState.blink.blinking).toBe(isBlinking);
     expect(lcdState.blink.row).toBe(blinkRow);
     expect(lcdState.blink.column).toBe(blinkCol);
@@ -582,7 +556,7 @@ describe("lcd  factories", () => {
     const lcdComponent = findComponent<LCDScreenState>(
       actualState,
       ArduinoComponentType.LCD_SCREEN
-    );
+    )!;
     expect(lcdComponent.rowsOfText[0]).toBe(row1Text);
     expect(actualState.blockId).toBe(blockId);
     expect(actualState.explanation).toBe(explanationText);

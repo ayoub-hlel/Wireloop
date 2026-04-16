@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { FormGroup, Input, Label } from '@sveltestrap/sveltestrap';
-
   export let segment;
   import { goto } from '$app/navigation';;
   import { onMount } from 'svelte';
-  let value;
-  async function navigate(e) {
-    await goto(e.target.value);
+  let value: string;
+  async function navigate(e: Event) {
+    await goto((e.target as HTMLSelectElement).value);
   }
 
   onMount(() => {
@@ -28,14 +26,14 @@
   </div>
   <div class="row">
     <div class="col">
-      <FormGroup>
-        <Label for="exampleSelect">Navigation</Label>
-        <Input
+      <div class="form-group">
+        <label for="exampleSelect">Navigation</label>
+        <select
           bind:value
-          type="select"
           name="select"
           on:change={navigate}
           id="exampleSelect"
+          class="form-control"
         >
           <option value="/settings">Circuit</option>
           <option value="/settings/myprofile">My Profile</option>
@@ -45,8 +43,8 @@
           <option value="/settings/bugs">Report a bug</option>
 
           <option value="/settings/privacy-policy">Privacy Policy</option>
-        </Input>
-      </FormGroup>
+        </select>
+      </div>
     </div>
   </div>
   <hr />

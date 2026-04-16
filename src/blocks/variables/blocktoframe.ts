@@ -17,6 +17,7 @@ export const setVariable: BlockToFrameTransformer = (
 ) => {
   const variableId = findFieldValue(block, "VAR");
   const variable = variables.find((v) => v.id === variableId);
+  if (!variable) return [];
   const defaultValue = getDefaultValue(variable.type);
 
   const value = getInputValue(

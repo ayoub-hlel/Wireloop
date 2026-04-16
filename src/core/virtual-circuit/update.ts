@@ -7,7 +7,7 @@ import {
   findMicronControllerEl,
 } from "./svg-helpers";
 
-export default (draw: Svg, frame: ArduinoFrame = undefined) => {
+export default (draw: Svg, frame?: ArduinoFrame) => {
   if (!frame) {
     return;
   }

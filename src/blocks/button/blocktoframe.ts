@@ -1,5 +1,5 @@
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
-import _ from "lodash";
+import clone from "lodash/clone";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import {
   arduinoFrameByComponent,
@@ -17,6 +17,7 @@ export const buttonSetup: BlockToFrameTransformer = (
 ) => {
   const btnDatum = JSON.parse(block.metaData) as ButtonSensor[];
   const btnData = btnDatum.find((d) => d.loop === 1);
+  if (!btnData) return [];
   const usePullup = findFieldValue(block, "PULLUP_RESISTOR") === "TRUE";
 
   const [pin] = block.pins;
@@ -53,7 +54,8 @@ export const releaseButton: BlockToFrameTransformer = (
     ArduinoComponentType.BUTTON,
     pin
   );
-  buttonState = _.clone(buttonState);
+  if (!buttonState) return [];
+  buttonState = clone(buttonState);
   buttonState.isPressed = isPressed;
   return [
     arduinoFrameByComponent(

@@ -8,7 +8,7 @@ import {
   getDefaultIndexValue,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { NeoPixelState } from "./state";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
 export const neoPixelSetup: BlockToFrameTransformer = (
   blocks,
@@ -23,16 +23,14 @@ export const neoPixelSetup: BlockToFrameTransformer = (
     pins: block.pins,
     type: ArduinoComponentType.NEO_PIXEL_STRIP,
     numberOfLeds,
-    neoPixels: _.range(0, numberOfLeds).map((i) => {
-      return {
-        position: i,
-        color: {
-          red: 0,
-          green: 0,
-          blue: 0,
-        },
-      };
-    }),
+    neoPixels: Array.from({ length: numberOfLeds }, (_, i) => ({
+      position: i,
+      color: {
+        red: 0,
+        green: 0,
+        blue: 0,
+      },
+    })),
   };
   return [
     arduinoFrameByComponent(
@@ -57,6 +55,7 @@ export const setNeoPixelColor: BlockToFrameTransformer = (
     previousState,
     ArduinoComponentType.NEO_PIXEL_STRIP
   );
+  if (!neoPixel) return [];
   const color = getInputValue(
     blocks,
     block,
@@ -80,7 +79,7 @@ export const setNeoPixelColor: BlockToFrameTransformer = (
     )
   );
   neoPixel.neoPixels[position - 1] = { position: position - 1, color };
-  const newComponent = _.cloneDeep(neoPixel);
+  const newComponent = cloneDeep(neoPixel);
 
   return [
     arduinoFrameByComponent(

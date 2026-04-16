@@ -39,17 +39,15 @@ describe("text_isEmpty state factories", () => {
       VariableTypes.BOOLEAN,
       false
     );
-    testBoolVariable.getInput("VALUE").connection.targetBlock().dispose(true);
+    testBoolVariable.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     testBoolVariable
-      .getInput("VALUE")
-      .connection.connect(textIsEmpty.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textIsEmpty.outputConnection!);
 
     // Test text block works
 
     textIsEmpty
-      .getInput("VALUE")
-      .connection.connect(textBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textBlock.outputConnection!);
 
     connectToArduinoBlock(testBoolVariable);
 
@@ -66,8 +64,7 @@ describe("text_isEmpty state factories", () => {
       "VAR"
     );
     textIsEmpty
-      .getInput("VALUE")
-      .connection.connect(getStringVariable.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getStringVariable.outputConnection!);
 
     connectToArduinoBlock(setStringVariable);
 

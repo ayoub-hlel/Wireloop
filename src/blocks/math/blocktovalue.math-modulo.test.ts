@@ -36,14 +36,11 @@ describe("math_modulo state factories", () => {
     const divisor = workspace.newBlock("math_number");
     divisor.setFieldValue("4", "NUM");
     modulusBlock
-      .getInput("DIVIDEND")
-      .connection.connect(dividend.outputConnection);
+      .getInput("DIVIDEND")!.connection!.connect(dividend.outputConnection!);
     modulusBlock
-      .getInput("DIVISOR")
-      .connection.connect(divisor.outputConnection);
+      .getInput("DIVISOR")!.connection!.connect(divisor.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(modulusBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(modulusBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     const event = createTestEvent(modulusBlock.id);
@@ -87,14 +84,11 @@ describe("math_modulo state factories", () => {
     getDivisorBlock.setFieldValue(divisorBlock.getFieldValue("VAR"), "VAR");
     const modulusBlock = workspace.newBlock("math_modulo");
     modulusBlock
-      .getInput("DIVIDEND")
-      .connection.connect(getDividendBlock.outputConnection);
+      .getInput("DIVIDEND")!.connection!.connect(getDividendBlock.outputConnection!);
     modulusBlock
-      .getInput("DIVISOR")
-      .connection.connect(getDivisorBlock.outputConnection);
+      .getInput("DIVISOR")!.connection!.connect(getDivisorBlock.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(modulusBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(modulusBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
     connectToArduinoBlock(dividendBlock);
@@ -117,8 +111,7 @@ describe("math_modulo state factories", () => {
     setNumberBlock.setFieldValue(variableNumTest.getId(), "VAR");
     const modulusBlock = workspace.newBlock("math_modulo");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(modulusBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(modulusBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
     const event = createTestEvent(setNumberBlock.id);
 

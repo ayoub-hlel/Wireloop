@@ -5,7 +5,7 @@ import {
   createArduinoAndWorkSpace,
   createTestEvent,
 } from "../../tests/tests.helper";
-import { Workspace, BlockSvg } from "blockly";
+import { Workspace, BlockSvg, VariableModel } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import _ from "lodash";
@@ -13,10 +13,10 @@ import _ from "lodash";
 describe("math_number_property state factories", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
-  let variableBoolTest;
-  let setBooleanBlock;
-  let mathPropertyBlock;
-  let numBlock;
+  let variableBoolTest: VariableModel;
+  let setBooleanBlock: BlockSvg;
+  let mathPropertyBlock: BlockSvg;
+  let numBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -29,14 +29,12 @@ describe("math_number_property state factories", () => {
     setBooleanBlock = workspace.newBlock("variables_set_boolean") as BlockSvg;
     setBooleanBlock.setFieldValue(variableBoolTest.getId(), "VAR");
 
-    mathPropertyBlock = workspace.newBlock("math_number_property");
-    numBlock = workspace.newBlock("math_number");
+    mathPropertyBlock = workspace.newBlock("math_number_property") as BlockSvg;
+    numBlock = workspace.newBlock("math_number") as BlockSvg;
     mathPropertyBlock
-      .getInput("NUMBER_TO_CHECK")
-      .connection.connect(numBlock.outputConnection);
+      .getInput("NUMBER_TO_CHECK")!.connection!.connect(numBlock.outputConnection!);
     setBooleanBlock
-      .getInput("VALUE")
-      .connection.connect(mathPropertyBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathPropertyBlock.outputConnection!);
     connectToArduinoBlock(setBooleanBlock);
   });
 
@@ -69,8 +67,7 @@ describe("math_number_property state factories", () => {
     mathPropertyBlock.setFieldValue("DIVISIBLE_BY", "PROPERTY");
     const numDivisorBlock = workspace.newBlock("math_number");
     mathPropertyBlock
-      .getInput("DIVISOR")
-      .connection.connect(numDivisorBlock.outputConnection);
+      .getInput("DIVISOR")!.connection!.connect(numDivisorBlock.outputConnection!);
 
     [
       { DIVIDEND: 20, DIVISOR: 3, canDivide: false },

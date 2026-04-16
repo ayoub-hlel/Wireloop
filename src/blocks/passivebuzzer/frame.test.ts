@@ -37,7 +37,7 @@ describe("Passive Buzzer Tests", () => {
     const block1 = workspace.newBlock("passive_buzzer_tone") as BlockSvg;
     block1.setFieldValue(ARDUINO_PINS.PIN_3, "PIN");
     const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 33);
-    block1.getInput("TONE").connection.connect(numBlock.outputConnection);
+    block1.getInput("TONE")!.connection!.connect(numBlock.outputConnection!);
 
     const block2 = createPassiveBuzzerBlock(
       NOTE_TONES.NO_TONE,

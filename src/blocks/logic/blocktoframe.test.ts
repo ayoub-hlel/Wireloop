@@ -33,9 +33,9 @@ describe("factories if block tests", () => {
     const debugBlock1 = workspace.newBlock("debug_block");
     const debugBlock2 = workspace.newBlock("debug_block");
     const ifBlock = workspace.newBlock("control_if") as BlockSvg;
-    ifBlock.getInput("IF0").connection.connect(booleanBlock.outputConnection);
-    ifBlock.getInput("DO0").connection.connect(debugBlock1.previousConnection);
-    debugBlock1.nextConnection.connect(debugBlock2.previousConnection);
+    ifBlock.getInput("IF0")!.connection!.connect(booleanBlock.outputConnection!);
+    ifBlock.getInput("DO0")!.connection!.connect(debugBlock1.previousConnection!);
+    debugBlock1.nextConnection!.connect(debugBlock2.previousConnection!);
     connectToArduinoBlock(ifBlock);
 
     const event = createTestEvent(ifBlock.id);
@@ -74,9 +74,9 @@ describe("factories if block tests", () => {
     const debugBlock1 = workspace.newBlock("debug_block");
     const debugBlock2 = workspace.newBlock("debug_block");
     const ifBlock = workspace.newBlock("controls_ifelse") as BlockSvg;
-    ifBlock.getInput("IF0").connection.connect(booleanBlock.outputConnection);
-    ifBlock.getInput("ELSE").connection.connect(debugBlock1.previousConnection);
-    debugBlock1.nextConnection.connect(debugBlock2.previousConnection);
+    ifBlock.getInput("IF0")!.connection!.connect(booleanBlock.outputConnection!);
+    ifBlock.getInput("ELSE")!.connection!.connect(debugBlock1.previousConnection!);
+    debugBlock1.nextConnection!.connect(debugBlock2.previousConnection!);
     connectToArduinoBlock(ifBlock);
     const event = createTestEvent(ifBlock.id);
 

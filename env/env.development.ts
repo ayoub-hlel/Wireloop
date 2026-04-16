@@ -1,10 +1,7 @@
-import { PUBLIC_CLERK_PUBLISHABLE_KEY, PUBLIC_CONVEX_URL } from '$env/static/public';
+import { PUBLIC_CONVEX_URL } from '$env/static/public';
 
 export default {
-  // Firebase configuration removed - using Clerk + Convex instead
-  clerk: {
-    publishableKey: PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_development_placeholder",
-  },
+  // Firebase configuration removed - using Auth.js + Convex instead
   convex: {
     url: PUBLIC_CONVEX_URL || "https://development.convex.cloud",
   },

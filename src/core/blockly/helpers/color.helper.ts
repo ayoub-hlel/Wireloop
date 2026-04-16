@@ -9,9 +9,9 @@ export const hexToRgb = (hex: string): Color => {
 
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return {
-    red: parseInt(result[1], 16),
-    green: parseInt(result[2], 16),
-    blue: parseInt(result[3], 16),
+    red: parseInt(result![1], 16),
+    green: parseInt(result![2], 16),
+    blue: parseInt(result![3], 16),
   };
 };
 
@@ -28,7 +28,7 @@ export const rgbToHex = (color: Color) => {
   );
 };
 
-function componentToHex(c) {
-  var hex = c.toString(16);
+function componentToHex(c: number) {
+  const hex = c.toString(16);
   return hex.length == 1 ? '0' + hex : hex;
 }

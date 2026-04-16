@@ -10,19 +10,19 @@ export const disableBlockThatRequiredToBeInArduinoLoopSetupOrFunction = (
 ): DisableBlock[] => {
   const { blocks } = event;
   return blocks
-    .filter((block) => BlockTypeRequireRootBlock.includes(block.type))
+    .filter((block) => BlockTypeRequireRootBlock.includes(block.type as any))
     .filter(
       (block) =>
         block.rootBlockId === undefined ||
         BlockTypeRequireRootBlock.includes(
-          blocks.find((b) => b.id === block.rootBlockId).type
+          blocks.find((b) => b.id === block.rootBlockId)!.type as any
         )
     )
     .map((block) => {
       return {
         blockId: block.id,
         type: ActionType.DISABLE_BLOCK,
-        warningText: null,
+        warningText: '',
         stopCompiling: false,
       };
     });

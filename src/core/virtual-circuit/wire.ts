@@ -1,5 +1,5 @@
 import { Element, Line, Svg } from "@svgdotjs/svg.js";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import resistorSvg from "../virtual-circuit/commonsvgs/resistors/resistor-small.svg?raw";
 import horizontalResistorSvg from "../virtual-circuit/commonsvgs/resistors/resistor-small-horizontal.svg?raw";
 
@@ -47,7 +47,7 @@ export const createWireFromArduinoToBreadBoard = (
   pin: ARDUINO_PINS,
   arduinoEl: Svg,
   draw: Svg,
-  breadBoardHoleId,
+  breadBoardHoleId: string,
   componentId: string,
   board: MicroController,
   color: string = ""
@@ -212,14 +212,14 @@ export const createComponentWire = (
 };
 
 export const findBreadboardHoleXY = (
-  pinHoleId,
+  pinHoleId: string,
   arduino: Element,
   draw: Svg
 ) => {
   const hole = findSvgElement(pinHoleId, draw);
   return {
-    x: hole.cx() + arduino.x(),
-    y: hole.cy() + arduino.y(),
+    x: parseFloat(String(hole.cx())) + parseFloat(String(arduino.x())),
+    y: parseFloat(String(hole.cy())) + parseFloat(String(arduino.y())),
   };
 };
 
@@ -231,8 +231,8 @@ export const findResistorBreadboardHoleXY = (
   const hole = findSvgElement(holeId, draw);
   (window as any).hole = hole;
   return {
-    x: hole.cx() + arduino.x(),
-    y: (hole.findOne("circle") as Element).cy() + arduino.y() - 1,
+    x: parseFloat(String(hole.cx())) + parseFloat(String(arduino.x())),
+    y: parseFloat(String((hole.findOne("circle") as Element).cy())) + parseFloat(String(arduino.y())) - 1,
   };
 };
 
@@ -251,9 +251,12 @@ export const createResistor = (
 
   const [bandColor1, bandColor2, bandColor3] = ohmsToBands(ohms);
 
-  resistorEl.findOne("#BAND_1").node.style.stroke = bandColor1;
-  resistorEl.findOne("#BAND_2").node.style.stroke = bandColor2;
-  resistorEl.findOne("#BAND_3").node.style.stroke = bandColor3;
+  const band1 = resistorEl.findOne("#BAND_1");
+  const band2 = resistorEl.findOne("#BAND_2");
+  const band3 = resistorEl.findOne("#BAND_3");
+  if (band1) band1.node.style.stroke = bandColor1;
+  if (band2) band2.node.style.stroke = bandColor2;
+  if (band3) band3.node.style.stroke = bandColor3;
   resistorEl.data("component-id", componentId);
   const holeId = `pin${hole}${isConnecting ? "F" : "D"}`;
 
@@ -281,7 +284,7 @@ export const createResistor = (
 };
 
 export const resetBreadBoardHoles = (board: MicroController) => {
-  breadboard = _.cloneDeep(board.breadboard);
+  breadboard = cloneDeep(board.breadboard);
 };
 
 export const showPin = (draw: Svg, pin: ARDUINO_PINS) => {
@@ -313,8 +316,8 @@ export const updateWires = (element: Element, draw: Svg, arduino: Svg) => {
     .forEach((w) => {
       const holeId = w.data("hole-id");
       const hole = findSvgElement(holeId, arduino);
-      const holeX = hole.cx() + arduino.x();
-      const holeY = hole.cy() + arduino.y();
+      const holeX = parseFloat(String(hole.cx())) + parseFloat(String(arduino.x()));
+      const holeY = parseFloat(String(hole.cy())) + parseFloat(String(arduino.y()));
       const connectionId = w.data("connection-id");
       const componentPin = findComponentConnection(element, connectionId);
       w.plot(holeX, holeY, componentPin.x, componentPin.y);

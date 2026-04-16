@@ -16,7 +16,7 @@ import { VariableTypes } from "../../core/blockly/dto/variable.type";
 
 describe("arduino message state factories", () => {
   let workspace: Workspace;
-  let messageSetup;
+  let messageSetup: BlockSvg;
   let arduinoBlock: BlockSvg;
 
   afterEach(() => {
@@ -26,7 +26,7 @@ describe("arduino message state factories", () => {
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
     arduinoBlock.setFieldValue("3", "LOOP_TIMES");
-    messageSetup = workspace.newBlock("message_setup");
+    messageSetup = workspace.newBlock("message_setup") as BlockSvg;
 
     messageSetup.setFieldValue("1", "LOOP");
     messageSetup.setFieldValue("TRUE", "receiving_message");
@@ -56,12 +56,11 @@ describe("arduino message state factories", () => {
       VariableTypes.STRING,
       "blue"
     );
-    textVariableBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    textVariableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     const getMessageBlock = workspace.newBlock("arduino_get_message");
     textVariableBlock
-      .getInput("VALUE")
-      .connection.connect(getMessageBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getMessageBlock.outputConnection!);
 
     connectToArduinoBlock(textVariableBlock);
     const event = createTestEvent(messageSetup.id);
@@ -79,12 +78,11 @@ describe("arduino message state factories", () => {
       VariableTypes.BOOLEAN,
       "blue"
     );
-    boolVariableBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    boolVariableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     const getMessageBlock = workspace.newBlock("arduino_receive_message");
     boolVariableBlock
-      .getInput("VALUE")
-      .connection.connect(getMessageBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getMessageBlock.outputConnection!);
 
     connectToArduinoBlock(boolVariableBlock);
     const event = createTestEvent(boolVariableBlock.id);

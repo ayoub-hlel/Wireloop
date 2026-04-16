@@ -33,7 +33,7 @@ Blockly["Arduino"]["procedures_defreturn"] = function (block: Block | any) {
   return null;
 };
 
-function translateType(type) {
+function translateType(type: string) {
   switch (type) {
     case "Number":
       return "double";

@@ -5,7 +5,7 @@ import {
 } from "../../core/microcontroller/microcontroller";
 import type { MicroController } from "../../core/microcontroller/microcontroller";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
-import _ from "lodash";
+import keys from "lodash/keys";
 // A0 => #B637CC
 // A1 => #CC9E37
 // A2 => #34CE5F
@@ -40,7 +40,7 @@ const breadboard: Breadboard = {
 
 function createPinConnections() {
   const pinConnections: { [key: string]: PinConnection } = {};
-  const colorKeys = _.keys(WIRE_COLORS);
+  const colorKeys = Object.keys(WIRE_COLORS) as (keyof typeof WIRE_COLORS)[];
 
   for (let i = 2; i <= 53; i += 1) {
     const colorIndex = i % colorKeys.length;

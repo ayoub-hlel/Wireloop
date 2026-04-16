@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { ListGroup, ListGroupItem } from "@sveltestrap/sveltestrap";
   import config from "../../../../env";
 </script>
 
@@ -74,42 +73,19 @@
   </div>
   <div class="row">
     <div class="col">
-      <ListGroup>
-        <ListGroupItem href="https://www.arduino.cc/">Arduino</ListGroupItem>
-        <ListGroupItem href="https://github.com/arduino/arduino-cli">
-          Arduino CLI
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/noopkat/avrgirl-arduino">
-          ArvGirl Arduino
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/adafruit/Adafruit_NeoPixel">
-          AdaFruit NeoPixel
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/johnrickman/LiquidCrystal_I2C">
-          LiquidCrystal_I2C
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/z3t0/Arduino-IRremote">
-          IRremote
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/adafruit/DHT-sensor-library">
-          DHT sensor library
-        </ListGroupItem>
-
-        <ListGroupItem
-          href="https://github.com/shaai/Arduino_LED_matrix_sketch">
-          LedControlMS
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/electronicdrops/RFIDRdm630">
-          RFIDRdm630
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/arduino-libraries/Servo">
-          Servo
-        </ListGroupItem>
-        <ListGroupItem
-          href="https://github.com/adafruit/Adafruit-Motor-Shield-library">
-          Adafruit Motor Shield Library
-        </ListGroupItem>
-      </ListGroup>
+      <ul class="list-group">
+        <li class="list-group-item"><a href="https://www.arduino.cc/">Arduino</a></li>
+        <li class="list-group-item"><a href="https://github.com/arduino/arduino-cli">Arduino CLI</a></li>
+        <li class="list-group-item"><a href="https://github.com/noopkat/avrgirl-arduino">ArvGirl Arduino</a></li>
+        <li class="list-group-item"><a href="https://github.com/adafruit/Adafruit_NeoPixel">AdaFruit NeoPixel</a></li>
+        <li class="list-group-item"><a href="https://github.com/johnrickman/LiquidCrystal_I2C">LiquidCrystal_I2C</a></li>
+        <li class="list-group-item"><a href="https://github.com/z3t0/Arduino-IRremote">IRremote</a></li>
+        <li class="list-group-item"><a href="https://github.com/adafruit/DHT-sensor-library">DHT sensor library</a></li>
+        <li class="list-group-item"><a href="https://github.com/shaai/Arduino_LED_matrix_sketch">LedControlMS</a></li>
+        <li class="list-group-item"><a href="https://github.com/electronicdrops/RFIDRdm630">RFIDRdm630</a></li>
+        <li class="list-group-item"><a href="https://github.com/arduino-libraries/Servo">Servo</a></li>
+        <li class="list-group-item"><a href="https://github.com/adafruit/Adafruit-Motor-Shield-library">Adafruit Motor Shield Library</a></li>
+      </ul>
     </div>
   </div>
 
@@ -120,28 +96,17 @@
   </div>
   <div class="row">
     <div class="col">
-      <ListGroup>
-        <ListGroupItem href="https://developers.google.com/blockly/">
-          Blockly
-        </ListGroupItem>
-        <ListGroupItem href="https://svelte.dev/">Svelte</ListGroupItem>
-        <ListGroupItem href="https://getbootstrap.com">Bootstrap</ListGroupItem>
-        <ListGroupItem href="https://sveltestrap.js.org">
-          SvelteStrap
-        </ListGroupItem>
-        <ListGroupItem href="https://svgjs.com/docs/3.0/">svg.js</ListGroupItem>
-        <ListGroupItem href="https://prismjs.com/">prismjs</ListGroupItem>
-        <ListGroupItem href="https://lodash.com/">lodash</ListGroupItem>
-        <ListGroupItem href="https://github.com/eligrey/FileSaver.js#readme">
-          file-saver
-        </ListGroupItem>
-        <ListGroupItem href="https://sweetalert.js.org/guides/">
-          sweetalert
-        </ListGroupItem>
-        <ListGroupItem href="https://github.com/axios/axios">
-          axios
-        </ListGroupItem>
-      </ListGroup>
+      <ul class="list-group">
+        <li class="list-group-item"><a href="https://developers.google.com/blockly/">Blockly</a></li>
+        <li class="list-group-item"><a href="https://svelte.dev/">Svelte</a></li>
+        <li class="list-group-item"><a href="https://getbootstrap.com">Bootstrap</a></li>
+        <li class="list-group-item"><a href="https://sveltestrap.js.org">SvelteStrap</a></li>
+        <li class="list-group-item"><a href="https://svgjs.com/docs/3.0/">svg.js</a></li>
+        <li class="list-group-item"><a href="https://prismjs.com/">prismjs</a></li>
+        <li class="list-group-item"><a href="https://lodash.com/">lodash</a></li>
+        <li class="list-group-item"><a href="https://github.com/eligrey/FileSaver.js#readme">file-saver</a></li>
+        <li class="list-group-item"><a href="https://sweetalert.js.org/guides/">sweetalert</a></li>
+      </ul>
     </div>
   </div>
 {/if}

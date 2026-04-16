@@ -48,16 +48,13 @@ describe("text_join state factories", () => {
     textBlock2.setFieldValue("*", "TEXT");
 
     textJoinBlock
-      .getInput("ADD0")
-      .connection.connect(textBlock1.outputConnection);
+      .getInput("ADD0")!.connection!.connect(textBlock1.outputConnection!);
 
     textJoinBlock
-      .getInput("ADD1")
-      .connection.connect(getVariableTextBlock.outputConnection);
+      .getInput("ADD1")!.connection!.connect(getVariableTextBlock.outputConnection!);
 
     textJoinBlock
-      .getInput("ADD2")
-      .connection.connect(textBlock2.outputConnection);
+      .getInput("ADD2")!.connection!.connect(textBlock2.outputConnection!);
 
     const variableStringTest = workspace.createVariable(
       "test_string",
@@ -68,8 +65,7 @@ describe("text_join state factories", () => {
     ) as BlockSvg;
     setStringVariableBlock.setFieldValue(variableStringTest.getId(), "VAR");
     setStringVariableBlock
-      .getInput("VALUE")
-      .connection.connect(textJoinBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textJoinBlock.outputConnection!);
     connectToArduinoBlock(setStringVariableBlock);
     connectToArduinoBlock(stringVariableBlock);
 
@@ -96,8 +92,7 @@ describe("text_join state factories", () => {
     ) as BlockSvg;
     setStringVariableBlock.setFieldValue(variableStringTest.getId(), "VAR");
     setStringVariableBlock
-      .getInput("VALUE")
-      .connection.connect(textJoinBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textJoinBlock.outputConnection!);
     connectToArduinoBlock(setStringVariableBlock);
 
     const event = createTestEvent(setStringVariableBlock.id);

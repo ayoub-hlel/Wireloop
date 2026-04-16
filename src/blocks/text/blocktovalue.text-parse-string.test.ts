@@ -28,12 +28,11 @@ describe("parse_string_block state factories", () => {
     textBlock.setFieldValue("blue*red*yellow", "TEXT");
     const parseBlock = workspace.newBlock("parse_string_block");
     parseBlock.setFieldValue("*", "DELIMITER");
-    parseBlock.getInput("VALUE").connection.connect(textBlock.outputConnection);
+    parseBlock.getInput("VALUE")!.connection!.connect(textBlock.outputConnection!);
     const numberBlock = workspace.newBlock("math_number");
     numberBlock.setFieldValue("-1", "NUM");
     parseBlock
-      .getInput("POSITION")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("POSITION")!.connection!.connect(numberBlock.outputConnection!);
 
     const setTextBlock = createSetVariableBlockWithValue(
       workspace,
@@ -42,13 +41,11 @@ describe("parse_string_block state factories", () => {
       ""
     );
     const textBlockToRemove = setTextBlock
-      .getInput("VALUE")
-      .connection.targetBlock();
-    textBlockToRemove.dispose(true);
+      .getInput("VALUE")!.connection!.targetBlock();
+    textBlockToRemove!.dispose(true);
 
     setTextBlock
-      .getInput("VALUE")
-      .connection.connect(parseBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(parseBlock.outputConnection!);
 
     connectToArduinoBlock(setTextBlock);
 

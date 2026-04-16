@@ -1,7 +1,6 @@
-import Blockly from 'blockly';
-import type { Block } from 'blockly';
+import Blockly, { type Block } from 'blockly';
 
-function servoSetup(pin) {
+function servoSetup(pin: string | number) {
   Blockly["Arduino"].libraries_["define_servo"] =
     "#include <Servo.h> // Includes the Servo library for controlling servo motors";
   Blockly["Arduino"].libraries_[

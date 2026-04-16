@@ -1,4 +1,4 @@
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import type { BlockData } from "../../core/blockly/dto/block.type";
 import type { VariableData } from "../../core/blockly/dto/variable.type";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
@@ -10,13 +10,15 @@ export const getItemInList = (
   block: BlockData,
   variables: VariableData[],
   timeline: Timeline,
-  previousState: ArduinoFrame = undefined
+  previousState: ArduinoFrame | undefined
 ) => {
-  const variableName = variables.find(
+  const variableFound = variables.find(
     (v) => v.id === findFieldValue(block, "VAR")
-  ).name;
+  );
+  if (!variableFound || !previousState) return undefined;
+  const variableName = variableFound.name;
 
-  const currentValue = _.cloneDeep([
+  const currentValue = cloneDeep([
     ...(previousState.variables[variableName].value as
       | string[]
       | Color[]

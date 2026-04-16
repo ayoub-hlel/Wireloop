@@ -63,8 +63,7 @@ describe("block transformer", () => {
     ]);
 
     servoBlock
-      .getInput("DEGREE")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("DEGREE")!.connection!.connect(numberBlock.outputConnection!);
 
     const servoDataWithDegree = transformBlock(servoBlock);
 

@@ -82,14 +82,12 @@ describe("rgb led frame", () => {
     const setColorBlock1 = workspace.newBlock("set_color_led") as BlockSvg;
     const setColorBlock2 = workspace.newBlock("set_color_led");
     setColorBlock1
-      .getInput("COLOR")
-      .connection.connect(color1.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color1.outputConnection!);
     setColorBlock2
-      .getInput("COLOR")
-      .connection.connect(color2.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color2.outputConnection!);
 
     connectToArduinoBlock(setColorBlock1);
-    setColorBlock1.nextConnection.connect(setColorBlock2.previousConnection);
+    setColorBlock1.nextConnection!.connect(setColorBlock2.previousConnection!);
 
     const event = createTestEvent(ledColorSetup.id);
 

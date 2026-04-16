@@ -21,29 +21,29 @@ export const centerCircuit = (draw: Svg, frame?: ArduinoFrame) => {
     : [arduino];
 
   // Filtering out nulls like message component
-  components = components.filter((c) => c);
+  components = components.filter((c): c is Element => c !== null);
 
   const tallestYValue = components.reduce((acc, next) => {
     // we are going for the least for the tallest
-    return next && acc > next.y() ? next.y() : acc;
+    return next && acc > parseFloat(String(next.y())) ? parseFloat(String(next.y())) : acc;
   }, 0);
 
   const mostNegativeX = components.reduce((acc, next) => {
     // We are going for the most negative x
-    return next && acc > next.x() ? next.x() : acc;
+    return next && acc > parseFloat(String(next.x())) ? parseFloat(String(next.x())) : acc;
   }, 0);
 
   const longestWidth = components.reduce((acc, next) => {
-    const x2 = next.width() + Math.abs(next.x());
+    const x2 = parseFloat(String(next!.width())) + Math.abs(parseFloat(String(next!.x())));
 
     return x2 > acc ? x2 : acc;
   }, 0);
 
   draw.viewbox(
-    mostNegativeX, // This should start where the x begin
-    tallestYValue - 10, // minus 10 for the padding
-    longestWidth, // Longest width that it can be
-    Math.abs(tallestYValue) + arduino.height() + 10 // This is total height.
+    parseFloat(String(mostNegativeX)), // This should start where the x begin
+    parseFloat(String(tallestYValue)) - 10, // minus 10 for the padding
+    parseFloat(String(longestWidth)), // Longest width that it can be
+    Math.abs(parseFloat(String(tallestYValue))) + parseFloat(String(arduino.height())) + 10 // This is total height.
     // tallest y will sometime be negative so we absolute value + the height of the arduino
     // We then add 10 for padding
   );

@@ -1,13 +1,13 @@
-<script>
+<script lang="ts">
   import arduinoStore, { PortState } from "../../../stores/arduino.store";
   import arduionMessageStore from "../../../stores/arduino-message.store";
   import { rgbToHex } from "../../../core/blockly/helpers/color.helper";
 
   // This is the variable list used to print all the variables
-  let variables = [];
+  let variables: any[] = [];
 
   // we temporarily store variables here until all our complete
-  let tempVariables = [];
+  let tempVariables: any[] = [];
 
   // state of the arduino
   let portStatus = PortState.CLOSE;
@@ -61,26 +61,26 @@
     tempVariables.push({ name, type, value });
   });
 
-  function colorValueString(colorString) {
+  function colorValueString(colorString: string) {
     const [red, green, blue] = colorString
       .replace("{", "")
       .replace("}", "")
       .split("-")
-      .map((colorNum) => parseInt(colorNum, 0));
+      .map((colorNum: string) => parseInt(colorNum, 0));
     return `(red=${red},green=${green},blue=${blue})`;
   }
 
-  function colorValueHex(colorString) {
+  function colorValueHex(colorString: string) {
     const [red, green, blue] = colorString
       .replace("{", "")
       .replace("}", "")
       .split("-")
-      .map((colorNum) => parseInt(colorNum, 0));
+      .map((colorNum: string) => parseInt(colorNum, 0));
 
     return rgbToHex({ red, green, blue });
   }
 
-  function parseColorList(colorListString) {
+  function parseColorList(colorListString: string) {
     return colorListString
       .replace("[", "")
       .replace("]", "")

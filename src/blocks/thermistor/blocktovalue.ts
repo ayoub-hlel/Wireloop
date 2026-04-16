@@ -1,4 +1,3 @@
-import { b } from "vitest/dist/suite-KPWE530F.js";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { ValueGenerator } from "../../core/frames/transformer/block-to-value.factories";
@@ -16,5 +15,5 @@ export const thermistorRead: ValueGenerator = (
     previousState,
     ArduinoComponentType.THERMISTOR
   );
-  return findFieldValue(block, "UNIT") == "C" ? state.tempC : state.tempF;
+  return findFieldValue(block, "UNIT") == "C" ? state?.tempC : state?.tempF;
 };

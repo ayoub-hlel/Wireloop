@@ -1,12 +1,14 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import _ from 'lodash';
+  import debounce from 'lodash/debounce';
   import config from '../../env';
   import { isPathOnHomePage } from '../../helpers/is-path-on-homepage';
   import Nav from '../../components/arduino-workflow-builder/Nav.svelte';
   import Blockly from '../../components/arduino-workflow-builder/Blockly.svelte';
   import { resizeStore } from '../../stores/resize.store';
   import { page } from '$app/stores';
+  // TODO: CLERK_REMOVAL — do not delete yet.
+  /*
   import { 
     initializeClerkAuth, 
     authState, 
@@ -14,6 +16,13 @@
     userId, 
     isSignedIn 
   } from '../../stores/clerk-auth.store';
+  */
+  const initializeClerkAuth = () => {};
+  const authState = { subscribe: (cb: any) => { cb({ isLoaded: true, isSignedIn: false }); return () => {}; } };
+  const user = { subscribe: (cb: any) => { cb(null); return () => {}; } };
+  const userId = { subscribe: (cb: any) => { cb(null); return () => {}; } };
+  const isSignedIn = { subscribe: (cb: any) => { cb(false); return () => {}; } };
+
   import { initializeConvexClient } from '../../stores/convex.store';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
@@ -104,8 +113,8 @@
    * It will resize the 2 windows,
    * Slight Trottling with debounce
    */
-  const resizeRightSide = _.debounce(resize('right'), 2);
-  const resizeLeftSide = _.debounce(resize('left'), 2);
+  const resizeRightSide = debounce(resize('right'), 2);
+  const resizeLeftSide = debounce(resize('left'), 2);
 
   function resizeHeight() {
     // Calculates the height of the window
@@ -157,12 +166,13 @@
     } else if (localStorage.getItem('reload_once_workspace')) {
       const xmlText = localStorage.getItem('reload_once_workspace');
       localStorage.removeItem('reload_once_workspace');
-      loadProject(xmlText);
+      if (xmlText) loadProject(xmlText);
       loadedProject = true;
     }
 
     // Subscribe to Clerk authentication state changes
-    authState.subscribe(async (clerkAuth) => {
+    // @ts-ignore
+    authState.subscribe(async (clerkAuth: any) => {
       if (!clerkAuth.isLoaded) {
         return; // Wait for Clerk to load
       }
@@ -172,7 +182,7 @@
         authStore.set({
           isLoggedIn: false,
           uid: null,
-          firebaseControlled: false, // Now using Clerk
+          legacyControlled: false,
         });
         return;
       }
@@ -181,7 +191,7 @@
       authStore.set({
         isLoggedIn: true,
         uid: clerkAuth.user.id,
-        firebaseControlled: false, // Now using Clerk
+        legacyControlled: false,
       });
 
       // Handle project loading for authenticated users
@@ -229,7 +239,7 @@
           icon: 'error'
         } as any);
       } finally {
-        swal.close();
+        (swal as any).close?.();
       }
     });
 

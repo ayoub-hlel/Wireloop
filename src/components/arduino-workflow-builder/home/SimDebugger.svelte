@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
   import { rgbToHex } from "../../../core/blockly/helpers/color.helper";
-  import _ from "lodash";
+  import keys from "lodash/keys";
+  import chunk from "lodash/chunk";
   import currentFrameStore from "../../../stores/currentFrame.store";
   import frameStore from "../../../stores/frame.store";
   import { onDestroy } from "svelte";
@@ -8,11 +9,11 @@
   import { findComponent } from "../../../core/frames/transformer/frame-transformer.helpers";
   import { ArduinoComponentType } from "../../../core/frames/arduino.frame";
 
-  let variables = [];
+  let variables: any[] = [];
 
-  const unsubscribes = [];
+  const unsubscribes: (() => void)[] = [];
 
-  let preRGBLEDColors = [];
+  let preRGBLEDColors: any[] = [];
 
   unsubscribes.push(
     currentFrameStore.subscribe((frame) => {
@@ -21,12 +22,12 @@
         preRGBLEDColors = [];
         return;
       }
-      variables = _.keys(frame.variables).map((varName) => {
+      variables = keys(frame.variables).map((varName) => {
         return frame.variables[varName];
       });
       const fastLEDs = findComponent(frame, ArduinoComponentType.FASTLED_STRIP);
       if (fastLEDs) {
-        preRGBLEDColors = fastLEDs.preShowLEDs;
+        preRGBLEDColors = (fastLEDs as any).preShowLEDs;
       } else {
         preRGBLEDColors = [];
       }
@@ -44,9 +45,9 @@
     })
   );
 
-  function mapArrayValues(values, type) {
+  function mapArrayValues(values: any[], type: string) {
     const innerString = values
-      .map((v) => (v === null ? "_" : v))
+      .map((v: any) => (v === null ? "_" : v))
       .map((v) => {
         if (v === "_" || type !== VariableTypes.LIST_STRING) {
           return v;
@@ -73,7 +74,7 @@
 >
   <h3>Preview</h3>
   <div class="led-preivew-container">
-    {#each _.chunk(preRGBLEDColors, 12) as row, i}
+    {#each chunk(preRGBLEDColors, 12) as row, i}
       <div class="row-led">
         <!-- to replicate the snake pattern on the preview-->
         {#each i % 2 == 1 ? row.reverse() : row as led}

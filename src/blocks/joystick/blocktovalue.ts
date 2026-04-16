@@ -15,7 +15,7 @@ export const joystickEngaged: ValueGenerator = (
     ArduinoComponentType.JOYSTICK
   );
 
-  return component.engaged;
+  return component?.engaged;
 };
 
 export const joystickAngle: ValueGenerator = (
@@ -30,7 +30,7 @@ export const joystickAngle: ValueGenerator = (
     ArduinoComponentType.JOYSTICK
   );
 
-  return component.degree;
+  return component?.degree;
 };
 
 export const joystickButton: ValueGenerator = (
@@ -45,5 +45,5 @@ export const joystickButton: ValueGenerator = (
     ArduinoComponentType.JOYSTICK
   );
 
-  return component.buttonPressed;
+  return component?.buttonPressed;
 };

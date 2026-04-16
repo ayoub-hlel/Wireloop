@@ -31,8 +31,7 @@ describe("number_to_string state factories", () => {
     numberBlock.setFieldValue("93.999323", "NUM");
 
     numberToTextBlock
-      .getInput("NUMBER")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("NUMBER")!.connection!.connect(numberBlock.outputConnection!);
 
     const setTextBlock = createSetVariableBlockWithValue(
       workspace,
@@ -41,13 +40,11 @@ describe("number_to_string state factories", () => {
       ""
     );
     const textBlockToRemove = setTextBlock
-      .getInput("VALUE")
-      .connection.targetBlock();
-    textBlockToRemove.dispose(true);
+      .getInput("VALUE")!.connection!.targetBlock();
+    textBlockToRemove!.dispose(true);
 
     setTextBlock
-      .getInput("VALUE")
-      .connection.connect(numberToTextBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(numberToTextBlock.outputConnection!);
 
     connectToArduinoBlock(setTextBlock);
 
@@ -78,8 +75,7 @@ describe("number_to_string state factories", () => {
     );
 
     numberToTextBlock
-      .getInput("NUMBER")
-      .connection.connect(getNumberVariable.outputConnection);
+      .getInput("NUMBER")!.connection!.connect(getNumberVariable.outputConnection!);
 
     const event2 = createTestEvent(numberBlock.id);
 

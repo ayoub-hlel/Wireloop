@@ -11,7 +11,7 @@ const resistorIndex = [
   "WHITE",
 ];
 
-const resistorColor = {
+const resistorColor: Record<string, string> = {
   BROWN: "#964B00",
   RED: "#FF0000",
   ORANGE: "#FFA500",

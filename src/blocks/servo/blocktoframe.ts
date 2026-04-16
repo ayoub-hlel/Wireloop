@@ -55,7 +55,7 @@ export const servoRotate: BlockToFrameTransformer = (
 const getServo = (
   degree: number,
   pin: ARDUINO_PINS,
-  previousState: ArduinoFrame
+  previousState: ArduinoFrame | undefined
 ): ServoState => {
   if (!previousState) {
     return { pins: [pin], degree, type: ArduinoComponentType.SERVO };

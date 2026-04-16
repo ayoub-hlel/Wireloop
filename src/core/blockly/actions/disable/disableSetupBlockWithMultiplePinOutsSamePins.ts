@@ -1,6 +1,6 @@
 import type { BlockEvent } from "../../dto/event.type";
 import { DisableBlock, ActionType } from "../actions";
-import _ from "lodash";
+import uniq from "lodash/uniq";
 
 /**
  * Disables blocks where both the same pins where selected in the block.
@@ -11,7 +11,7 @@ export const disableSetupBlockWithMultiplePinOutsSamePins = (
   const { blocks } = event;
 
   return blocks
-    .filter((b) => _.uniq(b.pins).length !== b.pins.length)
+    .filter((b) => uniq(b.pins).length !== b.pins.length)
     .map((b) => {
       return {
         type: ActionType.DISABLE_BLOCK,

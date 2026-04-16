@@ -35,19 +35,20 @@ export const positionTemp: PositionComponent<TemperatureState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(tempEl, arduinoEl, draw, holes[1], isDown, "PIN_DATA");
 };
 
-export const updateTemp: SyncComponent = (state: TemperatureState, tempEl) => {
+export const updateTemp: SyncComponent = (state: any, tempEl) => {
+  const tempState = state as TemperatureState;
   const tempTextEl = tempEl.findOne("#TEMP_TEXT") as Element;
   const humidText = tempEl.findOne("#HUMID_TEXT") as Element;
   tempTextEl.show();
   humidText.show();
   const cx = tempTextEl.cx();
-  tempTextEl.node.innerHTML = `Temperature ${state.temperature}°F`;
+  tempTextEl.node.innerHTML = `Temperature ${tempState.temperature}°F`;
   tempTextEl.cx(cx);
-  humidText.node.innerHTML = `Humitity: ${state.humidity}%`;
+  humidText.node.innerHTML = `Humitity: ${tempState.humidity}%`;
   humidText.cx(cx);
 };
 
@@ -65,7 +66,7 @@ export const createWiresTemp: CreateWire<TemperatureState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(
     holes[0],
     isDown,

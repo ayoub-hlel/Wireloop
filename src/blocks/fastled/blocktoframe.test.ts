@@ -151,22 +151,17 @@ describe("fastLED state factories", () => {
     });
 
     setFastLED1Block
-      .getInput("COLOR")
-      .connection.connect(color1Block.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color1Block.outputConnection!);
     setFastLED1Block
-      .getInput("POSITION")
-      .connection.connect(position1Block.outputConnection);
+      .getInput("POSITION")!.connection!.connect(position1Block.outputConnection!);
     setFastLED2Block
-      .getInput("COLOR")
-      .connection.connect(color2Block.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color2Block.outputConnection!);
     setFastLED2Block
-      .getInput("POSITION")
-      .connection.connect(position2Block.outputConnection);
+      .getInput("POSITION")!.connection!.connect(position2Block.outputConnection!);
 
     connectToArduinoBlock(setFastLED1Block);
-    setFastLED1Block.nextConnection.connect(
-      setFastLED2Block.previousConnection
-    );
+    setFastLED1Block.nextConnection!.connect(
+      setFastLED2Block.previousConnection!);
 
     const event = createTestEvent(setFastLED1Block.id);
 

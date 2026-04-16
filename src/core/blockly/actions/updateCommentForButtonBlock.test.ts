@@ -5,12 +5,12 @@ import {
   createArduinoAndWorkSpace,
   createTestEvent,
 } from "../../../tests/tests.helper";
-import type { Workspace } from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import "../blocks";
 
 describe("updateCommentIsButtonPressedBlock", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
@@ -55,7 +55,7 @@ describe("updateCommentIsButtonPressedBlock", () => {
   });
 
   const createButtonSetupBlock = (isPullupResistor: boolean) => {
-    const buttonSetupBlock = workspace.newBlock("button_setup");
+    const buttonSetupBlock = workspace.newBlock("button_setup") as BlockSvg;
     buttonSetupBlock.setFieldValue(
       isPullupResistor ? "TRUE" : "FALSE",
       "PULLUP_RESISTOR"
@@ -63,8 +63,8 @@ describe("updateCommentIsButtonPressedBlock", () => {
     return buttonSetupBlock;
   };
 
-  const createIsButtonPressedBlock = (buttonSetupBlock) => {
-    const isButtonPressedBlock = workspace.newBlock("is_button_pressed");
+  const createIsButtonPressedBlock = (buttonSetupBlock: BlockSvg) => {
+    const isButtonPressedBlock = workspace.newBlock("is_button_pressed") as BlockSvg;
     isButtonPressedBlock.setFieldValue(
       buttonSetupBlock.getFieldValue("PIN"),
       "PIN"

@@ -59,7 +59,7 @@ describe("rfid value factories", () => {
     setSetupBlock(2, 130, 110, tempSetupBlock);
 
     connectToArduinoBlock(tempVarBlock);
-    tempVarBlock.nextConnection.connect(humidityVarBlock.previousConnection);
+    tempVarBlock.nextConnection!.connect(humidityVarBlock.previousConnection!);
 
     const [setup, state1, state2, state3, state4] = eventToFrameFactory(
       createTestEvent(humidityVarBlock.id)
@@ -90,11 +90,11 @@ const createVariableBlock = (
     workspace,
     variableName,
     type,
-    getDefaultValue(type)
+    getDefaultValue(type) as string | number | boolean | { red: number; green: number; blue: number }
   );
-  varBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+  varBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
-  varBlock.getInput("VALUE").connection.connect(sensorBlock.outputConnection);
+  varBlock.getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
 
   return varBlock;
 };
@@ -120,7 +120,7 @@ const verifyComponent = (
   const tempState = findComponent<TemperatureState>(
     state,
     ArduinoComponentType.TEMPERATURE_SENSOR
-  );
+  )!;
 
   expect(tempState.temperature).toBe(temp);
   expect(tempState.humidity).toBe(humidity);

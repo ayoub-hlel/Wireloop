@@ -44,11 +44,10 @@ describe("math_arithmetic state factories", () => {
     aBlock.setFieldValue("30", "NUM");
     const bBlock = workspace.newBlock("math_number");
     bBlock.setFieldValue("2", "NUM");
-    mathOperatorBlock.getInput("A").connection.connect(aBlock.outputConnection);
-    mathOperatorBlock.getInput("B").connection.connect(bBlock.outputConnection);
+    mathOperatorBlock.getInput("A")!.connection!.connect(aBlock.outputConnection!);
+    mathOperatorBlock.getInput("B")!.connection!.connect(bBlock.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathOperatorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathOperatorBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     [
@@ -103,14 +102,11 @@ describe("math_arithmetic state factories", () => {
     getNumberBlockB.setFieldValue(setNumberBlockB.getFieldValue("VAR"), "VAR");
 
     mathOperatorBlock
-      .getInput("A")
-      .connection.connect(getNumberBlockA.outputConnection);
+      .getInput("A")!.connection!.connect(getNumberBlockA.outputConnection!);
     mathOperatorBlock
-      .getInput("B")
-      .connection.connect(getNumberBlockB.outputConnection);
+      .getInput("B")!.connection!.connect(getNumberBlockB.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathOperatorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathOperatorBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
     connectToArduinoBlock(setNumberBlockB);
@@ -145,8 +141,7 @@ describe("math_arithmetic state factories", () => {
 
     const mathOperatorBlock = workspace.newBlock("math_arithmetic");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathOperatorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathOperatorBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
 

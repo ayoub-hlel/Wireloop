@@ -1,24 +1,31 @@
 import Blockly from "blockly";
 
+// @ts-ignore - overriding Blockly internal methods
 Blockly.FieldVariable.prototype.initModel = function () {
+  // @ts-ignore - accessing private member
   if (this.variable) {
     return; // Initialization already happened.
   }
-  this.workspace_ = this.sourceBlock_.workspace;
+  // @ts-ignore - accessing protected members
+  this.workspace_ = this.sourceBlock_!.workspace;
   const variables = Blockly.getMainWorkspace().getVariablesOfType(
+    // @ts-ignore - accessing private member
     this.defaultType
   );
   let variableId = null;
 
   // This create new variable make it so that it creates a new variable
-  if (variables.length > 0 && this.createNewVariable !== true) {
+  if (variables.length > 0 && (this as any).createNewVariable !== true) {
     variableId = variables[variables.length - 1].getId();
   }
 
   const variable = Blockly.Variables.getOrCreateVariablePackage(
+    // @ts-ignore - accessing protected members
     this.workspace_,
     variableId,
+    // @ts-ignore - accessing private member
     this.defaultVariableName,
+    // @ts-ignore - accessing private member
     this.defaultType
   );
 
@@ -34,18 +41,18 @@ Blockly.FieldVariable.prototype.initModel = function () {
   }
 };
 
-Blockly.FieldVariable.dropdownCreate = function () {
+Blockly.FieldVariable.dropdownCreate = function (): Blockly.MenuOption[] {
   if (!this.getVariable()) {
     console.log(this.getSourceBlock(), "failed variable");
-    return;
+    return [];
   }
   const name = this.getText();
-  let workspace = null;
+  let workspace: Blockly.Workspace | null = null;
   if (this.getSourceBlock()) {
-    workspace = this.getSourceBlock().workspace;
+    workspace = this.getSourceBlock()!.workspace;
   }
 
-  let variableModelList = [];
+  let variableModelList: Blockly.VariableModel[] = [];
   if (workspace && (this as any).showOnlyVariableAssigned === false) {
     const variableTypes = workspace.getVariableTypes().filter((x) => x !== "");
     // Get a copy of the list, so that adding rename and new variable options
@@ -59,10 +66,13 @@ Blockly.FieldVariable.dropdownCreate = function () {
   }
 
   if (workspace && (this as any).showOnlyVariableAssigned !== false) {
-    variableModelList.push(this.getVariable());
+    const varModel = this.getVariable();
+    if (varModel) {
+      variableModelList.push(varModel);
+    }
   }
 
-  const options = [];
+  const options: Blockly.MenuOption[] = [];
   for (let i = 0; i < variableModelList.length; i++) {
     // Set the UUID as the internal representation of the variable.
     options[i] = [variableModelList[i].name, variableModelList[i].getId()];
@@ -84,11 +94,11 @@ Blockly.FieldVariable.fromJson = function (options) {
   );
   const variableTypes = options["variableTypes"];
   const defaultType = options["defaultType"];
-  const showOnlyVariableAssigned = options["showOnlyVariableAssigned"] || false;
-  const createNewVariable = options["createNewVariable"] || false;
+  const showOnlyVariableAssigned = (options as any)["showOnlyVariableAssigned"] || false;
+  const createNewVariable = (options as any)["createNewVariable"] || false;
   const fieldVariable = new Blockly.FieldVariable(
     varname,
-    null,
+    undefined,
     variableTypes,
     defaultType
   );

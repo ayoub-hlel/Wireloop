@@ -39,7 +39,7 @@ describe("logic compare blocks", () => {
       VariableTypes.BOOLEAN,
       true
     );
-    boolTest.getInput("VALUE").connection.targetBlock().dispose(true);
+    boolTest.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     connectToArduinoBlock(boolTest);
     [
@@ -79,7 +79,7 @@ describe("logic compare blocks", () => {
       { A: 6, B: 4, OP: "GT", type: VariableTypes.NUMBER, expectValue: true },
     ].forEach(({ A, B, OP, type, expectValue }) => {
       const testBlock = createLogicCompareBlock(workspace, type, A, B, OP);
-      boolTest.getInput("VALUE").connection.connect(testBlock.outputConnection);
+      boolTest.getInput("VALUE")!.connection!.connect(testBlock.outputConnection!);
       const event = createTestEvent(testBlock.id);
       const events = eventToFrameFactory(event).frames;
       const [state1] = events;
@@ -89,8 +89,7 @@ describe("logic compare blocks", () => {
     // If any value are blank it should return false o
     const logicOperatorBlock = workspace.newBlock("logic_compare") as BlockSvg;
     boolTest
-      .getInput("VALUE")
-      .connection.connect(logicOperatorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(logicOperatorBlock.outputConnection!);
     const event = createTestEvent(logicOperatorBlock.id);
     const events = eventToFrameFactory(event).frames;
     const [state1] = events;
@@ -109,11 +108,9 @@ describe("logic compare blocks", () => {
     const logicOperatorBlock = workspace.newBlock("logic_compare") as BlockSvg;
     logicOperatorBlock.setFieldValue(operator, "OP");
     logicOperatorBlock
-      .getInput("A")
-      .connection.connect(value1Block.outputConnection);
+      .getInput("A")!.connection!.connect(value1Block.outputConnection!);
     logicOperatorBlock
-      .getInput("B")
-      .connection.connect(value2Block.outputConnection);
+      .getInput("B")!.connection!.connect(value2Block.outputConnection!);
 
     return logicOperatorBlock;
   };

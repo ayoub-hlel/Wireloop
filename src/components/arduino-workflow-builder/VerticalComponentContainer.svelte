@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import Nav from '../../components/arduino-workflow-builder/Nav.svelte';
   import Blockly from '../../components/arduino-workflow-builder/Blockly.svelte';
@@ -12,7 +12,7 @@
   // true if resizing windows
   let isResizing = false;
   // container element
-  let mainSection;
+  let mainSection: HTMLElement;
 
   let previousMainHeight = 0;
 
@@ -32,11 +32,11 @@
     isResizing = false;
   }
 
-  const onResize = (e) => {
+  const onResize = (e: MouseEvent) => {
     resize(e.clientY);
   };
 
-  function onResizeWindow(e) {
+  function onResizeWindow(e: Event) {
     setTimeout(() => {
       // console.log(
       //   Math.abs(previousMainHeight - mainSection.clientHeight),
@@ -60,13 +60,13 @@
    * It will resize the 2 windows,
    * Slight Trottling with debounce
    */
-  const resize = (clientY) => {
+  const resize = (clientY: number) => {
     if (!isResizing) {
       return;
     }
 
     // hack not the best way to go
-    const navBarHeight = document.querySelector('nav').clientHeight + 10;
+    const navBarHeight = document.querySelector('nav')!.clientHeight + 10;
 
     const clientRelativeToWindow = clientY - navBarHeight;
 

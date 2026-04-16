@@ -19,7 +19,7 @@ import type { TemperatureState } from "./state";
 
 describe("rfid state factories", () => {
   let workspace: Workspace;
-  let tempBlock;
+  let tempBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();

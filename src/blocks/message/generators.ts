@@ -1,4 +1,4 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 
 export function stepSerialBegin() {
@@ -15,7 +15,7 @@ Blockly["Arduino"]["message_setup"] = function () {
   return "";
 };
 
-Blockly["Arduino"]["arduino_get_message"] = function (block) {
+Blockly["Arduino"]["arduino_get_message"] = function (block: Block) {
   Blockly["Arduino"].information_["message_recieve_block"] = true;
 
   Blockly["Arduino"].functionNames_[
@@ -30,7 +30,7 @@ Blockly["Arduino"]["arduino_get_message"] = function (block) {
   return ["serialMessageDEV", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["arduino_receive_message"] = function (block) {
+Blockly["Arduino"]["arduino_receive_message"] = function (block: Block) {
   Blockly["Arduino"].information_["message_recieve_block"] = true;
   Blockly["Arduino"].functionNames_[
     "setSerialMessage"
@@ -44,7 +44,7 @@ Blockly["Arduino"]["arduino_receive_message"] = function (block) {
   return ["(serialMessageDEV.length() > 0)", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["arduino_send_message"] = function (block) {
+Blockly["Arduino"]["arduino_send_message"] = function (block: Block) {
   const message = Blockly["Arduino"].valueToCode(
     block,
     "MESSAGE",

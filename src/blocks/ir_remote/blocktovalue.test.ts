@@ -44,10 +44,9 @@ describe("button state factories", () => {
       true
     );
 
-    varHasCodeBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    varHasCodeBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
     varHasCodeBlock
-      .getInput("VALUE")
-      .connection.connect(hasCodeBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(hasCodeBlock.outputConnection!);
 
     const varCodeBlock = createSetVariableBlockWithValue(
       workspace,
@@ -56,13 +55,12 @@ describe("button state factories", () => {
       true
     );
 
-    varCodeBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    varCodeBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
     varCodeBlock
-      .getInput("VALUE")
-      .connection.connect(getCodeBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getCodeBlock.outputConnection!);
 
     connectToArduinoBlock(varHasCodeBlock);
-    varHasCodeBlock.nextConnection.connect(varCodeBlock.previousConnection);
+    varHasCodeBlock.nextConnection!.connect(varCodeBlock.previousConnection!);
 
     const event = createTestEvent(varCodeBlock.id);
 
@@ -107,7 +105,7 @@ const verifyComponent = (
   const irRemoteState = findComponent<IRRemoteState>(
     state,
     ArduinoComponentType.IR_REMOTE
-  );
+  )!;
   expect(irRemoteState.code).toBe(code);
   expect(irRemoteState.hasCode).toBe(hasCode);
 };

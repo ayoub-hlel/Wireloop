@@ -1,12 +1,13 @@
-<script>
+<script lang="ts">
   import frameStore from "../../../stores/frame.store";
   import currentStepStore from "../../../stores/currentStep.store";
   import { afterUpdate } from "svelte";
   import currentFrameStore from "../../../stores/currentFrame.store";
   import { onDestroy, onMount } from "svelte";
+  import type { ArduinoFrame } from "../../../core/frames/arduino.frame";
 
-  let stepContainer;
-  let frames = [];
+  let stepContainer: HTMLElement;
+  let frames: ArduinoFrame[] = [];
   let unsubscribes = [];
 
   unsubscribes.push(
@@ -26,8 +27,8 @@
     }
   });
 
-  function changeFrame(e) {
-    const currentFrameIndex = +e.target.getAttribute("data-step");
+  function changeFrame(e: Event) {
+    const currentFrameIndex = +(e.target as HTMLElement).getAttribute("data-step")!;
 
     currentFrameStore.set(frames[currentFrameIndex]);
     currentStepStore.set(currentFrameIndex);

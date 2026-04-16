@@ -54,11 +54,10 @@ describe("sensor value blocks", () => {
       VariableTypes.NUMBER,
       true
     );
-    setVariableBlock.getInput("VALUE").connection.disconnect();
+    setVariableBlock.getInput("VALUE")!.connection!.disconnect();
 
     setVariableBlock
-      .getInput("VALUE")
-      .connection.connect(analogReadBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(analogReadBlock.outputConnection!);
 
     connectToArduinoBlock(setVariableBlock);
 

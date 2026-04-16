@@ -62,7 +62,7 @@ const createSetBlock = (
   blockSetText.setFieldValue(colonOn ? "TRUE" : "FALSE", "COLON");
   const textBlock = createValueBlock(workspace, VariableTypes.STRING, text);
 
-  blockSetText.getInput("TEXT").connection.connect(textBlock.outputConnection);
+  blockSetText.getInput("TEXT")!.connection!.connect(textBlock.outputConnection!);
 
   connectToArduinoBlock(blockSetText);
 };

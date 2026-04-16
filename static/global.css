@@ -15,18 +15,11 @@ body {
   font-size: 14px;
   line-height: 1.5;
   color: #333;
-}
-
-#sapper {
   overflow: hidden;
 }
 
-svg {
-  cursor: move;
-}
-
 .wire-connection {
-  cursor: pointer !important;
+  cursor: pointer;
 }
 
 h1,
@@ -63,25 +56,7 @@ code {
   }
 }
 
-button {
-  float: right;
-}
-button:first-of-type {
-  margin-left: 20px;
-}
-button:active {
-  transform: scale(0.9);
-}
-
-.row {
-  margin-top: 10px;
-}
-
-body {
-  overflow: hidden;
-}
-
 /** This prevents the popup when a block is click on from showing the scroll bar. **/
 .blocklyWidgetDiv .blocklyMenu {
-    overflow-y: hidden; 
+    overflow-y: hidden;
 }

@@ -1,5 +1,6 @@
 import { writable, derived } from "svelte/store";
-import { authState as clerkAuthState, isSignedIn, userId } from "./clerk-auth.store";
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { authState as clerkAuthState, isSignedIn, userId } from "./clerk-auth.store";
 
 /**
  * Legacy auth store interface for backward compatibility
@@ -25,20 +26,19 @@ const legacyAuthStore = writable<LegacyAuthState>({
  * This provides seamless migration from Firebase to Clerk
  */
 const combinedAuthStore = derived(
-  [clerkAuthState, legacyAuthStore],
-  ([clerkAuth, legacyAuth]) => {
+  [legacyAuthStore],
+  ([legacyAuth]) => {
     // During migration, allow manual overrides via legacyAuthStore.set()
-    // Once migration is complete, this will primarily use Clerk state
     
     if (legacyAuth.legacyControlled) {
       // Legacy compatibility mode - use the manually set state
       return legacyAuth;
     }
     
-    // Use Clerk authentication state
+    // TODO: CLERK_REMOVAL — default to signed out
     return {
-      isLoggedIn: clerkAuth.isLoaded && clerkAuth.isSignedIn,
-      uid: clerkAuth.userId,
+      isLoggedIn: false,
+      uid: null,
       legacyControlled: false
     };
   }
@@ -70,6 +70,7 @@ export default {
   enableFirebaseMode: () => {
     legacyAuthStore.update(state => ({
       ...state,
+      // @ts-ignore
       firebaseControlled: true
     }));
   }

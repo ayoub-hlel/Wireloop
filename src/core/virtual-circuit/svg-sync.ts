@@ -3,6 +3,7 @@ import {
   ArduinoFrame,
   ArduinoComponentType,
 } from "../frames/arduino.frame";
+export type { ArduinoComponentState };
 import { arduinoComponentStateToId } from "../frames/arduino-component-id";
 import type { Svg, Element } from "@svgdotjs/svg.js";
 import { servoUpdate, servoReset } from "../../blocks/servo/virtual-circuit";
@@ -12,7 +13,7 @@ import {
 } from "../../blocks/message/virtual-circuit";
 import { lcdUpdate, lcdReset } from "../../blocks/lcd_screen/virtual-circuit";
 import { updateRgbLed, resetRgbLed } from "../../blocks/rgbled/virtual-circuit";
-import _ from "lodash";
+import isFunction from "lodash/isFunction";
 import {
   neoPixelUpdate,
   neoPixelReset,
@@ -148,7 +149,7 @@ const syncComponent = {
 export const syncComponents = (frame: ArduinoFrame, draw: Svg) => {
   frame.components
     .filter((state) => state.type !== ArduinoComponentType.TIME)
-    .filter((state) => _.isFunction(syncComponent[state.type]))
+    .filter((state) => isFunction(syncComponent[state.type as keyof typeof syncComponent]))
     .filter(
       (state) =>
         state.type === ArduinoComponentType.MESSAGE ||
@@ -156,15 +157,11 @@ export const syncComponents = (frame: ArduinoFrame, draw: Svg) => {
     )
     .map((state) => [
       state,
-      syncComponent[state.type],
-      draw.findOne("#" + arduinoComponentStateToId(state)),
-    ])
+      syncComponent[state.type as keyof typeof syncComponent],
+      draw.findOne("#" + arduinoComponentStateToId(state))! as Element,
+    ] as const)
     .forEach(
-      ([state, func, compoenntEl]: [
-        ArduinoComponentState,
-        SyncComponent,
-        Element
-      ]) => {
+      ([state, func, compoenntEl]) => {
         func(state, compoenntEl, draw, frame);
       }
     );
@@ -177,14 +174,15 @@ export const syncComponents = (frame: ArduinoFrame, draw: Svg) => {
   draw
     .find(".component")
     .filter((componentEl) => !componentIds.includes(componentEl.id()))
-    .filter((componentEl) =>
-      _.isFunction(resetComponent[componentEl.data("component-type")])
-    )
+    .filter((componentEl) => {
+      const componentType = componentEl.data("component-type") as keyof typeof resetComponent;
+      return isFunction(resetComponent[componentType]);
+    })
     .map((componentEl) => [
       componentEl,
-      resetComponent[componentEl.data("component-type")],
-    ])
-    .forEach(([componentEl, func]: [Element, ResetComponent]) =>
+      resetComponent[componentEl.data("component-type") as keyof typeof resetComponent],
+    ] as const)
+    .forEach(([componentEl, func]) =>
       func(componentEl)
     );
 };

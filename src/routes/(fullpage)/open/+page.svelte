@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { Table, Button, FormGroup, Input, Label } from '@sveltestrap/sveltestrap';
-
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { lessons } from '../../../lessons/lessons';
@@ -18,13 +16,13 @@
 
   import { onConfirm, onErrorMessage } from '../../../help/alerts';
   import projectStore from '../../../stores/project.store';
-  import _ from 'lodash';
+  import chunk from 'lodash/chunk';
 
   const unSubList: Function[] = [];
   let projectList: [Project, string][] = [];
   let searchList: [Project, string][] = [];
   let searchTerm = '';
-  let lessonList = lessons.reduce((acc, lessons) => {
+  let lessonList: any[] = lessons.reduce((acc: any[], lessons: any) => {
     return [...acc, ...lessons.lessons];
   }, []);
 
@@ -40,8 +38,9 @@
     );
   }
 
-  async function changeProject(e) {
-    const file = e.target.files[0];
+  async function changeProject(e: Event) {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (!file) {
       return;
     }
@@ -57,14 +56,14 @@
     const reader = new FileReader();
 
     reader.onload = async function (evt) {
-      if (evt.target.readyState != 2) return;
-      if (evt.target.error) {
+      if (evt.target!.readyState != 2) return;
+      if (evt.target!.error) {
         onErrorMessage('Please upload a valid arduino workflow builder file.', e);
         return;
       }
 
       projectStore.set({ project: null, projectId: null });
-      localStorage.setItem('reload_once_workspace', evt.target.result as string);
+      localStorage.setItem('reload_once_workspace', evt.target!.result as string);
       await goto('/');
     };
 
@@ -83,11 +82,12 @@
   });
 
   async function updateProjectList() {
+    if (!$authStore.uid) return;
     try {
       projectList = await getProjects($authStore.uid);
       projectList = [...projectList];
       searchList = [...projectList];
-    } catch (e) {
+    } catch (e: any) {
       onErrorMessage('Please refresh the page and try again.', e);
     }
   }
@@ -96,35 +96,37 @@
     unSubList.forEach((s) => s());
   });
 
-  function formatDate(timestamp: Date) {
-    if (timestamp instanceof Date) {
-      return timestamp.toDateString();
-    }
-
-    // Legacy: Handle any remaining non-Date objects
-    const date = new Date(timestamp);
-
-    return date.toDateString();
-  }
-
   async function onDeleteProject(projectId: string) {
+    if (!$authStore.uid) return;
     if (!(await onConfirm('Are you want to delete this project?'))) {
       return;
     }
     try {
       await deleteProject(projectId, $authStore.uid);
       await updateProjectList();
-    } catch (e) {
-      onErrorMessage('Please try agian in 5 minutes.', e);
+    } catch (e: any) {
+      onErrorMessage('Please try again in 5 minutes.', e);
     }
   }
 
-  async function openProject(projectId) {
+  async function openProject(projectId: string) {
     await goto(`/?projectid=${projectId}`);
     const project = await getProject(projectId);
-    const file = await getFile(projectId, $authStore.uid);
+    const file = await getFile(projectId, $authStore.uid!);
     loadProject(file);
-    projectStore.set({ project, projectId });
+    projectStore.set({ project: project as any, projectId });
+  }
+
+  function formatDate(timestamp: Date | string | null): string {
+    if (timestamp instanceof Date) {
+      return timestamp.toDateString();
+    }
+    if (!timestamp) return '';
+
+    // Legacy: Handle any remaining non-Date objects
+    const date = new Date(timestamp);
+
+    return date.toDateString();
   }
 </script>
 
@@ -139,12 +141,12 @@
   <hr />
     {#if projectList.length > 0 && $authStore.isLoggedIn}
       <h3>Your Projects</h3>
-      <FormGroup>
-        <Label for="search">Search</Label>
-        <Input bind:value={searchTerm} type="text" id="search" />
-      </FormGroup>
+      <div class="form-group">
+        <label for="search">Search</label>
+        <input bind:value={searchTerm} type="text" id="search" class="form-control" />
+      </div>
 
-      <Table hover bordered>
+      <table class="table table-hover table-bordered">
         <thead>
           <tr>
             <th>Name</th>
@@ -159,24 +161,27 @@
               <td>{project[0].name}</td>
               <td>{formatDate(project[0].updated)}</td>
               <td>
-                <Button
-                  color="info"
-                  class="w-100"
+                <button
+                  class="btn btn-info w-100"
                   on:click={() => openProject(project[1])}
                 >
                   Open
-                </Button>
+                </button>
               </td>
               <td>
-                <i
+                <button
+                  type="button"
+                  class="btn btn-link p-0"
                   on:click={() => onDeleteProject(project[1])}
-                  class="fa fa-trash"
-                />
+                  aria-label="Delete project: {project[0].name}"
+                >
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
               </td>
             </tr>
           {/each}
         </tbody>
-      </Table>
+      </table>
   {/if}
     <div class="row">
       <div class="col-3">
@@ -200,7 +205,7 @@
         <p class="text-center w-100 mb-2">Hard</p>
     </div> -->
         
-      {#each _.chunk(lessonList, 3) as lessonRow }
+      {#each chunk(lessonList, 3) as lessonRow }
         <div class="row g-2 g-lg-3">
           {#each lessonRow as lesson }
           <div class="col-4">

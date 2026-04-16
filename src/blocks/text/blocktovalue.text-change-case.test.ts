@@ -41,17 +41,15 @@ describe("text_changeCase state factories", () => {
       "test"
     );
 
-    testStringVariable.getInput("VALUE").connection.targetBlock().dispose(true);
+    testStringVariable.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     testStringVariable
-      .getInput("VALUE")
-      .connection.connect(textChangeCase.outputConnection);
+      .getInput("VALUE")!.connection!.connect(textChangeCase.outputConnection!);
 
     // Test text block works
 
     textChangeCase
-      .getInput("TEXT")
-      .connection.connect(textBlock.outputConnection);
+      .getInput("TEXT")!.connection!.connect(textBlock.outputConnection!);
 
     connectToArduinoBlock(testStringVariable);
 
@@ -82,8 +80,7 @@ describe("text_changeCase state factories", () => {
       "VAR"
     );
     textChangeCase
-      .getInput("TEXT")
-      .connection.connect(getStringVariable.outputConnection);
+      .getInput("TEXT")!.connection!.connect(getStringVariable.outputConnection!);
 
     connectToArduinoBlock(setStringVariable);
 

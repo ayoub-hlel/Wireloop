@@ -50,7 +50,7 @@ export const registerFunctionMenu = (workspace: WorkspaceSvg) => {
       xmlList[xmlList.length - 1].setAttribute("gap", "24");
     }
 
-    function populateProcedures(procedureList, templateName) {
+    function populateProcedures(procedureList: any[][], templateName: string) {
       for (let i = 0; i < procedureList.length; i++) {
         const name = procedureList[i][0];
         // <block type="procedures_callnoreturn" gap="16">

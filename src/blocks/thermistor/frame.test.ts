@@ -21,7 +21,7 @@ import { ThermistorState } from "./state";
 
 describe("Thermistors Frames and Values", () => {
   let workspace: Workspace;
-  let thermistorSetupBlock;
+  let thermistorSetupBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -29,7 +29,7 @@ describe("Thermistors Frames and Values", () => {
 
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
-    thermistorSetupBlock = workspace.newBlock("thermistor_setup");
+    thermistorSetupBlock = workspace.newBlock("thermistor_setup") as BlockSvg;
     thermistorSetupBlock.setFieldValue("A4", "PIN");
   });
 
@@ -46,11 +46,10 @@ describe("Thermistors Frames and Values", () => {
       VariableTypes.NUMBER,
       0
     );
-    setVarNumBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    setVarNumBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     setVarNumBlock
-      .getInput("VALUE")
-      .connection.connect(sensorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
 
     connectToArduinoBlock(setVarNumBlock);
 

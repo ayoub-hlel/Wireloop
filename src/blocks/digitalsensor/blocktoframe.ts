@@ -13,6 +13,7 @@ export const digitalReadSetup: BlockToFrameTransformer = (
 ) => {
   const digitalSensorInfo = JSON.parse(block.metaData) as DigitalSensor[];
   const digitalSensor1 = digitalSensorInfo.find((d) => d.loop === 1);
+  if (!digitalSensor1) return [];
 
   const pin = findFieldValue(block, "PIN");
   const pictureType = findFieldValue(block, "TYPE") as DigitalPictureType;

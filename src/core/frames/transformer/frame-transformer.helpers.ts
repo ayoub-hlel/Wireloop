@@ -9,7 +9,7 @@ import type {
 
 import { arduinoComponentStateToId } from "../arduino-component-id";
 
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import type { BlockData, PinCategory } from "../../blockly/dto/block.type";
 import { findBlockById } from "../../blockly/helpers/block-data.helper";
 import { VariableTypes } from "../../blockly/dto/variable.type";
@@ -21,14 +21,14 @@ export const arduinoFrameByVariable = (
   timeline: Timeline,
   newVariable: Variable,
   explanation: string,
-  previousFrame: ArduinoFrame = undefined,
+  previousFrame: ArduinoFrame | undefined,
   txLedOn = false,
   builtInLedOn = false,
   delay = 0
 ): ArduinoFrame => {
-  const variables = previousFrame ? _.cloneDeep(previousFrame.variables) : {};
+  const variables = previousFrame ? cloneDeep(previousFrame.variables) : {};
   variables[newVariable.name] = newVariable;
-  const components = previousFrame ? _.cloneDeep(previousFrame.components) : [];
+  const components = previousFrame ? cloneDeep(previousFrame.components) : [];
 
   return {
     blockId,
@@ -64,12 +64,12 @@ export const arduinoFrameByExplanation = (
   blockName: string,
   timeline: Timeline,
   explanation: string,
-  previousFrame: ArduinoFrame = undefined,
+  previousFrame: ArduinoFrame | undefined,
   txLedOn = false,
   builtInLedOn = false,
   delay = 0
 ): ArduinoFrame => {
-  const components = previousFrame ? _.cloneDeep(previousFrame.components) : [];
+  const components = previousFrame ? cloneDeep(previousFrame.components) : [];
 
   const variables = previousFrame ? { ...previousFrame.variables } : {};
 
@@ -111,7 +111,7 @@ export const arduinoFrameByComponent = (
   timeline: Timeline,
   newComponent: ArduinoComponentState,
   explanation: string,
-  previousFrame: ArduinoFrame = undefined,
+  previousFrame: ArduinoFrame | undefined,
   txLedOn = false,
   builtInLedOn = false,
   delay = 0
@@ -148,7 +148,9 @@ export const getInputBlock = (
   block: BlockData,
   input: string
 ) => {
-  const blockId = block.inputBlocks.find((i) => i.name == input).blockId;
+  const inputFound = block.inputBlocks.find((i) => i.name == input);
+  if (!inputFound) return undefined;
+  const blockId = inputFound.blockId;
 
   return blocks.find((b) => b.id === blockId);
 };
@@ -202,15 +204,18 @@ export const valueToString = (
 };
 
 export const findComponent = <T extends ArduinoComponentState>(
-  state: ArduinoFrame,
+  state: ArduinoFrame | undefined,
   type: ArduinoComponentType,
-  pin: ARDUINO_PINS = undefined
-) => {
+  pin?: ARDUINO_PINS
+): T | undefined => {
+  if (state === undefined) {
+    return undefined;
+  }
   if (pin !== undefined) {
     return state.components.find(
       (c) => c.type === type && c.pins.includes(pin)
-    ) as T;
+    ) as T | undefined;
   }
 
-  return state.components.find((c) => c.type === type) as T;
+  return state.components.find((c) => c.type === type) as T | undefined;
 };

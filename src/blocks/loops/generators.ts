@@ -35,7 +35,7 @@ Blockly["Arduino"]["controls_repeat_ext"] = function (block: Block) {
 Blockly["Arduino"]["controls_for"] = function (block: Block) {
   const loopIndexVariable = Blockly.getMainWorkspace().getVariableById(
     block.getFieldValue("VAR")
-  ).name;
+  )!.name;
 
   const branch = Blockly["Arduino"].statementToCode(block, "DO");
   const startNumberStr = Blockly["Arduino"].valueToCode(

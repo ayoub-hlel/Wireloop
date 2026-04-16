@@ -1,7 +1,7 @@
-import _ from "lodash";
+import isNumber from "lodash/isNumber";
 
 export const numberToCode = (num: string) => {
-  if (_.isNumber(num)) {
+  if (isNumber(num)) {
     return +num > 0 ? +num - 1 : 0;
   }
 

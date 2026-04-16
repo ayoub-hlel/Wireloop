@@ -2,16 +2,15 @@
   import { onMount } from "svelte";
   import type { Element } from "@svgdotjs/svg.js";
 
-  import { FormGroup, Input, Label, Button } from "@sveltestrap/sveltestrap";
   import {
     ledColors,
     lightColorsShades,
   } from "../../../blocks/led/virtual-circuit";
 
   let showLedChanger = false;
-  let ledEl: Element;
-  let pin: string;
-  let ledColor;
+  let ledEl: any;
+  let pin: string = "";
+  let ledColor: string = "";
 
   onMount(() => {
     document.addEventListener("led-color-show", (e: any) => {
@@ -23,8 +22,8 @@
     });
   });
 
-  function changeColor(e) {
-    ledColor = e.target.getAttribute("data-color");
+  function changeColor(e: Event) {
+    ledColor = (e.target as HTMLElement).getAttribute("data-color") || "";
     let ledLightColor = lightColorsShades[ledColor];
 
     ledEl.data("color", ledColor);
@@ -37,7 +36,7 @@
   function close() {
     showLedChanger = false;
     ledEl = null;
-    pin = null;
+    pin = "";
   }
 </script>
 
@@ -46,26 +45,29 @@
     <div class="row">
       <div class="col color-container">
         {#each ledColors as color (color)}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-static-element-interactions -->
-          <div
+          <button
+            type="button"
             class="color {color}"
             on:click={changeColor}
             style="background-color: {color};"
             data-color={color}
             class:selected={ledColor == color}
             id={color}
-          ></div>
+            aria-label="Select {color} LED color"
+            aria-pressed={ledColor == color}
+          ></button>
         {/each}
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <FormGroup>
-          <Button id="close-btn-led" color="danger" on:click={close}>
-            Close
-          </Button>
-        </FormGroup>
+        <button
+          id="close-btn-led"
+          class="w-full px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+          on:click={close}
+        >
+          Close
+        </button>
       </div>
     </div>
   </section>

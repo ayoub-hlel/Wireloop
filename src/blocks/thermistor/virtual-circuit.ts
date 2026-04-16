@@ -26,7 +26,7 @@ export const positionThermistorSensor: PositionComponent<ThermistorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(
     thermistorEl,
     arduinoEl,
@@ -46,11 +46,12 @@ export const createThermistorSensorHook: AfterComponentCreateHook<ThermistorStat
 };
 
 export const updateThermistorSensor: SyncComponent = (
-  state: ThermistorState,
+  state: any,
   thermistorEl
 ) => {
+  const thermState = state as ThermistorState;
   const textEl = thermistorEl.findOne("#TEMP_TEXT") as Text;
-  textEl.node.textContent = `${state.temp}°C`;
+  textEl.node.textContent = `${thermState.temp}°C`;
 };
 
 export const resetThermistorSensor: ResetComponent = (thermistorEl) => {};
@@ -64,7 +65,7 @@ export const createThermistorWires: CreateWire<ThermistorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[0],

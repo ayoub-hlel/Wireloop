@@ -2,7 +2,8 @@ import { writable, derived, get, type Readable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
 import { getConvexClient, createQuery, createMutation } from "./convex.store";
-import { userId } from "./clerk-auth.store";
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { userId } from "./clerk-auth.store";
 import { 
   subscribeToProject, 
   subscribeToUserProjects, 
@@ -416,7 +417,8 @@ export function subscribeToPublicProjectsUpdates(): Readable<{
  * Load project with dual-read fallback
  */
 async function loadProjectWithFallback(projectId: string): Promise<DataReadResult<Project>> {
-  const currentUserId = get(userId);
+  // TODO: CLERK_REMOVAL — use null for now
+  const currentUserId = null; // get(userId);
   if (!currentUserId) {
     return {
       data: null,
@@ -475,7 +477,8 @@ async function loadProjectWithFallback(projectId: string): Promise<DataReadResul
  * Load user projects with dual-read fallback
  */
 async function loadUserProjectsWithFallback(): Promise<DataReadResult<Project[]>> {
-  const currentUserId = get(userId);
+  // TODO: CLERK_REMOVAL — use null for now
+  const currentUserId = null; // get(userId);
   if (!currentUserId) {
     return {
       data: null,
@@ -503,7 +506,8 @@ async function loadUserProjectsWithFallback(): Promise<DataReadResult<Project[]>
  * Load project file with dual-read fallback
  */
 async function loadProjectFileWithFallback(projectId: string): Promise<DataReadResult<{ content: string; filename: string }>> {
-  const currentUserId = get(userId);
+  // TODO: CLERK_REMOVAL — use null for now
+  const currentUserId = null; // get(userId);
   if (!currentUserId) {
     return {
       data: null,

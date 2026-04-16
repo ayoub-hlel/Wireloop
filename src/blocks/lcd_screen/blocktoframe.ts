@@ -1,4 +1,5 @@
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import range from "lodash/range";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import type { LCDScreenState } from "./state";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
@@ -59,7 +60,7 @@ export const lcdBlink: BlockToFrameTransformer = (
   previousState
 ) => {
   const isBlinking = findFieldValue(block, "BLINK") === "BLINK";
-  const lcdState = _.cloneDeep(
+  const lcdState = cloneDeep(
     findComponent<LCDScreenState>(
       previousState,
       ArduinoComponentType.LCD_SCREEN
@@ -68,7 +69,7 @@ export const lcdBlink: BlockToFrameTransformer = (
 
   if (!isBlinking) {
     const newComponent: LCDScreenState = {
-      ...lcdState,
+      ...lcdState!,
       blink: { row: 0, column: 0, blinking: false },
     };
 
@@ -105,7 +106,7 @@ export const lcdBlink: BlockToFrameTransformer = (
   );
 
   const newComponent: LCDScreenState = {
-    ...lcdState,
+    ...lcdState!,
     blink: { row, column, blinking: true },
   };
 
@@ -128,7 +129,7 @@ export const lcdScroll: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const lcdState = _.cloneDeep(
+  const lcdState = cloneDeep(
     findComponent<LCDScreenState>(
       previousState,
       ArduinoComponentType.LCD_SCREEN
@@ -137,7 +138,7 @@ export const lcdScroll: BlockToFrameTransformer = (
 
   const direction = findFieldValue(block, "DIR") as string;
 
-  const rowsOfText = lcdState.rowsOfText.map((text) => {
+  const rowsOfText = lcdState!.rowsOfText.map((text) => {
     if (direction === "RIGHT") {
       return " " + text.substr(0, 19);
     }
@@ -145,7 +146,7 @@ export const lcdScroll: BlockToFrameTransformer = (
   });
 
   const newComponent: LCDScreenState = {
-    ...lcdState,
+    ...lcdState!,
     rowsOfText,
   };
 
@@ -168,7 +169,7 @@ export const lcdPrint: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const lcdState = _.cloneDeep(
+  const lcdState = cloneDeep(
     findComponent<LCDScreenState>(
       previousState,
       ArduinoComponentType.LCD_SCREEN
@@ -205,13 +206,13 @@ export const lcdPrint: BlockToFrameTransformer = (
     previousState
   );
 
-  const rowsOfText = lcdState.rowsOfText.map((text, index) => {
+  const rowsOfText = lcdState!.rowsOfText.map((text, index) => {
     if (index + 1 !== row) {
       return text;
     }
 
     const actualColumn = column - 1;
-    _.range(actualColumn, actualColumn + print.length).forEach(
+    range(actualColumn, actualColumn + print.length).forEach(
       (textIndex, rangeIndex) => {
         text = replaceAt(text, textIndex, print[rangeIndex]);
       }
@@ -221,7 +222,7 @@ export const lcdPrint: BlockToFrameTransformer = (
   });
 
   const newComponent: LCDScreenState = {
-    ...lcdState,
+    ...lcdState!,
     rowsOfText,
   };
 
@@ -248,14 +249,15 @@ export const lcdClear: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const lcdState = _.cloneDeep(
+  if (!previousState) return [];
+  const lcdState = cloneDeep(
     previousState.components.find(
       (c) => c.type == ArduinoComponentType.LCD_SCREEN
     )
   ) as LCDScreenState;
 
   const clearComponent: LCDScreenState = {
-    ..._.cloneDeep(lcdState),
+    ...cloneDeep(lcdState),
     rowsOfText: [
       "                    ",
       "                    ",
@@ -286,7 +288,8 @@ export const lcdBacklight: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const lcdState = _.cloneDeep(
+  if (!previousState) return [];
+  const lcdState = cloneDeep(
     previousState.components.find(
       (c) => c.type == ArduinoComponentType.LCD_SCREEN
     )
@@ -318,13 +321,14 @@ export const lcdSimplePrint: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const lcdState = _.cloneDeep(
+  if (!previousState) return [];
+  const lcdState = cloneDeep(
     previousState.components.find(
       (c) => c.type == ArduinoComponentType.LCD_SCREEN
     )
   ) as LCDScreenState;
 
-  const rowsOfText = _.range(1, 5).map((i) => {
+  const rowsOfText = range(1, 5).map((i) => {
     return getInputValue(
       blocks,
       block,
@@ -347,7 +351,7 @@ export const lcdSimplePrint: BlockToFrameTransformer = (
   );
 
   const newComponent: LCDScreenState = {
-    ..._.cloneDeep(lcdState),
+    ...cloneDeep(lcdState),
     rowsOfText: rowsOfText.map((text: string) => {
       if (text.length >= 20) {
         return text.slice(0, 20);
@@ -355,7 +359,7 @@ export const lcdSimplePrint: BlockToFrameTransformer = (
 
       return (
         text +
-        _.range(0, lcdState.columns - text.length)
+        range(0, lcdState.columns - text.length)
           .map(() => " ")
           .join("")
       );
@@ -363,7 +367,7 @@ export const lcdSimplePrint: BlockToFrameTransformer = (
   };
 
   const clearComponent: LCDScreenState = {
-    ..._.cloneDeep(newComponent),
+    ...cloneDeep(newComponent),
     rowsOfText: [
       "                    ",
       "                    ",

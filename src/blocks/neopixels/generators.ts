@@ -1,6 +1,6 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 
-Blockly["Arduino"]["neo_pixel_setup"] = function (block) {
+Blockly["Arduino"]["neo_pixel_setup"] = function (block: Block) {
   const numberOfLeds = block.getFieldValue("NUMBER_LEDS");
   const pin = block.getFieldValue("PIN");
 
@@ -23,7 +23,7 @@ Blockly["Arduino"]["neo_pixel_setup"] = function (block) {
   return "";
 };
 
-Blockly["Arduino"]["neo_pixel_set_color"] = function (block) {
+Blockly["Arduino"]["neo_pixel_set_color"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["set_color"] =
     "\n\nvoid setNeoPixelColor(double pos, RGB color) {\n" +
     "\tpos = pos <= 0 ? 0 : pos;\n" +

@@ -2,6 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
 import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import { getAllBlocks } from "../helpers/block.helper";
 import _ from "lodash";
 import type { BlockEvent } from "../dto/event.type";
@@ -17,8 +18,8 @@ import {
 import { MicroControllerType } from "../../microcontroller/microcontroller";
 
 describe("updateSensorSetup", () => {
-  let workspace;
-  let arduinoBlock;
+  let workspace: Workspace;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();

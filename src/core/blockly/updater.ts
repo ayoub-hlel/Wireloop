@@ -20,7 +20,6 @@ import {
   getBlockByType,
   getBlocksByName,
 } from "./helpers/block.helper";
-import _ from "lodash";
 import Blockly from "blockly";
 import { ArduinoComponentType } from "../frames/arduino.frame";
 
@@ -93,11 +92,11 @@ const updateSensorBlockData = (action: SaveSetupSensorData) => {
 const updateLcdScreenPrintBlock = (action: UpdateLCDScreenPrintBlock) => {
   const block = getBlockById(action.blockId);
   if (action.numberOfRows == 2) {
-    block.getInput("ROW_3").setVisible(false);
-    block.getInput("ROW_4").setVisible(false);
+    block.getInput("ROW_3")!.setVisible(false);
+    block.getInput("ROW_4")!.setVisible(false);
   } else {
-    block.getInput("ROW_3").setVisible(true);
-    block.getInput("ROW_4").setVisible(true);
+    block.getInput("ROW_3")!.setVisible(true);
+    block.getInput("ROW_4")!.setVisible(true);
   }
   block.render();
 };
@@ -110,35 +109,35 @@ const updateLedColor = (action: UpdateLedColor) => {
 
 const updateMotorBlock = (action: UpdateMultipleComponentSetupBlock) => {
   const block = getBlockByType("motor_setup");
-  block.getInput("COMPONENT_2").setVisible(action.numberOfComponents == 2);
+  block.getInput("COMPONENT_2")!.setVisible(action.numberOfComponents == 2);
   block.render();
 
   const motorMoveBlocks = getBlocksByName("move_motor");
   motorMoveBlocks.forEach((b) => {
-    b.getInput("WHICH_MOTOR").setVisible(action.numberOfComponents == 2);
+    b.getInput("WHICH_MOTOR")!.setVisible(action.numberOfComponents == 2);
     b.render();
   });
   const stopMotorBlocks = getBlocksByName("stop_motor");
   stopMotorBlocks.forEach((b) => {
-    b.getInput("WHICH_MOTOR").setVisible(action.numberOfComponents == 2);
+    b.getInput("WHICH_MOTOR")!.setVisible(action.numberOfComponents == 2);
     b.render();
   });
 };
 
 const updateRGBLedColorBlocks = (action: UpdateMultipleComponentSetupBlock) => {
   const block = getBlockByType("rgb_led_setup");
-  block.getInput("COMPONENT_2").setVisible(action.numberOfComponents == 2);
+  block.getInput("COMPONENT_2")!.setVisible(action.numberOfComponents == 2);
   block.render();
 
   const setLedColorBlocks = getBlocksByName("set_color_led");
   setLedColorBlocks.forEach((b) => {
-    b.getInput("WHICH_COMPONENT").setVisible(action.numberOfComponents == 2);
+    b.getInput("WHICH_COMPONENT")!.setVisible(action.numberOfComponents == 2);
     b.render();
   });
 
   const setSimpleRgbLedCOlorBlocks = getBlocksByName("set_simple_color_led");
   setSimpleRgbLedCOlorBlocks.forEach((b) => {
-    b.getInput("WHICH_COMPONENT").setVisible(action.numberOfComponents == 2);
+    b.getInput("WHICH_COMPONENT")!.setVisible(action.numberOfComponents == 2);
     b.render();
   });
 };
@@ -161,14 +160,14 @@ const updateFastLedSetAllColorsBlock = (action: UpdateSetAllFastLedBlock) => {
   console.log("update blocks");
   for (let row = 1; row <= 12; row += 1) {
     const showAllInRow = row <= action.maxRows;
-    block.getInput(`ROW_${row}`).setVisible(showAllInRow);
+    block.getInput(`ROW_${row}`)!.setVisible(showAllInRow);
     for (let col = 1; col <= 12; col += 1) {
       const field = block.getField(`${row}-${col}`);
       if (row === action.maxRows) {
-        field.setVisible(col <= action.maxColumnsOnLastRow);
+        field!.setVisible(col <= action.maxColumnsOnLastRow);
         continue;
       }
-      field.setVisible(showAllInRow);
+      field!.setVisible(showAllInRow);
     }
   }
   block.render();
@@ -180,21 +179,21 @@ const updateButtonIsPressedComments = (action: CommentForButtonBlockAction) => {
   block.render();
 };
 
-const updaterList: { [key: string]: Updater } = {
-  [ActionType.DELETE_VARIABLE]: updateVariable,
-  [ActionType.DISABLE_BLOCK]: updateDisableBlock,
-  [ActionType.ENABLE_BLOCK]: updateEnableBlock,
-  [ActionType.FOR_LOOP_BLOCK_CHANGE]: updateForLoop,
-  [ActionType.SETUP_SENSOR_BLOCK_FIELD_UPDATE]: updateSetupSensorBlockFields,
+const updaterList: Record<string, (action: Action) => void> = {
+  [ActionType.DELETE_VARIABLE]: updateVariable as (action: Action) => void,
+  [ActionType.DISABLE_BLOCK]: updateDisableBlock as (action: Action) => void,
+  [ActionType.ENABLE_BLOCK]: updateEnableBlock as (action: Action) => void,
+  [ActionType.FOR_LOOP_BLOCK_CHANGE]: updateForLoop as (action: Action) => void,
+  [ActionType.SETUP_SENSOR_BLOCK_FIELD_UPDATE]: updateSetupSensorBlockFields as (action: Action) => void,
   [ActionType.SETUP_SENSOR_BLOCK_LOOP_FIELD_UPDATE]:
-    updateSetupSensorBlockLoopField,
-  [ActionType.SETUP_SENSOR_BLOCK_SAVE_DEBUG_DATA]: updateSensorBlockData,
-  [ActionType.LCD_SIMPLE_PRINT_CHANGE]: updateLcdScreenPrintBlock,
-  [ActionType.UPDATE_LED_COLOR]: updateLedColor,
-  [ActionType.UPDATE_MULTIPLE_SETUP_BLOCK]: updateMultipleSetupBlock,
+    updateSetupSensorBlockLoopField as (action: Action) => void,
+  [ActionType.SETUP_SENSOR_BLOCK_SAVE_DEBUG_DATA]: updateSensorBlockData as (action: Action) => void,
+  [ActionType.LCD_SIMPLE_PRINT_CHANGE]: updateLcdScreenPrintBlock as (action: Action) => void,
+  [ActionType.UPDATE_LED_COLOR]: updateLedColor as (action: Action) => void,
+  [ActionType.UPDATE_MULTIPLE_SETUP_BLOCK]: updateMultipleSetupBlock as (action: Action) => void,
   [ActionType.UPDATE_FASTLED_SET_ALL_COLORS_BLOCK]:
-    updateFastLedSetAllColorsBlock,
-  [ActionType.UPDATE_COMMENT_FOR_BUTTON_BLOCK]: updateButtonIsPressedComments,
+    updateFastLedSetAllColorsBlock as (action: Action) => void,
+  [ActionType.UPDATE_COMMENT_FOR_BUTTON_BLOCK]: updateButtonIsPressedComments as (action: Action) => void,
 };
 
 export const updater = (action: Action) => {

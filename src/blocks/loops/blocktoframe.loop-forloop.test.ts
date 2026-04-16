@@ -59,15 +59,15 @@ describe("generate states controls_for block", () => {
 
 const testloop = (
   workspace: Workspace,
-  from: number = null,
-  to: number = null,
-  by: number = null,
+  from: number | null = null,
+  to: number | null = null,
+  by: number | null = null,
   expectedIValuesInOrder: number[] = [],
   nothingInLoop = false
 ) => {
   const info = generateFrameForLoop(workspace, from, to, by, nothingInLoop);
   const states = info.frames;
-  const debugBlock = info.loopBlock.getInput("DO").connection.targetBlock();
+  const debugBlock = info.loopBlock.getInput("DO")!.connection!.targetBlock();
   const expectedNumberOfFrames =
     debugBlock && !nothingInLoop
       ? expectedIValuesInOrder.length * 2
@@ -96,9 +96,9 @@ const testloop = (
 
 const generateFrameForLoop = (
   workspace: Workspace,
-  from: number = null,
-  to: number = null,
-  by: number = null,
+  from: number | null = null,
+  to: number | null = null,
+  by: number | null = null,
   nothingInLoop = false
 ) => {
   const forLoopNumber = workspace.newBlock("controls_for") as BlockSvg;
@@ -110,16 +110,14 @@ const generateFrameForLoop = (
       from
     );
     forLoopNumber
-      .getInput("FROM")
-      .connection.connect(fromNumberBlock.outputConnection);
+      .getInput("FROM")!.connection!.connect(fromNumberBlock.outputConnection!);
   }
 
   if (to) {
     const toNumberBlock = createValueBlock(workspace, VariableTypes.NUMBER, to);
 
     forLoopNumber
-      .getInput("TO")
-      .connection.connect(toNumberBlock.outputConnection);
+      .getInput("TO")!.connection!.connect(toNumberBlock.outputConnection!);
   }
 
   if (by) {
@@ -129,8 +127,7 @@ const generateFrameForLoop = (
   if (!nothingInLoop) {
     const debugBlock = workspace.newBlock("debug_block");
     forLoopNumber
-      .getInput("DO")
-      .connection.connect(debugBlock.previousConnection);
+      .getInput("DO")!.connection!.connect(debugBlock.previousConnection!);
   }
 
   connectToArduinoBlock(forLoopNumber);

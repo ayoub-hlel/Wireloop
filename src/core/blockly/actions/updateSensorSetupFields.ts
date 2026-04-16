@@ -1,6 +1,7 @@
 import type { BlockEvent } from "../dto/event.type";
 import { UpdateSetupSensorBlockFields, ActionType } from "./actions";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
+import keys from "lodash/keys";
 import { BlockType } from "../dto/block.type";
 
 export const updateSensorSetupFields = (
@@ -26,15 +27,15 @@ export const updateSensorSetupFields = (
   }
 
   // Does the block have the metadata necessary to update itself
-  if (_.isEmpty(blockData.metaData)) {
+  if (isEmpty(blockData.metaData)) {
     return [];
   }
 
   const newLoopValue = +newValue;
   const sensorData = JSON.parse(blockData.metaData).find(
-    (data) => data.loop === newLoopValue
+    (data: { loop: number }) => data.loop === newLoopValue
   );
-  const fields = _.keys(sensorData)
+  const fields = keys(sensorData)
     .filter((field) => field !== "loop")
     .map((fieldName) => {
       return {

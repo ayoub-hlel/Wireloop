@@ -40,16 +40,14 @@ describe("math_round state factories", () => {
 
     const stringToNumberBlock = workspace.newBlock("string_to_number");
     stringToNumberBlock
-      .getInput("VALUE")
-      .connection.connect(getVariableTextBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getVariableTextBlock.outputConnection!);
     const variableNumTest = workspace.createVariable("num_test", "Number");
     const setNumberBlock = workspace.newBlock(
       "variables_set_number"
     ) as BlockSvg;
     setNumberBlock.setFieldValue(variableNumTest.getId(), "VAR");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(stringToNumberBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(stringToNumberBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
     connectToArduinoBlock(stringVariableBlock);
@@ -70,8 +68,7 @@ describe("math_round state factories", () => {
     ) as BlockSvg;
     setNumberBlock.setFieldValue(variableNumTest.getId(), "VAR");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(stringToNumberBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(stringToNumberBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
 

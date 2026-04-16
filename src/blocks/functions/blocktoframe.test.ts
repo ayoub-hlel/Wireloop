@@ -27,8 +27,7 @@ describe("generate states for functions", () => {
     functionBlock.setFieldValue("funcName", "NAME");
     const debugBlock = workspace.newBlock("debug_block");
     functionBlock
-      .getInput("STACK")
-      .connection.connect(debugBlock.previousConnection);
+      .getInput("STACK")!.connection!.connect(debugBlock.previousConnection!);
 
     const funcCallBlock = workspace.newBlock(
       "procedures_callnoreturn"

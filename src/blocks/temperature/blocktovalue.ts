@@ -13,7 +13,7 @@ export const getTemp: ValueGenerator = (
   return findComponent<TemperatureState>(
     previousState,
     ArduinoComponentType.TEMPERATURE_SENSOR
-  ).temperature;
+  )?.temperature;
 };
 
 export const getHumidity: ValueGenerator = (
@@ -26,5 +26,5 @@ export const getHumidity: ValueGenerator = (
   return findComponent<TemperatureState>(
     previousState,
     ArduinoComponentType.TEMPERATURE_SENSOR
-  ).humidity;
+  )?.humidity;
 };

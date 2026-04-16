@@ -1,7 +1,7 @@
-import Blockly, { CodeGenerator } from "blockly";
+import Blockly, { CodeGenerator, type Block } from "blockly";
 import { numberToCode } from "../../core/blockly/helpers/number-code.helper";
 
-Blockly["Arduino"]["lcd_setup"] = function (block) {
+Blockly["Arduino"]["lcd_setup"] = function (block: Block) {
   const size = block.getFieldValue("SIZE");
   const memoryAddressLCDType = block.getFieldValue("MEMORY_TYPE").toUpperCase();
 
@@ -27,7 +27,7 @@ Blockly["Arduino"]["lcd_setup"] = function (block) {
 
   return "";
 };
-Blockly["Arduino"]["lcd_scroll"] = function (block) {
+Blockly["Arduino"]["lcd_scroll"] = function (block: Block) {
   const dropdown_dir = block.getFieldValue("DIR");
 
   if (dropdown_dir === "RIGHT") {
@@ -38,7 +38,7 @@ Blockly["Arduino"]["lcd_scroll"] = function (block) {
 };
 
 Blockly["Arduino"]["lcd_screen_simple_print"] = function (
-  block,
+  block: Block,
   generator: CodeGenerator
 ) {
   const textRow1 = Blockly["Arduino"].valueToCode(
@@ -76,7 +76,7 @@ Blockly["Arduino"]["lcd_screen_simple_print"] = function (
     Blockly["Arduino"].ORDER_ATOMIC
   );
 
-  function printRow(row, textRow) {
+  function printRow(row: number, textRow: string) {
     return textRow !== '""' && textRow !== ""
       ? "lcd.setCursor(0, " + row + "); \n" + "lcd.print(" + textRow + "); \n"
       : "";
@@ -97,17 +97,17 @@ Blockly["Arduino"]["lcd_screen_simple_print"] = function (
   );
 };
 
-Blockly["Arduino"]["lcd_backlight"] = function (block) {
+Blockly["Arduino"]["lcd_backlight"] = function (block: Block) {
   return block.getFieldValue("BACKLIGHT").toUpperCase() === "ON"
     ? "\tlcd.backlight();\n"
     : "\tlcd.noBacklight();\n";
 };
 
-Blockly["Arduino"]["lcd_screen_clear"] = function (block) {
+Blockly["Arduino"]["lcd_screen_clear"] = function (block: Block) {
   return "\tlcd.clear();\n";
 };
 
-Blockly["Arduino"]["lcd_screen_print"] = function (block) {
+Blockly["Arduino"]["lcd_screen_print"] = function (block: Block) {
   let row = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,
@@ -140,7 +140,7 @@ Blockly["Arduino"]["lcd_screen_print"] = function (block) {
   );
 };
 
-Blockly["Arduino"]["lcd_blink"] = function (block) {
+Blockly["Arduino"]["lcd_blink"] = function (block: Block) {
   let row = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,

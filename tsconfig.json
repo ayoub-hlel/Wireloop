@@ -12,7 +12,8 @@
     "verbatimModuleSyntax": false,
     "moduleResolution": "bundler",
     "types": ["@clerk/clerk-js", "convex"]
-  }
+  },
+  "include": ["custom.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
   // except $lib which is handled by https://kit.svelte.dev/docs/configuration#files
   //

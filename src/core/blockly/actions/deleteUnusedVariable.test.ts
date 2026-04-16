@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import Blockly, { Workspace } from "blockly";
+import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import _ from "lodash";
 import { deleteUnusedVariables } from "./deleteUnusedVariables";
 import { getAllVariables } from "../helpers/variable.helper";
@@ -12,7 +13,7 @@ import {
 
 describe("deleteUnusedVariables", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
@@ -33,10 +34,10 @@ describe("deleteUnusedVariables", () => {
     expect(actions.length).toBe(2);
     const bAction = actions.find((d) => d.variableId == b.getId());
     expect(bAction).toBeDefined();
-    expect(bAction.actionType).toBe("delete");
+    expect(bAction!.actionType).toBe("delete");
 
     const cAction = actions.find((d) => d.variableId == c.getId());
     expect(cAction).toBeDefined();
-    expect(cAction.actionType).toBe("delete");
+    expect(cAction!.actionType).toBe("delete");
   });
 });

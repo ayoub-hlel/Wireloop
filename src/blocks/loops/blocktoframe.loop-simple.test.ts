@@ -29,11 +29,9 @@ describe("generate states controls_repeat_ext", () => {
     const numberBlock = createValueBlock(workspace, VariableTypes.NUMBER, 3);
     const debugBlock = workspace.newBlock("debug_block");
     simpleForLoop
-      .getInput("DO")
-      .connection.connect(debugBlock.previousConnection);
+      .getInput("DO")!.connection!.connect(debugBlock.previousConnection!);
     simpleForLoop
-      .getInput("TIMES")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("TIMES")!.connection!.connect(numberBlock.outputConnection!);
 
     connectToArduinoBlock(simpleForLoop);
 

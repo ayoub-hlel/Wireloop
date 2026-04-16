@@ -45,8 +45,7 @@ describe("math_arithmetic state factories", () => {
     ) as BlockSvg;
     testNumberVariableBlock.setFieldValue(variable.getId(), "VAR");
     testNumberVariableBlock
-      .getInput("VALUE")
-      .connection.connect(getVariableNumberBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getVariableNumberBlock.outputConnection!);
     connectToArduinoBlock(numberVariableBlock);
     connectToArduinoBlock(testNumberVariableBlock);
 

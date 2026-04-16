@@ -2,6 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
 import type { BlockEvent } from "../dto/event.type";
+import type { Workspace, BlockSvg } from "blockly";
 import updateLedColor from "./updateLedBlockColorField";
 import { ActionType } from "./actions";
 import {
@@ -11,8 +12,8 @@ import {
 import { ARDUINO_PINS } from "../../microcontroller/selectBoard";
 
 describe("updateLedBlockColorField", () => {
-  let workspace;
-  let arduinoBlock;
+  let workspace: Workspace;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();

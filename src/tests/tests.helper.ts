@@ -45,7 +45,7 @@ export const createSetVariableBlockWithValue = (
     const block = workspace.newBlock("variables_set_number");
     const valueBlock = workspace.newBlock("math_number");
     valueBlock.setFieldValue(value.toString(), "NUM");
-    block.getInput("VALUE").connection.connect(valueBlock.outputConnection);
+    block.getInput("VALUE")!.connection!.connect(valueBlock.outputConnection!);
     block.setFieldValue(variableModel.getId(), "VAR");
     return block as BlockSvg;
   }
@@ -53,7 +53,7 @@ export const createSetVariableBlockWithValue = (
     const block = workspace.newBlock("variables_set_boolean");
     const valueBlock = workspace.newBlock("logic_boolean");
     valueBlock.setFieldValue(value ? "TRUE" : "FALSE", "BOOL");
-    block.getInput("VALUE").connection.connect(valueBlock.outputConnection);
+    block.getInput("VALUE")!.connection!.connect(valueBlock.outputConnection!);
     block.setFieldValue(variableModel.getId(), "VAR");
     return block as BlockSvg;
   }
@@ -62,7 +62,7 @@ export const createSetVariableBlockWithValue = (
     const block = workspace.newBlock("variables_set_string");
     const valueBlock = workspace.newBlock("text");
     valueBlock.setFieldValue(value.toString(), "TEXT");
-    block.getInput("VALUE").connection.connect(valueBlock.outputConnection);
+    block.getInput("VALUE")!.connection!.connect(valueBlock.outputConnection!);
     block.setFieldValue(variableModel.getId(), "VAR");
     return block as BlockSvg;
   }
@@ -71,7 +71,7 @@ export const createSetVariableBlockWithValue = (
     const block = workspace.newBlock("variables_set_colour");
     const valueBlock = workspace.newBlock("color_picker_custom");
     valueBlock.setFieldValue(rgbToHex(value as Color), "COLOR");
-    block.getInput("VALUE").connection.connect(valueBlock.outputConnection);
+    block.getInput("VALUE")!.connection!.connect(valueBlock.outputConnection!);
     block.setFieldValue(variableModel.getId(), "VAR");
     return block as BlockSvg;
   }
@@ -116,9 +116,9 @@ export const createSetListBlock = (
   valueBlock: BlockSvg
 ) => {
   const block = workspace.newBlock(getSetVariableBlock(type));
-  block.getInput("VALUE").connection.connect(valueBlock.outputConnection);
+  block.getInput("VALUE")!.connection!.connect(valueBlock.outputConnection!);
   block.setFieldValue(variableId, "VAR");
-  block.getInput("POSITION").connection.connect(positionBlock.outputConnection);
+  block.getInput("POSITION")!.connection!.connect(positionBlock.outputConnection!);
 
   return block as BlockSvg;
 };

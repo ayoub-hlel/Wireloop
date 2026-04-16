@@ -13,7 +13,7 @@ export const getBtMessage: ValueGenerator = (
   return findComponent<BluetoothState>(
     previousState,
     ArduinoComponentType.BLUE_TOOTH
-  ).message;
+  )?.message;
 };
 
 export const hasBtMessage: ValueGenerator = (
@@ -26,5 +26,5 @@ export const hasBtMessage: ValueGenerator = (
   return findComponent<BluetoothState>(
     previousState,
     ArduinoComponentType.BLUE_TOOTH
-  ).hasMessage;
+  )?.hasMessage;
 };

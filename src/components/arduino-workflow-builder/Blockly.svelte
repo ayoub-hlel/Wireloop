@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
   import Blockly from 'blockly';
+  import type { WorkspaceSvg } from 'blockly';
   import { onMount, onDestroy } from 'svelte';
 
   import { WindowType, resizeStore } from '../../stores/resize.store';
@@ -25,25 +26,25 @@
   export let showLoopExecutionTimesArduinoStartBlock = true;
 
   // The elment that contains blockly
-  let blocklyElement;
+  let blocklyElement: HTMLElement;
 
   let workspaceInitialize = false;
 
-  const unsubscribes = [];
+  const unsubscribes: Array<() => void> = [];
 
   // This is ran whenever the showLoopExecutionTimesArduinoStartBlock changeq
   // and blocklyWorkspace is initialized
   $: if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
     arduinoLoopBlockShowNumberOfTimesThroughLoop();
-  } 
-  
+  }
+
   $: if (!showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
     arduinoLoopBlockShowLoopForeverText();
   }
 
   onMount(() => {
     // Hack for debugging blockly
-    window.Blockly = Blockly;
+    (window as any).Blockly = Blockly;
 
     startBlocly(blocklyElement);
 
@@ -123,7 +124,7 @@
 
   // The function to resize blockly main window
   function resizeBlockly() {
-    Blockly.svgResize(Blockly.getMainWorkspace());
+    Blockly.svgResize(Blockly.getMainWorkspace() as WorkspaceSvg);
   }
 
   onDestroy(() => {
@@ -131,7 +132,7 @@
     if (!workspaceInitialize) {
       return;
     }
-    const recentBlocks = workspaceToXML();
+    const recentBlocks = workspaceToXML() ?? '';
     localStorage.setItem('reload_once_workspace', recentBlocks);
   });
 </script>

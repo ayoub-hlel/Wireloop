@@ -5,7 +5,7 @@ export interface PassiveBuzzerState extends ArduinoComponentState {
   displaySimpleOn: boolean;
 }
 
-export const Notes = {
+export const Notes: Record<number, string> = {
   220: "A",
   233: "A#",
   247: "B",

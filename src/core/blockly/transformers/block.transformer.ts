@@ -7,7 +7,7 @@ import {
   type FieldValue,
   BlocklyInputTypes,
 } from "../dto/block.type";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import type { ARDUINO_PINS } from "../../microcontroller/selectBoard";
 
 export interface BlockTransformer {
@@ -15,15 +15,15 @@ export interface BlockTransformer {
 }
 
 const getNextBlockId = (block: BlockSvg): string | undefined => {
-  if (_.isEmpty(block.nextConnection)) {
+  if (isEmpty(block.nextConnection)) {
     return undefined;
   }
 
-  if (_.isEmpty(block.nextConnection.targetBlock())) {
+  if (isEmpty(block.nextConnection!.targetBlock())) {
     return undefined;
   }
 
-  return block.nextConnection.targetBlock().id;
+  return block.nextConnection!.targetBlock()!.id;
 };
 
 const getRootBlockId = (block: BlockSvg): string | undefined => {
@@ -42,23 +42,23 @@ const getFieldValues = (block: BlockSvg): FieldValue[] => {
             (block.type === "procedures_callnoreturn" && field.name === "NAME")
         )
         .map((field) => {
-          let validOptions = undefined;
+          let validOptions: { name: string; value: string; }[] | undefined = undefined;
           if (field instanceof Blockly.FieldDropdown) {
             validOptions = field.getOptions().map(([name, value]) => {
               return {
-                name,
-                value,
+                name: String(name),
+                value: String(value),
               };
             });
           }
           return {
-            name: field.name,
+            name: field.name ?? '',
             value: field.getValue(),
             validOptions,
           };
         });
     })
-    .reduce((prev, next) => {
+    .reduce<FieldValue[]>((prev, next) => {
       return [...prev, ...next];
     }, []);
 };
@@ -66,17 +66,17 @@ const getFieldValues = (block: BlockSvg): FieldValue[] => {
 const getPins = (block: BlockSvg): ARDUINO_PINS[] => {
   if (["motor_setup", "rgb_led_setup"].includes(block.type)) {
     const numberOfComponents = +block.getFieldValue("NUMBER_OF_COMPONENTS");
-    const pinTest = block.inputList
+    const pinTest: ARDUINO_PINS[] = block.inputList
       .filter((input) => input.name.includes("COMPONENT"))
       .filter((i) => {
         const num = +i.name.replace("COMPONENT_", "");
         return num <= numberOfComponents;
       })
-      .reduce((prev, next) => {
+      .reduce<ARDUINO_PINS[]>((prev, next) => {
         const pins = next.fieldRow
           .filter((f) => f instanceof Blockly.FieldDropdown)
-          .filter((f) => f.name.includes("PIN"))
-          .map((f) => f.getValue().toString());
+          .filter((f) => f.name!.includes("PIN"))
+          .map((f) => f.getValue()!.toString()) as ARDUINO_PINS[];
         return [...prev, ...pins];
       }, []);
     return pinTest;
@@ -91,7 +91,7 @@ const getInputs = (block: BlockSvg): Input[] => {
   return block.inputList
     .filter((input) => input.type === +BlocklyInputTypes.INPUT_BLOCK)
     .map((input) => {
-      const targetBlock = input.connection.targetBlock();
+      const targetBlock = input.connection!.targetBlock();
       const name = input.name;
 
       const blockId = targetBlock ? targetBlock.id : undefined;
@@ -128,7 +128,7 @@ export const transformBlock = (block: BlockSvg): BlockData => {
     rootBlockId: getRootBlockId(block),
     pinCategory: blocksToBlockTypes[block.type].pinCategory,
     pins: getPins(block),
-    metaData: block.data,
+    metaData: block.data ?? '',
     disabled: !block.isEnabled(),
   };
 };

@@ -1,9 +1,9 @@
-import Blockly, { type WorkspaceSvg } from "blockly";
+import Blockly, { type WorkspaceSvg, Events as BlockEvents } from "blockly";
 
-export const overrideTrashBlocks = (workspace) => {
-  workspace.trashcan.flyout_.workspace_.addChangeListener(function (event) {
+export const overrideTrashBlocks = (workspace: WorkspaceSvg) => {
+  (workspace.trashcan as any)?.flyout?.workspace?.addChangeListener(function (event: BlockEvents.Abstract) {
     const workspace = Blockly.Workspace.getById(
-      event.workspaceId
+      event.workspaceId!
     ) as WorkspaceSvg;
     const trashCan: any = (Blockly.getMainWorkspace() as WorkspaceSvg).trashcan;
 
@@ -11,7 +11,8 @@ export const overrideTrashBlocks = (workspace) => {
     // after they have been used
     if (event.type === Blockly.Events.UI) {
       // Deletes them once they have been used
-      const block = workspace.getBlockById(event.newValue);
+      const block = workspace.getBlockById((event as any).newValue as string);
+      if (!block) return;
       const xml = Blockly.Xml.blockToDom(block);
       const cleanedXML = trashCan.cleanBlockXML_(xml);
       for (let i = 0; i < trashCan.contents_.length; i += 1) {
@@ -27,8 +28,8 @@ export const overrideTrashBlocks = (workspace) => {
       // Re index item strings in the trash can
       let counter = 0;
       const contentsOfTrashCan = trashCan.contents_;
-      const reIndexContents = [];
-      contentsOfTrashCan.forEach(function (content) {
+      const reIndexContents: string[] = [];
+      contentsOfTrashCan.forEach(function (content: string) {
         reIndexContents[counter] = content;
         counter += 1;
       });

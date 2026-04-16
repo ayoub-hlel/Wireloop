@@ -22,7 +22,7 @@ SevenSegmentTM1637    digitalDisplay(PIN_CLK, PIN_DIO);
   return code;
 };
 
-Blockly["Arduino"]["digital_display_set"] = function (block) {
+Blockly["Arduino"]["digital_display_set"] = function (block: Block) {
   let text = Blockly["Arduino"].valueToCode(
     block,
     "TEXT",

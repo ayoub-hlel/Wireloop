@@ -235,10 +235,24 @@ class PerformanceMonitor {
    */
   clearMetrics(): void {
     this.metrics = [];
-    
+
     if (this.config.enableLocalStorage && browser && localStorage) {
       localStorage.removeItem('performance_metrics');
     }
+  }
+
+  /**
+   * Record a database operation for performance tracking
+   */
+  async recordDatabaseOperation(operation: string, duration: number, success: boolean = true): Promise<void> {
+    const metric: PerformanceMetric = {
+      operation,
+      startTime: Date.now() - duration,
+      endTime: Date.now(),
+      duration,
+      success,
+    };
+    this.metrics.push(metric);
   }
 
   /**

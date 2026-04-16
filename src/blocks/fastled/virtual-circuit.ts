@@ -9,7 +9,6 @@ import type {
 } from '../../core/virtual-circuit/svg-create';
 
 import type { Dom, Element, ElementAlias, Svg } from '@svgdotjs/svg.js';
-import _ from 'lodash';
 import { rgbToHex } from '../../core/blockly/helpers/color.helper';
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
 import type { FastLEDState } from './state';
@@ -25,7 +24,7 @@ export const fastLEDCreate: AfterComponentCreateHook<FastLEDState> = (
   showRGBStripLeds(fastLEDEl, state);
   fastLEDEl.findOne(
     '#DATA_TEXT'
-  ).node.innerHTML = `Data Pin = ${state.pins[0]}`;
+  )!.node.innerHTML = `Data Pin = ${state.pins[0]}`;
 };
 
 export const fastLEDPosition: PositionComponent<FastLEDState> = (
@@ -36,7 +35,7 @@ export const fastLEDPosition: PositionComponent<FastLEDState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(fastLEDEl, arduino, draw, holes[1], isDown, 'PIN_DATA');
 };
 
@@ -50,10 +49,11 @@ export const fastLEDReset: ResetComponent = (fastLEDEl: Element) => {
 };
 
 export const fastLEDUpdate: SyncComponent = (
-  state: FastLEDState,
+  state: any,
   fastLEDEl
 ) => {
-  state.fastLEDs.forEach((led) => {
+  const ledState = state as FastLEDState;
+  ledState.fastLEDs.forEach((led) => {
     const ledEl = fastLEDEl.findOne(
       `#LED-${led.position + 1} ellipse`
     ) as Element;
@@ -72,7 +72,7 @@ export const createWiresFastLEDs: CreateWire<FastLEDState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createComponentWire(
     holes[1],
     isDown,
@@ -131,7 +131,7 @@ const showRGBStripLeds = (fastLEDEl: Element, fastLEDState: FastLEDState) => {
   toggleShowHide(fastLEDEl.findOne('#LEVEL_1'), numberOfLeds >= 13);
 };
 
-const toggleShowHide = (el: Dom, show: boolean) => {
+const toggleShowHide = (el: Dom | null, show: boolean) => {
   if (!el) return;
 
   if (show) {

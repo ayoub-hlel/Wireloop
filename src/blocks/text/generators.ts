@@ -16,7 +16,7 @@ Blockly["Arduino"]["text"] = function (block: Block) {
  * @param {string} value Code evaluating to a value.
  * @return {string} Code evaluating to a string.
  */
-Blockly["Arduino"].text.forceString_ = function (value) {
+Blockly["Arduino"].text.forceString_ = function (value: string) {
   if (Blockly["Arduino"].text.forceString_.strRegExp.it(value)) {
     return value;
   }

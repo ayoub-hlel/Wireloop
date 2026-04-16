@@ -2,13 +2,13 @@ import { createBlock } from '../core/blockly/helpers/block.helper';
 import { loadProject } from '../core/blockly/helpers/workspace.helper';
 import { onConfirm } from '../help/alerts';
 
-export async function loadNewProjectFile(file): Promise<boolean> {
+export async function loadNewProjectFile(file: File): Promise<boolean> {
   if (
     !(await onConfirm(
       `Do you want to load ${file.name}, this will erase everything that you have done.`
     ))
   ) {
-    return;
+    return false;
   }
 
   const reader = new FileReader();
@@ -16,7 +16,7 @@ export async function loadNewProjectFile(file): Promise<boolean> {
   return new Promise((res, rej) => {
     reader.readAsText(file);
     reader.onload = function (evt) {
-      if (evt.target.readyState != 2) return;
+      if (!evt.target || evt.target.readyState != 2) return;
       if (evt.target.error) {
         rej(false);
         return;

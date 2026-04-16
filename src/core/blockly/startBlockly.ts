@@ -48,7 +48,7 @@ const startBlockly = (blocklyElement: HTMLElement) => {
 
   // Registers the code menu
   registerCodeMenu(workspace);
-  let arduinoBlock;
+  let arduinoBlock: Blockly.BlockSvg | undefined;
   // If the last workspace was empty, create the default blocks
   if (localStorage && localStorage.getItem("reload_once_workspace") === null) {
     // creates the arduino loop block
@@ -59,7 +59,10 @@ const startBlockly = (blocklyElement: HTMLElement) => {
     createLedWithDelay(0.2, true);
   } else {
     // Load the last workspace
-    loadProject(localStorage.getItem("reload_once_workspace"));
+    const savedWorkspace = localStorage.getItem("reload_once_workspace");
+    if (savedWorkspace) {
+      loadProject(savedWorkspace);
+    }
     arduinoBlock = getBlockByType("arduino_loop");
     setTimeout(() => {
       Blockly.svgResize(getWorkspace());
@@ -71,7 +74,7 @@ const startBlockly = (blocklyElement: HTMLElement) => {
   createFrames({
     type: Blockly.Events.MOVE,
     blockId: arduinoBlock.id,
-  });
+  } as unknown as Blockly.Events.Abstract);
 };
 
 /**
@@ -85,20 +88,20 @@ const createWorkspace = (blocklyElement: HTMLElement) => {
 const createLedWithDelay = (seconds = 1, isOn = true) => {
   const ledBlock = createBlock("led", 0, 0, true);
   ledBlock.setCommentText(LED_COMMENT);
-  ledBlock.getIcon("comment")?.setBubbleSize(new Blockly.utils.Size(460, 90));
+  (ledBlock.getIcon("comment") as any)?.setBubbleSize?.(new Blockly.utils.Size(460, 90));
   ledBlock.setFieldValue(ARDUINO_PINS.PIN_13, "PIN");
   ledBlock.setFieldValue(isOn ? "ON" : "OFF", "STATE");
   connectToArduinoBlock(ledBlock);
   const delayBlock = createBlock("delay_block", 0, 0, true);
 
   delayBlock.setCommentText(DELAY_COMMENT);
-  delayBlock.getIcon("comment")?.setBubbleSize(new Blockly.utils.Size(460, 90));
+  (delayBlock.getIcon("comment") as any)?.setBubbleSize?.(new Blockly.utils.Size(460, 90));
   const numberBlock1 = createBlock("math_number", 0, 0, true);
   numberBlock1.setFieldValue(seconds.toString(), "NUM");
   delayBlock
-    .getInput("DELAY")
-    .connection.connect(numberBlock1.outputConnection);
-  ledBlock.nextConnection.connect(delayBlock.previousConnection);
+    .getInput("DELAY")!
+    .connection!.connect(numberBlock1.outputConnection);
+  ledBlock.nextConnection!.connect(delayBlock.previousConnection!);
 };
 
 /**
@@ -119,7 +122,7 @@ const createBlockConfig = (): Blockly.BlocklyOptions => {
     media: "https://blockly-demo.appspot.com/static/media/",
     rtl: false,
     sounds: true,
-    theme,
+    theme: theme as any,
     oneBasedIndex: true,
     grid: {
       spacing: 20,

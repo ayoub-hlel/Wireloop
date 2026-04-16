@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../blocks";
-import type { Workspace } from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import _ from "lodash";
 import { ActionType } from "../actions";
 import { ARDUINO_PINS } from "../../../microcontroller/selectBoard";
@@ -13,7 +13,7 @@ import {
 
 describe("disableSensorReadBlocksWithWrongPins", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();

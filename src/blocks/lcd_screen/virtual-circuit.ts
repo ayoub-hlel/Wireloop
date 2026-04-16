@@ -19,7 +19,7 @@ import {
 /**
  * Timer for blinking
  */
-let blinkingTimer;
+let blinkingTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 
 /**
  * Blink Position
@@ -36,8 +36,8 @@ export const lcdCreate: AfterComponentCreateHook<LCDScreenState> = (
   lcdScreenEl
 ) => {
   centerLetters(lcdScreenEl, state);
-  lcdScreenEl.findOne("#PIN_SCL_TEXT").node.innerHTML = state.sclPin;
-  lcdScreenEl.findOne("#PIN_SDA_TEXT").node.innerHTML = state.sdaPin;
+  lcdScreenEl.findOne("#PIN_SCL_TEXT")!.node.innerHTML = state.sclPin;
+  lcdScreenEl.findOne("#PIN_SDA_TEXT")!.node.innerHTML = state.sdaPin;
 };
 
 export const lcdPosition: PositionComponent<LCDScreenState> = (
@@ -48,7 +48,7 @@ export const lcdPosition: PositionComponent<LCDScreenState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(lcdScreenEl, arduino, draw, holes[1], isDown, "PIN_POWER");
 };
 
@@ -65,17 +65,18 @@ export const lcdReset: ResetComponent = (lcdScreenEl: Element) => {
 };
 
 export const lcdUpdate: SyncComponent = (
-  state: LCDScreenState,
+  state: any,
   lcdScreenEl
 ) => {
-  for (let row = 1; row <= state.rows; row += 1) {
-    for (let col = 1; col <= state.columns; col += 1) {
+  const lcdState = state as LCDScreenState;
+  for (let row = 1; row <= lcdState.rows; row += 1) {
+    for (let col = 1; col <= lcdState.columns; col += 1) {
       const letterEl = lcdScreenEl.findOne(`#letter-${col}-${row}`) as Element;
 
-      (letterEl as Text).node.innerHTML = state.rowsOfText[row - 1][col - 1];
+      (letterEl as Text).node.innerHTML = lcdState.rowsOfText[row - 1][col - 1];
     }
   }
-  if (!state.blink.blinking) {
+  if (!lcdState.blink.blinking) {
     const space = lcdScreenEl.findOne(
       `#space-${blinkPosition.col}-${blinkPosition.row} rect`
     ) as Element;
@@ -144,7 +145,7 @@ export const createWiresLcd: CreateWire<LCDScreenState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(holes[1], isDown, lcdEl, draw, arduino, id, "power");
   createGroundOrPowerWire(holes[0], isDown, lcdEl, draw, arduino, id, "ground");
 

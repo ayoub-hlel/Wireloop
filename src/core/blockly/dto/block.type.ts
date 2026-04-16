@@ -106,7 +106,7 @@ export const sensorSetupBlocks = [
 /**
  * List of key value block type => setup block required
  */
-export const blocksThatRequireSetup = {
+export const blocksThatRequireSetup: Record<string, string> = {
   bluetooth_send_message: "bluetooth_setup",
   bluetooth_has_message: "bluetooth_setup",
   bluetooth_get_message: "bluetooth_setup",
@@ -154,7 +154,7 @@ export const blocksThatRequireSetup = {
 /**
  * Setup Blocks to human names
  */
-export const setupBlockTypeToHumanName = {
+export const setupBlockTypeToHumanName: Record<string, string> = {
   bluetooth_setup: "bluetooth setup block",
   lcd_setup: "LCD setup block",
   neo_pixel_setup: "LED light strip setup block",

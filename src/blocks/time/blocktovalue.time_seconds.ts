@@ -9,6 +9,7 @@ export const timeSeconds: ValueGenerator = (
   timeline,
   previousState
 ) => {
+  if (!previousState) return 0;
   const timeState = previousState.components.find(
     (c) => c.type === ArduinoComponentType.TIME
   ) as TimeState;

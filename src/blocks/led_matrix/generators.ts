@@ -1,8 +1,8 @@
-import Blockly from 'blockly';
+import Blockly, { type Block } from 'blockly';
 import { numberToCode } from '../../core/blockly/helpers/number-code.helper';
 // TODO REPLACE WITH THIS -> https://github.com/valmat/LedMatrix
 
-Blockly['Arduino']['led_matrix_setup'] = function (block) {
+Blockly['Arduino']['led_matrix_setup'] = function (block: Block) {
   const dataPin = block.getFieldValue('PIN_DATA');
   const clkPin = block.getFieldValue('PIN_CLK');
   const csPin = block.getFieldValue('PIN_CS');
@@ -26,7 +26,7 @@ LedControl lc = LedControl(${dataPin},${clkPin},${csPin},1);`;
   return '';
 };
 
-Blockly['Arduino']['led_matrix_make_draw'] = function (block) {
+Blockly['Arduino']['led_matrix_make_draw'] = function (block: Block) {
   let code = '\n\t//START CODE TO DRAW BLOCK ' + block.id + '\n';
 
   for (let i = 1; i <= 8; i += 1) {
@@ -49,7 +49,7 @@ Blockly['Arduino']['led_matrix_make_draw'] = function (block) {
   return code;
 };
 
-Blockly['Arduino']['led_matrix_turn_one_on_off'] = function (block) {
+Blockly['Arduino']['led_matrix_turn_one_on_off'] = function (block: Block) {
   // todo fix code with variables
   const row = Blockly['Arduino'].valueToCode(
     block,

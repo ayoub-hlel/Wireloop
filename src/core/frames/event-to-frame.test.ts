@@ -75,8 +75,7 @@ describe("generator", () => {
     );
 
     arduinoBlock
-      .getInput("loop")
-      .connection.connect(setNumberBlock2.previousConnection);
+      .getInput("loop")!.connection!.connect(setNumberBlock2.previousConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     const event = createTestEvent(arduinoBlock.id, Blockly.Events.BLOCK_DELETE);

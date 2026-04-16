@@ -72,22 +72,18 @@ describe("bluetooth state factories", () => {
     );
 
     setVariableTextBlock
-      .getInput("VALUE")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
       .dispose(true);
 
     hasMessageBoolBlock
-      .getInput("VALUE")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
       .dispose(true);
 
     setVariableTextBlock
-      .getInput("VALUE")
-      .connection.connect(getBtMessageBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(getBtMessageBlock.outputConnection!);
 
     hasMessageBoolBlock
-      .getInput("VALUE")
-      .connection.connect(hasBtMessageBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(hasBtMessageBlock.outputConnection!);
 
     connectToArduinoBlock(setVariableTextBlock);
     connectToArduinoBlock(hasMessageBoolBlock);
@@ -103,11 +99,11 @@ describe("bluetooth state factories", () => {
     expect(state2.variables["hasMessage"].value).toBe(true);
     expect(_.keys(state2.variables).length).toBe(1);
     expect(
-      findComponent<BluetoothState>(state2, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state2, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeTruthy();
     expect(
-      findComponent<BluetoothState>(state2, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state2, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("MESSAGE_1");
 
@@ -115,11 +111,11 @@ describe("bluetooth state factories", () => {
     expect(state3.variables["message"].value).toBe("MESSAGE_1");
     expect(_.keys(state3.variables).length).toBe(2);
     expect(
-      findComponent<BluetoothState>(state3, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state3, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeTruthy();
     expect(
-      findComponent<BluetoothState>(state3, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state3, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("MESSAGE_1");
 
@@ -128,11 +124,11 @@ describe("bluetooth state factories", () => {
     expect(state4.variables["message"].value).toBe("MESSAGE_1");
     expect(_.keys(state4.variables).length).toBe(2);
     expect(
-      findComponent<BluetoothState>(state4, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state4, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeFalsy();
     expect(
-      findComponent<BluetoothState>(state4, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state4, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("");
 
@@ -140,11 +136,11 @@ describe("bluetooth state factories", () => {
     expect(state5.variables["message"].value).toBe("");
     expect(_.keys(state5.variables).length).toBe(2);
     expect(
-      findComponent<BluetoothState>(state5, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state5, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeFalsy();
     expect(
-      findComponent<BluetoothState>(state5, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state5, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("");
 
@@ -153,11 +149,11 @@ describe("bluetooth state factories", () => {
     expect(state6.variables["message"].value).toBe("");
     expect(_.keys(state6.variables).length).toBe(2);
     expect(
-      findComponent<BluetoothState>(state6, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state6, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeTruthy();
     expect(
-      findComponent<BluetoothState>(state6, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state6, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("MESSAGE_3");
 
@@ -165,11 +161,11 @@ describe("bluetooth state factories", () => {
     expect(state7.variables["message"].value).toBe("MESSAGE_3");
     expect(_.keys(state7.variables).length).toBe(2);
     expect(
-      findComponent<BluetoothState>(state7, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state7, ArduinoComponentType.BLUE_TOOTH)!
         .hasMessage
     ).toBeTruthy();
     expect(
-      findComponent<BluetoothState>(state7, ArduinoComponentType.BLUE_TOOTH)
+      findComponent<BluetoothState>(state7, ArduinoComponentType.BLUE_TOOTH)!
         .message
     ).toBe("MESSAGE_3");
   });

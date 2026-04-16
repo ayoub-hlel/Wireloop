@@ -7,10 +7,12 @@ const RAILS = ["W", "X", "Y", "Z"];
 export const registerHighlightEvents = (arduino: Element) => {
   arduino.find("#sockets > g").forEach((pin) => {
     pin.node.addEventListener("mouseover", (e) => {
-      const id = e.target.parentElement.id;
+      const target = e.target as HTMLElement | null;
+      const id = target?.parentElement?.id;
       if (id && id.includes("pin")) {
         const pinNumber = id.replace("pin", "");
         const letter = pinNumber.split("").pop();
+        if (!letter) return;
         const number = +pinNumber.replace(letter, "");
         if (BOTTOM_MIDDLE_HOLES.includes(letter)) {
           BOTTOM_MIDDLE_HOLES.forEach((l) => {
@@ -39,10 +41,12 @@ export const registerHighlightEvents = (arduino: Element) => {
     });
 
     pin.node.addEventListener("mouseout", (e) => {
-      const id = e.target.parentElement.id;
+      const target = e.target as HTMLElement | null;
+      const id = target?.parentElement?.id;
       if (id && id.includes("pin")) {
         const pinNumber = id.replace("pin", "");
         const letter = pinNumber.split("").pop();
+        if (!letter) return;
         const number = +pinNumber.replace(letter, "");
 
         if (BOTTOM_MIDDLE_HOLES.includes(letter)) {
@@ -78,7 +82,7 @@ export const registerHighlightEvents = (arduino: Element) => {
               `#pin${i}${letter} path:first-of-type`
             );
 
-            if (bottomPath && getTopBlocks) {
+            if (bottomPath) {
               (bottomPath as Element).node.style.fill = "#e6e6e6";
               (topPath as Element).node.style.fill = "#bfbfbf";
             }

@@ -1,6 +1,6 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 
-function hexToRgb(hex) {
+function hexToRgb(hex: string) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
@@ -19,16 +19,16 @@ export function createColorStruct() {
 };`;
 }
 
-Blockly["Arduino"]["color_picker_custom"] = function (block) {
+Blockly["Arduino"]["color_picker_custom"] = function (block: Block) {
   const rgb = hexToRgb(block.getFieldValue("COLOR"));
   createColorStruct();
   return [
-    "{ " + rgb.r + ", " + rgb.g + ", " + rgb.b + "}",
+    "{ " + rgb!.r + ", " + rgb!.g + ", " + rgb!.b + "}",
     Blockly["Arduino"].ORDER_ATOMIC,
   ];
 };
 
-Blockly["Arduino"]["colour_random"] = function (block) {
+Blockly["Arduino"]["colour_random"] = function (block: Block) {
   createColorStruct();
   return [
     "{ random(0, 255), random(0, 255), random(0, 255)}",
@@ -36,7 +36,7 @@ Blockly["Arduino"]["colour_random"] = function (block) {
   ];
 };
 
-Blockly["Arduino"]["colour_rgb"] = function (block) {
+Blockly["Arduino"]["colour_rgb"] = function (block: Block) {
   createColorStruct();
   const red = Blockly["Arduino"].valueToCode(
     block,

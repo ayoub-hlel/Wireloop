@@ -1,7 +1,7 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 
-Blockly["Arduino"]["bluetooth_setup"] = function (block) {
+Blockly["Arduino"]["bluetooth_setup"] = function (block: Block) {
   const rxPin = block.getFieldValue("PIN_RX");
   const txPin = block.getFieldValue("PIN_TX");
   Blockly["Arduino"].libraries_["define_bluetooth"] =
@@ -31,11 +31,11 @@ Blockly["Arduino"]["bluetooth_setup"] = function (block) {
   return "";
 };
 
-Blockly["Arduino"]["bluetooth_get_message"] = function (block) {
+Blockly["Arduino"]["bluetooth_get_message"] = function (block: Block) {
   return ["getBluetoothMessage()", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["bluetooth_has_message"] = function (block) {
+Blockly["Arduino"]["bluetooth_has_message"] = function (block: Block) {
   // available() returns the number of bytes.  Because 0 will return false
   // we can return 0 as false and greater than 0 as true for the blocks.
   return [
@@ -44,7 +44,7 @@ Blockly["Arduino"]["bluetooth_has_message"] = function (block) {
   ];
 };
 
-Blockly["Arduino"]["bluetooth_send_message"] = function (block) {
+Blockly["Arduino"]["bluetooth_send_message"] = function (block: Block) {
   const message = Blockly["Arduino"].valueToCode(
     block,
     "MESSAGE",

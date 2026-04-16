@@ -13,7 +13,7 @@ export const getArduinoMessage: ValueGenerator = (
   return findComponent<ArduinoReceiveMessageState>(
     previousState,
     ArduinoComponentType.MESSAGE
-  ).message;
+  )?.message;
 };
 
 export const arduinoHasMessage: ValueGenerator = (
@@ -26,5 +26,5 @@ export const arduinoHasMessage: ValueGenerator = (
   return findComponent<ArduinoReceiveMessageState>(
     previousState,
     ArduinoComponentType.MESSAGE
-  ).hasMessage;
+  )?.hasMessage;
 };

@@ -3,14 +3,15 @@ import {
   generateInputFrame,
 } from "../../core/frames/transformer/block-to-frame.transformer";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
+import cloneDeep from "lodash/cloneDeep";
 import {
   arduinoFrameByExplanation,
   arduinoFrameByVariable,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
-import type { Variable } from "../../core/frames/arduino.frame";
+import type { ArduinoFrame, Variable } from "../../core/frames/arduino.frame";
 
 export const simpleLoop: BlockToFrameTransformer = (
   blocks,
@@ -23,8 +24,8 @@ export const simpleLoop: BlockToFrameTransformer = (
     getInputValue(blocks, block, variables, timeline, "TIMES", 1, previousState)
   );
 
-  return _.range(1, times + 1).reduce((prev, next) => {
-    const beforeState = _.isEmpty(prev) ? previousState : prev[prev.length - 1];
+  return Array.from({ length: times }, (_, i) => i + 1).reduce<ArduinoFrame[]>((prev, next) => {
+    const beforeState = isEmpty(prev) ? previousState : prev[prev.length - 1];
 
     const loopFrame = arduinoFrameByExplanation(
       block.id,
@@ -81,11 +82,13 @@ export const forLoop: BlockToFrameTransformer = (
   const multiplyBy = from > to ? -1 : 1;
 
   let prevState = previousState;
-  return _.range(from, to + multiplyBy, by * multiplyBy)
+  const loopLength = Math.ceil(Math.abs(to - from + 1) / by);
+  return Array.from({ length: loopLength }, (_, i) => from + i * by * multiplyBy)
     .map((i, counter, array) => {
       const variableData = variables.find(
         (v) => v.id === findFieldValue(block, "VAR")
       );
+      if (!variableData) return [];
 
       const newVariable: Variable = {
         id: variableData.id,
@@ -114,7 +117,7 @@ export const forLoop: BlockToFrameTransformer = (
           loopFrame
         ),
       ];
-      prevState = _.cloneDeep(states[states.length - 1]);
+      prevState = cloneDeep(states[states.length - 1]);
 
       return states;
     })

@@ -1,7 +1,6 @@
-import Blockly from "blockly";
-import type { Block } from "blockly";
+import Blockly, { type Block } from "blockly";
 
-Blockly["Arduino"]["motor_setup"] = function (block) {
+Blockly["Arduino"]["motor_setup"] = function (block: Block) {
   const numberOfMotors = +block.getFieldValue("NUMBER_OF_COMPONENTS");
   const pinEn1 = block.getFieldValue("PIN_EN1");
   const pinIn1 = block.getFieldValue("PIN_IN1");

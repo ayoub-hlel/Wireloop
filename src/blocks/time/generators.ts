@@ -1,20 +1,20 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 
 
-function isPureNumber(str) {
+function isPureNumber(str: string) {
   // Check if the string matches a valid number pattern
   const numberPattern = /^[+-]?\d+(\.\d+)?$/; // Matches integers and decimals
   return numberPattern.test(str);
 }
 
-Blockly["Arduino"]["time_seconds"] = function (block) {
+Blockly["Arduino"]["time_seconds"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["secondsArduinoBeenOn"] =
     "double secondsArduinoBeenOn() {\n" + "\treturn millis() / 1000;\n" + "}\n";
 
   return ["secondsArduinoBeenOn()", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["delay_block"] = function (block) {
+Blockly["Arduino"]["delay_block"] = function (block: Block) {
   let delay =
     Blockly["Arduino"].valueToCode(
       block,

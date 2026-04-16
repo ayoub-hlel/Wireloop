@@ -48,7 +48,7 @@ describe("led matrix  factories", () => {
     ledmatrixdraw2.setFieldValue("TRUE", "6,6");
 
     connectToArduinoBlock(ledmatrixdraw1);
-    ledmatrixdraw1.nextConnection.connect(ledmatrixdraw2.previousConnection);
+    ledmatrixdraw1.nextConnection!.connect(ledmatrixdraw2.previousConnection!);
 
     const event = createTestEvent(ledmatrixdraw1.id);
 
@@ -61,7 +61,7 @@ describe("led matrix  factories", () => {
     const component1 = findComponent<LedMatrixState>(
       state1,
       ArduinoComponentType.LED_MATRIX
-    );
+    )!;
     component1.leds.forEach((led) => {
       if (led.col === led.row && [1, 2, 3].includes(led.row)) {
         expect(led.isOn).toBeTruthy();
@@ -73,7 +73,7 @@ describe("led matrix  factories", () => {
     const component2 = findComponent<LedMatrixState>(
       state2,
       ArduinoComponentType.LED_MATRIX
-    );
+    )!;
 
     component2.leds.forEach((led) => {
       if (led.col === led.row && [6, 7, 8].includes(led.row)) {
@@ -125,8 +125,8 @@ describe("led matrix  factories", () => {
     const ledMatrix3 = createLedMatrixBlock(1, 1, false);
 
     connectToArduinoBlock(ledMatrix1);
-    ledMatrix1.nextConnection.connect(ledMatrix2.previousConnection);
-    ledMatrix2.nextConnection.connect(ledMatrix3.previousConnection);
+    ledMatrix1.nextConnection!.connect(ledMatrix2.previousConnection!);
+    ledMatrix2.nextConnection!.connect(ledMatrix3.previousConnection!);
 
     const event = createTestEvent(ledMatrix1.id);
 
@@ -168,7 +168,7 @@ describe("led matrix  factories", () => {
     });
   });
 
-  const createLedMatrixBlock = (row: number, col: number, isOn) => {
+  const createLedMatrixBlock = (row: number, col: number, isOn: boolean) => {
     const ledMatrix = workspace.newBlock(
       "led_matrix_turn_one_on_off"
     ) as BlockSvg;
@@ -176,8 +176,8 @@ describe("led matrix  factories", () => {
     const rowBlock = createValueBlock(workspace, VariableTypes.NUMBER, row);
     const colBlock = createValueBlock(workspace, VariableTypes.NUMBER, col);
 
-    ledMatrix.getInput("ROW").connection.connect(rowBlock.outputConnection);
-    ledMatrix.getInput("COLUMN").connection.connect(colBlock.outputConnection);
+    ledMatrix.getInput("ROW")!.connection!.connect(rowBlock.outputConnection!);
+    ledMatrix.getInput("COLUMN")!.connection!.connect(colBlock.outputConnection!);
 
     ledMatrix.setFieldValue(isOn ? "ON" : "OFF", "STATE");
 
@@ -193,8 +193,7 @@ describe("led matrix  factories", () => {
     );
     rotateServo.setFieldValue(pin, "PIN");
     rotateServo
-      .getInput("DEGREE")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("DEGREE")!.connection!.connect(numberBlock.outputConnection!);
 
     return rotateServo;
   };

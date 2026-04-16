@@ -10,7 +10,7 @@ Blockly.Blocks["led"] = {
       .appendField(new Blockly.FieldImage("./blocks/led/led.png", 15, 15))
       .appendField("Turn a ")
       .appendField(
-        new Blockly.FieldColour("red", null, {
+        new Blockly.FieldColour("red", undefined, {
           colourOptions: [
             "#ff0000",
             "#008000",
@@ -52,7 +52,7 @@ Blockly.Blocks["led_fade"] = {
       .appendField(new Blockly.FieldImage("./blocks/led/led.png", 15, 15))
       .appendField("Fade a")
       .appendField(
-        new Blockly.FieldColour("red", null, {
+        new Blockly.FieldColour("red", undefined, {
           colourOptions: [
             "#ff0000",
             "#008000",

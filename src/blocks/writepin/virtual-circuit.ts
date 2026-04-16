@@ -24,7 +24,7 @@ export const digitalAnalogWritePinReset: ResetComponent = (
   pinText.node.innerHTML = "OFF";
   const pinTypeText = componentEl.findOne("#PIN_TYPE") as Text;
   pinTypeText.node.innerHTML = "";
-  componentEl.findOne("#RAYS").hide();
+  componentEl.findOne("#RAYS")!.hide();
   (componentEl.findOne("#LIGHT_BULB") as Element).opacity(0);
 };
 
@@ -36,7 +36,7 @@ export const digitalAnanlogWritePinPosition: PositionComponent<WritePinState> = 
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(componentEl, arduinoEl, draw, holes[2], isDown, "POWER");
 };
 
@@ -57,30 +57,31 @@ export const digitalAnanlogWritePinCreate: AfterComponentCreateHook<WritePinStat
 };
 
 export const digitalAnalogWritePinSync: SyncComponent = (
-  state: WritePinState,
+  state: any,
   pinEl,
   draw
 ) => {
+  const writeState = state as WritePinState;
   const pinText = pinEl.findOne("#STATE_TEXT") as Text;
 
-  if (state.pinType === WritePinType.DIGITAL_OUTPUT) {
-    if (state.state === 1) {
+  if (writeState.pinType === WritePinType.DIGITAL_OUTPUT) {
+    if (writeState.state === 1) {
       pinText.node.innerHTML = "ON";
-      pinEl.findOne("#RAYS").show();
-      pinEl.findOne("#LIGHT_BULB").show();
+      pinEl.findOne("#RAYS")!.show();
+      pinEl.findOne("#LIGHT_BULB")!.show();
       (pinEl.findOne("#LIGHT_BULB") as Element).opacity(1);
     } else {
       pinText.node.innerHTML = "OFF";
       (pinEl.findOne("#LIGHT_BULB") as Element).opacity(0);
-      pinEl.findOne("#RAYS").hide();
+      pinEl.findOne("#RAYS")!.hide();
     }
   }
 
   if (state.pinType === WritePinType.ANALOG_OUTPUT) {
     const pinText = pinEl.findOne("#STATE_TEXT") as Text;
     pinText.node.innerHTML = state.state.toString();
-    pinEl.findOne("#RAYS").show();
-    pinEl.findOne("#LIGHT_BULB").show();
+    pinEl.findOne("#RAYS")!.show();
+    pinEl.findOne("#LIGHT_BULB")!.show();
 
     (pinEl.findOne("#RAYS") as Element).opacity(state.state / 255);
     (pinEl.findOne("#LIGHT_BULB") as Element).opacity(state.state / 255);
@@ -98,7 +99,7 @@ export const createWiresDigitalAnalogWrite: CreateWire<WritePinState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[0],

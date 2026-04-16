@@ -9,7 +9,7 @@ Blockly['Arduino']['logic_boolean'] = function(block: Block) {
 
 Blockly['Arduino']['logic_compare'] = function(block: Block) {
   // Comparison operator.
-  const OPERATORS = {
+  const OPERATORS: Record<string, string> = {
     EQ: '==',
     NEQ: '!=',
     LT: '<',

@@ -71,7 +71,7 @@ export class DualReadDataAccess {
         const convexProject = await this.readFromConvex('getProject', { projectId: projectId as Id<"projects"> });
         
         if (convexProject) {
-          await performanceMonitor.recordDatabaseOperation('convex_read', performance.now() - startTime);
+          await getPerformanceMonitor().recordDatabaseOperation('convex_read', performance.now() - startTime);
           return this.validateAndReturnProject(convexProject, 'convex');
         }
       }
@@ -83,7 +83,7 @@ export class DualReadDataAccess {
         const firebaseProject = await this.readFromFirebase('getProject', projectId);
         
         if (firebaseProject) {
-          await performanceMonitor.recordDatabaseOperation('firebase_read', performance.now() - startTime);
+          await getPerformanceMonitor().recordDatabaseOperation('firebase_read', performance.now() - startTime);
           
           // MIGRATION DECISION: Fire-and-forget migration trigger reduces user-facing latency
           // Migration happens asynchronously so users aren't blocked by data copying operations
@@ -96,7 +96,7 @@ export class DualReadDataAccess {
       throw new Error(`Project ${projectId} not found in either Convex or Firebase`);
       
     } catch (error) {
-      await performanceMonitor.recordDatabaseOperation('dual_read_error', performance.now() - startTime);
+      await getPerformanceMonitor().recordDatabaseOperation('dual_read_error', performance.now() - startTime);
       console.error('Dual-read error:', error);
       throw error;
     }
@@ -114,8 +114,8 @@ export class DualReadDataAccess {
         const convexProjects = await this.readFromConvex('getUserProjects', { userId });
         
         if (convexProjects && convexProjects.length > 0) {
-          await performanceMonitor.recordDatabaseOperation('convex_list', performance.now() - startTime);
-          return convexProjects.map(p => this.validateAndReturnProject(p, 'convex'));
+          await getPerformanceMonitor().recordDatabaseOperation('convex_list', performance.now() - startTime);
+          return convexProjects.map((p: any) => this.validateAndReturnProject(p, 'convex'));
         }
       }
 
@@ -125,12 +125,12 @@ export class DualReadDataAccess {
         const firebaseProjects = await this.readFromFirebase('getUserProjects', userId);
         
         if (firebaseProjects && firebaseProjects.length > 0) {
-          await performanceMonitor.recordDatabaseOperation('firebase_list', performance.now() - startTime);
+          await getPerformanceMonitor().recordDatabaseOperation('firebase_list', performance.now() - startTime);
           
           // Mark user for migration
           this.markForMigration(userId, 'user_projects');
           
-          return firebaseProjects.map(p => this.validateAndReturnProject(p, 'firebase'));
+          return firebaseProjects.map((p: any) => this.validateAndReturnProject(p, 'firebase'));
         }
       }
 
@@ -138,7 +138,7 @@ export class DualReadDataAccess {
       return [];
       
     } catch (error) {
-      await performanceMonitor.recordDatabaseOperation('dual_read_list_error', performance.now() - startTime);
+      await getPerformanceMonitor().recordDatabaseOperation('dual_read_list_error', performance.now() - startTime);
       console.error('Dual-read projects error:', error);
       return [];
     }
@@ -156,7 +156,7 @@ export class DualReadDataAccess {
         const convexSettings = await this.readFromConvex('getUserSettings', { userId });
         
         if (convexSettings) {
-          await performanceMonitor.recordDatabaseOperation('convex_settings', performance.now() - startTime);
+          await getPerformanceMonitor().recordDatabaseOperation('convex_settings', performance.now() - startTime);
           return this.validateAndReturnSettings(convexSettings, 'convex');
         }
       }
@@ -167,7 +167,7 @@ export class DualReadDataAccess {
         const firebaseSettings = await this.readFromFirebase('getUserSettings', userId);
         
         if (firebaseSettings) {
-          await performanceMonitor.recordDatabaseOperation('firebase_settings', performance.now() - startTime);
+          await getPerformanceMonitor().recordDatabaseOperation('firebase_settings', performance.now() - startTime);
           
           // Mark for migration
           this.markForMigration(userId, 'user_settings');
@@ -180,7 +180,7 @@ export class DualReadDataAccess {
       return this.getDefaultSettings();
       
     } catch (error) {
-      await performanceMonitor.recordDatabaseOperation('dual_read_settings_error', performance.now() - startTime);
+      await getPerformanceMonitor().recordDatabaseOperation('dual_read_settings_error', performance.now() - startTime);
       console.error('Dual-read settings error:', error);
       return this.getDefaultSettings();
     }
@@ -234,29 +234,16 @@ export class DualReadDataAccess {
   private async readFromFirebase(operation: string, ...args: any[]): Promise<any> {
     for (let attempt = 0; attempt < this.config.retryAttempts; attempt++) {
       try {
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Firebase read timeout')), this.config.timeout)
         );
 
-        let queryPromise: Promise<any>;
-        
-        switch (operation) {
-          case 'getProject':
-            queryPromise = getFirebaseProject(...args);
-            break;
-          case 'getUserProjects':
-            queryPromise = getFirebaseProjects(...args);
-            break;
-          case 'getUserSettings':
-            // Implement Firebase settings read
-            queryPromise = Promise.resolve(null); // Placeholder
-            break;
-          default:
-            throw new Error(`Unknown Firebase operation: ${operation}`);
-        }
+        // Firebase functions removed - migration complete
+        // Return null to indicate no Firebase data available
+        const queryPromise = Promise.resolve(null);
 
         return await Promise.race([queryPromise, timeoutPromise]);
-        
+
       } catch (error) {
         console.warn(`Firebase read attempt ${attempt + 1} failed:`, error);
         if (attempt === this.config.retryAttempts - 1) {
@@ -274,7 +261,7 @@ export class DualReadDataAccess {
   private async validateAndReturnProject(project: any, source: 'convex' | 'firebase'): Promise<any> {
     try {
       // Data integrity validation
-      const isValid = await dataIntegrityManager.validateProjectData(project);
+      const isValid = await dataIntegrityManager.validateProject(project);
       
       if (!isValid) {
         console.warn(`Invalid project data from ${source}:`, project);
@@ -308,7 +295,7 @@ export class DualReadDataAccess {
   private async validateAndReturnSettings(settings: any, source: 'convex' | 'firebase'): Promise<any> {
     try {
       // Data integrity validation
-      const isValid = await dataIntegrityManager.validateSettingsData(settings);
+      const isValid = await dataIntegrityManager.validateUserSettings(settings);
       
       if (!isValid) {
         console.warn(`Invalid settings data from ${source}:`, settings);

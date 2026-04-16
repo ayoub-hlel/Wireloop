@@ -4,7 +4,7 @@ import config from "../../env";
 declare class AvrgirlArduino {
   constructor(config: any);
 
-  flash(hex: string, call: (error) => void): void;
+  flash(hex: string, call: (error: Error | null) => void): void;
 }
 
 export const upload = async (

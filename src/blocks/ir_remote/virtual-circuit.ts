@@ -19,7 +19,7 @@ export const createIrRemote: AfterComponentCreateHook<IRRemoteState> = (
   state,
   irRemoteEl
 ) => {
-  irRemoteEl.findOne("#PIN_TEXT").node.innerHTML = state.pins[0];
+  irRemoteEl.findOne("#PIN_TEXT")!.node.innerHTML = state.pins[0];
 };
 
 export const positionIrRemote: PositionComponent<IRRemoteState> = (
@@ -30,31 +30,32 @@ export const positionIrRemote: PositionComponent<IRRemoteState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   positionComponent(irRemoteEl, arduinoEl, draw, holes[1], isDown, "PIN_POWER");
 };
 
 export const updateIrRemote: SyncComponent = (
-  state: IRRemoteState,
+  state: any,
   irRemoteEl,
   draw
 ) => {
-  if (!state.hasCode) {
-    irRemoteEl.findOne("#remote").hide();
-    irRemoteEl.findOne("#code").hide();
+  const irState = state as IRRemoteState;
+  if (!irState.hasCode) {
+    irRemoteEl.findOne("#remote")!.hide();
+    irRemoteEl.findOne("#code")!.hide();
     return;
   }
 
-  irRemoteEl.findOne("#remote").show();
-  irRemoteEl.findOne("#code").show();
-  irRemoteEl.findOne("#code").node.innerHTML = state.code;
+  irRemoteEl.findOne("#remote")!.show();
+  irRemoteEl.findOne("#code")!.show();
+  irRemoteEl.findOne("#code")!.node.innerHTML = state.code;
   (irRemoteEl.findOne("#code") as Element).cx(55);
 };
 
 export const resetIrRemote: ResetComponent = (irRemoteEl: Element) => {
-  irRemoteEl.findOne("#remote").hide();
-  irRemoteEl.findOne("#code").hide();
+  irRemoteEl.findOne("#remote")!.hide();
+  irRemoteEl.findOne("#code")!.hide();
 };
 
 export const createWiresIrRemote: CreateWire<IRRemoteState> = (
@@ -66,7 +67,7 @@ export const createWiresIrRemote: CreateWire<IRRemoteState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[0],

@@ -2,7 +2,13 @@
 // Provides unified authentication interface for the application
 
 import { get } from 'svelte/store';
-import { authState, userId, isSignedIn, updateAuthState } from '../stores/clerk-auth.store';
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { authState, userId, isSignedIn, updateAuthState } from '../stores/clerk-auth.store';
+
+// MOCK implementations for placeholder
+const userId = { subscribe: (cb: any) => { cb(null); return () => {}; } };
+const isSignedIn = { subscribe: (cb: any) => { cb(false); return () => {}; } };
+const updateAuthState = (state: any) => {};
 
 /**
  * Sign in with Google using Clerk with comprehensive error handling
@@ -12,7 +18,11 @@ export async function signInWithGoogle(): Promise<void> {
   
   return withAuthRetry(async () => {
     // Mock implementation - would be replaced with actual Clerk OAuth
-    cons/**
+    // [Function truncated - backup file]
+  });
+}
+
+/**
  * Clean up authentication resources
  */
 export function cleanupAuth(): void {
@@ -100,113 +110,9 @@ export async function checkAuthHealth(): Promise<{
   }
 }
 
-/**
- * Get authentication error summary for debugging
- */
-export function getAuthErrorSummary(): {
-  totalErrors: number;
-  errorsByType: Record<string, number>;
-  recentErrors: AuthError[];
-} {
-  const errorHistory = AuthErrorHandler.getErrorHistory();
-  const errorsByType: Record<string, number> = {};
-  
-  errorHistory.forEach(error => {
-    errorsByType[error.type] = (errorsByType[error.type] || 0) + 1;
-  });
-  
-  return {
-    totalErrors: errorHistory.length,
-    errorsByType,
-    recentErrors: errorHistory.slice(-5) // Last 5 errors
-  };
-}
-
-/**
- * Check authentication health
- */
-export async function checkAuthHealth(): Promise<{
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  issues: string[];
-  lastCheck: number;
-}> {
-  const issues: string[] = [];
-  const lastCheck = Date.now();
-  
-  try {
-    // Check if authentication is responsive
-    const start = performance.now();
-    const user = getCurrentUser();
-    const duration = performance.now() - start;
-    
-    if (duration > 100) {
-      issues.push(`Slow authentication check: ${duration.toFixed(1)}ms`);
-    }
-    
-    // Check error rate
-    const errorSummary = getAuthErrorSummary();
-    const recentErrors = errorSummary.recentErrors.filter(
-      error => Date.now() - error.timestamp < 5 * 60 * 1000 // Last 5 minutes
-    );
-    
-    if (recentErrors.length > 3) {
-      issues.push(`High error rate: ${recentErrors.length} errors in last 5 minutes`);
-    }
-    
-    // Check for critical errors
-    const criticalErrors = recentErrors.filter(
-      error => !error.retryable || error.type === AuthErrorType.SERVICE_UNAVAILABLE
-    );
-    
-    if (criticalErrors.length > 0) {
-      issues.push(`Critical authentication errors detected`);
-    }
-    
-    // Determine overall status
-    let status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy';
-    if (issues.length > 0) {
-      status = criticalErrors.length > 0 ? 'unhealthy' : 'degraded';
-    }
-    
-    return { status, issues, lastCheck };
-  } catch (error) {
-    return {
-      status: 'unhealthy',
-      issues: [`Health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
-      lastCheck
-    };
-  }
-}('MOCK: Opening Google OAuth popup');
-    
-    // Simulate potential network issues
-    if (Math.random() < 0.1) {
-      throw new Error('Network connection failed');
-    }
-    
-    // Simulate successful authentication
-    // In real implementation, this would:
-    // 1. Open OAuth popup/redirect
-    // 2. Handle OAuth callback
-    // 3. Extract user data from Clerk
-    // 4. Update stores automatically
-    
-    const mockUserId = 'user_' + Math.random().toString(36).substr(2, 9);
-    updateAuthState({
-      isSignedIn: true,
-      userId: mockUserId,
-      user: {
-        id: mockUserId,
-        emailAddresses: [{ emailAddress: 'test@example.com', id: 'email_1' }],
-        firstName: 'Test',
-        lastName: 'User',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
-    });
-    
-    console.log('MOCK: Google sign-in completed successfully');
-  }, { operation: 'signInWithGoogle' });
-}
+// [Remaining signInWithGoogle implementation - backup file truncated]
+// console.log('MOCK: Opening Google OAuth popup');
+// ... (implementation continues below)
 
 /**
  * Sign out with Clerk with comprehensive error handling
@@ -706,14 +612,6 @@ export async function withAuthRetry<T>(
   }
 
   throw lastError;
-}
-
-/**
- * Clean up authentication resources
- */
-export function cleanupAuth(): void {
-  console.log('Cleaning up authentication resources');
-  // Mock cleanup - would clean up Clerk resources
 }
 
 // Export auth utilities for backward compatibility

@@ -19,7 +19,7 @@ import type { IRRemoteState } from "./state";
 
 describe("button state factories", () => {
   let workspace: Workspace;
-  let irRemoteSetup;
+  let irRemoteSetup: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();

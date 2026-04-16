@@ -1,29 +1,27 @@
-<script>
+<script lang="ts">
   import { workspaceToXML } from "../../../core/blockly/helpers/workspace.helper";
   import codeStore from "../../../stores/code.store";
-  // import { saveAs } from "file-saver";
   import { onDestroy } from "svelte";
-  import { Button } from "@sveltestrap/sveltestrap";
 
-  let code;
+  let code: string = "";
 
   let unsubCodeStore = codeStore.subscribe((newCode) => {
-    code = newCode.code;
+    code = newCode.code || "";
   });
 
   function downlaodCode() {
-    const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([code || ''], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "arduino_workflow_builder_code.ino");
   }
 
   function downloadProject() {
-    const blob = new Blob([workspaceToXML()], {
+    const blob = new Blob([workspaceToXML() || ''], {
       type: "application/xml;charset=utf-8",
     });
     saveAs(blob, "arduino_workflow_builder_project.xml");
   }
 
-  function saveAs(blob, filename) {
+  function saveAs(blob: Blob, filename: string) {
     // Create a link element
     const link = document.createElement('a');
 
@@ -58,14 +56,14 @@
   </div>
   <div class="row">
     <div class="col">
-      <Button color="primary" on:click={downloadProject}>
+      <button class="btn btn-primary" on:click={downloadProject}>
         Download Project
-      </Button>
+      </button>
     </div>
     <div class="col">
-      <Button id="download-code-btn" color="info" on:click={downlaodCode}>
+      <button id="download-code-btn" class="btn btn-info" on:click={downlaodCode}>
         Download Code
-      </Button>
+      </button>
     </div>
   </div>
 </main>

@@ -25,7 +25,7 @@ export const positionUltraSonicSensor: PositionComponent<UltraSonicSensorState> 
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(
     ultraSonicEl,
     arduinoEl,
@@ -40,22 +40,23 @@ export const createUltraSonicSensor: AfterComponentCreateHook<UltraSonicSensorSt
   state,
   ultraSonicEl
 ) => {
-  ultraSonicEl.findOne('#ECHO_PIN_TEXT').node.innerHTML = state.echoPin;
-  ultraSonicEl.findOne('#TRIG_PIN_TEXT').node.innerHTML = state.trigPin;
+  ultraSonicEl.findOne('#ECHO_PIN_TEXT')!.node.innerHTML = state.echoPin;
+  ultraSonicEl.findOne('#TRIG_PIN_TEXT')!.node.innerHTML = state.trigPin;
 };
 
 export const updateUltraSonicSensor: SyncComponent = (
-  state: UltraSonicSensorState,
+  state: any,
   ultraSonicEl
 ) => {
+  const sensorState = state as UltraSonicSensorState;
   const distanceTextEl = ultraSonicEl.findOne('#DISTANCE_TEXT') as Element;
   distanceTextEl.show();
   const cxTextDistance = distanceTextEl.cx();
   const distanceEl = ultraSonicEl.findOne('#DISTANCE') as Element;
   // y = 0 is the maximun height and 100 is the lowest height
-  const distanceNumber = state.cm > 100 ? 0 : 100 - state.cm;
+  const distanceNumber = sensorState.cm > 100 ? 0 : 100 - sensorState.cm;
   distanceEl.y(distanceNumber);
-  distanceTextEl.node.innerHTML = `${state.cm} cm`;
+  distanceTextEl.node.innerHTML = `${sensorState.cm} cm`;
   distanceTextEl.cx(cxTextDistance);
 };
 
@@ -73,7 +74,7 @@ export const createWiresUltraSonicSensor: CreateWire<UltraSonicSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[0],

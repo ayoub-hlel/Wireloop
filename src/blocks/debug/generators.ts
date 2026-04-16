@@ -1,8 +1,8 @@
 import { VARIABLE_TYPES } from "../../core/blockly/constants/variables";
-import Blockly from "blockly";
+import Blockly, { type Block, type VariableModel } from "blockly";
 import { stepSerialBegin } from "../message/generators";
 
-Blockly["Arduino"]["debug_block"] = function (block) {
+Blockly["Arduino"]["debug_block"] = function (block: Block) {
   stepSerialBegin();
 
   Blockly["Arduino"].setupCode_["debug_clean_pipes"] =
@@ -120,7 +120,7 @@ export function createDebugVariable() {
   return debugString;
 }
 
-function getArrayVariableSize(variable) {
+function getArrayVariableSize(variable: VariableModel) {
   const variableId = variable.getId();
   let blockType = "";
   if (variable.type === "List String") {
@@ -135,7 +135,7 @@ function getArrayVariableSize(variable) {
 
   const block = Blockly.getMainWorkspace()
     .getBlocksByType(blockType, true)
-    .find((block) => block.getFieldValue("VAR") === variableId);
+    .find((b: Block) => b.getFieldValue("VAR") === variableId);
 
   if (!block) {
     return 1;
@@ -144,7 +144,7 @@ function getArrayVariableSize(variable) {
   return block.getFieldValue("SIZE");
 }
 
-function createPrintArrayFuncInC(type) {
+function createPrintArrayFuncInC(type: string) {
   if (type === "Colour" || type === "List Colour") {
     type = "RGB";
   }

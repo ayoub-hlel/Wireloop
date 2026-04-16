@@ -24,7 +24,7 @@ export const createWireJoyStick: CreateWire<JoystickState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(
     holes[0],
     isDown,
@@ -89,7 +89,7 @@ export const positionJoyStick: PositionComponent<JoystickState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   positionComponent(joyStickEl, arduinoEl, draw, holes[2], isDown, "PIN_X");
 };
@@ -102,17 +102,18 @@ export const afterComponentHookJoyStick: AfterComponentCreateHook<JoystickState>
   board,
   settings
 ) => {
-  joyStickEl.findOne("#PIN_Y_NUMBER").node.innerHTML = state.yPin;
-  joyStickEl.findOne("#PIN_X_NUMBER").node.innerHTML = state.xPin;
-  joyStickEl.findOne("#PIN_SW_NUMBER").node.innerHTML = state.buttonPin;
+  joyStickEl.findOne("#PIN_Y_NUMBER")!.node.innerHTML = state.yPin;
+  joyStickEl.findOne("#PIN_X_NUMBER")!.node.innerHTML = state.xPin;
+  joyStickEl.findOne("#PIN_SW_NUMBER")!.node.innerHTML = state.buttonPin;
 };
 
 export const updateJoyStick: SyncComponent = (
-  state: JoystickState,
+  state,
   joyStickEl,
   draw,
   frame
 ) => {
+  const joystickState = state as JoystickState;
   const movingPart = joyStickEl.findOne("#MOVING_PIECE") as Element;
   const containingPart = joyStickEl.findOne("#Base") as Element;
 
@@ -120,9 +121,9 @@ export const updateJoyStick: SyncComponent = (
   movingPart.cy(containingPart.cy());
   (joyStickEl.findOne("#DEGREES_TEXT") as Element).x(0);
 
-  if (state.engaged) {
+  if (joystickState.engaged) {
     const moveBy = 20;
-    const adjustedDegree = state.degree * -1 + 180;
+    const adjustedDegree = joystickState.degree * -1 + 180;
     const radRatio = Math.PI / 180;
     movingPart.cx(
       containingPart.cx() + Math.cos(adjustedDegree * radRatio) * moveBy
@@ -132,14 +133,14 @@ export const updateJoyStick: SyncComponent = (
     );
     joyStickEl.findOne(
       "#DEGREES_TEXT"
-    ).node.innerHTML = `Joystick @ ${state.degree}°`;
-    joyStickEl.findOne("#DEGREES_TEXT").show();
+    )!.node.innerHTML = `Joystick @ ${joystickState.degree}°`;
+    joyStickEl.findOne("#DEGREES_TEXT")!.show();
   } else {
-    joyStickEl.findOne("#DEGREES_TEXT").hide();
+    joyStickEl.findOne("#DEGREES_TEXT")!.hide();
   }
 
-  joyStickEl.findOne("#BUTTON_TEXT").node.innerHTML = `Button: ${
-    state.buttonPressed ? "ON" : "OFF"
+  joyStickEl.findOne("#BUTTON_TEXT")!.node.innerHTML = `Button: ${
+    joystickState.buttonPressed ? "ON" : "OFF"
   }`;
 };
 
@@ -149,6 +150,6 @@ export const resetJoyStick: ResetComponent = (joyStickEl) => {
 
   movingPart.cx(containingPart.cx());
   movingPart.cy(containingPart.cy());
-  joyStickEl.findOne("#DEGREES_TEXT").hide();
-  joyStickEl.findOne("#BUTTON_TEXT").node.innerHTML = `Button: OFF`;
+  joyStickEl.findOne("#DEGREES_TEXT")!.hide();
+  joyStickEl.findOne("#BUTTON_TEXT")!.node.innerHTML = `Button: OFF`;
 };

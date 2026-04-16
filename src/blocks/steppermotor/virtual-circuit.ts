@@ -23,33 +23,34 @@ export const positionStepperMotor: PositionComponent<StepperMotorState> = (
   board,
   area
 ) => {
-  const { isDown, holes } = area;
+  const { isDown, holes } = area!;
   positionComponent(componentEl, arduinoEl, draw, holes[4], isDown, "PIN_GND");
 };
 
 export const updateStepperMotor: SyncComponent = (
-  state: StepperMotorState,
+  state,
   componentEl,
   draw,
   frame
 ) => {
-  const degreesPerStep = 360 / state.totalSteps;
+  const stepperState = state as StepperMotorState;
+  const degreesPerStep = 360 / stepperState.totalSteps;
   const rotateTextEl = componentEl.findOne("#ROTATE_TEXT") as Element;
   const rotateAroundEl = componentEl.findOne("#ROTATE") as Element;
   const rotatingEl = componentEl.findOne("#ROTATING_PIECE") as Element;
   const cx = rotateAroundEl.cx();
   const cy = rotateAroundEl.cy();
 
-  rotateTextEl.node.textContent = `Moved ${state.steps} Steps`;
+  rotateTextEl.node.textContent = `Moved ${stepperState.steps} Steps`;
   rotateTextEl.cx(cx + 13);
 
   const currentElSteps = rotateTextEl.data("steps") || 0;
 
-  const diffSteps = state.currentRotation - currentElSteps;
+  const diffSteps = stepperState.currentRotation - currentElSteps;
 
   rotatingEl.rotate(diffSteps * degreesPerStep, cx, cy);
 
-  rotateTextEl.data("steps", state.currentRotation);
+  rotateTextEl.data("steps", stepperState.currentRotation);
 };
 
 export const createWireStepperMotor: CreateWire<StepperMotorState> = (
@@ -61,7 +62,7 @@ export const createWireStepperMotor: CreateWire<StepperMotorState> = (
   board,
   area
 ) => {
-  const { isDown, holes } = area;
+  const { isDown, holes } = area!;
 
   if (holes.length < 6) {
     // this component requires 6 pins

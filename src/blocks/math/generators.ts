@@ -11,7 +11,7 @@ Blockly["Arduino"]["math_number"] = function (block: Block) {
 
 Blockly["Arduino"]["math_arithmetic"] = function (block: Block) {
   // Basic arithmetic operators, and power.
-  const OPERATORS = {
+  const OPERATORS: Record<string, [string | null, number]> = {
     ADD: [" + ", Blockly["Arduino"].ORDER_ASSIGNMENT],
     MINUS: [" - ", Blockly["Arduino"].ORDER_ASSIGNMENT],
     MULTIPLY: [" * ", Blockly["Arduino"].ORDER_ASSIGNMENT],

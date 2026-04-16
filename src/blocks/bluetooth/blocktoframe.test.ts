@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
-import Blockly, { Workspace, BlockSvg } from "blockly";
+import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import {
   getAllBlocks,
   connectToArduinoBlock,
@@ -30,7 +31,7 @@ import type { BluetoothState } from "./state";
 
 describe("bluetooth state factories", () => {
   let workspace: Workspace;
-  let bluethoothsetupblock;
+  let bluethoothsetupblock: BlockSvg;
   let arduinoBlock: BlockSvg;
 
   afterEach(() => {
@@ -39,7 +40,7 @@ describe("bluetooth state factories", () => {
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    bluethoothsetupblock = workspace.newBlock("bluetooth_setup");
+    bluethoothsetupblock = workspace.newBlock("bluetooth_setup") as BlockSvg;
     bluethoothsetupblock.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_RX");
     bluethoothsetupblock.setFieldValue(ARDUINO_PINS.PIN_6, "PIN_TX");
 
@@ -93,8 +94,7 @@ describe("bluetooth state factories", () => {
       "HELLO WORLD"
     );
     btSendMessageBlock
-      .getInput("MESSAGE")
-      .connection.connect(textMessage.outputConnection);
+      .getInput("MESSAGE")!.connection!.connect(textMessage.outputConnection!);
 
     connectToArduinoBlock(btSendMessageBlock);
 
@@ -126,8 +126,7 @@ describe("bluetooth state factories", () => {
     expect(btComponentS3.sendMessage).toBe("HELLO WORLD");
 
     btSendMessageBlock
-      .getInput("MESSAGE")
-      .connection.targetBlock()
+      .getInput("MESSAGE")!.connection!.targetBlock()!
       .dispose(true);
 
     const event2: BlockEvent = {

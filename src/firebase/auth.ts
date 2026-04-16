@@ -1,7 +1,7 @@
 // Legacy Firebase Auth Interface - Redirects to Clerk
 // This file provides backward compatibility for Firebase Auth operations
 
-import { signInWithClerk, signOutWithClerk } from "../helpers/auth";
+import { signInWithGoogle, signOutWithClerk } from "../helpers/auth";
 
 /**
  * Legacy Firebase Google Auth - Now using Clerk
@@ -9,7 +9,7 @@ import { signInWithClerk, signOutWithClerk } from "../helpers/auth";
 export const loginGoogleUser = async () => {
   console.warn('loginGoogleUser: Firebase compatibility layer - redirecting to Clerk');
   try {
-    await signInWithClerk('google');
+    await signInWithGoogle();
   } catch (error) {
     console.error('Error signing in with Clerk:', error);
     throw error;

@@ -15,5 +15,5 @@ export const digitalRead: ValueGenerator = (
     previousState,
     ArduinoComponentType.DIGITAL_SENSOR,
     findFieldValue(block, "PIN")
-  ).isOn;
+  )?.isOn;
 };

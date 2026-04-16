@@ -1,6 +1,6 @@
 import updateForLoopText from "./actions/updateForLoopText";
 import type { WorkspaceSvg } from "blockly";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import Blockly from "blockly";
 
 import codeStore from "../../stores/code.store";
@@ -32,7 +32,9 @@ import {
 import type { MicroControllerType } from "../microcontroller/microcontroller";
 import { getBoardType } from "./helpers/get-board.helper";
 import { disableBlocksWithInvalidPinNumbers } from "./actions/disable/disableBlocksWithInvalidPinNumbers";
-import type { Settings } from "../../firebase/model";
+import type { Settings as FirebaseSettings, defaultSetting } from "../../firebase/model";
+import { defaultSetting as defaultSettingValue } from "../../firebase/model";
+import type { Settings as AppSettings } from "../../types/models";
 import settingStore from "../../stores/settings.store";
 import UpdateLCDScreenPrintBlock from "./actions/updateLcdScreenPrintBlock";
 import updateLedBlockColorField from "./actions/updateLedBlockColorField";
@@ -42,34 +44,34 @@ import { updateCommentIsButtonPressedBlock } from "./actions/updateCommentForBut
 
 // This is the current frame list
 // We use this diff the new frame list so that we only update when things change
-let currentFrameContainter: ArduinoFrameContainer = undefined;
+let currentFrameContainter: ArduinoFrameContainer | undefined = undefined;
 
-let settings: Settings = undefined;
+let settings: AppSettings = defaultSettingValue as unknown as AppSettings;
 
 settingStore.subscribe((newSettings) => {
   settings = newSettings;
   frameStore.update((frameContainer) => {
-    const newFrameContainer = _.cloneDeep(frameContainer);
+    const newFrameContainer = cloneDeep(frameContainer);
     //updating the new board
-    newFrameContainer.board = settings.boardType;
+    newFrameContainer.board = settings.boardType as unknown as MicroControllerType;
     // code might have to change if the board type changes
     // only run if a workspace exists to generate code from
     if (getWorkspace()) {
-      codeStore.set({ code: getArduinoCode(), boardType: settings.boardType });
+      codeStore.set({ code: getArduinoCode(), boardType: settings.boardType as unknown as MicroControllerType });
     }
     return newFrameContainer;
   });
 });
 
-export const createFrames = async (blocklyEvent) => {
+export const createFrames = async (blocklyEvent: Blockly.Events.Abstract) => {
   if ((Blockly.getMainWorkspace() as any).isDragging()) {
     return; // Don't update while changes are happening.
   }
 
-  if (blocklyEvent.type === Blockly.Events.VAR_DELETE) {
-    console.log("Variable deletion detected:", blocklyEvent.varName);
+  if ((blocklyEvent as any).varName !== undefined) {
+    console.log("Variable deletion detected:", (blocklyEvent as any).varName);
     // Prevent the default alert from triggering
-    blocklyEvent.preventDefault?.();
+    // blocklyEvent.preventDefault?.(); // Removed - method doesn't exist on Abstract
   }
 
   const supportedEvents = new Set([
@@ -140,8 +142,8 @@ export const createFrames = async (blocklyEvent) => {
       error: true,
       frames: [],
       board: event.microController,
-      settings,
-    };
+      settings: settings as unknown as FirebaseSettings,
+    } as ArduinoFrameContainer;
     frameStore.set(currentFrameContainter);
     codeStore.resetCode(microControllerType);
     return;
@@ -180,14 +182,14 @@ export const createFrames = async (blocklyEvent) => {
     microControllerType
   );
 
-  const newFrameContainer = eventToFrameFactory(refreshEvent, settings);
+  const newFrameContainer = eventToFrameFactory(refreshEvent, settings as unknown as FirebaseSettings);
 
   if (
     currentFrameContainter === undefined ||
     JSON.stringify(newFrameContainer) !== JSON.stringify(currentFrameContainter)
   ) {
     currentFrameContainter = newFrameContainer;
-    frameStore.set(currentFrameContainter);
+    frameStore.set(currentFrameContainter!);
   }
   codeStore.set({ code: getArduinoCode(), boardType: microControllerType });
 };

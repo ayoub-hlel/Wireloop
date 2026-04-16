@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { findFieldValue } from '../../core/blockly/helpers/block-data.helper';
 import {
   ArduinoComponentType,
@@ -20,10 +19,10 @@ export const ledMatrixSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const leds = _.range(1, 9).reduce((prev, row) => {
+  const leds: { col: number; row: number; isOn: boolean }[] = Array.from({ length: 8 }, (_, i) => i + 1).reduce((prev: { col: number; row: number; isOn: boolean }[], row) => {
     return [
       ...prev,
-      ..._.range(1, 9).map((col) => {
+      ...Array.from({ length: 8 }, (_, i) => i + 1).map((col) => {
         return {
           row,
           col,
@@ -64,10 +63,10 @@ export const ledMatrixDraw: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const leds = _.range(1, 9).reduce((prev, row) => {
+  const leds: { col: number; row: number; isOn: boolean }[] = Array.from({ length: 8 }, (_, i) => i + 1).reduce((prev: { col: number; row: number; isOn: boolean }[], row) => {
     return [
       ...prev,
-      ..._.range(1, 9).map((col) => {
+      ...Array.from({ length: 8 }, (_, i) => i + 1).map((col) => {
         return {
           row,
           col,
@@ -76,7 +75,9 @@ export const ledMatrixDraw: BlockToFrameTransformer = (
       }),
     ];
   }, []);
-  const { pins, type, dataPin, csPin, clkPin } = getLedMatrix(previousState);
+  const ledMatrix = getLedMatrix(previousState);
+  if (!ledMatrix) return [];
+  const { pins, type, dataPin, csPin, clkPin } = ledMatrix;
   const ledMatrixState: LedMatrixState = {
     type,
     pins,
@@ -105,9 +106,9 @@ export const ledMatrixOnLed: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const { pins, type, leds, dataPin, csPin, clkPin } = getLedMatrix(
-    previousState
-  );
+  const ledMatrix = getLedMatrix(previousState);
+  if (!ledMatrix) return [];
+  const { pins, type, leds, dataPin, csPin, clkPin } = ledMatrix;
 
   const row = getDefaultIndexValue(
     1,
@@ -160,7 +161,7 @@ export const ledMatrixOnLed: BlockToFrameTransformer = (
   ];
 };
 
-const getLedMatrix = (previousState?: ArduinoFrame): LedMatrixState => {
+const getLedMatrix = (previousState?: ArduinoFrame): LedMatrixState | undefined => {
   return findComponent<LedMatrixState>(
     previousState,
     ArduinoComponentType.LED_MATRIX

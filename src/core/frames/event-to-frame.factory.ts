@@ -8,7 +8,8 @@ import {
 } from "./arduino.frame";
 import { BlockType, BlockData } from "../blockly/dto/block.type";
 import { generateFrame } from "./transformer/block-to-frame.transformer";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
+import isEmpty from "lodash/isEmpty";
 import {
   getLoopTimeFromBlockData,
   findArduinoLoopBlock,
@@ -35,14 +36,14 @@ export const eventToFrameFactory = (
   ];
 
   const preSetupBlocks = blocks.filter((b) =>
-    preSetupBlockType.includes(b.type)
+    b.type !== undefined && preSetupBlockType.includes(b.type)
   );
 
-  const frames: ArduinoFrame[] = preSetupBlocks.reduce((prevFrames, block) => {
+  const frames: ArduinoFrame[] = preSetupBlocks.reduce<ArduinoFrame[]>((prevFrames, block) => {
     const previousState =
       prevFrames.length === 0
         ? undefined
-        : _.cloneDeep(prevFrames[prevFrames.length - 1]);
+        : cloneDeep(prevFrames[prevFrames.length - 1]);
 
     return [
       ...prevFrames,
@@ -58,7 +59,7 @@ export const eventToFrameFactory = (
 
   const arduinoSetupBlock = findArduinoSetupBlock(blocks);
 
-  const previousFrame = _.isEmpty(frames)
+  const previousFrame = isEmpty(frames)
     ? undefined
     : frames[frames.length - 1];
 
@@ -80,15 +81,23 @@ export const eventToFrameFactory = (
   setupFrames.forEach((f) => frames.push(f));
 
   const arduinoLoopBlock = findArduinoLoopBlock(blocks);
+  if (!arduinoLoopBlock) {
+    return {
+      board: event.microController,
+      frames,
+      error: false,
+      settings,
+    };
+  }
   const loopTimes = getLoopTimeFromBlockData(blocks);
   let stopAllFrames = false;
-  const framesWithLoop = _.range(1, loopTimes + 1).reduce(
+  const framesWithLoop = Array.from({ length: loopTimes }, (_, i) => i + 1).reduce(
     (prevFrames, loopTime) => {
       if (stopAllFrames) {
         return prevFrames;
       }
       const timeLine: Timeline = { iteration: loopTime, function: "loop" };
-      const previousFrame = _.isEmpty(prevFrames)
+      const previousFrame = isEmpty(prevFrames)
         ? undefined
         : prevFrames[prevFrames.length - 1];
 
@@ -98,7 +107,7 @@ export const eventToFrameFactory = (
         event.variables,
         timeLine,
         "loop",
-        getPreviousState(blocks, timeLine, _.cloneDeep(previousFrame)) // Deep clone to prevent object memory sharing
+        getPreviousState(blocks, timeLine, cloneDeep(previousFrame)) // Deep clone to prevent object memory sharing
       );
 
       if (frames.length > 0 && frames[frames.length - 1].frameNumber > 5000) {
@@ -126,13 +135,13 @@ export const eventToFrameFactory = (
 const getPreviousState = (
   blocks: BlockData[],
   timeline: Timeline,
-  previousFrame: ArduinoFrame = undefined
-): ArduinoFrame => {
+  previousFrame: ArduinoFrame | undefined
+): ArduinoFrame | undefined => {
   if (previousFrame === undefined) {
     return undefined;
   }
 
-  const nonSensorComponent = (previousFrame as ArduinoFrame).components.filter(
+  const nonSensorComponent = previousFrame.components.filter(
     (c) => !isSensorComponent(c)
   );
   const sensorSetupBlocks = blocks.filter((b) =>

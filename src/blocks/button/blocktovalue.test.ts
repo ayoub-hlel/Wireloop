@@ -61,7 +61,7 @@ describe("button state factories", () => {
       ARDUINO_PINS.PIN_5
     );
     connectToArduinoBlock(setVariablePin3);
-    setVariablePin3.nextConnection.connect(setVariablePin5.previousConnection);
+    setVariablePin3.nextConnection!.connect(setVariablePin5.previousConnection!);
     const event = createTestEvent(setVariablePin3.id);
 
     const [setup1, setup2, state1, state2, state3, state4] =
@@ -96,13 +96,13 @@ const verifyState = (
     state,
     ArduinoComponentType.BUTTON,
     ARDUINO_PINS.PIN_3
-  );
+  )!;
 
   const buttonPin5 = findComponent<ButtonState>(
     state,
     ArduinoComponentType.BUTTON,
     ARDUINO_PINS.PIN_5
-  );
+  )!;
 
   expect(buttonPin3.isPressed).toBe(pin3Pressed);
   expect(buttonPin5.isPressed).toBe(pin5Pressed);
@@ -119,13 +119,12 @@ const createSetVariableBlock = (
     VariableTypes.BOOLEAN,
     true
   );
-  setBoolVariableBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+  setBoolVariableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
   const isButtonPressed = workspace.newBlock("is_button_pressed");
   isButtonPressed.setFieldValue(pin, "PIN");
   setBoolVariableBlock
-    .getInput("VALUE")
-    .connection.connect(isButtonPressed.outputConnection);
+    .getInput("VALUE")!.connection!.connect(isButtonPressed.outputConnection!);
 
   return setBoolVariableBlock;
 };

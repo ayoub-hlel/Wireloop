@@ -17,7 +17,7 @@
   let speedDivisor = 1;
   let maxTimePerStep = 1000;
 
-  const unsubscribes = [];
+  const unsubscribes: Array<() => void> = [];
 
   $: setCurrentFrame(frameNumber);
   $: disablePlayer = frames.length === 0;
@@ -55,11 +55,11 @@
 
   unsubscribes.push(
     settingStore.subscribe((newSettings) => {
-      maxTimePerStep = newSettings.maxTimePerMove;
+      maxTimePerStep = (newSettings as any).maxTimePerMove ?? 1000;
     })
   );
 
-  function navigateToClosestTimeline(timeLine) {
+  function navigateToClosestTimeline(timeLine: { function: string; iteration: number }) {
     // This means we have not left the first iteration
     // If we are starting out with set to first frame in the loop
     // We want to skip all the library and setup blocks
@@ -84,9 +84,9 @@
     return frames.findIndex((f) => f.timeLine.iteration === loopNumber);
   }
 
-  function setCurrentFrame(frameNumber) {
-    currentFrameStore.set(frames[frameNumber]);
-    currentStepStore.set(frameNumber);
+  function setCurrentFrame(frameNum: number) {
+    currentFrameStore.set(frames[frameNum]);
+    currentStepStore.set(frameNum);
   }
 
   async function play() {
@@ -167,11 +167,11 @@
 
   function moveWait() {
     return new Promise((resolve) =>
-      setTimeout(resolve, maxTimePerStep / speedDivisor)
+      setTimeout(resolve, (maxTimePerStep || 1000) / speedDivisor)
     );
   }
 
-  function wait(msTime) {
+  function wait(msTime: number) {
     return new Promise((resolve) => setTimeout(resolve, msTime));
   }
 
@@ -203,7 +203,7 @@
   class="icon-bar"
 >
   <span
-    use:tooltip
+    use:tooltip={{}}
     title="Previous Step"
     on:click={prev}
     class:disable={disablePlayer}
@@ -213,7 +213,7 @@
   </span>
   {#if playing}
     <span
-      use:tooltip
+      use:tooltip={{}}
       title="Stop"
       on:click={play}
       id="video-debug-play"
@@ -223,7 +223,7 @@
     </span>
   {:else}
     <span
-      use:tooltip
+      use:tooltip={{}}
       title="Play"
       on:click={play}
       id="video-debug-play"
@@ -233,7 +233,7 @@
     </span>
   {/if}
   <span
-    use:tooltip
+    use:tooltip={{position: "top"}}
     title="Next Step"
     on:click={next}
     id="video-debug-forward"
@@ -297,7 +297,7 @@
     width: 25px;
     margin: 0 10px;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, opacity 0.3s ease;
     color: white;
     font-size: 20px;
   }
@@ -323,10 +323,12 @@
     width: 100%;
     height: 10px;
     background: #d3d3d3;
-    outline: none;
     opacity: 0.7;
-    -webkit-transition: 0.2s;
     transition: opacity 0.2s;
+  }
+  .slider:focus-visible {
+    outline: 2px solid #505bda;
+    outline-offset: 2px;
   }
 
   .slider:hover {

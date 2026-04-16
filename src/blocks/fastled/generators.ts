@@ -1,9 +1,8 @@
-import Blockly from 'blockly';
-import _ from 'lodash';
+import Blockly, { type Block } from 'blockly';
 import { hexToRgb } from '../../core/blockly/helpers/color.helper';
 import { createColorStruct } from "../color/generators";
 
-Blockly["Arduino"]["fastled_setup"] = function (block) {
+Blockly["Arduino"]["fastled_setup"] = function (block: Block) {
   const numberOfLeds = block.getFieldValue("NUMBER_LEDS");
   const pin = block.getFieldValue("PIN");
   const brightness = block.getFieldValue("BRIGHTNESS");
@@ -42,7 +41,7 @@ const getRowColId = (position: number): string => {
   return `${row}-${position - (row - 1) * 12}`;
 };
 
-Blockly["Arduino"]["fastled_set_all_colors"] = function (block) {
+Blockly["Arduino"]["fastled_set_all_colors"] = function (block: Block) {
   createColorStruct();
 
   const maxLeds = Blockly["Arduino"]["fastled_info"].numberOfLeds;
@@ -62,11 +61,11 @@ Blockly["Arduino"]["fastled_set_all_colors"] = function (block) {
   return statements.join("");
 };
 
-Blockly['Arduino']['fastled_show_all_colors'] = function (block) {
+Blockly['Arduino']['fastled_show_all_colors'] = function (block: Block) {
   return `FastLED.show();\n`;
 };
 
-Blockly['Arduino']['fastled_set_color'] = function (block) {
+Blockly['Arduino']['fastled_set_color'] = function (block: Block) {
   const color = Blockly['Arduino'].valueToCode(
     block,
     'COLOR',

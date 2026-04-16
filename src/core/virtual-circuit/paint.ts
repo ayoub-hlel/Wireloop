@@ -54,7 +54,8 @@ const findOrCreateMicroController = (draw: Svg, board: MicroController) => {
 
   if (arduino && arduino.data('type') === board.type) {
     // Have to reset this because it's part of the arduino
-    arduino.findOne('#MESSAGE').hide();
+    const messageEl = arduino.findOne('#MESSAGE');
+    if (messageEl) messageEl.hide();
     return arduino;
   }
 
@@ -63,12 +64,13 @@ const findOrCreateMicroController = (draw: Svg, board: MicroController) => {
     draw.children().forEach((c) => c.remove());
   }
 
-  arduino = draw.svg(getBoardSvg(board.type)).last();
+  arduino = draw.svg(getBoardSvg(board.type)).last()!;
 
   arduino.attr('id', 'MicroController');
   arduino.data('type', board.type);
   arduino.node.id = 'microcontroller_main_svg';
-  arduino.findOne('#MESSAGE').hide();
+  const messageEl = arduino.findOne('#MESSAGE');
+  if (messageEl) messageEl.hide();
   (window as any).arduino = arduino;
   (window as any).draw = draw;
   // Events
@@ -87,7 +89,7 @@ const showWire = (arduino: Element, wire: string) => {
 const clearComponents = (
   draw: Svg,
   arduino: Element,
-  lastFrame: ArduinoFrame
+  lastFrame: ArduinoFrame | undefined
 ) => {
   draw
     .find('.component')
@@ -108,5 +110,6 @@ const clearComponents = (
       return;
     });
 
-  arduino.findOne('#MESSAGE').hide();
+  const messageEl = arduino.findOne('#MESSAGE');
+  if (messageEl) messageEl.hide();
 };

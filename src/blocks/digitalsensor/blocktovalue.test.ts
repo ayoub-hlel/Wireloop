@@ -53,11 +53,10 @@ describe("sensor value blocks", () => {
       VariableTypes.BOOLEAN,
       true
     );
-    setVariableBlock.getInput("VALUE").connection.disconnect();
+    setVariableBlock.getInput("VALUE")!.connection!.disconnect();
 
     setVariableBlock
-      .getInput("VALUE")
-      .connection.connect(digitalReadBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(digitalReadBlock.outputConnection!);
 
     connectToArduinoBlock(setVariableBlock);
 

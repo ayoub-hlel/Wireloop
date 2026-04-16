@@ -17,6 +17,7 @@ export const analogReadSetup: BlockToFrameTransformer = (
 ) => {
   const analogSensorInfo = JSON.parse(block.metaData) as AnalogSensor[];
   const analogSensor1 = analogSensorInfo.find((d) => d.loop === 1);
+  if (!analogSensor1) return [];
 
   const pin = findFieldValue(block, "PIN");
   const pictureType = findFieldValue(block, "TYPE") as AnalogSensorPicture;

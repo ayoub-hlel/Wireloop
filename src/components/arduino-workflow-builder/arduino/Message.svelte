@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import arduionMessageStore from "../../../stores/arduino-message.store";
   import codeStore from "../../../stores/code.store";
   import arduinoStore, { PortState } from "../../../stores/arduino.store";
@@ -9,6 +9,7 @@
   import { getBoard } from "../../../core/microcontroller/selectBoard";
   import { onErrorMessage, onSuccess } from "../../../help/alerts";
   import { tooltip } from "@svelte-plugins/tooltips";
+  import type { MicroControllerType } from "../../../core/microcontroller/microcontroller";
 
   const navigatorSerialNotAvailableMessaeg = `To upload code you must use chrome or a chromium based browser like edge, or brave.  This will work with chrome version 89 or higher. `;
 
@@ -16,7 +17,7 @@
   let autoScroll = false;
 
   // List of messages
-  let messages = [];
+  let messages: any[] = [];
 
   // This is the arduino status where it's open close etc
   let arduinoStatus = PortState.CLOSE;
@@ -25,13 +26,13 @@
   let messageToSend = "";
 
   // This is the variable storing the arduino code
-  let code;
+  let code = "";
 
   // The type of board we are using
-  let boardType;
+  let boardType: MicroControllerType;
 
   // Message Element for displaying the message
-  let messagesEl;
+  let messagesEl: HTMLElement;
 
   // means that we already have seen the message
   let alreadyShownDebugMessage = false;
@@ -75,8 +76,8 @@
   });
 
   async function connectOrDisconnectArduino() {
-    if (!navigator["serial"]) {
-      onErrorMessage(navigatorSerialNotAvailableMessaeg);
+    if (!(navigator as any).serial) {
+      onErrorMessage(navigatorSerialNotAvailableMessaeg, new Error("Web Serial not available"));
       return;
     }
 
@@ -84,7 +85,7 @@
       arduinoStore.set(PortState.CLOSING);
       try {
         await arduionMessageStore.closePort();
-      } catch (e) {
+      } catch (e: any) {
         onErrorMessage(
           "Sorry, error with the arduino.  Please refresh your browser to disconnect.",
           e
@@ -117,14 +118,14 @@
     try {
       arduionMessageStore.sendMessage(messageToSend);
       messageToSend = "";
-    } catch (e) {
+    } catch (e: any) {
       console.log(e, "sendMessage error");
     }
   }
 
   async function uploadCode() {
-    if (!navigator["serial"]) {
-      onErrorMessage(navigatorSerialNotAvailableMessaeg);
+    if (!(navigator as any).serial) {
+      onErrorMessage(navigatorSerialNotAvailableMessaeg, new Error("Web Serial not available"));
       return;
     }
 
@@ -133,14 +134,14 @@
     }
     arduinoStore.set(PortState.UPLOADING);
     try {
-      const avrgirl = new AvrgirlArduino({
+      const avrgirl = new (window as any).AvrgirlArduino({
         board: boardType,
         debug: true,
       });
 
       await upload(code, avrgirl, boardType);
       onSuccess("Your code is uploaded!! :)");
-    } catch (e) {
+    } catch (e: any) {
       if (e.message.toLowerCase() === "no port selected by the user.") {
         arduinoStore.set(PortState.CLOSE);
         return;
@@ -194,7 +195,7 @@
     />
   </form>
   <button
-    use:tooltip
+    use:tooltip={{position: "top"}}
     title="Send Message"
     disabled={!(arduinoStatus === PortState.OPEN)}
     on:click={sendMessage}
@@ -204,7 +205,7 @@
   {#if arduinoStatus == PortState.OPEN}
     <button
       title="Disconnect from Arduino"
-      use:tooltip
+      use:tooltip={{position: "top"}}
       on:click={connectOrDisconnectArduino}
     >
       <i class="fa" class:fa-eject={arduinoStatus === PortState.OPEN} />
@@ -212,7 +213,7 @@
   {:else if arduinoStatus === PortState.CLOSE}
     <button
       title="Connect to Arduino"
-      use:tooltip
+      use:tooltip={{position: "top"}}
       on:click={connectOrDisconnectArduino}
     >
       <i class="fa" class:fa-usb={arduinoStatus === PortState.CLOSE} />
@@ -224,18 +225,18 @@
   {/if}
 
   <button
-    use:tooltip
+    use:tooltip={{position: "top"}}
     title="Upload code"
     disabled={!(arduinoStatus === PortState.CLOSE)}
     on:click={uploadCode}
   >
     <i class="fa {uploadingClass}" />
   </button>
-  <button use:tooltip title="Delete" on:click={clearMessages}>
+  <button use:tooltip={{position: "top"}} title="Delete" on:click={clearMessages}>
     <i class="fa fa-trash" />
   </button>
   <button
-    use:tooltip
+    use:tooltip={{position: "top"}}
     title="Autoscroll"
     class:scroll-active={autoScroll}
     on:click={toggleAutoScroll}
@@ -267,17 +268,19 @@
   #send-message-container input {
     width: 98%;
     margin: 5px;
-    outline: none;
     border: none;
     font-size: 25px;
     height: 40px;
     border-bottom: 1px solid #505bda;
-    transition: linear 1s border-bottom;
+    transition: border-bottom 1s linear;
   }
   #send-message-container input:active,
   #send-message-container input:focus {
-    outline: none;
     border-bottom: 2px solid #505bda;
+  }
+  #send-message-container input:focus-visible {
+    outline: 2px solid #505bda;
+    outline-offset: -2px;
   }
   #send-message-container input:read-only {
     cursor: not-allowed;
@@ -299,9 +302,9 @@
   button i {
     transition: ease-in-out 0.4s font-size;
   }
-  button:focus,
-  button:active {
-    outline: none;
+  button:focus-visible {
+    outline: 2px solid #505bda;
+    outline-offset: 2px;
   }
   button:active i {
     font-size: 18px;

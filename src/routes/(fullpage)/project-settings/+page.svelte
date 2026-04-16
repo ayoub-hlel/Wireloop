@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { FormGroup, Input, Label, Button } from "@sveltestrap/sveltestrap";
-
   import authStore from "../../../stores/auth.store";
   import projectStore from "../../../stores/project.store";
   import Login from "../../../components/auth/Login.svelte";
@@ -17,11 +15,12 @@
   let projectName = "";
   let projectDescription = "";
   let canSave = true;
+  let code = "";
 
   const unSubProjectStore = projectStore.subscribe((projectInfo) => {
     if (projectInfo.project) {
       projectName = projectInfo.project.name;
-      projectDescription = projectInfo.project.description;
+      projectDescription = projectInfo.project.description ?? '';
     }
   });
 
@@ -41,18 +40,15 @@
           name: projectName,
           description: projectDescription,
           userId: $authStore.uid,
-          updated: null,
-          created: null,
-          canShare: false,
-        });
-        projectStore.set({ project: project, projectId });
+        } as any);
+        projectStore.set({ project: project as any, projectId });
         showMessage = true;
         wait(400);
         canSave = true;
         return;
       }
       const projectToSave = {
-        ...$projectStore.project,
+        ...($projectStore.project as any),
         name: projectName,
         description: projectDescription,
       };
@@ -63,13 +59,11 @@
       });
       showMessage = true;
       canSave = true;
-    } catch (e) {
+    } catch (e: any) {
       onErrorMessage("Please try again in 5 minutes", e);
       canSave = true;
     }
   }
-
-  let code;
 
   let unsubCodeStore = codeStore.subscribe((newCode) => {
     code = newCode.code;
@@ -81,7 +75,7 @@
   }
 
   function downloadProject() {
-    const blob = new Blob([workspaceToXML()], {
+    const blob = new Blob([workspaceToXML() || ''], {
       type: "application/xml;charset=utf-8",
     });
     saveAs(blob, "arduino_workflow_builder_project.xml");
@@ -101,35 +95,37 @@
     </div>
     <div class="row">
       <div class="col">
-        <FormGroup>
-          <Label for="project-name">Name</Label>
-          <Input
+        <div class="form-group">
+          <label for="project-name">Name</label>
+          <input
             bind:value={projectName}
             type="text"
             name="text"
             id="project-name"
+            class="form-control"
           />
-        </FormGroup>
+        </div>
       </div>
     </div>
 
     <div class="row">
       <div class="col">
-        <FormGroup>
-          <Label for="project-description">Description</Label>
-          <Input
+        <div class="form-group">
+          <label for="project-description">Description</label>
+          <textarea
             bind:value={projectDescription}
-            type="textarea"
             name="text"
             id="project-description"
-          />
-        </FormGroup>
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
       </div>
     </div>
 
     <div class="row">
       <div class="col">
-        <Button class="w-100" color="success" on:click={saveFile}>Save</Button>
+        <button class="btn btn-success w-100" on:click={saveFile}>Save</button>
       </div>
     </div>
     <div class="row">
@@ -139,16 +135,16 @@
     </div>
     <div class="row">
       <div class="col">
-        <Button class="w-100" color="info" on:click={downloadProject}>
+        <button class="btn btn-info w-100" on:click={downloadProject}>
           Download Project
-        </Button>
+        </button>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <Button class="w-100" color="info" on:click={downlaodCode}>
+        <button class="btn btn-info w-100" on:click={downlaodCode}>
           Download Code
-        </Button>
+        </button>
       </div>
     </div>
   {:else}

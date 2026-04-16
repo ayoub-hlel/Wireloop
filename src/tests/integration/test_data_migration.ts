@@ -256,7 +256,7 @@ describe('Data Migration Integration', () => {
         updated: expect.any(Number),
       };
 
-      (mockConvex.action as any).mockImplementation((action, data) => {
+      (mockConvex.action as any).mockImplementation((action: any, data: any) => {
         if (action === 'migration:transformProfile') {
           return Promise.resolve(expectedConvexProfile);
         }
@@ -285,7 +285,7 @@ describe('Data Migration Integration', () => {
         updated: new Date('2023-01-02T00:00:00Z').getTime(),
       };
 
-      (mockConvex.action as any).mockImplementation((action, data) => {
+      (mockConvex.action as any).mockImplementation((action: any, data: any) => {
         if (action === 'migration:transformProject') {
           return Promise.resolve(expectedConvexProject);
         }
@@ -332,7 +332,7 @@ describe('Data Migration Integration', () => {
         updated: expect.any(Number),
       };
 
-      (mockConvex.action as any).mockImplementation((action, data) => {
+      (mockConvex.action as any).mockImplementation((action: any, data: any) => {
         if (action === 'migration:transformSettings') {
           return Promise.resolve(expectedConvexSettings);
         }

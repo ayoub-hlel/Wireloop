@@ -1,7 +1,7 @@
 import swal from "sweetalert";
-export const onErrorMessage = (message: string, e) => {
+export const onErrorMessage = (message: string, e?: unknown) => {
   swal("Opps", message, "error");
-  console.error(e);
+  if (e) console.error(e);
 };
 
 export const onConfirm = async (message: string): Promise<boolean> => {

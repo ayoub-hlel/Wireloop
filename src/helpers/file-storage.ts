@@ -2,7 +2,8 @@
 // This service replaces Firebase Storage with Convex file storage
 
 import { getConvexClient } from '../stores/convex.store';
-import { getSessionToken } from '../auth/clerk-auth';
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { getSessionToken } from '../auth/clerk-auth';
 
 /**
  * File upload result interface

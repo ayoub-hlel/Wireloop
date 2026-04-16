@@ -39,9 +39,9 @@ describe("test motors factories", () => {
     stopMotor1.setFieldValue("1", "MOTOR");
     stopMotor2.setFieldValue("2", "MOTOR");
     connectToArduinoBlock(motor1Block1);
-    motor1Block1.nextConnection.connect(motor2Block2.previousConnection);
-    motor2Block2.nextConnection.connect(stopMotor1.previousConnection);
-    stopMotor1.nextConnection.connect(stopMotor2.previousConnection);
+    motor1Block1.nextConnection!.connect(motor2Block2.previousConnection!);
+    motor2Block2.nextConnection!.connect(stopMotor1.previousConnection!);
+    stopMotor1.nextConnection!.connect(stopMotor2.previousConnection!);
     const event = createTestEvent(motor2Block2.id);
 
     const [stateSetup, state1, state2, state3, state4] =
@@ -63,9 +63,9 @@ describe("test motors factories", () => {
     const motor2Block4 = createMoveMotorBlock(2, "CLOCKWISE", 43);
 
     connectToArduinoBlock(motor1Block1);
-    motor1Block1.nextConnection.connect(motor2Block2.previousConnection);
-    motor2Block2.nextConnection.connect(motor1Block3.previousConnection);
-    motor1Block3.nextConnection.connect(motor2Block4.previousConnection);
+    motor1Block1.nextConnection!.connect(motor2Block2.previousConnection!);
+    motor2Block2.nextConnection!.connect(motor1Block3.previousConnection!);
+    motor1Block3.nextConnection!.connect(motor2Block4.previousConnection!);
 
     const event = createTestEvent(motor2Block2.id);
 
@@ -105,8 +105,7 @@ describe("test motors factories", () => {
     motorBlock.setFieldValue(direction, "DIRECTION");
     motorBlock.setFieldValue(motorNumber.toString(), "MOTOR");
     motorBlock
-      .getInput("SPEED")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("SPEED")!.connection!.connect(numberBlock.outputConnection!);
 
     return motorBlock;
   };

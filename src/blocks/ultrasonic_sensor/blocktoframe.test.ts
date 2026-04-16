@@ -19,7 +19,7 @@ import type { UltraSonicSensorState } from "./state";
 
 describe("ultra sonic sensor state factories", () => {
   let workspace: Workspace;
-  let ultraSonicSensor;
+  let ultraSonicSensor: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();

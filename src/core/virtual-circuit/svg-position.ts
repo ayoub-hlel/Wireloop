@@ -14,15 +14,15 @@ export const positionComponent = (
   // 3 minus the center of the pin in the virtual component
   const holeId = `pin${hole}${isDown ? "E" : "F"}`;
   element.x(
-    arduino.x() +
-      findSvgElement(holeId, draw).cx() -
-      findSvgElement(connectionId, element).cx()
+    parseFloat(String(arduino.x())) +
+      parseFloat(String(findSvgElement(holeId, draw).cx())) -
+      parseFloat(String(findSvgElement(connectionId, element).cx()))
   );
 
   element.y(
-    arduino.y() +
-      findSvgElement("breadboard", arduino).y() -
+    parseFloat(String(arduino.y())) +
+      parseFloat(String(findSvgElement("breadboard", arduino).y())) -
       5 -
-      element.height()
+      parseFloat(String(element.height()))
   );
 };

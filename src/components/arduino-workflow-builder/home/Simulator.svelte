@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import Player from './Player.svelte';
 
   import SimDebugger from './SimDebugger.svelte';
   import LedColorChanger from './LedColorChanger.svelte';
 
-  import { SVG } from '@svgdotjs/svg.js';
+  import { SVG, type Svg } from '@svgdotjs/svg.js';
   import frameStore from '../../../stores/frame.store';
   import currentFrameStore from '../../../stores/currentFrame.store';
   import settings from '../../../stores/settings.store';
@@ -18,13 +18,14 @@
   import { arduinoComponentStateToId } from '../../../core/frames/arduino-component-id';
   import { centerCircuit } from '../../../core/virtual-circuit/centerCircuit';
   import { page } from '$app/stores';
+  import type { ArduinoFrame } from '../../../core/frames/arduino.frame';
 
 
-  let container;
-  let frames = [];
-  let currentFrame = undefined;
-  let draw;
-  let unsubscribes = [];
+  let container: HTMLElement;
+  let frames: ArduinoFrame[] = [];
+  let currentFrame: ArduinoFrame | undefined = undefined;
+  let draw: Svg;
+  let unsubscribes: (() => void)[] = [];
   let loopText = '';
 
   onMount(async () => {
@@ -168,7 +169,7 @@
   });
 </script>
 
-<div style="background-color: {$settings.backgroundColor}" id="container">
+<div style="background-color: {($settings as any).backgroundColor}" id="container">
   <LedColorChanger />
   <div bind:this={container} id="simulator" />
   <div id="simulator-controls">

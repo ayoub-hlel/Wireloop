@@ -1,6 +1,9 @@
 import type { BlockEvent } from "../../dto/event.type";
 import { type DisableBlock, ActionType } from "../actions";
-import _ from "lodash";
+import keys from "lodash/keys";
+import isEmpty from "lodash/isEmpty";
+import union from "lodash/union";
+import intersection from "lodash/intersection";
 import {
   PinCategory,
   type BlockData,
@@ -19,7 +22,7 @@ export const disableDuplicatePinBlocks = (
   const { blocks } = event;
 
   const pinCategories = getPinCategories(blocks);
-  const categoriesWithDuplicatePins = _.keys(pinCategories).map((cat) => {
+  const categoriesWithDuplicatePins = keys(pinCategories).map((cat) => {
     return {
       category: cat,
       pins: getDuplicatePinsForCategory(pinCategories, cat as PinCategory),
@@ -39,10 +42,10 @@ export const disableDuplicatePinBlocks = (
       // Does the block duplicate pins for that pin category
       .filter((block) => {
         return (
-          _.intersection(
+          intersection(
             categoriesWithDuplicatePins.find(
               (c) => c.category === block.pinCategory
-            ).pins,
+            )!.pins,
             block.pins
           ).length > 0
         );
@@ -50,10 +53,10 @@ export const disableDuplicatePinBlocks = (
       .map((block) => {
         const duplicatePins = categoriesWithDuplicatePins.find(
           (d) => d.category === block.pinCategory
-        ).pins;
+        )!.pins;
         return {
           blockId: block.id,
-          warningText: `This blocks has these duplicate pins: ${_.intersection(
+          warningText: `This blocks has these duplicate pins: ${intersection(
             block.pins,
             duplicatePins
           ).join(", ")}`,
@@ -67,7 +70,7 @@ export const disableDuplicatePinBlocks = (
 const getPinCategories = (blocks: BlockData[]) => {
   return blocks.reduce((prev, next) => {
     // If the blockd does not have any pins we can skip it
-    if (_.isEmpty(next.pins)) {
+    if (isEmpty(next.pins)) {
       return prev;
     }
 
@@ -84,34 +87,34 @@ const getPinCategories = (blocks: BlockData[]) => {
 
     const isRootBlockFunction =
       rootBlock &&
-      [BlockType.ARDUINO, BlockType.FUNCTION].includes(rootBlock.type);
-    if (BlockTypeRequireRootBlock.includes(next.type) && !isRootBlockFunction) {
+      [BlockType.ARDUINO, BlockType.FUNCTION].includes(rootBlock.type!);
+    if (next.type && BlockTypeRequireRootBlock.includes(next.type) && !isRootBlockFunction) {
       return prev;
     }
 
     if (prev[next.pinCategory]) {
       return {
         ...prev,
-        [next.pinCategory]: _.union(next.pins, prev[next.pinCategory]),
+        [next.pinCategory]: union(next.pins, prev[next.pinCategory]),
       };
     }
 
     return { ...prev, [next.pinCategory]: next.pins };
-  }, {});
+  }, {} as Record<string, ARDUINO_PINS[]>);
 };
 
 const getDuplicatePinsForCategory = (
   pinCategories: { [cat: string]: ARDUINO_PINS[] },
   category: PinCategory
 ): ARDUINO_PINS[] => {
-  return _.keys(pinCategories)
+  return keys(pinCategories)
     .filter((cat) => category !== cat)
-    .reduce((prev, next) => {
-      const duplicatePins = _.intersection(
+    .reduce<ARDUINO_PINS[]>((prev, next) => {
+      const duplicatePins = intersection(
         pinCategories[category],
         pinCategories[next]
       );
 
-      return _.union(duplicatePins, prev);
+      return union(duplicatePins, prev);
     }, []);
 };

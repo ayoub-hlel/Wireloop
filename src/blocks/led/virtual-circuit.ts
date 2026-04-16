@@ -9,7 +9,6 @@ import type {
 } from "../../core/virtual-circuit/svg-create";
 
 import type { Element, Svg, Text } from "@svgdotjs/svg.js";
-import _ from "lodash";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { arduinoComponentStateToId } from "../../core/frames/arduino-component-id";
 import type { LedState } from "./state";
@@ -65,26 +64,27 @@ export const ledPosition: PositionComponent<LedState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   positionComponent(ledEl, arduinoEl, draw, holes[3], isDown, "POWER");
 };
 
-export const updateLed: SyncComponent = (state: LedState, ledEl, draw) => {
+export const updateLed: SyncComponent = (state: any, ledEl, draw) => {
+  const ledState = state as LedState;
   const ledText = ledEl.findOne("#LED_TEXT") as Text;
-  if (!state.fade) {
-    ledText.node.innerHTML = state.state === 1 ? "on" : "off";
+  if (!ledState.fade) {
+    ledText.node.innerHTML = ledState.state === 1 ? "on" : "off";
     (ledEl.findOne("#LIGHT_ON") as Element).node.style.opacity =
-      state.state.toString();
+      ledState.state.toString();
   }
-  if (state.fade) {
-    ledText.node.innerHTML = `${state.state}`;
+  if (ledState.fade) {
+    ledText.node.innerHTML = `${ledState.state}`;
     (ledEl.findOne("#LIGHT_ON") as Element).node.style.opacity = (
-      state.state / 125
+      ledState.state / 125
     ).toString();
   }
   ledText.cx(23);
-  changeLedColor(state, ledEl);
+  changeLedColor(ledState, ledEl);
 };
 
 export const resetLed: ResetComponent = (componentEl: Element) => {
@@ -102,7 +102,7 @@ export const createWiresLed: CreateWire<LedState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(holes[1], isDown, ledEl, draw, arduino, id, "ground");
 
   const color = board.pinConnections[state.pin].color;
@@ -139,7 +139,7 @@ export const createWiresLed: CreateWire<LedState> = (
 
 const changeLedColor = (state: LedState, ledEl: Element) => {
   const hexColor = state.color;
-  const mapColor = {
+  const mapColor: Record<string, string> = {
     "#ff0000": "red",
     "#008000": "green",
     "#0000ff": "blue",

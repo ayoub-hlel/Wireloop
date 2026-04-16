@@ -3,7 +3,8 @@
 
 import { writable, derived, type Readable } from 'svelte/store';
 import { browser } from '$app/environment';
-import { getSessionToken } from '../auth/clerk-auth';
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { getSessionToken } from '../auth/clerk-auth';
 import { 
   withDatabaseRetry, 
   handleDatabaseError, 
@@ -102,7 +103,8 @@ class MockConvexClient implements ConvexClient {
       console.log(`Convex Mutation: ${name}`, args);
       
       // Get session token for authentication
-      const token = await getSessionToken();
+      // TODO: CLERK_REMOVAL — use null for now
+      const token = null; // await getSessionToken();
       if (!token && name !== 'auth:getCurrentUser') {
         const error = new Error('Authentication required');
         (error as any).code = 'UNAUTHENTICATED';

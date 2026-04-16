@@ -77,11 +77,13 @@ export const stopMotor: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
+  const motorComponent = findComponent<MotorShieldState>(
+    previousState,
+    ArduinoComponentType.MOTOR
+  );
+  if (!motorComponent) return [];
   const motorShieldStateToUpdate = {
-    ...findComponent<MotorShieldState>(
-      previousState,
-      ArduinoComponentType.MOTOR
-    ),
+    ...motorComponent,
   };
   const motorNumber = +findFieldValue(block, "MOTOR");
   let actualMotorNumber = 1;
@@ -111,11 +113,13 @@ export const moveMotor: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
+  const motorComponent = findComponent<MotorShieldState>(
+    previousState,
+    ArduinoComponentType.MOTOR
+  );
+  if (!motorComponent) return [];
   const motorShieldStateToUpdate = {
-    ...findComponent<MotorShieldState>(
-      previousState,
-      ArduinoComponentType.MOTOR
-    ),
+    ...motorComponent,
   };
   const motorNumber = +findFieldValue(block, "MOTOR");
 

@@ -21,7 +21,7 @@ import { UltraSonicSensorState } from "./state";
 
 describe("ultra sonic sensor state factories", () => {
   let workspace: Workspace;
-  let ultraSonicSensor;
+  let ultraSonicSensor: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -49,11 +49,10 @@ describe("ultra sonic sensor state factories", () => {
       VariableTypes.NUMBER,
       0
     );
-    setVarNumBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    setVarNumBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
     setVarNumBlock
-      .getInput("VALUE")
-      .connection.connect(sensorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
 
     connectToArduinoBlock(setVarNumBlock);
 

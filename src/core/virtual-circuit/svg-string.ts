@@ -51,7 +51,7 @@ const createSvgString: { [key: string]: GetSvgString } = {
   [ArduinoComponentType.LED_MATRIX]: (_) => ledmatrixSvgString,
   [ArduinoComponentType.MOTOR]: (_) => motorSvgString,
   [ArduinoComponentType.NEO_PIXEL_STRIP]: (_) => neopixelSvgString,
-  [ArduinoComponentType.FASTLED_STRIP]: (state: FastLEDState) => {
+  [ArduinoComponentType.FASTLED_STRIP]: ((state: FastLEDState) => {
     if (state.numberOfLeds < 25) {
       return fastledSvgString24;
     } else if (state.numberOfLeds < 61) {
@@ -61,17 +61,17 @@ const createSvgString: { [key: string]: GetSvgString } = {
     } else {
       return fastledSvgString;
     }
-  },
+  }) as GetSvgString,
   [ArduinoComponentType.RFID]: (_) => rfidSvgString,
   [ArduinoComponentType.SERVO]: (_) => servoSVGText,
   [ArduinoComponentType.TEMPERATURE_SENSOR]: (_) => tempSvgString,
   [ArduinoComponentType.ULTRASONICE_SENSOR]: (_) => ultraSonicSvgString,
-  [ArduinoComponentType.LCD_SCREEN]: getLcdScreenSvgString,
+  [ArduinoComponentType.LCD_SCREEN]: getLcdScreenSvgString as GetSvgString,
   [ArduinoComponentType.LED_COLOR]: (_) => rgbLEDSVG,
-  [ArduinoComponentType.DIGITAL_SENSOR]: getDigitalSensorSvg,
+  [ArduinoComponentType.DIGITAL_SENSOR]: getDigitalSensorSvg as GetSvgString,
   [ArduinoComponentType.LED]: () => ledSvgString,
   [ArduinoComponentType.WRITE_PIN]: (_) => writePinSvgString,
-  [ArduinoComponentType.ANALOG_SENSOR]: getAnalogSensorSvg,
+  [ArduinoComponentType.ANALOG_SENSOR]: getAnalogSensorSvg as GetSvgString,
   [ArduinoComponentType.THERMISTOR]: (_) => thermistorSvgString,
   [ArduinoComponentType.PASSIVE_BUZZER]: (_) => passiveBuzzerSvgString,
   [ArduinoComponentType.STEPPER_MOTOR]: (_) => stepperMotorSvg,

@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
-import type { Workspace } from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
@@ -18,7 +18,7 @@ import type { RfidState } from "./state";
 
 describe("rfid state factories", () => {
   let workspace: Workspace;
-  let rfidBlock;
+  let rfidBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -27,7 +27,7 @@ describe("rfid state factories", () => {
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
 
-    rfidBlock = workspace.newBlock("rfid_setup");
+    rfidBlock = workspace.newBlock("rfid_setup") as BlockSvg;
     rfidBlock.setFieldValue(ARDUINO_PINS.PIN_6, "PIN_TX");
     rfidBlock.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_RX");
 

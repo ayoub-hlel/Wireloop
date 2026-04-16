@@ -1,6 +1,6 @@
 import Blockly from 'blockly';
 import type { Block } from 'blockly';
-import _ from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import {
   hexToRgb,
   rgbToColorStruct,
@@ -132,7 +132,7 @@ Blockly["Arduino"]["set_color_led"] = function (block: Block) {
         )
       : rgbToColorStruct(hexToRgb(block.getFieldValue("COLOR")));
 
-  if (_.isEmpty(color)) {
+  if (isEmpty(color)) {
     color = "{ 0, 0, 0 }";
   }
 

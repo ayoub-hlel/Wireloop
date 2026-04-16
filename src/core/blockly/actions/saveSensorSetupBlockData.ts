@@ -1,7 +1,7 @@
 import type { BlockEvent } from "../dto/event.type";
 import { type SaveSetupSensorData, ActionType } from "./actions";
 import { BlockType } from "../dto/block.type";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import { convertToSensorData } from "../transformers/sensor-data.transformer";
 import {
   findFieldValue,
@@ -30,13 +30,13 @@ export const saveSensorSetupBlockData = (
 
   const executionTimes = getLoopTimeFromBlockData(blocks);
 
-  const loopTimes = _.range(1, executionTimes + 1);
+  const loopTimes = Array.from({ length: executionTimes }, (_, i) => i + 1);
   const sensorData = convertToSensorData(block);
   const copyAll = findFieldValue(block, "COPY_SAME") == "TRUE";
-  if (!_.isEmpty(block.metaData) && !copyAll) {
+  if (!isEmpty(block.metaData) && !copyAll) {
     const metadata = JSON.parse(block.metaData);
     const nonBlankMetaData = loopTimes.map((loopIndex) => {
-      const existingLoop = metadata.find((b) => b.loop === loopIndex);
+      const existingLoop = metadata.find((b: { loop: number }) => b.loop === loopIndex);
       if (existingLoop) {
         return existingLoop;
       }

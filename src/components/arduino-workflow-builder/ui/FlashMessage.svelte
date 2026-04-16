@@ -3,7 +3,7 @@
     export let message: string;
     export let delay = 2000;
     export let show = false;
-    let showMessageQueue = [];
+    let showMessageQueue: number[] = [];
 
     function addSaveMessage() {
         showMessageQueue = [1, ...showMessageQueue];

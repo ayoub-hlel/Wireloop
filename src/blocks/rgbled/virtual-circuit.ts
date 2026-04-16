@@ -41,14 +41,15 @@ export const positionRgbLed: PositionComponent<LedColorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(rgbLedEl, arduinoEl, draw, holes[1], isDown, "PIN_POWER");
   rgbLedEl.y(-73.5);
   rgbLedEl.data("disableDraggable", "TRUE");
 };
 
-export const updateRgbLed: SyncComponent = (state: LedColorState, rgbLedEl) => {
-  let color = rgbToHex(state.color);
+export const updateRgbLed: SyncComponent = (state: any, rgbLedEl) => {
+  const ledState = state as LedColorState;
+  let color = rgbToHex(ledState.color);
   if (color.toUpperCase() === "#000000") {
     (rgbLedEl.findOne("#MAIN_COLOR") as Element).hide();
     return;
@@ -70,7 +71,7 @@ export const createWiresRgbLed: CreateWire<LedColorState> = (
   board,
   area
 ) => {
-  const { holes } = area;
+  const { holes } = area!;
   createWireFromArduinoToBreadBoard(
     state.redPin,
     arduino as Svg,

@@ -23,7 +23,7 @@ export const createDigitalSensor: AfterComponentCreateHook<DigitalSensorState> =
   micro,
   settings
 ) => {
-  sensorEl.findOne("#PIN_TEXT").node.innerHTML = state.pin.toString();
+  sensorEl.findOne("#PIN_TEXT")!.node.innerHTML = state.pin.toString();
   sensorEl.data("picture-type", state.pictureType);
   if (pinCenterText[state.pictureType]) {
     (sensorEl.findOne("#PIN_TEXT") as Element).cx(
@@ -45,7 +45,7 @@ export const positionDigitalSensor: PositionComponent<DigitalSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   if (state.pictureType === DigitalPictureType.TOUCH_SENSOR) {
     positionComponent(sensorEl, arduinoEl, draw, holes[2], isDown, "PIN_POWER");
@@ -61,25 +61,26 @@ export const resetDigitalSensor: ResetComponent = (componentEl: Element) => {
 };
 
 export const updateDigitalSensor: SyncComponent = (
-  state: DigitalSensorState,
+  state: any,
   analogSensorEl,
   draw
 ) => {
-  if (state.pictureType === DigitalPictureType.SENSOR) {
+  const sensorState = state as DigitalSensorState;
+  if (sensorState.pictureType === DigitalPictureType.SENSOR) {
     const sensingWave = analogSensorEl.findOne("#SENSING");
-    if (state.isOn) {
-      sensingWave.show();
+    if (sensorState.isOn) {
+      sensingWave!.show();
     } else {
-      sensingWave.hide();
+      sensingWave!.hide();
     }
     return;
   }
 
   if (state.pictureType === DigitalPictureType.TOUCH_SENSOR) {
     if (state.isOn) {
-      analogSensorEl.findOne("#finger").show();
+      analogSensorEl.findOne("#finger")!.show();
     } else {
-      analogSensorEl.findOne("#finger").hide();
+      analogSensorEl.findOne("#finger")!.hide();
     }
 
     return;
@@ -117,7 +118,7 @@ const createSensorWires: CreateWire<DigitalSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(
     holes[0],
     isDown,
@@ -189,7 +190,7 @@ const createTouchSensorWires: CreateWire<DigitalSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   createGroundOrPowerWire(
     holes[1],
     isDown,

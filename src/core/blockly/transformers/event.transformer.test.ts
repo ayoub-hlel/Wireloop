@@ -63,15 +63,15 @@ describe("event transformer", () => {
 
     expect(deleteEvent.variables.length).toBe(3);
     const bVariable = deleteEvent.variables.find((v) => v.name === "b");
-    expect(bVariable.isBeingUsed).toBeFalsy();
-    expect(bVariable.type).toBe(VariableTypes.BOOLEAN);
+    expect(bVariable!.isBeingUsed).toBeFalsy();
+    expect(bVariable!.type).toBe(VariableTypes.BOOLEAN);
     const cVariable = deleteEvent.variables.find((v) => v.name === "c");
-    expect(cVariable.isBeingUsed).toBeFalsy();
-    expect(cVariable.type).toBe(VariableTypes.STRING);
+    expect(cVariable!.isBeingUsed).toBeFalsy();
+    expect(cVariable!.type).toBe(VariableTypes.STRING);
     const variable = deleteEvent.variables.find(
       (v) => v.name !== "c" && v.name !== "b"
     );
-    expect(variable.isBeingUsed).toBeTruthy();
+    expect(variable!.isBeingUsed).toBeTruthy();
   });
 
   it("should transform a delete event", () => {

@@ -8,7 +8,6 @@ import type {
   AfterComponentCreateHook,
 } from "../../core/virtual-circuit/svg-create";
 import type { Element, Svg, Text } from "@svgdotjs/svg.js";
-import _ from "lodash";
 
 import { AnalogSensorPicture, type AnalogSensorState } from "./state";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
@@ -22,7 +21,7 @@ export const analogSensorCreate: AfterComponentCreateHook<AnalogSensorState> = (
   state,
   analogSensorEl
 ) => {
-  analogSensorEl.findOne("#PIN_TEXT").node.innerHTML = state.pin.toString();
+  analogSensorEl.findOne("#PIN_TEXT")!.node.innerHTML = state.pin.toString();
   analogSensorEl.data("picture-type", state.pictureType);
 };
 
@@ -34,7 +33,7 @@ export const analogSensorPosition: PositionComponent<AnalogSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   if (state.pictureType === AnalogSensorPicture.SENSOR) {
     positionComponent(
       analogSensorEl,
@@ -69,15 +68,16 @@ export const analogSensorPosition: PositionComponent<AnalogSensorState> = (
 };
 
 export const analogSensorUpdate: SyncComponent = (
-  state: AnalogSensorState,
+  state: any,
   analogSensorEl
 ) => {
+  const analogState = state as AnalogSensorState;
   const textEl = analogSensorEl.findOne("#READING_VALUE") as Text;
   textEl.show();
 
-  textEl.node.innerHTML = state.state.toString();
+  textEl.node.innerHTML = analogState.state.toString();
 
-  updateSensorList[state.pictureType](state, analogSensorEl);
+  updateSensorList[analogState.pictureType](analogState, analogSensorEl);
 };
 
 export const analogSensorReset: ResetComponent = (componentEl: Element) => {
@@ -94,7 +94,7 @@ const createPotentiometerWires: CreateWire<AnalogSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createComponentWire(
     holes[3],
@@ -138,7 +138,7 @@ const createSensorWires: CreateWire<AnalogSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createComponentWire(
     holes[2],
@@ -182,7 +182,7 @@ const createSoilSensorWires: CreateWire<AnalogSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createComponentWire(
     holes[1],
@@ -226,7 +226,7 @@ const createPhotoSensorWires: CreateWire<AnalogSensorState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createComponentWire(
     holes[3],

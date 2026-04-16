@@ -21,7 +21,7 @@ const onMessage = (message: string) => {
   wait(20);
 };
 
-const connect = async (baudRate) => {
+const connect = async (baudRate: number) => {
   serialPort = new SerialPort(
     {
       requestOptions: {
@@ -33,7 +33,7 @@ const connect = async (baudRate) => {
     onMessage
   );
   return new Promise((res, rej) => {
-    serialPort.open((err) => {
+    serialPort.open((err: unknown) => {
       console.log(err);
       if (!err) {
         res(undefined);
@@ -45,11 +45,11 @@ const connect = async (baudRate) => {
 };
 
 const closePort = async () => {
-  await serialPort.close((info) => console.log("closed", info));
+  await serialPort.close((info: unknown) => console.log("closed", info));
 };
 
 const sendMessage = async (message: string) => {
-  await serialPort.write(message, (err) => {
+  await serialPort.write(message, (err: unknown) => {
     if (err) {
       console.log(err, "sendmessage");
     }

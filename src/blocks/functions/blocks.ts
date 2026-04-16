@@ -37,7 +37,7 @@ Blockly.Blocks["procedures_defnoreturn"] = {
    * @param {boolean} hasStatements True if a statement block is needed.
    * @this Blockly.Block
    */
-  setStatements_: function (hasStatements) {
+  setStatements_: function (hasStatements: boolean) {
     if (this.hasStatements_ === hasStatements) {
       return;
     }

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import keys from "lodash/keys";
 import type { BlockEvent } from "../../dto/event.type";
 import {
   type BlockData,
@@ -19,7 +19,7 @@ export const disableBlocksThatNeedASetupBlock = (
   const { blocks } = event;
 
   return blocks
-    .filter((b) => _.keys(blocksThatRequireSetup).includes(b.blockName))
+    .filter((b) => keys(blocksThatRequireSetup).includes(b.blockName))
     .filter((block) => shouldDisableBlock(block, blocks))
     .map((b) => {
       return {

@@ -1,4 +1,4 @@
-import _ from "lodash";
+import random from "lodash/random";
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import { hexToRgb } from "../../core/blockly/helpers/color.helper";
 import {
@@ -26,9 +26,9 @@ export const randomColor: ValueGenerator = (
   previousState
 ) => {
   return {
-    red: _.random(1, 256),
-    green: _.random(1, 256),
-    blue: _.random(1, 256),
+    red: random(1, 256),
+    green: random(1, 256),
+    blue: random(1, 256),
   };
 };
 

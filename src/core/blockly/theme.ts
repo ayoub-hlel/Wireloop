@@ -1,7 +1,6 @@
 import { COLOR_THEME } from './constants/colors';
-import type { BlocklyThemeOptions } from 'blockly';
 
-export const theme: BlocklyThemeOptions = {
+export const theme = {
   blockStyles: {
     logic_blocks: {
       colourPrimary: COLOR_THEME.CONTROL,

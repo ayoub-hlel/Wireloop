@@ -15,5 +15,5 @@ export const analogRead: ValueGenerator = (
     previousState,
     ArduinoComponentType.ANALOG_SENSOR,
     findFieldValue(block, "PIN")
-  ).state;
+  )?.state;
 };

@@ -91,22 +91,17 @@ describe("neo pixle state factories", () => {
     });
 
     setNeoPixel1Block
-      .getInput("COLOR")
-      .connection.connect(color1Block.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color1Block.outputConnection!);
     setNeoPixel1Block
-      .getInput("POSITION")
-      .connection.connect(position1Block.outputConnection);
+      .getInput("POSITION")!.connection!.connect(position1Block.outputConnection!);
     setNeoPixel2Block
-      .getInput("COLOR")
-      .connection.connect(color2Block.outputConnection);
+      .getInput("COLOR")!.connection!.connect(color2Block.outputConnection!);
     setNeoPixel2Block
-      .getInput("POSITION")
-      .connection.connect(position2Block.outputConnection);
+      .getInput("POSITION")!.connection!.connect(position2Block.outputConnection!);
 
     connectToArduinoBlock(setNeoPixel1Block);
-    setNeoPixel1Block.nextConnection.connect(
-      setNeoPixel2Block.previousConnection
-    );
+    setNeoPixel1Block.nextConnection!.connect(
+      setNeoPixel2Block.previousConnection!);
 
     const event = createTestEvent(setNeoPixel1Block.id);
 

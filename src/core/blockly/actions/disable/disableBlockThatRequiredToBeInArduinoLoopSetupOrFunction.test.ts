@@ -14,7 +14,7 @@ import {
 
 describe("disableBlockThatRequiredToBeInArduinoLoopSetupOrFunction", () => {
   let workspace: Workspace;
-  let arduinoBlock;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();

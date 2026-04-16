@@ -168,25 +168,19 @@ const testGetItemsInList = (
   );
 
   connectToArduinoBlock(listSetPosition1);
-  listSetPosition1.nextConnection.connect(listSetPosition2.previousConnection);
-  listSetPosition2.nextConnection.connect(
-    setListItemVariable.previousConnection
-  );
-  setListItemVariable.nextConnection.connect(
-    setListItemVariable1.previousConnection
-  );
-  setListItemVariable1.nextConnection.connect(
-    setListItemVariable2.previousConnection
-  );
-  setListItemVariable2.nextConnection.connect(
-    setListItemVariable3.previousConnection
-  );
-  setListItemVariable3.nextConnection.connect(
-    setListItemVariable4.previousConnection
-  );
-  setListItemVariable4.nextConnection.connect(
-    setListItemVariable20.previousConnection
-  );
+  listSetPosition1.nextConnection!.connect(listSetPosition2.previousConnection!);
+  listSetPosition2.nextConnection!.connect(
+    setListItemVariable.previousConnection!);
+  setListItemVariable.nextConnection!.connect(
+    setListItemVariable1.previousConnection!);
+  setListItemVariable1.nextConnection!.connect(
+    setListItemVariable2.previousConnection!);
+  setListItemVariable2.nextConnection!.connect(
+    setListItemVariable3.previousConnection!);
+  setListItemVariable3.nextConnection!.connect(
+    setListItemVariable4.previousConnection!);
+  setListItemVariable4.nextConnection!.connect(
+    setListItemVariable20.previousConnection!);
 
   const event = createTestEvent(setListItemVariable4.id);
 
@@ -253,11 +247,10 @@ const createSetVariableBlockWithListItemAttached = (
     position
   );
 
-  variableBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+  variableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
 
   variableBlock
-    .getInput("VALUE")
-    .connection.connect(getItemInListBlock.outputConnection);
+    .getInput("VALUE")!.connection!.connect(getItemInListBlock.outputConnection!);
 
   return variableBlock;
 };
@@ -268,14 +261,14 @@ const createGetListItemBlock = (
   listVariableId: string,
   position: number
 ) => {
-  const block = workspace.newBlock(toArrayBlockType(type));
-  block.setFieldValue(listVariableId, "VAR");
+  const block = workspace.newBlock(toArrayBlockType(type)!);
+  block.setFieldValue(listVariableId!, "VAR");
   const positionBlock = createValueBlock(
     workspace,
     VariableTypes.NUMBER,
     position
   );
-  block.getInput("POSITION").connection.connect(positionBlock.outputConnection);
+  block.getInput("POSITION")!.connection!.connect(positionBlock.outputConnection!);
 
   return block;
 };

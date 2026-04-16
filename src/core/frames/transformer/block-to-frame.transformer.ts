@@ -1,6 +1,6 @@
 import type { BlockData } from "../../blockly/dto/block.type";
 import type { Timeline, ArduinoFrame } from "../arduino.frame";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import {
   digitalWrite,
   analogWrite,
@@ -217,13 +217,13 @@ export const generateInputFrame = (
   previousState?: ArduinoFrame
 ): ArduinoFrame[] => {
   // Fixing memory sharing between objects
-  previousState = previousState ? _.cloneDeep(previousState) : undefined;
+  previousState = previousState ? cloneDeep(previousState) : undefined;
   const startingBlock = findInputStatementStartBlock(blocks, block, inputName);
   if (!startingBlock) {
     return [];
   }
-  const arduinoStates = [];
-  let nextBlock = startingBlock;
+  const arduinoStates: ArduinoFrame[] = [];
+  let nextBlock: BlockData | undefined = startingBlock;
   do {
     const states = generateFrame(
       blocks,
@@ -234,8 +234,10 @@ export const generateInputFrame = (
     );
     arduinoStates.push(...states);
     const newPreviousState = states[states.length - 1];
-    previousState = _.cloneDeep(newPreviousState);
-    nextBlock = findBlockById(blocks, nextBlock.nextBlockId);
+    if (newPreviousState) {
+      previousState = cloneDeep(newPreviousState);
+    }
+    nextBlock = nextBlock.nextBlockId ? findBlockById(blocks, nextBlock.nextBlockId)! : undefined;
   } while (nextBlock !== undefined);
 
   return arduinoStates;

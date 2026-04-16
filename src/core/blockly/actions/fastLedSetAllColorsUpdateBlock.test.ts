@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import Blockly, { BlockSvg } from "blockly";
+import Blockly from "blockly";
+import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock, getAllBlocks } from "../helpers/block.helper";
 import _ from "lodash";
 import type { BlockEvent } from "../dto/event.type";
@@ -18,15 +19,15 @@ import { MicroControllerType } from "../../microcontroller/microcontroller";
 import { updateFastLedSetAllColorsUpdateBlock } from "./fastLedSetAllColorsUpdateBlock";
 
 describe("fastLedSetAllColorsUpdateBlock", () => {
-  let workspace;
-  let arduinoBlock;
-  let fastLedSetupBlock;
-  let fastledSetAllColorsBlock;
+  let workspace: Workspace;
+  let arduinoBlock: BlockSvg;
+  let fastLedSetupBlock: BlockSvg;
+  let fastledSetAllColorsBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    fastLedSetupBlock = workspace.newBlock("fastled_setup");
-    fastledSetAllColorsBlock = workspace.newBlock("fastled_set_all_colors");
+    fastLedSetupBlock = workspace.newBlock("fastled_setup") as BlockSvg;
+    fastledSetAllColorsBlock = workspace.newBlock("fastled_set_all_colors") as BlockSvg;
     connectToArduinoBlock(fastledSetAllColorsBlock);
   });
 
@@ -53,7 +54,7 @@ describe("fastLedSetAllColorsUpdateBlock", () => {
     expect(updateFastLedSetAllColorsUpdateBlock(event)).toEqual([]);
   });
 
-  function testMathScenario(maxLeds, maxColumnsOnLastRow, maxRows) {
+  function testMathScenario(maxLeds: number, maxColumnsOnLastRow: number, maxRows: number) {
     fastLedSetupBlock.setFieldValue(maxLeds, "NUMBER_LEDS");
     const event = createTestEvent(fastLedSetupBlock.id, Blockly.Events.MOVE);
     const [action] = updateFastLedSetAllColorsUpdateBlock(event);

@@ -2,7 +2,14 @@
 // Provides unified authentication interface with comprehensive error handling
 
 import { get } from 'svelte/store';
-import { authState, userId, isSignedIn, updateAuthState } from '../stores/clerk-auth.store';
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { authState, userId, isSignedIn, updateAuthState } from '../stores/clerk-auth.store';
+
+// MOCK implementations for placeholder
+const authState = { subscribe: (cb: any) => { cb({ user: null }); return () => {}; } };
+const userId = { subscribe: (cb: any) => { cb(null); return () => {}; } };
+const isSignedIn = { subscribe: (cb: any) => { cb(false); return () => {}; } };
+const updateAuthState = (state: any) => {};
 
 /**
  * Comprehensive error handling for authentication operations
@@ -486,7 +493,7 @@ export function onAuthStateChange(callback: (user: any) => void): () => void {
   console.log('Setting up auth state change listener');
   
   // Mock implementation - would set up actual Clerk listeners
-  const unsubscribe = authState.subscribe(state => {
+  const unsubscribe = authState.subscribe((state: any) => {
     callback(state.user);
   });
   

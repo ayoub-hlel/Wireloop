@@ -16,7 +16,7 @@ const buttonSetupBlock: any = {
     this.appendDummyInput()
       .appendField("Connected to PIN# ")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().digitalPins),
+        new Blockly.FieldDropdown(() => selectBoardBlockly().digitalPins) as any,
         "PIN"
       );
     this.appendDummyInput()
@@ -31,17 +31,17 @@ const buttonSetupBlock: any = {
       .appendField(
         new Blockly.FieldDropdown(() => {
           return loopTimes();
-        }),
+        }) as any,
         "LOOP"
       );
     this.appendDummyInput()
       .appendField("Is button pressed: ")
       .appendField(new Blockly.FieldCheckbox("TRUE"), "is_pressed");
-    
+
     this.appendDummyInput("COPY_ALL")
     .appendField("Copy All: ")
     .appendField(new Blockly.FieldCheckbox(false), "COPY_SAME");
-    
+
     this.setColour(COLOR_THEME.SENSOR);
     this.setTooltip("");
     this.setHelpUrl("");
@@ -63,7 +63,7 @@ const isBtnPressedBlock: any = {
             "button_setup",
             selectBoardBlockly().digitalPins
           );
-        }),
+        }) as any,
         "PIN"
       )
       .appendField("is pressed?");
@@ -78,8 +78,8 @@ const isBtnPressedBlock: any = {
 Blockly.Blocks["is_button_pressed"] = isBtnPressedBlock;
 
 
-const release_button = {
-  init: function () {
+const release_button: any = {
+  init: function(this: Blockly.Block) {
     this.appendDummyInput()
       .appendField(
         new Blockly.FieldImage("./blocks/button/button.png", 15, 15, "*")
@@ -91,7 +91,7 @@ const release_button = {
             "button_setup",
             selectBoardBlockly().digitalPins
           );
-        }),
+        }) as any,
         "PIN"
       )
       .appendField("is ")
@@ -99,7 +99,7 @@ const release_button = {
         new Blockly.FieldDropdown([
           ["released", "RELEASED"],
           ["pressed", "PRESSED"],
-        ]),
+        ]) as any,
         "STATE"
       )
       .appendField(".");

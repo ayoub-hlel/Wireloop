@@ -36,11 +36,9 @@ describe("math_round state factories", () => {
     const numberBlock = workspace.newBlock("math_number");
     numberBlock.setFieldValue("3.7", "NUM");
     mathRoundBlock
-      .getInput("NUM")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("NUM")!.connection!.connect(numberBlock.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathRoundBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathRoundBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     [
@@ -86,12 +84,10 @@ describe("math_round state factories", () => {
     );
 
     mathRoundBlock
-      .getInput("NUM")
-      .connection.connect(getNumberBlock.outputConnection);
+      .getInput("NUM")!.connection!.connect(getNumberBlock.outputConnection!);
 
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathRoundBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathRoundBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
     connectToArduinoBlock(setNumberRoundBlock);
     [
@@ -122,8 +118,7 @@ describe("math_round state factories", () => {
 
     const mathRoundBlock = workspace.newBlock("math_round");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathRoundBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathRoundBlock.outputConnection!);
 
     connectToArduinoBlock(setNumberBlock);
 

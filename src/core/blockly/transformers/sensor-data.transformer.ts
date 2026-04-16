@@ -1,4 +1,5 @@
-import _ from "lodash";
+import keys from "lodash/keys";
+import isFunction from "lodash/isFunction";
 
 import type { Sensor } from "../dto/sensors.type";
 import type { BlockData } from "../dto/block.type";
@@ -71,13 +72,13 @@ const blockToSensorComponent: {
   joystick_setup: joystickSetupBlockToComponentState,
 };
 
-export const sensorSetupBlockName = _.keys(blockToSensorComponent);
+export const sensorSetupBlockName = keys(blockToSensorComponent);
 
 export const convertToState = (
   block: BlockData,
   timeline: Timeline
 ): ArduinoComponentState => {
-  if (!_.isFunction(blockToSensorComponent[block.blockName])) {
+  if (!isFunction(blockToSensorComponent[block.blockName])) {
     throw new Error("No Sensor Data function found for " + block.blockName);
   }
 
@@ -94,7 +95,7 @@ export const convertToState = (
 };
 
 export const convertToSensorData = (block: BlockData): Sensor => {
-  if (!_.isFunction(blockToSensorData[block.blockName])) {
+  if (!isFunction(blockToSensorData[block.blockName])) {
     throw new Error("No Sensor Data function found for " + block.blockName);
   }
 

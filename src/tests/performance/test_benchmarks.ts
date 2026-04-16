@@ -25,8 +25,8 @@ const mockClerk = {
   signUp: vi.fn(),
   signOut: vi.fn(),
   getToken: vi.fn(),
-  user: null,
-  session: null,
+  user: null as any,
+  session: null as any,
   loaded: false,
 };
 
@@ -356,7 +356,7 @@ describe('Performance Benchmarking', () => {
       // EXPECTED TO FAIL - no real-time optimization yet
       let updateCallback: Function;
       
-      (mockConvex.subscribe as any).mockImplementation((query, args, callback) => {
+      (mockConvex.subscribe as any).mockImplementation((query: any, args: any, callback: any) => {
         updateCallback = callback;
         return 'subscription-123';
       });
@@ -550,6 +550,7 @@ describe('Performance Benchmarking', () => {
     it('should generate performance report', () => {
       // EXPECTED TO FAIL - no performance reporting yet
       // Run some operations to generate data
+      // @ts-ignore - accessing private member for testing
       benchmark.measurements.set('test_operation', [100, 150, 200, 120, 180]);
 
       const stats = benchmark.getStats('test_operation');

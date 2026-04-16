@@ -33,13 +33,14 @@ const mockWindow = {
     removeItem: vi.fn(),
     clear: vi.fn(),
   },
+  navigator: {} as any,
 };
 
 // Mock Clerk for authentication
 const mockClerk = {
   loaded: false,
-  user: null,
-  session: null,
+  user: null as any,
+  session: null as any,
   load: vi.fn(),
   signIn: vi.fn(),
   signUp: vi.fn(),
@@ -406,14 +407,14 @@ describe('End-to-End User Workflows', () => {
       expect(shareUrl).toBe('https://arduino-workflow-builder.org/project/e2e-project-123');
 
       // Step 3: Copy to clipboard (simulate)
-      (mockWindow.navigator as any) = {
+      (mockWindow as any).navigator = {
         clipboard: {
           writeText: vi.fn().mockResolvedValue(true),
         },
       };
 
-      await mockWindow.navigator.clipboard.writeText(shareUrl);
-      expect(mockWindow.navigator.clipboard.writeText).toHaveBeenCalledWith(shareUrl);
+      await (mockWindow as any).navigator.clipboard.writeText(shareUrl);
+      expect((mockWindow as any).navigator.clipboard.writeText).toHaveBeenCalledWith(shareUrl);
 
       // Step 4: View public project (different user)
       (mockConvex.query as any).mockResolvedValue({
@@ -546,7 +547,7 @@ describe('End-to-End User Workflows', () => {
         isDirty: true,
       };
 
-      (mockWindow.localStorage.setItem as any).mockImplementation((key, value) => {
+      (mockWindow.localStorage.setItem as any).mockImplementation((key: string, value: any) => {
         if (key === 'unsaved_project_e2e-project-123') {
           return JSON.stringify(unsavedProject);
         }
@@ -563,7 +564,7 @@ describe('End-to-End User Workflows', () => {
       mockConvex.connectionState.isAuthenticated = true;
 
       // Check for unsaved work
-      (mockWindow.localStorage.getItem as any).mockImplementation((key) => {
+      (mockWindow.localStorage.getItem as any).mockImplementation((key: string) => {
         if (key === 'unsaved_project_e2e-project-123') {
           return JSON.stringify(unsavedProject);
         }

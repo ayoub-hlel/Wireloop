@@ -32,7 +32,7 @@ describe("logic not blocks", () => {
     );
 
     const notBlock = workspace.newBlock("logic_negate");
-    boolTest.getInput("VALUE").connection.connect(notBlock.outputConnection);
+    boolTest.getInput("VALUE")!.connection!.connect(notBlock.outputConnection!);
     connectToArduinoBlock(boolTest);
     // testing true turns to false
     const event1 = createTestEvent(boolTest.id);
@@ -41,10 +41,8 @@ describe("logic not blocks", () => {
 
     // Testing false turns to true
     boolTest
-      .getInput("VALUE")
-      .connection.targetBlock()
-      .getInput("BOOL")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
+      .getInput("BOOL")!.connection!.targetBlock()!
       .setFieldValue("FALSE", "BOOL");
 
     const event2 = createTestEvent(boolTest.id);
@@ -53,10 +51,8 @@ describe("logic not blocks", () => {
 
     // testing not block connected
     boolTest
-      .getInput("VALUE")
-      .connection.targetBlock()
-      .getInput("BOOL")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
+      .getInput("BOOL")!.connection!.targetBlock()!
       .dispose(true);
     const event3 = createTestEvent(boolTest.id);
     const [event3state1] = eventToFrameFactory(event3).frames;

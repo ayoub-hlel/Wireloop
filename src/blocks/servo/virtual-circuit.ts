@@ -22,10 +22,11 @@ export const servoReset: ResetComponent = (servoEl) => {
   setText(servoEl, 0);
 };
 
-export const servoUpdate: SyncComponent = (state: ServoState, servoEl) => {
-  setDegrees(servoEl, state.degree);
+export const servoUpdate: SyncComponent = (state: any, servoEl) => {
+  const servoState = state as ServoState;
+  setDegrees(servoEl, servoState.degree);
 
-  setText(servoEl, state.degree);
+  setText(servoEl, servoState.degree);
 };
 
 export const servoCreate: AfterComponentCreateHook<ServoState> = (
@@ -47,7 +48,7 @@ export const servoPosition: PositionComponent<ServoState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(servoEl, arduinoEl, draw, holes[2], isDown, "PIN_POWER");
 };
 
@@ -67,7 +68,7 @@ const setDegrees = (servoEl: Element, degrees: number) => {
   // TODO FIX DEGREES
   const servoBoundBox = findSvgElement("CenterOfCicle", servoEl).bbox();
   const movingPart = findSvgElement("moving_part", servoEl);
-  const currentDegrees = movingPart.transform().rotate;
+  const currentDegrees = movingPart.transform().rotate ?? 0;
   movingPart.rotate(-currentDegrees, servoBoundBox.x, servoBoundBox.y);
   movingPart.rotate(-1 * (degrees + 4), servoBoundBox.cx, servoBoundBox.cy);
 };
@@ -81,7 +82,7 @@ export const createWiresServo: CreateWire<ServoState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   const pin = state.pins[0];
   createGroundOrPowerWire(

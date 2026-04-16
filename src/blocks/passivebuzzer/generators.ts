@@ -1,6 +1,6 @@
-import Blockly from "blockly";
+import Blockly, { type Block } from "blockly";
 
-Blockly["Arduino"]["passive_buzzer_note"] = function (block) {
+Blockly["Arduino"]["passive_buzzer_note"] = function (block: Block) {
   var tone = +block.getFieldValue("TONE");
   var pin = block.getFieldValue("PIN");
   Blockly["Arduino"].setupCode_["tone_pin_" + pin] =
@@ -13,7 +13,7 @@ Blockly["Arduino"]["passive_buzzer_note"] = function (block) {
   return `tone(${pin}, ${tone});\n`;
 };
 
-Blockly["Arduino"]["passive_buzzer_tone"] = function (block) {
+Blockly["Arduino"]["passive_buzzer_tone"] = function (block: Block) {
   var tone = +Blockly["Arduino"].valueToCode(
     block,
     "TONE",

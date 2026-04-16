@@ -1,6 +1,7 @@
 import type {
   SyncComponent,
   ResetComponent,
+  ArduinoComponentState,
 } from "../../core/virtual-circuit/svg-sync";
 import type {
   PositionComponent,
@@ -33,7 +34,7 @@ export const positionButton: PositionComponent<ButtonState> = (
   area
 ) => {
   buttonEl.data("disableDraggable", "TRUE");
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(buttonEl, arduinoEl, draw, holes[0], isDown, "PIN_1");
   const holeId = `pin${holes[0]}F`;
   const hole = findBreadboardHoleXY(holeId, arduinoEl, draw);
@@ -48,11 +49,12 @@ export const createButton: AfterComponentCreateHook<ButtonState> = (
 };
 
 export const updateButton: SyncComponent = (
-  state: ButtonState,
+  state: ArduinoComponentState,
   buttonEl,
   draw
 ) => {
-  toggleButton(buttonEl, state.isPressed);
+  const buttonState = state as ButtonState;
+  toggleButton(buttonEl, buttonState.isPressed);
 };
 
 export const resetButton: ResetComponent = (componentEl: Element) => {
@@ -61,19 +63,19 @@ export const resetButton: ResetComponent = (componentEl: Element) => {
 
 const toggleButton = (componentEl: Element, isOn: boolean) => {
   if (isOn) {
-    componentEl.findOne("#HAND").show();
-    componentEl.findOne("#HIDE_PRESSED").hide();
-    componentEl.findOne("#BOTTOM_WIRE").show();
-    componentEl.findOne("#TOP_WIRE").show();
+    componentEl.findOne("#HAND")!.show();
+    componentEl.findOne("#HIDE_PRESSED")!.hide();
+    componentEl.findOne("#BOTTOM_WIRE")!.show();
+    componentEl.findOne("#TOP_WIRE")!.show();
 
     (componentEl.findOne("#BTN_TEXT") as Text).x(4).text("Pressed");
     return;
   }
   (componentEl.findOne("#BTN_TEXT") as Text).x(1).text("Released");
-  componentEl.findOne("#HAND").hide();
-  componentEl.findOne("#BOTTOM_WIRE").hide();
-  componentEl.findOne("#TOP_WIRE").hide();
-  componentEl.findOne("#HIDE_PRESSED").show();
+  componentEl.findOne("#HAND")!.hide();
+  componentEl.findOne("#BOTTOM_WIRE")!.hide();
+  componentEl.findOne("#TOP_WIRE")!.hide();
+  componentEl.findOne("#HIDE_PRESSED")!.show();
 };
 
 export const createWiresButton: CreateWire<ButtonState> = (
@@ -85,7 +87,7 @@ export const createWiresButton: CreateWire<ButtonState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   if (state.usePullup) {
     createGroundOrPowerWire(
       holes[0],

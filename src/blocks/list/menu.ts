@@ -207,8 +207,8 @@ export const registerListMenu = (workspace: WorkspaceSvg) => {
 };
 
 const createListButtonHandler = (blockType: string) => {
-  return (variableName?: string) => {
-    if (variableName === undefined || !getVariableByName(variableName)) {
+  return (variableName?: string | null) => {
+    if (variableName === undefined || variableName === null || !getVariableByName(variableName)) {
       return;
     }
     const variable = getVariableByName(variableName);

@@ -5,8 +5,9 @@ import {
   multipleTopBlocks,
 } from "../../dto/block.type";
 import { ActionType, type DisableBlock } from "../actions";
-
-import _ from "lodash";
+import union from "lodash/union";
+import intersection from "lodash/intersection";
+import type { ARDUINO_PINS } from "../../../microcontroller/selectBoard";
 
 /**
  * Disable Sensor Read blocks that do not have the right pin selected.
@@ -40,8 +41,8 @@ export const disableSensorReadBlocksWithWrongPins = (
     .filter((block) => {
       const availablePins = setupBlocks
         .filter((b) => blocksThatRequireSetup[block.blockName] === b.blockName)
-        .reduce((prev, next) => _.union(prev, next.pins), []);
-      return _.intersection(block.pins, availablePins).length === 0;
+        .reduce<ARDUINO_PINS[]>((prev: ARDUINO_PINS[], next) => union(prev, next.pins as ARDUINO_PINS[]), []);
+      return intersection(block.pins as ARDUINO_PINS[], availablePins).length === 0;
     })
     .map((block) => {
       return {

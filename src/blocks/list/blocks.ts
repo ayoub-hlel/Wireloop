@@ -13,7 +13,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
     init: function () {
       const varField = new Blockly.FieldVariable(
         null,
-        null,
+        undefined,
         [variable_type],
         variable_type
       );
@@ -41,7 +41,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
     init: function () {
       const varField = new Blockly.FieldVariable(
         null,
-        null,
+        undefined,
         [variable_type],
         variable_type
       );
@@ -74,7 +74,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
     init: function () {
       const varField = new Blockly.FieldVariable(
         null,
-        null,
+        undefined,
         [variable_type],
         variable_type
       );

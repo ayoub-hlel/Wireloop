@@ -20,8 +20,8 @@ export const digitalDisplayCreate: AfterComponentCreateHook<DigitilDisplayState>
   state,
   digitalDisplayEl
 ) => {
-  digitalDisplayEl.findOne("#DIO_PIN_TEXT").node.innerHTML = state.dioPin;
-  digitalDisplayEl.findOne("#CLK_PIN_TEXT").node.innerHTML = state.clkPin;
+  digitalDisplayEl.findOne("#DIO_PIN_TEXT")!.node.innerHTML = state.dioPin;
+  digitalDisplayEl.findOne("#CLK_PIN_TEXT")!.node.innerHTML = state.clkPin;
 };
 
 export const digitalDisplayPosition: PositionComponent<DigitilDisplayState> = (
@@ -32,7 +32,7 @@ export const digitalDisplayPosition: PositionComponent<DigitilDisplayState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(
     digitalDisplayEl,
     arduino,
@@ -53,23 +53,24 @@ export const digitalDisplayReset: ResetComponent = (
   bottomDotEL.fill("#FFF");
   bottomDotEL.stroke("#FFF");
 
-  digitalDisplayEl.findOne(`#FRONT_1`).hide();
-  digitalDisplayEl.findOne(`#FRONT_2`).hide();
-  digitalDisplayEl.findOne(`#FRONT_3`).hide();
-  digitalDisplayEl.findOne(`#FRONT_4`).hide();
+  digitalDisplayEl.findOne(`#FRONT_1`)!.hide();
+  digitalDisplayEl.findOne(`#FRONT_2`)!.hide();
+  digitalDisplayEl.findOne(`#FRONT_3`)!.hide();
+  digitalDisplayEl.findOne(`#FRONT_4`)!.hide();
 };
 
 export const digitalDisplayUpdate: SyncComponent = (
-  state: DigitilDisplayState,
+  state: any,
   digitalDisplayEl
 ) => {
-  const char1 = state.chars[0] || "";
-  const char2 = state.chars[1] || "";
-  const char3 = state.chars[2] || "";
-  const char4 = state.chars[3] || "";
+  const displayState = state as DigitilDisplayState;
+  const char1 = displayState.chars[0] || "";
+  const char2 = displayState.chars[1] || "";
+  const char3 = displayState.chars[2] || "";
+  const char4 = displayState.chars[3] || "";
   const toggleLetter = (letter: string, index: number) => {
     if (letter === "") {
-      digitalDisplayEl.findOne(`#FRONT_${index}`).hide();
+      digitalDisplayEl.findOne(`#FRONT_${index}`)!.hide();
     } else {
       const charEl = digitalDisplayEl.findOne(`#FRONT_${index}`) as Text;
       charEl.show();
@@ -100,7 +101,7 @@ export const createWiresDigitalDisplay: CreateWire<DigitilDisplayState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[0],

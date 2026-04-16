@@ -68,6 +68,7 @@ export const setLedColor: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
+  if (!previousState) return [];
   const color =
     block.blockName == "set_color_led"
       ? getInputValue(
@@ -91,8 +92,9 @@ export const setLedColor: BlockToFrameTransformer = (
     (x) => x.type == ArduinoComponentType.LED_COLOR
   );
   let ledState = ledColorStates.find(
-    (x: LedColorState) => x.ledNumber == whichComponent
+    (x) => (x as LedColorState).ledNumber == whichComponent
   );
+  if (!ledState) return [];
 
   const newComponent = { ...ledState, color };
 

@@ -10,8 +10,8 @@ export const findComponentConnection = (
   const connection = findSvgElement(connectionId, element);
 
   return {
-    x: connection.cx() + element.x(),
-    y: connection.y() + connection.height() + element.y(),
+    x: parseFloat(String(connection.cx())) + parseFloat(String(element.x())),
+    y: parseFloat(String(connection.y())) + parseFloat(String(connection.height())) + parseFloat(String(element.y())),
   };
 };
 
@@ -23,14 +23,14 @@ export const findArduinoConnectionCenter = (
 
   if (connection instanceof Line) {
     return {
-      x: connection.cx() + element.x(),
-      y: connection.plot()[0][1] + element.y(),
+      x: parseFloat(String(connection.cx())) + parseFloat(String(element.x())),
+      y: parseFloat(String(connection.plot()[0][1])) + parseFloat(String(element.y())),
     };
   }
 
   return {
-    x: connection.cx() + element.x(),
-    y: connection.cy() + element.y(),
+    x: parseFloat(String(connection.cx())) + parseFloat(String(element.x())),
+    y: parseFloat(String(connection.cy())) + parseFloat(String(element.y())),
   };
 };
 
@@ -53,11 +53,11 @@ export const createComponentEl = (
   state: ArduinoComponentState,
   svgText: string
 ) => {
-  const componentEl = draw.svg(svgText).last();
+  const componentEl = draw.svg(svgText).last()!;
   componentEl.addClass("component");
   componentEl.attr("id", arduinoComponentStateToId(state));
   componentEl.data("component-type", state.type);
-  (componentEl as Svg).viewbox(0, 0, componentEl.width(), componentEl.height());
+  (componentEl as Svg).viewbox(0, 0, parseFloat(String(componentEl.width())), parseFloat(String(componentEl.height())));
 
   return componentEl;
 };
@@ -68,7 +68,10 @@ export const findMicronControllerEl = (draw: Svg): Element => {
 
 export const addWireConnectionClass = (ids: string[], componentEl: Element) => {
   ids.forEach((id) => {
-    componentEl.findOne("#" + id).addClass("wire-connection");
+    const el = componentEl.findOne("#" + id);
+    if (el) {
+      el.addClass("wire-connection");
+    }
   });
 };
 

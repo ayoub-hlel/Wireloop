@@ -63,10 +63,9 @@ describe("Tests the joy stick out", () => {
       VariableTypes.NUMBER,
       0
     );
-    degreeVarBlock.getInput("VALUE").connection.targetBlock().dispose(true);
+    degreeVarBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
     degreeVarBlock
-      .getInput("VALUE")
-      .connection.connect(degreeJoystickBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(degreeJoystickBlock.outputConnection!);
 
     connectToArduinoBlock(degreeVarBlock);
 

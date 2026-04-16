@@ -25,15 +25,16 @@ export const ledMatrixPosition: PositionComponent<LedMatrixState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(ledMatrixEl, arduinoEl, draw, holes[2], isDown, 'PIN_DATA');
 };
 
 export const ledMatrixUpdate: SyncComponent = (
-  state: LedMatrixState,
+  state: any,
   ledMatrixEl
 ) => {
-  state.leds.forEach((led) => {
+  const matrixState = state as LedMatrixState;
+  matrixState.leds.forEach((led) => {
     (ledMatrixEl.findOne(`#_${led.row}-${led.col} circle`) as Element).fill(
       led.isOn ? '#FF0000' : '#FFF'
     );
@@ -44,9 +45,9 @@ export const ledMatrixCreate: AfterComponentCreateHook<LedMatrixState> = (
   state,
   ledMatrixEl
 ) => {
-  ledMatrixEl.findOne('#PIN_CLK_TEXT').node.innerHTML = state.clkPin;
-  ledMatrixEl.findOne('#PIN_CS_TEXT').node.innerHTML = state.csPin;
-  ledMatrixEl.findOne('#PIN_DATA_TEXT').node.innerHTML = state.dataPin;
+  ledMatrixEl.findOne('#PIN_CLK_TEXT')!.node.innerHTML = state.clkPin;
+  ledMatrixEl.findOne('#PIN_CS_TEXT')!.node.innerHTML = state.csPin;
+  ledMatrixEl.findOne('#PIN_DATA_TEXT')!.node.innerHTML = state.dataPin;
 };
 
 export const ledMatrixReset: ResetComponent = (componentEl: Element) => {
@@ -66,7 +67,7 @@ export const createWiresLedMatrix: CreateWire<LedMatrixState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   if (holes.length <= 4) {
     return;

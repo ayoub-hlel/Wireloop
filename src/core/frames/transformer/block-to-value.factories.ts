@@ -33,7 +33,6 @@ import {
   rgbColor,
 } from "../../../blocks/color/blocktovalue";
 import { findBlockInput } from "./frame-transformer.helpers";
-import _ from "lodash";
 import {
   rfidScannedCard,
   rfidCardNumber,
@@ -81,7 +80,8 @@ export interface ValueGenerator {
     | number[]
     | string[]
     | boolean[]
-    | Color[];
+    | Color[]
+    | undefined;
 }
 
 export const valueList: { [blockName: string]: ValueGenerator } = {
@@ -159,7 +159,7 @@ export const getInputValue = (
   timeline: Timeline,
   inputName: string,
   defaultValue: any,
-  previousState: ArduinoFrame = undefined
+  previousState: ArduinoFrame | undefined
 ) => {
   const inputBlock = findBlockInput(blocks, block, inputName);
 

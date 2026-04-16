@@ -1,4 +1,4 @@
-import Blockly from 'blockly';
+import Blockly, { type Block } from 'blockly';
 
 Blockly['Arduino']['rfid_scan'] = function() {
   return ['rfidReader.isAvailable()', Blockly['Arduino'].ORDER_ATOMIC];
@@ -18,7 +18,7 @@ Blockly['Arduino']['rfid_card'] = function() {
   ];
 };
 
-Blockly["Arduino"]["rfid_setup"] = function (block) {
+Blockly["Arduino"]["rfid_setup"] = function (block: Block) {
   const txPin = block.getFieldValue("PIN_TX");
   const rxPin = block.getFieldValue("PIN_RX");
   Blockly["Arduino"].libraries_["define_rfid"] =

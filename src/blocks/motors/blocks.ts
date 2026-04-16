@@ -100,8 +100,8 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const motor_setup = {
-  init: function () {
+const motor_setup: any = {
+  init: function(this: Blockly.Block) {
     this.appendDummyInput("")
       .appendField(new Blockly.FieldImage("./blocks/motor/motor.png", 15, 15))
       .appendField("Motor Setup");
@@ -111,41 +111,41 @@ const motor_setup = {
         new Blockly.FieldDropdown([
           ["1", "1"],
           ["2", "2"],
-        ]),
+        ]) as any,
         "NUMBER_OF_COMPONENTS"
       );
     this.appendDummyInput("COMPONENT_1")
       .appendField("Motor 1 Pins")
       .appendField("EN1")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as any,
         "PIN_EN1"
       )
       .appendField("IN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
         "PIN_IN1"
       )
       .appendField("IN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
         "PIN_IN2"
       );
     this.appendDummyInput("COMPONENT_2")
       .appendField("Motor 2 Pins")
       .appendField("EN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as any,
         "PIN_EN2"
       )
       .appendField("IN3")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
         "PIN_IN3"
       )
       .appendField("IN4")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins),
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
         "PIN_IN4"
       );
     this.setTooltip("");

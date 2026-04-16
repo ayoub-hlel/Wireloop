@@ -13,5 +13,5 @@ export const ultraSonicSensorDistance: ValueGenerator = (
   return findComponent<UltraSonicSensorState>(
     previousState,
     ArduinoComponentType.ULTRASONICE_SENSOR
-  ).cm;
+  )!.cm;
 };

@@ -1,6 +1,5 @@
 import { ArduinoComponentState, ArduinoComponentType } from "./arduino.frame";
-
-import _ from "lodash";
+import isFunction from "lodash/isFunction";
 import { lcdStateId } from "../../blocks/lcd_screen/component-state-to-id";
 import { neoPixelId } from "../../blocks/neopixels/component-state-to-id";
 import { fastLEDId } from "../../blocks/fastled/component-state-to-id";
@@ -22,23 +21,23 @@ const genericSingleComponentId = (state: ArduinoComponentState) => {
 
 const componentStateFuncs: { [key: string]: ComponentStateToId } = {
   [ArduinoComponentType.BLUE_TOOTH]: genericSingleComponentId,
-  [ArduinoComponentType.BUTTON]: getButtonId,
+  [ArduinoComponentType.BUTTON]: getButtonId as unknown as ComponentStateToId,
   [ArduinoComponentType.IR_REMOTE]: genericSingleComponentId,
   [ArduinoComponentType.LED_MATRIX]: genericSingleComponentId,
-  [ArduinoComponentType.MOTOR]: getMotorShieldId,
+  [ArduinoComponentType.MOTOR]: getMotorShieldId as unknown as ComponentStateToId,
   [ArduinoComponentType.MESSAGE]: () => ArduinoComponentType.MESSAGE.toString(),
-  [ArduinoComponentType.NEO_PIXEL_STRIP]: neoPixelId,
-  [ArduinoComponentType.FASTLED_STRIP]: fastLEDId,
+  [ArduinoComponentType.NEO_PIXEL_STRIP]: neoPixelId as unknown as ComponentStateToId,
+  [ArduinoComponentType.FASTLED_STRIP]: fastLEDId as unknown as ComponentStateToId,
   [ArduinoComponentType.RFID]: genericSingleComponentId,
   [ArduinoComponentType.SERVO]: genericSingleComponentId,
   [ArduinoComponentType.TEMPERATURE_SENSOR]: genericSingleComponentId,
   [ArduinoComponentType.ULTRASONICE_SENSOR]: genericSingleComponentId,
-  [ArduinoComponentType.LCD_SCREEN]: lcdStateId,
-  [ArduinoComponentType.LED_COLOR]: getLedColorId,
-  [ArduinoComponentType.LED]: getLedId,
-  [ArduinoComponentType.WRITE_PIN]: writePinId,
-  [ArduinoComponentType.DIGITAL_SENSOR]: getDigitalSensorId,
-  [ArduinoComponentType.ANALOG_SENSOR]: getAnalogSensorId,
+  [ArduinoComponentType.LCD_SCREEN]: lcdStateId as unknown as ComponentStateToId,
+  [ArduinoComponentType.LED_COLOR]: getLedColorId as unknown as ComponentStateToId,
+  [ArduinoComponentType.LED]: getLedId as unknown as ComponentStateToId,
+  [ArduinoComponentType.WRITE_PIN]: writePinId as unknown as ComponentStateToId,
+  [ArduinoComponentType.DIGITAL_SENSOR]: getDigitalSensorId as unknown as ComponentStateToId,
+  [ArduinoComponentType.ANALOG_SENSOR]: getAnalogSensorId as unknown as ComponentStateToId,
   [ArduinoComponentType.THERMISTOR]: genericSingleComponentId,
   [ArduinoComponentType.PASSIVE_BUZZER]: genericSingleComponentId,
   [ArduinoComponentType.STEPPER_MOTOR]: genericSingleComponentId,
@@ -50,7 +49,7 @@ const componentStateFuncs: { [key: string]: ComponentStateToId } = {
 export const arduinoComponentStateToId = (
   state: ArduinoComponentState
 ): string => {
-  if (_.isFunction(componentStateFuncs[state.type])) {
+  if (isFunction(componentStateFuncs[state.type])) {
     return componentStateFuncs[state.type](state);
   }
 

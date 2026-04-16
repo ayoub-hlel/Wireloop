@@ -7,5 +7,14 @@ export const getBoardType = (): MicroControllerType => {
   if (!currentSettings) {
     return MicroControllerType.ARDUINO_UNO;
   }
-  return get(settingsStore)["boardType"];
+  // Convert string board type to MicroControllerType enum if needed
+  const boardType = (currentSettings as any)["boardType"] as string;
+  if (boardType === 'ARDUINO_UNO' || boardType === 'uno') {
+    return MicroControllerType.ARDUINO_UNO;
+  }
+  if (boardType === 'ARDUINO_MEGA' || boardType === 'mega') {
+    return MicroControllerType.ARDUINO_MEGA;
+  }
+  // ARDUINO_NANO maps to UNO as there's no NANO enum
+  return MicroControllerType.ARDUINO_UNO;
 };

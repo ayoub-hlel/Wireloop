@@ -2,11 +2,11 @@ import { writable, derived, type Readable } from "svelte/store";
 import type { Settings } from "../types/models";
 import is_browser from "../helpers/is_browser";
 import { defaultSetting } from "../types/models";
-import _ from "lodash";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
 import { getConvexClient, createQuery, createMutation } from "./convex.store";
-import { userId } from "./clerk-auth.store";
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { userId } from "./clerk-auth.store";
 
 /**
  * Settings state interface

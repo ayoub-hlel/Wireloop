@@ -5,6 +5,7 @@ import "../../core/blockly/blocks";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
+import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import {
   createArduinoAndWorkSpace,
@@ -74,11 +75,11 @@ describe("test leds", () => {
 
     expect(frame2.components.length).toBe(2);
     const led3State = frame2.components.find(
-      (c: LedState) => c.pin === ARDUINO_PINS.PIN_3
+      (c) => c.type === ArduinoComponentType.LED && (c as LedState).pin === ARDUINO_PINS.PIN_3
     ) as LedState;
 
     const led5State = frame2.components.find(
-      (c: LedState) => c.pin === ARDUINO_PINS.PIN_5
+      (c) => c.type === ArduinoComponentType.LED && (c as LedState).pin === ARDUINO_PINS.PIN_5
     ) as LedState;
 
     expect(led5State.fade).toBeFalsy();
@@ -98,7 +99,7 @@ describe("test leds", () => {
     connectToArduinoBlock(ledFadeBlock as BlockSvg);
     ledFadeBlock.setFieldValue("9", "PIN");
     const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 30);
-    ledFadeBlock.getInput("FADE").connection.connect(numBlock.outputConnection);
+    ledFadeBlock.getInput("FADE")!.connection!.connect(numBlock.outputConnection!);
     connectToArduinoBlock(ledFadeBlock as BlockSvg);
     const event = createTestEvent(ledFadeBlock.id);
 

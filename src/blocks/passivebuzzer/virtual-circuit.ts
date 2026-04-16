@@ -23,30 +23,31 @@ export const afterCreatePassiveBuzzer: AfterComponentCreateHook<PassiveBuzzerSta
   board
 ) => {
   const pin = state.pins[0];
-  componentEl.findOne("#PIN_TEXT").node.textContent = pin;
+  componentEl.findOne("#PIN_TEXT")!.node.textContent = pin;
 };
 
 export const updatePassiveBuzzer: SyncComponent = (
-  state: PassiveBuzzerState,
+  state,
   componentEl,
   draw,
   frame
 ) => {
+  const buzzerState = state as PassiveBuzzerState;
 
-  if (state.displaySimpleOn) {
-    componentEl.findOne("#NOTE_TEXT").node.textContent =
-      state.tone > 0 ? "On" : "Off";
+  if (buzzerState.displaySimpleOn) {
+    componentEl.findOne("#NOTE_TEXT")!.node.textContent =
+      buzzerState.tone > 0 ? "On" : "Off";
     return;
   }
 
-  if (state.tone > 0) {
-    componentEl.findOne("#NOTE_TEXT").node.textContent =
-      Notes[state.tone] ?? state.tone;
+  if (buzzerState.tone > 0) {
+    componentEl.findOne("#NOTE_TEXT")!.node.textContent =
+      Notes[buzzerState.tone] ?? buzzerState.tone;
 
     return;
   }
 
-  componentEl.findOne("#NOTE_TEXT").node.textContent = "Off";
+  componentEl.findOne("#NOTE_TEXT")!.node.textContent = "Off";
 };
 
 export const positionPassiveBuzzer: PositionComponent<PassiveBuzzerState> = (
@@ -57,7 +58,7 @@ export const positionPassiveBuzzer: PositionComponent<PassiveBuzzerState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
   positionComponent(componentEl, arduinoEl, draw, holes[2], isDown, "PIN_GND");
 };
 
@@ -70,7 +71,7 @@ export const createWiresPassiveBuzzer: CreateWire<PassiveBuzzerState> = (
   board,
   area
 ) => {
-  const { holes, isDown } = area;
+  const { holes, isDown } = area!;
 
   createGroundOrPowerWire(
     holes[3],
@@ -96,5 +97,5 @@ export const createWiresPassiveBuzzer: CreateWire<PassiveBuzzerState> = (
 };
 
 export const resetPassiveBuzzer: ResetComponent = (component) => {
-  component.findOne("#NOTE_TEXT").node.textContent = "";
+  component.findOne("#NOTE_TEXT")!.node.textContent = "";
 };

@@ -13,7 +13,7 @@ import {
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 describe("get time block factories", () => {
   let workspace: Workspace;
-  let timesetup;
+  let timesetup: BlockSvg;
   let arduinoBlock: BlockSvg;
 
   afterEach(() => {
@@ -22,7 +22,7 @@ describe("get time block factories", () => {
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    timesetup = workspace.newBlock("time_setup");
+    timesetup = workspace.newBlock("time_setup") as BlockSvg;
 
     timesetup.setFieldValue(".3", "time_in_seconds");
   });
@@ -37,14 +37,12 @@ describe("get time block factories", () => {
       1
     );
     numberVariableBlock
-      .getInput("VALUE")
-      .connection.targetBlock()
+      .getInput("VALUE")!.connection!.targetBlock()!
       .dispose(true);
 
     const arduionBlockInSeconds = workspace.newBlock("time_seconds");
     numberVariableBlock
-      .getInput("VALUE")
-      .connection.connect(arduionBlockInSeconds.outputConnection);
+      .getInput("VALUE")!.connection!.connect(arduionBlockInSeconds.outputConnection!);
 
     connectToArduinoBlock(numberVariableBlock);
 

@@ -41,8 +41,7 @@ describe("factories delay state", () => {
       3.532342
     );
     delayBlock
-      .getInput("DELAY")
-      .connection.connect(numberBlock.outputConnection);
+      .getInput("DELAY")!.connection!.connect(numberBlock.outputConnection!);
     connectToArduinoBlock(delayBlock);
 
     const event = createTestEvent(delayBlock.id);

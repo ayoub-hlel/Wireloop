@@ -6,7 +6,7 @@ import type {
   ArduinoReceiveMessageState,
   ArduinoRecieveMessageSensor,
 } from "./state";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
 export const messageSetup: BlockToFrameTransformer = (
   blocks,
@@ -20,6 +20,7 @@ export const messageSetup: BlockToFrameTransformer = (
     block.metaData
   ) as ArduinoRecieveMessageSensor[];
   const messbtnData = messageDatum.find((d) => d.loop == 1);
+  if (!messbtnData) return [];
 
   const messageComponent: ArduinoReceiveMessageState = {
     pins: block.pins,
@@ -57,7 +58,7 @@ export const arduinoSendMessage: BlockToFrameTransformer = (
     previousState
   );
 
-  const components = previousState ? _.cloneDeep(previousState.components) : [];
+  const components = previousState ? cloneDeep(previousState.components) : [];
 
   const replaceVariables = previousState ? { ...previousState.variables } : {};
 

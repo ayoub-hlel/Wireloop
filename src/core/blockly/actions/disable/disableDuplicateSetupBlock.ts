@@ -10,7 +10,7 @@ export const disableDuplicateSetupBlocks = (
 ): DisableBlock[] => {
   const { blocks } = event;
   return blocks
-    .filter((b) => [BlockType.SETUP, BlockType.SENSOR_SETUP].includes(b.type))
+    .filter((b) => [BlockType.SETUP, BlockType.SENSOR_SETUP].includes(b.type as any))
     .filter((b) => !multipleTopBlocks.includes(b.blockName))
     .filter(
       (b) => blocks.filter((bl) => bl.blockName === b.blockName).length > 1

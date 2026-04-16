@@ -1,4 +1,4 @@
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 
@@ -24,10 +24,10 @@ export const delayBlock: BlockToFrameTransformer = (
   const explanation = `Waiting for ${seconds.toFixed(2)} seconds.`;
 
   const newVariables = previousState
-    ? { ..._.cloneDeep(previousState.variables) }
+    ? { ...cloneDeep(previousState.variables) }
     : {};
   const newComponets = previousState
-    ? [..._.cloneDeep(previousState.components)]
+    ? [...cloneDeep(previousState.components)]
     : [];
 
   return [

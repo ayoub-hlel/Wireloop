@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
+import type { Workspace, BlockSvg } from "blockly";
 import _ from "lodash";
 import type { BlockEvent } from "../dto/event.type";
 import updateForLoopText from "./updateForLoopText";
@@ -11,8 +12,8 @@ import {
 } from "../../../tests/tests.helper";
 
 describe("updateForLoopText", () => {
-  let workspace;
-  let arduinoBlock;
+  let workspace: Workspace;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
@@ -72,8 +73,8 @@ describe("updateForLoopText", () => {
     const fromBlock = workspace.newBlock("variables_get_number");
     const toBlock = workspace.newBlock("math_number");
 
-    forBlock.getInput("TO").connection.connect(toBlock.outputConnection);
-    forBlock.getInput("FROM").connection.connect(fromBlock.outputConnection);
+    forBlock.getInput("TO")!.connection!.connect(toBlock.outputConnection!);
+    forBlock.getInput("FROM")!.connection!.connect(fromBlock.outputConnection!);
 
     const event: BlockEvent = createTestEvent(arduinoBlock.id);
 
@@ -92,8 +93,8 @@ describe("updateForLoopText", () => {
     const fromBlock = workspace.newBlock("math_number");
     toBlock.setFieldValue(to.toString(), "NUM");
     fromBlock.setFieldValue(from.toString(), "NUM");
-    forBlock.getInput("TO").connection.connect(toBlock.outputConnection);
-    forBlock.getInput("FROM").connection.connect(fromBlock.outputConnection);
+    forBlock.getInput("TO")!.connection!.connect(toBlock.outputConnection!);
+    forBlock.getInput("FROM")!.connection!.connect(fromBlock.outputConnection!);
 
     return forBlock;
   };

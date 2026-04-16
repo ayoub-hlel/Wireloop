@@ -27,6 +27,10 @@ export const customBlock: BlockToFrameTransformer = (
       findFieldValue(b, "NAME") === functionName
   );
 
+  if (!functionDefinitionBlock) {
+    return [functionCallState];
+  }
+
   return [
     functionCallState,
     ...generateInputFrame(

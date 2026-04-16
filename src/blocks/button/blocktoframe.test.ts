@@ -19,7 +19,7 @@ import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 
 describe("button state factories", () => {
   let workspace: Workspace;
-  let buttonSetup;
+  let buttonSetup: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();

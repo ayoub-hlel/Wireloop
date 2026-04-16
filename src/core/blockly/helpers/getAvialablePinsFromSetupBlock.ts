@@ -1,5 +1,6 @@
 import { getBlocksByName } from "./block.helper";
-import _ from "lodash";
+import isEqual from "lodash/isEqual";
+import isEmpty from "lodash/isEmpty";
 
 export const configuredPins = (
   setupBlockType: string,
@@ -25,7 +26,7 @@ export const getAvailablePins = (
   potentialListOfPins: [string, string][]
 ): [string, string][] => {
   const takenPins = configuredPins(setupBlockType, potentialListOfPins);
-  if (_.isEqual(potentialListOfPins, takenPins)) {
+  if (isEqual(potentialListOfPins, takenPins)) {
     return potentialListOfPins;
   }
 
@@ -35,7 +36,7 @@ export const getAvailablePins = (
     ([pin]) => !takenPinSingle.includes(pin) || pin === selectedPin
   );
 
-  if (_.isEmpty(pinList)) {
+  if (isEmpty(pinList)) {
     return [["NO_PINS", "NO_PINS"]];
   }
 

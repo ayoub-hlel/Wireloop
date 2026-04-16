@@ -23,13 +23,13 @@ export const findInputStatementStartBlock = (
   inputStatement: string
 ) => {
   const blockId = block.inputStatements.find((i) => i.name == inputStatement)
-    .blockId;
+    ?.blockId;
 
-  return findBlockById(blocks, blockId);
+  return blockId ? findBlockById(blocks, blockId) : undefined;
 };
 
 export const getLoopTimeFromBlockData = (blocks: BlockData[]): number => {
-  return +findArduinoLoopBlock(blocks).fieldValues.find(
+  return +findArduinoLoopBlock(blocks)!.fieldValues.find(
     (field) => field.name === "LOOP_TIMES"
   )?.value;
 };

@@ -47,8 +47,7 @@ describe("Passive Buzzer Tests", () => {
     );
     const moveBlock1 = workspace.newBlock("stepper_motor_move") as BlockSvg;
     moveBlock1
-      .getInput("STEPS")
-      .connection.connect(moveBlock1Number.outputConnection);
+      .getInput("STEPS")!.connection!.connect(moveBlock1Number.outputConnection!);
 
     const moveBlock2Number = createValueBlock(
       workspace,
@@ -57,8 +56,7 @@ describe("Passive Buzzer Tests", () => {
     );
     const moveBlock2 = workspace.newBlock("stepper_motor_move") as BlockSvg;
     moveBlock2
-      .getInput("STEPS")
-      .connection.connect(moveBlock2Number.outputConnection);
+      .getInput("STEPS")!.connection!.connect(moveBlock2Number.outputConnection!);
 
     connectToArduinoBlock(moveBlock2);
     connectToArduinoBlock(moveBlock1);

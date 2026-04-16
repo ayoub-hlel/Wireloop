@@ -1,12 +1,12 @@
 import Blockly from "blockly";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 import { getBlockByType } from "../helpers/block.helper";
 
 /**
  * Arduino code generator.
  * @type !Blockly.Generator
  */
-Blockly["Arduino"] = new Blockly.Generator("Arduino");
+(Blockly as any)["Arduino"] = new Blockly.Generator("Arduino");
 
 /**
  * List of illegal variable names.
@@ -60,7 +60,7 @@ Blockly["Arduino"].ORDER_NONE = 99; // (...)
  * Initialise the database of variable names.
  * @param {!Blockly.Workspace} workspace Workspace to generate code from.
  */
-Blockly["Arduino"].init = function (workspace) {
+Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   if (!this.nameDB_) {
     this.nameDB_ = new Blockly.Names(this.RESERVED_WORDS_);
   } else {
@@ -144,7 +144,7 @@ Blockly["Arduino"].init = function (workspace) {
  * @param {string} code Generated code.
  * @return {string} Completed code.
  */
-Blockly["Arduino"].finish = function (code) {
+Blockly["Arduino"].finish = function (code: string) {
   let libraryCode = "";
   let functionsCode = "";
   let devVariables = "";
@@ -157,15 +157,15 @@ Blockly["Arduino"].finish = function (code) {
     functionsCode += Blockly["Arduino"].functionNames_[key] + "\n";
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].setupCode_["bluetooth_setup"])) {
+  if (!isEmpty(Blockly["Arduino"].setupCode_["bluetooth_setup"])) {
     devVariables += 'String bluetoothMessageDEV = ""; \n';
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].setupCode_["serial_begin"])) {
+  if (!isEmpty(Blockly["Arduino"].setupCode_["serial_begin"])) {
     devVariables += 'String serialMessageDEV = ""; \n';
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].functionNames_["double_to_string_debug"])) {
+  if (!isEmpty(Blockly["Arduino"].functionNames_["double_to_string_debug"])) {
     devVariables += "boolean stopDebugging = false; \n";
   }
 
@@ -179,7 +179,7 @@ Blockly["Arduino"].finish = function (code) {
   // If the setup block does not exist and the setup function is still required.
   if (
     getBlockByType("arduino_setup") === undefined &&
-    !_.isEmpty(Blockly["Arduino"].setupCode_)
+    !isEmpty(Blockly["Arduino"].setupCode_)
   ) {
     setupCode =
       "\n// Initialise the program settings and configurations" +
@@ -190,7 +190,7 @@ Blockly["Arduino"].finish = function (code) {
   // If setup block does not exist an empty setup function is required for things to compile
   else if (
     getBlockByType("arduino_setup") === undefined &&
-    _.isEmpty(Blockly["Arduino"].setupCode_)
+    isEmpty(Blockly["Arduino"].setupCode_)
   ) {
     setupCode =
       "\n// Initialise the program settings and configurations" +
@@ -229,7 +229,7 @@ Blockly["Arduino"].finish = function (code) {
  * @param {string} line Line of generated code.
  * @return {string} Legal line of code.
  */
-Blockly["Arduino"].scrubNakedValue = function (line) {
+Blockly["Arduino"].scrubNakedValue = function (line: string) {
   return line + ";\n";
 };
 
@@ -240,7 +240,7 @@ Blockly["Arduino"].scrubNakedValue = function (line) {
  * @return {string} Arduino string.
  * @private
  */
-Blockly["Arduino"].quote_ = function (string) {
+Blockly["Arduino"].quote_ = function (string: string) {
   // Can't use goog.string.quote since Google's style guide recommends
   // JS string literals use single quotes.
   string = string
@@ -260,7 +260,7 @@ Blockly["Arduino"].quote_ = function (string) {
  * @return {string} Arduino code with comments and subsequent blocks added.
  * @private
  */
-Blockly["Arduino"].scrub_ = function (block, code) {
+Blockly["Arduino"].scrub_ = function (block: Blockly.Block, code: string) {
   let commentCode = "";
 
   // Only collect comments for blocks that aren't inline.
@@ -289,7 +289,7 @@ Blockly["Arduino"].scrub_ = function (block, code) {
         )
       : null;
     if (comment) {
-      if (block.getProcedureDef) {
+      if ((block as any).getProcedureDef) {
         // Use a comment block for function comments.
         commentCode +=
           "/**\n" +
@@ -302,8 +302,8 @@ Blockly["Arduino"].scrub_ = function (block, code) {
     // Collect comments for all value arguments.
     // Don't collect comments for nested statements.
     for (let i = 0; i < block.inputList.length; i++) {
-      if (block.inputList[i].type === Blockly.INPUT_VALUE) {
-        const childBlock = block.inputList[i].connection.targetBlock();
+      if ((block.inputList[i].type as number) === (Blockly.INPUT_VALUE as any as number)) {
+        const childBlock = block.inputList[i].connection!.targetBlock();
         if (childBlock) {
           const comment = Blockly["Arduino"].allNestedComments(childBlock);
           if (comment) {

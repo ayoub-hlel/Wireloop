@@ -30,9 +30,9 @@ export const connectToArduinoBlock = function (variableBlock: BlockSvg) {
   const inputToAttachVariableTo =
     arduinoBlock.type == "arduino_setup" ? "setup" : "loop";
 
-  const parentConnection = arduinoBlock.getInput(inputToAttachVariableTo)
-    .connection;
-  parentConnection.connect(variableBlock.previousConnection);
+  const parentConnection = arduinoBlock.getInput(inputToAttachVariableTo)!
+    .connection!;
+  parentConnection.connect(variableBlock.previousConnection!);
 };
 
 export const createBlock = (

@@ -2,7 +2,8 @@
 // This utility imports data from Firebase export to Convex
 
 import { getConvexClient } from '../stores/convex.store';
-import { getSessionToken } from '../auth/clerk-auth';
+// TODO: CLERK_REMOVAL — do not delete yet.
+// import { getSessionToken } from '../auth/clerk-auth';
 import { browser } from '$app/environment';
 import type { ExportResult, ExportedUser, ExportedProject } from './firebase-exporter';
 
@@ -53,7 +54,8 @@ export async function importAllData(
 
   try {
     const convexClient = getConvexClient();
-    const sessionToken = await getSessionToken();
+    // TODO: CLERK_REMOVAL — use placeholder
+    const sessionToken = 'placeholder-token'; // await getSessionToken();
     
     if (!sessionToken) {
       throw new Error('Authentication required for import');

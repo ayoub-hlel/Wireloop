@@ -36,18 +36,16 @@ describe("math_random_int state factories", () => {
     const toBlock = workspace.newBlock("math_number");
     toBlock.setFieldValue("2", "NUM");
     mathRandomBlock
-      .getInput("FROM")
-      .connection.connect(fromBlock.outputConnection);
-    mathRandomBlock.getInput("TO").connection.connect(toBlock.outputConnection);
+      .getInput("FROM")!.connection!.connect(fromBlock.outputConnection!);
+    mathRandomBlock.getInput("TO")!.connection!.connect(toBlock.outputConnection!);
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathRandomBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathRandomBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     const event = createTestEvent(setNumberBlock.id);
     const [state] = eventToFrameFactory(event).frames;
     expect(state.explanation).toContain(`Variable "num_test" stores `);
-    const value = state.variables["num_test"].value;
+    const value = state.variables["num_test"].value as number;
     expect(-30 <= value).toBeTruthy();
     expect(2 >= value).toBeTruthy();
     expect(_.keys(state.variables).length).toBe(1);
@@ -63,8 +61,7 @@ describe("math_random_int state factories", () => {
 
     const mathRandomBlock = workspace.newBlock("math_random_int");
     setNumberBlock
-      .getInput("VALUE")
-      .connection.connect(mathRandomBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(mathRandomBlock.outputConnection!);
     connectToArduinoBlock(setNumberBlock);
 
     const event = createTestEvent(setNumberBlock.id);

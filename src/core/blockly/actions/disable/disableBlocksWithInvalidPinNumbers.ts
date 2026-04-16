@@ -12,12 +12,12 @@ export const disableBlocksWithInvalidPinNumbers = (
       b.pins.find((p) => {
         // This makes sure that all the pins in the drop down box match
         // the pins in being output
-        return !b.fieldValues
+        const validValues = b.fieldValues
           .filter((fv) => fv.validOptions)
-          .reduce((acc, next) => {
-            return [...acc, ...next.validOptions.map((v) => v.value)];
-          }, [])
-          .includes(p);
+          .reduce<string[]>((acc: string[], next) => {
+            return [...acc, ...next.validOptions!.map((v) => v.value)];
+          }, []);
+        return !validValues.includes(p);
       })
     )
     .map((block) => {

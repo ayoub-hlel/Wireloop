@@ -49,10 +49,9 @@ describe("color rgb state factories", () => {
       VariableTypes.COLOUR,
       { red: 255, green: 0, blue: 0 }
     );
-    setColorVariable.getInput("VALUE").connection.targetBlock().dispose(true);
+    setColorVariable.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
     setColorVariable
-      .getInput("VALUE")
-      .connection.connect(rgbColorBlock.outputConnection);
+      .getInput("VALUE")!.connection!.connect(rgbColorBlock.outputConnection!);
 
     connectToArduinoBlock(setColorVariable);
     connectToArduinoBlock(setNumberVariable);
@@ -77,30 +76,28 @@ describe("color rgb state factories", () => {
         blue: getVariableNumberBlock,
       },
     ].forEach(({ red, green, blue, expectedValue }) => {
-      if (rgbColorBlock.getInput("RED").connection.isConnected()) {
-        rgbColorBlock.getInput("RED").connection.disconnect();
+      if (rgbColorBlock.getInput("RED")!.connection!.isConnected()) {
+        rgbColorBlock.getInput("RED")!.connection!.disconnect();
       }
 
-      if (rgbColorBlock.getInput("GREEN").connection.isConnected()) {
-        rgbColorBlock.getInput("GREEN").connection.disconnect();
+      if (rgbColorBlock.getInput("GREEN")!.connection!.isConnected()) {
+        rgbColorBlock.getInput("GREEN")!.connection!.disconnect();
       }
 
-      if (rgbColorBlock.getInput("BLUE").connection.isConnected()) {
-        rgbColorBlock.getInput("BLUE").connection.disconnect();
+      if (rgbColorBlock.getInput("BLUE")!.connection!.isConnected()) {
+        rgbColorBlock.getInput("BLUE")!.connection!.disconnect();
       }
 
       if (red) {
-        rgbColorBlock.getInput("RED").connection.connect(red.outputConnection);
+        rgbColorBlock.getInput("RED")!.connection!.connect(red.outputConnection!);
       }
       if (green) {
         rgbColorBlock
-          .getInput("GREEN")
-          .connection.connect(green.outputConnection);
+          .getInput("GREEN")!.connection!.connect(green.outputConnection!);
       }
       if (blue) {
         rgbColorBlock
-          .getInput("BLUE")
-          .connection.connect(blue.outputConnection);
+          .getInput("BLUE")!.connection!.connect(blue.outputConnection!);
       }
 
       const event = createTestEvent(rgbColorBlock.id);

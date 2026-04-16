@@ -8,7 +8,7 @@ import {
   getDefaultIndexValue,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { FastLEDState } from "./state";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import { hexToRgb } from "../../core/blockly/helpers/color.helper";
 
 export const fastLEDSetup: BlockToFrameTransformer = (
@@ -24,26 +24,22 @@ export const fastLEDSetup: BlockToFrameTransformer = (
     pins: block.pins,
     type: ArduinoComponentType.FASTLED_STRIP,
     numberOfLeds,
-    preShowLEDs: _.range(0, numberOfLeds).map((i) => {
-      return {
-        position: i,
-        color: {
-          red: 0,
-          green: 0,
-          blue: 0,
-        },
-      };
-    }),
-    fastLEDs: _.range(0, numberOfLeds).map((i) => {
-      return {
-        position: i,
-        color: {
-          red: 0,
-          green: 0,
-          blue: 0,
-        },
-      };
-    }),
+    preShowLEDs: Array.from({ length: numberOfLeds }, (_, i) => ({
+      position: i,
+      color: {
+        red: 0,
+        green: 0,
+        blue: 0,
+      },
+    })),
+    fastLEDs: Array.from({ length: numberOfLeds }, (_, i) => ({
+      position: i,
+      color: {
+        red: 0,
+        green: 0,
+        blue: 0,
+      },
+    })),
   };
   return [
     arduinoFrameByComponent(
@@ -68,19 +64,18 @@ export const showAllColors: BlockToFrameTransformer = (
     previousState,
     ArduinoComponentType.FASTLED_STRIP
   );
-  const preShowLeds = _.range(0, fastLED.numberOfLeds).map((i) => {
-    return {
-      position: i,
-      color: {
-        red: 0,
-        green: 0,
-        blue: 0,
-      },
-    };
-  });
+  if (!fastLED) return [];
+  const preShowLeds = Array.from({ length: fastLED.numberOfLeds }, (_, i) => ({
+    position: i,
+    color: {
+      red: 0,
+      green: 0,
+      blue: 0,
+    },
+  }));
   const newFastLeds = fastLED.preShowLEDs;
-  fastLED.fastLEDs = _.cloneDeep(newFastLeds);
-  const newComponent = _.cloneDeep(fastLED);
+  fastLED.fastLEDs = cloneDeep(newFastLeds);
+  const newComponent = cloneDeep(fastLED);
 
   return [
     arduinoFrameByComponent(
@@ -105,6 +100,7 @@ export const setAllColors: BlockToFrameTransformer = (
     previousState,
     ArduinoComponentType.FASTLED_STRIP
   );
+  if (!fastLED) return [];
 
   const leds = [];
   for (let position = 1; position <= fastLED.numberOfLeds; position += 1) {
@@ -113,7 +109,7 @@ export const setAllColors: BlockToFrameTransformer = (
     leds.push({ position: position - 1, color });
   }
   fastLED.preShowLEDs = leds;
-  const newComponent = _.cloneDeep(fastLED);
+  const newComponent = cloneDeep(fastLED);
 
   return [
     arduinoFrameByComponent(
@@ -144,6 +140,7 @@ export const setFastLEDColor: BlockToFrameTransformer = (
     previousState,
     ArduinoComponentType.FASTLED_STRIP
   );
+  if (!fastLED) return [];
   const color = getInputValue(
     blocks,
     block,
@@ -167,7 +164,7 @@ export const setFastLEDColor: BlockToFrameTransformer = (
     )
   );
   fastLED.preShowLEDs[position - 1] = { position: position - 1, color };
-  const newComponent = _.cloneDeep(fastLED);
+  const newComponent = cloneDeep(fastLED);
 
   return [
     arduinoFrameByComponent(

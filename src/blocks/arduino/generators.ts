@@ -1,6 +1,6 @@
 import Blockly from "blockly";
 import { Block } from "blockly";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
 
 Blockly["Arduino"]["arduino_setup"] = function (block: Block) {
   const statementsSetup = Blockly["Arduino"].statementToCode(block, "setup");
@@ -24,27 +24,27 @@ Blockly["Arduino"]["arduino_loop"] = function (block: Block) {
   let setJoyStickValues = "";
   let setSerialMessageDEV = "";
 
-  if (!_.isEmpty(Blockly["Arduino"].setupCode_["bluetooth_setup"])) {
+  if (!isEmpty(Blockly["Arduino"].setupCode_["bluetooth_setup"])) {
     resetBluetoothVariable = '\tbluetoothMessageDEV = ""; \n';
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].setupCode_["joystick"])) {
+  if (!isEmpty(Blockly["Arduino"].setupCode_["joystick"])) {
     setJoyStickValues = "\tsetJoyStickValues(); \n";
   }
 
   if (
-    !_.isEmpty(Blockly["Arduino"].setupCode_["serial_begin"]) &&
+    !isEmpty(Blockly["Arduino"].setupCode_["serial_begin"]) &&
     Blockly["Arduino"].information_["message_recieve_block"]
   ) {
     resetMessageVariable = ' serialMessageDEV= ""; \n';
     setSerialMessageDEV = "  setSerialMessage();\n";
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].setupCode_["setup_ir_remote"])) {
+  if (!isEmpty(Blockly["Arduino"].setupCode_["setup_ir_remote"])) {
     resetIrRemoteCode = "  irRemoteLoopScan(); // Sense the next ir remote. \n";
   }
 
-  if (!_.isEmpty(Blockly["Arduino"].functionNames_["takeTempReading"])) {
+  if (!isEmpty(Blockly["Arduino"].functionNames_["takeTempReading"])) {
     getNewTempReading = "\ttakeTempReading(); \n";
   }
   return (

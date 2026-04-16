@@ -237,8 +237,8 @@ const createVariableBtnHanlder = (
   defaultField?: string,
   defaultValue?: string
 ) => {
-  return (variableName: string) => {
-    if (variableName === null || !getVariableByName(variableName)) {
+  return (variableName?: string | null) => {
+    if (variableName === undefined || variableName === null || !getVariableByName(variableName)) {
       return;
     }
     const variable = getVariableByName(variableName);
@@ -251,8 +251,8 @@ const createVariableBtnHanlder = (
       valueBlock.setFieldValue(defaultValue, defaultField);
     }
     variableBlock
-      .getInput("VALUE")
-      .connection.connect(valueBlock.outputConnection);
+      .getInput("VALUE")!
+      .connection!.connect(valueBlock.outputConnection);
     const variableId = variable ? variable.getId() : "";
     variableBlock.setFieldValue(variableId as string, "VAR");
 

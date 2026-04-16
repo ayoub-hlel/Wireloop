@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { FormGroup, Input, Label, Button } from "@sveltestrap/sveltestrap";
-
     import Login from "../../../../components/auth/Login.svelte";
     import authStore from "../../../../stores/auth.store";
     import { saveUserProfile, getUserProfile } from "../../../../firebase/db";
@@ -13,21 +11,21 @@
     let canSave = true;
     let showMessage = false;
     async function save() {
-        if (!canSave) return;
+        if (!canSave || !$authStore.uid) return;
         try {
             canSave = false;
             await saveUserProfile(username, bio, $authStore.uid);
             await wait(2000);
             canSave = true;
             showMessage = true;
-        } catch (e) {
+        } catch (e: any) {
             onErrorMessage("Error Saving Profile", e);
         }
     }
 
     onMount(async () => {
         const unsub = authStore.subscribe(async (auth) => {
-            if (auth.legacyControlled) {
+            if (auth.legacyControlled && auth.uid) {
                 const userInfo = await getUserProfile(auth.uid);
                 username = userInfo.username;
                 bio = userInfo.bio;
@@ -41,23 +39,23 @@
 {#if $authStore.isLoggedIn}
     <div class="row">
         <div class="col">
-            <FormGroup>
-                <Label for="username">Username</Label>
-                <Input bind:value={username} type="text" id="username" />
-            </FormGroup>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input bind:value={username} type="text" id="username" class="form-control" />
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <FormGroup>
-                <Label for="bio">Bio</Label>
-                <Input bind:value={bio} type="textarea" name="text" id="bio" />
-            </FormGroup>
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea bind:value={bio} name="text" id="bio" class="form-control" rows="3"></textarea>
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <Button color="success" type="button" on:click={save}>Save</Button>
+            <button class="btn btn-success" type="button" on:click={save}>Save</button>
         </div>
     </div>
     <div class="row">
