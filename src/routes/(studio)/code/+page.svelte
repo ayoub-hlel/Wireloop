@@ -1,11 +1,9 @@
-<script>
+<script lang="ts">
   import { onMount } from "svelte";
   import codeStore from "../../../stores/code.store";
-  
   import hljs from 'highlight.js/lib/core';
   import arduinoLang from 'highlight.js/lib/languages/arduino';
   import 'highlight.js/styles/arduino-light.css';
-
   import { afterUpdate } from "svelte";
   import { tooltip } from "@svelte-plugins/tooltips";
   import { get } from "svelte/store";
@@ -14,21 +12,17 @@
   let loaded = false;
   let fontSize = 14;
   let hasCopiedCode = false;
+
   onMount(async () => {
     hljs.registerLanguage('arduino', arduinoLang);
     codeStore.subscribe(async (codeInfo) => {
-      try
-      {
+      try {
         // @ts-ignore
-        code =  hljs.highlight(codeInfo.code,{ language: 'arduino' }).value;
-
-      }
-      catch(e)
-      {
+        code = hljs.highlight(codeInfo.code, { language: 'arduino' }).value;
+      } catch(e) {
         console.log(e);
       }
     });
-
     loaded = true;
   });
 
@@ -41,81 +35,80 @@
       }
     }
   });
-  function zoomIn() {
-    fontSize += 2;
-  }
 
-  function zoomOut() {
-    fontSize -= 2;
-  }
-
+  function zoomIn() { fontSize += 2; }
+  function zoomOut() { fontSize -= 2; }
   function copy() {
     navigator.clipboard.writeText(get(codeStore).code);
     hasCopiedCode = true;
   }
 
-  const navTooltipStyleCodeSmallMarginBottom = {
+  const tooltipStyle = {
     position: "bottom",
     align: "center",
     animation: "slide",
-    theme: "code-small-margin",
-  };
-  const navTooltipStyleSmallMargin = {
-    position: "bottom",
-    align: "center",
-    animation: "slide",
-    theme: "code-large-margin",
+    theme: "nav-tooltip",
   };
 </script>
-<div class="row">
-  <div class="col">
-    {#if !hasCopiedCode}
-    <i use:tooltip={navTooltipStyleSmallMargin} title="Copy Code" on:click={copy} class="fa fa-clipboard" aria-hidden="true"></i>
-    {:else}
-    <i use:tooltip={navTooltipStyleSmallMargin} title="Copied" on:mouseleave={() => hasCopiedCode = false} on:click={copy} class="fa fa-clipboard" aria-hidden="true"></i>
-    {/if}
-    <i
-      use:tooltip={navTooltipStyleCodeSmallMarginBottom}
-      on:click={zoomOut}
-      title="Zoom Out"
-      class="fa fa-search-minus float-end me-4"
-      aria-hidden="true"
-    ></i>
-    <i use:tooltip={navTooltipStyleSmallMargin}
-      on:click={zoomIn} title="Zoom In"
-      class="fa fa-search-plus float-end"
-      aria-hidden="true"
-    ></i>
+
+<div class="flex flex-col h-full bg-bg">
+  <div class="flex items-center justify-between p-4 border-b border-border bg-bg-surface shadow-card">
+    <div class="flex items-center space-x-3">
+      <div class="pin-label">SRC_GEN_V3</div>
+      <h2 class="text-sm font-mono font-bold text-primary tracking-widest uppercase">Arduino Output Stream</h2>
+    </div>
+    
+    <div class="flex items-center space-x-2">
+      <button 
+        use:tooltip={tooltipStyle} 
+        title={hasCopiedCode ? "Copied!" : "Copy Source"} 
+        on:click={copy}
+        on:mouseleave={() => hasCopiedCode = false}
+        class="btn-schematic flex items-center space-x-2"
+      >
+        <i class="fa fa-clipboard"></i>
+        <span class="text-[10px]">{hasCopiedCode ? 'DATA_SYNC_OK' : 'COPY_BUFFER'}</span>
+      </button>
+
+      <div class="trace-divider w-8 mx-2 rotate-90"></div>
+
+      <button on:click={zoomOut} use:tooltip={tooltipStyle} title="Decrease Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
+        <i class="fa fa-search-minus"></i>
+      </button>
+      <button on:click={zoomIn} use:tooltip={tooltipStyle} title="Increase Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
+        <i class="fa fa-search-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-grow overflow-hidden relative">
+    <div class="absolute inset-0 bg-grid-schematic opacity-5 pointer-events-none"></div>
+    <pre class="p-6 h-full overflow-auto font-mono selection:bg-primary/20" style="font-size: {fontSize}px">
+      <code class="language-arduino !bg-transparent !p-0 block">{@html code}</code>
+    </pre>
   </div>
 </div>
-<pre style="font-size: {fontSize}px">
-  <code class="language-arduino">{@html code}</code>
-</pre>
+
 <svelte:head>
-  <title>Arduino Workflow Builder - Code</title>
+  <title>AWB | Source Code</title>
 </svelte:head>
 
 <style>
-  pre {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
+  :global(.hljs) {
+    background: transparent !important;
+    color: #E2E8F0 !important;
   }
-  code {
-    margin-left: 10px;
-    height: 100vh;
-    overflow: scroll;
+  :global(.hljs-keyword) { color: #00BFFF !important; }
+  :global(.hljs-string) { color: #00FF88 !important; }
+  :global(.hljs-comment) { color: #64748B !important; }
+  :global(.hljs-number) { color: #FFB800 !important; }
+  :global(.hljs-function) { color: #00BFFF !important; }
+  
+  pre::-webkit-scrollbar { width: 6px; }
+  pre::-webkit-scrollbar-track { background: #0A0E14; }
+  pre::-webkit-scrollbar-thumb {
+    background: #1E3A5F;
+    border-radius: 2px;
   }
-  i {
-    font-size: 30px;
-    margin-left: 20px;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-  :global(.tooltip.code-small-margin) {
-    margin-top: 10px;
-  }
-  :global(.tooltip.code-large-margin) {
-    margin-top: 30px;
-  }
+  pre::-webkit-scrollbar-thumb:hover { background: #2563EB; }
 </style>

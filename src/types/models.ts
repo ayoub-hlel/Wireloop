@@ -1,5 +1,5 @@
 /**
- * Data model types for Arduino Workflow Builder
+ * Data model types for Wireloop
  * These replace the Firebase model types and are used throughout the application
  */
 

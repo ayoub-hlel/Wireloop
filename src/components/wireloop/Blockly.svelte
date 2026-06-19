@@ -2,18 +2,15 @@
   import Blockly from 'blockly';
   import type { WorkspaceSvg } from 'blockly';
   import { onMount, onDestroy } from 'svelte';
-
   import { WindowType, resizeStore } from '../../stores/resize.store';
   import startBlocly from '../../core/blockly/startBlockly';
   import currentFrameStore from '../../stores/currentFrame.store';
   import arduinoStore from '../../stores/arduino.store';
   import arduinoMessageStore from '../../stores/arduino-message.store';
-
   import {
     arduinoLoopBlockShowLoopForeverText,
     arduinoLoopBlockShowNumberOfTimesThroughLoop,
   } from '../../core/blockly/helpers/arduino_loop_block.helper';
-
   import {
     getAllBlocks,
     getBlockById,
@@ -21,48 +18,31 @@
   import updateLoopblockStore from '../../stores/update-loopblock.store';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
 
-  // Controls whether to show the arduino loop block shows
-  // the  loop forever text or loop number of times text
   export let showLoopExecutionTimesArduinoStartBlock = true;
-
-  // The elment that contains blockly
   let blocklyElement: HTMLElement;
-
   let workspaceInitialize = false;
-
   const unsubscribes: Array<() => void> = [];
 
-  // This is ran whenever the showLoopExecutionTimesArduinoStartBlock changeq
-  // and blocklyWorkspace is initialized
   $: if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
     arduinoLoopBlockShowNumberOfTimesThroughLoop();
   }
-
   $: if (!showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
     arduinoLoopBlockShowLoopForeverText();
   }
 
   onMount(() => {
-    // Hack for debugging blockly
     (window as any).Blockly = Blockly;
-
     startBlocly(blocklyElement);
-
     workspaceInitialize = true;
     resizeBlockly();
-    // Hack to make sure that once blockly loads it gets resized
-    setTimeout(() => {
-      resizeBlockly();
-    }, 200);
+    setTimeout(() => { resizeBlockly(); }, 200);
 
     unsubscribes.push(
       currentFrameStore.subscribe((frame) => {
         if (!frame) return;
         getAllBlocks().forEach((b) => b.unselect());
         const selectedBlock = getBlockById(frame.blockId);
-        if (selectedBlock) {
-          selectedBlock.select();
-        }
+        if (selectedBlock) { selectedBlock.select(); }
       })
     );
 
@@ -77,70 +57,49 @@
     );
   });
 
-  // List for resize main window event and resize blockly
   unsubscribes.push(
     resizeStore.subscribe((event) => {
       if (event.type == WindowType.MAIN) {
         resizeBlockly();
-        return;
       }
     })
   );
 
-  // Tells us the state of the port we always want to subscribe to this
-  // while blockly is running. Even though the message component is the only one that should
-  // set this
   unsubscribes.push(
-    arduinoStore.subscribe((m) =>
-      console.log(m, 'arduino store blockly component')
-    )
+    arduinoStore.subscribe((m) => console.log(m, 'arduino store blockly component'))
   );
 
   unsubscribes.push(
     arduinoMessageStore.subscribe((m) => {
-      if (!m) {
-        return;
-      }
-
-      if (m.type === 'Computer') {
-        return;
-      }
-
-      if (m.message.indexOf('DEBUG_BLOCK_') === -1) {
-        return;
-      }
-
+      if (!m || m.type === 'Computer' || m.message.indexOf('DEBUG_BLOCK_') === -1) return;
       const blockId = m.message.replace('DEBUG_BLOCK_', '').trim();
-
       getAllBlocks().forEach((b) => b.unselect());
       const selectedBlock = getBlockById(blockId);
-      if (selectedBlock) {
-        selectedBlock.select();
-      } else {
-        console.log(blockId, 'blockId');
-      }
+      if (selectedBlock) { selectedBlock.select(); }
     })
   );
 
-  // The function to resize blockly main window
   function resizeBlockly() {
-    Blockly.svgResize(Blockly.getMainWorkspace() as WorkspaceSvg);
+    if (Blockly.getMainWorkspace()) {
+      Blockly.svgResize(Blockly.getMainWorkspace() as WorkspaceSvg);
+    }
   }
 
   onDestroy(() => {
     unsubscribes.forEach((unSubFunc) => unSubFunc());
-    if (!workspaceInitialize) {
-      return;
-    }
+    if (!workspaceInitialize) return;
     const recentBlocks = workspaceToXML() ?? '';
     localStorage.setItem('reload_once_workspace', recentBlocks);
   });
 </script>
 
-<section bind:this={blocklyElement} id="blockly" />
+<section bind:this={blocklyElement} id="blockly" class="h-full w-full bg-bg"></section>
 
 <style>
-  #blockly {
-    height: 100%;
+  :global(.blocklyWorkspace-schematic) {
+    background-color: transparent !important;
+  }
+  :global(.blocklyMainBackground) {
+    fill: #0A0E14 !important;
   }
 </style>

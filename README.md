@@ -1,14 +1,14 @@
-# Arduino Workflow Builder
+# Wireloop
 
-Arduino Workflow Builder is a visual programming platform for Arduino development, designed to make learning electronics and programming accessible through drag-and-drop block programming. Built with SvelteKit, it provides real-time circuit simulation and code generation.
+Wireloop is a visual programming platform for Arduino development, designed to make learning electronics and programming accessible through drag-and-drop block programming. Built with SvelteKit, it provides real-time circuit simulation and code generation.
 
-![Arduino Workflow Builder Interface](static/logo.png)
+![Wireloop Interface](static/logo.png)
 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
 
-- **Node.js 18+** and npm
+- **Node.js 18+** and pnpm
 - **Git** for version control  
 - A modern web browser
 - (Optional) **Arduino IDE** for uploading generated code to real Arduino boards
@@ -23,12 +23,12 @@ git clone https://github.com/ayoub-hlel/Arduino-Workflow-Builder.git
 cd Arduino-Workflow-Builder
 
 # Install dependencies
-npm install
+pnpm install
 ```
 
 #### 2. Set Up Authentication (Clerk)
 
-Arduino Workflow Builder uses [Clerk](https://clerk.com) for user authentication and management.
+Wireloop uses [Clerk](https://clerk.com) for user authentication and management.
 
 1. **Create a Clerk Account**
    - Go to [https://clerk.com](https://clerk.com)
@@ -47,20 +47,20 @@ Arduino Workflow Builder uses [Clerk](https://clerk.com) for user authentication
 
 #### 3. Set Up Database (Convex)
 
-Arduino Workflow Builder uses [Convex](https://convex.dev) for real-time database and backend functions.
+Wireloop uses [Convex](https://convex.dev) for real-time database and backend functions.
 
 1. **Create a Convex Account**
    - Go to [https://convex.dev](https://convex.dev)
    - Sign up for a free account
    - Install the Convex CLI globally:
    ```bash
-   npm install -g convex
+   pnpm add -g convex
    ```
 
 2. **Initialize Your Convex Project**
    ```bash
-   # In your Arduino Workflow Builder directory
-   npx convex dev
+   # In your Wireloop directory
+   pnpm dlx convex dev
    ```
    - Follow the prompts to create a new project
    - This will create a `convex/` directory with your backend functions
@@ -68,7 +68,7 @@ Arduino Workflow Builder uses [Convex](https://convex.dev) for real-time databas
 
 3. **Deploy the Schema**
    - The project already includes the database schema in `convex/schema.ts`
-   - Convex will automatically deploy this when you run `npx convex dev`
+   - Convex will automatically deploy this when you run `pnpm dlx convex dev`
 
 #### 4. Configure Environment Variables
 
@@ -100,15 +100,15 @@ export default {
 
 ```bash
 # Make sure Convex is running (in a separate terminal)
-npx convex dev
+pnpm dlx convex dev
 
 # Start the development server
-npm run dev
+pnpm dev
 ```
 
 6. **Open Your Browser**
    - Navigate to `http://localhost:5173`
-   - You should see the Arduino Workflow Builder interface
+   - You should see the Wireloop interface
    - Try signing in with your configured OAuth provider
 
 ### 🧪 Testing Your Setup
@@ -134,7 +134,7 @@ Here are all the services and their required keys:
 | Service | Purpose | Required | How to Get |
 |---------|---------|----------|------------|
 | **Clerk** | User authentication | ✅ Yes | [clerk.com](https://clerk.com) → Create App → API Keys |
-| **Convex** | Database & real-time updates | ✅ Yes | [convex.dev](https://convex.dev) → Create Project → `npx convex dev` |
+| **Convex** | Database & real-time updates | ✅ Yes | [convex.dev](https://convex.dev) → Create Project → `pnpm dlx convex dev` |
 | **Arduino Compiler** | Code compilation | ⚠️ Optional* | Uses staging service by default |
 | **Asset Storage** | Lesson assets | ⚠️ Optional* | Uses staging bucket by default |
 
@@ -153,27 +153,27 @@ Here are all the services and their required keys:
 #### Database Connection Issues
 ```bash
 # If you see "Convex connection failed" errors:
-1. Make sure `npx convex dev` is running in another terminal
+1. Make sure `pnpm dlx convex dev` is running in another terminal
 2. Check your Convex URL in src/env.ts
 3. Verify the URL format: https://your-project.convex.cloud
 ```
 
 #### Build Errors
 ```bash
-# If npm run dev fails:
-1. Delete node_modules and package-lock.json
-2. Run: npm install
+# If pnpm dev fails:
+1. Delete node_modules and pnpm-lock.yaml
+2. Run: pnpm install
 3. Make sure Node.js version is 18+
 4. Check that src/env.ts exists and is properly formatted
 ```
 
 ### 📱 Mobile Development
 
-Arduino Workflow Builder works on mobile devices:
+Wireloop works on mobile devices:
 
 1. **Start the dev server with network access:**
    ```bash
-   npm run dev -- --host
+   pnpm dev -- --host
    ```
 
 2. **Find your IP address:**
@@ -194,18 +194,18 @@ The project supports multiple environments:
 
 ```bash
 # Development (default)
-npm run dev
+pnpm dev
 # Uses: env/env.development.ts
 
 # Staging
-npm run build
+pnpm build
 # Uses: env/env.staging.ts  
 
 # Production
 # Uses: env/env.prod.ts
 ```
 
-### 🎯 Using Arduino Workflow Builder
+### 🎯 Using Wireloop
 
 #### Creating Your First Project
 
@@ -272,7 +272,7 @@ npm run build
 
 ## 🏗️ Architecture
 
-Arduino Workflow Builder uses a modern, scalable architecture:
+Wireloop uses a modern, scalable architecture:
 
 - **Frontend**: SvelteKit with TypeScript
 - **Authentication**: Clerk for secure user management
@@ -296,11 +296,11 @@ Arduino Workflow Builder uses a modern, scalable architecture:
 ### Project Structure
 
 ```
-Arduino Workflow Builder/
+Wireloop/
 ├── src/
 │   ├── components/          # Svelte components
 │   │   ├── auth/           # Authentication components
-│   │   └── arduino-workflow-builder/  # Core app components
+│   │   └── wireloop/  # Core app components
 │   ├── routes/             # SvelteKit routing
 │   │   ├── (blockly)/     # Main app routes
 │   │   └── (fullpage)/    # Full-page routes
@@ -323,14 +323,14 @@ Arduino Workflow Builder/
 
 ```bash
 # Development
-npm run dev              # Start dev server
-npm run build           # Build for production
-npm run preview         # Preview production build
+pnpm dev                  # Start dev server
+pnpm build                # Build for production
+pnpm preview              # Preview production build
 
 # Testing
-npm test                # Run unit tests
-npm run test-coverage   # Run tests with coverage
+pnpm test                 # Run unit tests
+pnpm test-coverage        # Run tests with coverage
 
 # Code Quality
-npm run check           # Type checking
-npm run check:watch     # Type checking in watch mode
+pnpm check                # Type checking
+pnpm check:watch          # Type checking in watch mode

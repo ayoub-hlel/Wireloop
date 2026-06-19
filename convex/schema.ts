@@ -1,5 +1,5 @@
 // Convex Database Schema
-// This file defines the database schema for the Arduino Workflow Builder migration from Firebase
+// This file defines the database schema for the Wireloop migration from Firebase
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";

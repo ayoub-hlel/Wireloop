@@ -99,7 +99,7 @@ const mockProject = {
   _id: 'e2e-project-123',
   userId: 'user_e2e_123',
   name: 'My First Project',
-  description: 'Learning Arduino with Arduino Workflow Builder',
+  description: 'Learning Arduino with Wireloop',
   xml: '<xml><block type="arduino_setup"></block><block type="arduino_loop"></block></xml>',
   boardType: 'uno',
   isPublic: false,

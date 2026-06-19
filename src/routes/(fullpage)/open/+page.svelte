@@ -134,7 +134,7 @@
   <h2 class="mt-3">Projects</h2>
   <hr />
   <label for="file-upload" class="form custom-file-upload">
-    <i class="fa fa-cloud-upload" />
+    <i class="fa fa-cloud-upload"></i>
     Open a project from your computer
   </label>
   <input on:change={changeProject} id="file-upload" type="file" />
@@ -151,8 +151,8 @@
           <tr>
             <th>Name</th>
             <th>Modified</th>
-            <th />
-            <th />
+            <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -209,7 +209,7 @@
         <div class="row g-2 g-lg-3">
           {#each lessonRow as lesson }
           <div class="col-4">
-            <div class="card" on:click={() => goto(`/?example_project=${lesson.file}`)}>
+            <div class="card" on:click={() => goto(`/?example_project=${lesson.file}`)} on:keydown={(e) => e.key === 'Enter' && goto(`/?example_project=${lesson.file}`)} role="button" tabindex="0">
               <div class="card-body">
                 <img loading="lazy" src={lesson.levelImage} alt="difficulty-level" class="level">
                 <h5 class="card-title">{lesson.title}</h5>
@@ -224,7 +224,7 @@
       
 </main>
 <svelte:head>
-  <title>Arduino Workflow Builder - Projects</title>
+  <title>Wireloop - Projects</title>
 </svelte:head>
 
 <style>

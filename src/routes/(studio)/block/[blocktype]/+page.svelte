@@ -1,5 +1,5 @@
 <script>
-    import Help from '../../../../components/arduino-workflow-builder/block-help/help.svelte'
+    import Help from '../../../../components/wireloop/block-help/help.svelte'
     import { getBlockHelp } from '../../../../help/help-block-list';
     import { page } from '$app/stores';
     const { blocktype } = $page.params;

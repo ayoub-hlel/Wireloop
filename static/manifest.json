@@ -1,7 +1,7 @@
 {
   "background_color": "#505bda", 
   "theme_color": "#b063c5",
-  "name": "Arduino Workflow Builder",
+  "name": "Wireloop",
   "short_name": "Arduino Workflow",
   "display": "minimal-ui",
   "start_url": "/",

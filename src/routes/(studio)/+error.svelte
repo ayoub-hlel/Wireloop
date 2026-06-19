@@ -2,12 +2,11 @@
   import { dev } from '$app/environment';
   
   export let status: number;
-  export let error: Error;
+  export const error: Error = null as unknown as Error;
 </script>
 
 <style>
-  h1,
-  p {
+  h1 {
     margin: 0 auto;
   }
 
@@ -17,9 +16,6 @@
     margin: 0 0 0.5em 0;
   }
 
-  p {
-    margin: 1em auto;
-  }
 
   @media (min-width: 480px) {
     h1 {

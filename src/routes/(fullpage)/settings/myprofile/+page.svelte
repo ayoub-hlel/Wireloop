@@ -4,7 +4,7 @@
     import { saveUserProfile, getUserProfile } from "../../../../firebase/db";
     import { onMount } from "svelte";
     import { wait } from "../../../../helpers/wait";
-    import FlashMessage from "../../../../components/arduino-workflow-builder/ui/FlashMessage.svelte";
+    import FlashMessage from "../../../../components/wireloop/ui/FlashMessage.svelte";
     import { onErrorMessage } from "../../../../help/alerts";
     let username = "";
     let bio = "";

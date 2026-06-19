@@ -68,7 +68,7 @@
   </div>
 </main>
 <svelte:head>
-  <title>Arduino Workflow Builder - Download</title>
+  <title>Wireloop - Download</title>
 </svelte:head>
 
 <style>

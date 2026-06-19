@@ -1,13 +1,13 @@
 <main class="container">
     <div class="row">
         <div class="col logos">
-            <h1>About Arduino Workflow Builder</h1>
+            <h1>About Wireloop</h1>
         </div>
     </div>
     <div class="row">
         <div class="col">
             <p>
-                Arduino Workflow Builder is a user-friendly platform developed
+                Wireloop is a user-friendly platform developed
                 by Tunisian Students that simplifies the learning of electronics and
                 programming. Designed for students of all levels, Arduino
                 Workflow Builder enables them to explore and create
@@ -17,7 +17,7 @@
 
             <p>
                 Inspired by popular visual programming environments like Scratch
-                and Blockly, Arduino Workflow Builder makes coding accessible to
+                and Blockly, Wireloop makes coding accessible to
                 beginners by allowing them to drag and drop code blocks,
                 eliminating the need to learn complex syntax. This approach
                 empowers users to immediately see how their code interacts with

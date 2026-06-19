@@ -1,5 +1,5 @@
 <svelte:head>
-  <title>Arduino Workflow Builder - Support</title>
+  <title>Wireloop - Support</title>
 </svelte:head>
 <div class="row">
   <div class="col">
@@ -8,7 +8,7 @@
 
     <p>
       There is also an
-      <a href="https://arduino-workflow-builder.github.io/docs/"> Arduino Workflow Builder Docs</a>,
+      <a href="https://arduino-workflow-builder.github.io/docs/"> Wireloop Docs</a>,
       which contains all the lessons in webpage form. We also have a page full
       of
       <a href="/lessons">lessons</a>
@@ -17,8 +17,8 @@
 
     <h2>Training</h2>
     <p>
-      All training will be scheduled Arduino Workflow Builder's
-      <a href="https://www.downtomeet.com/Arduino Workflow Builder/events">Down to Meet.</a>
+      All training will be scheduled Wireloop's
+      <a href="https://www.downtomeet.com/Wireloop/events">Down to Meet.</a>
       We'll be using either zoom or google hangouts. Anything you want to be
       trained on please let us know. :)
     </p>
@@ -27,7 +27,7 @@
       If you want to file a bug you can use the built
       <a href="/settings/bugs">bug form</a>
       or
-      <a href="https://github.com/phptuts/Arduino Workflow BuilderV3/issues">Github Issues</a>.
+      <a href="https://github.com/phptuts/WireloopV3/issues">Github Issues</a>.
     </p>
   </div>
 </div>

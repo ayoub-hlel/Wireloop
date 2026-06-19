@@ -1,8 +1,8 @@
-# Arduino Workflow Builder — Project Context
+# Wireloop — Project Context
 
 ## Project Overview
 
-**Arduino Workflow Builder** is a visual programming platform for Arduino development. It enables users to create Arduino programs using a drag-and-drop block interface (powered by Google Blockly), with real-time circuit simulation and automatic Arduino C++ code generation. The platform is designed to make learning electronics and programming accessible, especially for beginners.
+**Wireloop** is a visual programming platform for Arduino development. It enables users to create Arduino programs using a drag-and-drop block interface (powered by Google Blockly), with real-time circuit simulation and automatic Arduino C++ code generation. The platform is designed to make learning electronics and programming accessible, especially for beginners.
 
 ### Tech Stack
 

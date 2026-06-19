@@ -4,7 +4,7 @@
   import Login from "../../../components/auth/Login.svelte";
   import { addProject, saveProject } from "../../../firebase/db";
   import { onDestroy } from "svelte";
-  import FlashMessage from "../../../components/arduino-workflow-builder/ui/FlashMessage.svelte";
+  import FlashMessage from "../../../components/wireloop/ui/FlashMessage.svelte";
   import { wait } from "../../../helpers/wait";
   import { onErrorMessage } from "../../../help/alerts";
   import { workspaceToXML } from "../../../core/blockly/helpers/workspace.helper";
@@ -163,7 +163,7 @@
 </main>
 
 <svelte:head>
-  <title>Arduino Workflow Builder - Project Settings</title>
+  <title>Wireloop - Project Settings</title>
 </svelte:head>
 
 <style>

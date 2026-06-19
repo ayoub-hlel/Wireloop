@@ -1,6 +1,6 @@
 <script>
 
-  import  Nav from "../../components/arduino-workflow-builder/Nav.svelte";
+  import  Nav from "../../components/wireloop/Nav.svelte";
 
 </script>
 

@@ -4,7 +4,7 @@
   import { fbSaveSettings } from "../../../firebase/db";
   import authStore from "../../../stores/auth.store";
   import settingsStore from "../../../stores/settings.store";
-  import FlashMessage from "../../../components/arduino-workflow-builder/ui/FlashMessage.svelte";
+  import FlashMessage from "../../../components/wireloop/ui/FlashMessage.svelte";
   import isEqual from "lodash/isEqual";
   import { onErrorMessage } from "../../../help/alerts";
   import { MicroControllerType } from "../../../core/microcontroller/microcontroller";
@@ -165,7 +165,7 @@
 <FlashMessage bind:show={showMessage} message="Successfully Save." />
 
 <svelte:head>
-  <title>Arduino Workflow Builder - Virtual Circuit</title>
+  <title>Wireloop - Virtual Circuit</title>
 </svelte:head>
 
 <style>

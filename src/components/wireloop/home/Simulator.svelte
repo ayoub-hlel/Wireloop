@@ -1,9 +1,7 @@
 <script lang="ts">
   import Player from './Player.svelte';
-
   import SimDebugger from './SimDebugger.svelte';
   import LedColorChanger from './LedColorChanger.svelte';
-
   import { SVG, type Svg } from '@svgdotjs/svg.js';
   import frameStore from '../../../stores/frame.store';
   import currentFrameStore from '../../../stores/currentFrame.store';
@@ -11,7 +9,6 @@
   import { resizeStore, WindowType } from '../../../stores/resize.store';
   import paint from '../../../core/virtual-circuit/paint';
   import update from '../../../core/virtual-circuit/update';
-  // What if we made everything a series of components.
   import { onMount, onDestroy, tick } from 'svelte';
   import { onErrorMessage } from '../../../help/alerts';
   import { wait } from '../../../helpers/wait';
@@ -19,7 +16,6 @@
   import { centerCircuit } from '../../../core/virtual-circuit/centerCircuit';
   import { page } from '$app/stores';
   import type { ArduinoFrame } from '../../../core/frames/arduino.frame';
-
 
   let container: HTMLElement;
   let frames: ArduinoFrame[] = [];
@@ -31,7 +27,6 @@
   onMount(async () => {
     try {
       await import('@svgdotjs/svg.draggable.js');
-
       await import('@svgdotjs/svg.panzoom.js');
     } catch (e) {
       onErrorMessage('Please refresh your browser and try again.', e);
@@ -41,7 +36,6 @@
     let height = container.clientHeight - 10;
     let count = 0;
     while (width < 0 || height < 0) {
-      console.log('waiting to load');
       width = container.clientWidth - 10;
       height = container.clientHeight - 10;
       await wait(5);
@@ -52,9 +46,6 @@
       }
     }
 
-    // THE VIEWBOX MUST BE THE SAME SIZE AS THE COMPONENT OR VIEW
-    // OTHERWISE WE DEAL WITH 2 COORDINATE SYSTEMS AND MATRIX MATH
-    // DON'T DO IT!!!!!
     draw = SVG()
       .addTo(container)
       .size(container.clientWidth - 10, container.clientHeight - 10)
@@ -63,8 +54,7 @@
 
     unsubscribes.push(
       frameStore.subscribe((frameContainer) => {
-        let oldLastFrame =
-          frames.length > 0 ? frames[frames.length - 1] : undefined;
+        let oldLastFrame = frames.length > 0 ? frames[frames.length - 1] : undefined;
         frames = frameContainer.frames;
         const firstFrame = frames ? frames[0] : undefined;
         const lastFrame = frames ? frames[frames.length - 1] : undefined;
@@ -73,27 +63,11 @@
         update(draw, firstFrame);
 
         const oldListOfComponentIds = oldLastFrame
-          ? oldLastFrame.components
-              .map((f) => {
-                try {
-                  return arduinoComponentStateToId(f);
-                } catch {
-                  return '';
-                }
-              })
-              .join('')
+          ? oldLastFrame.components.map((f) => { try { return arduinoComponentStateToId(f); } catch { return ''; } }).join('')
           : '';
 
         const newListOfComponentIds = lastFrame
-          ? lastFrame.components
-              .map((f) => {
-                try {
-                  return arduinoComponentStateToId(f);
-                } catch {
-                  return '';
-                }
-              })
-              .join('')
+          ? lastFrame.components.map((f) => { try { return arduinoComponentStateToId(f); } catch { return ''; } }).join('')
           : '';
 
         if (newListOfComponentIds != oldListOfComponentIds) {
@@ -111,6 +85,7 @@
 
     unsubscribes.push(
       resizeStore.subscribe(async ({ type }) => {
+        if (!container) return;
         draw.size(container.clientWidth - 10, container.clientHeight - 10);
         if (type == WindowType.MAIN) {
           await tick();
@@ -132,97 +107,74 @@
     unsubscribes.push(
       currentFrameStore.subscribe((frame) => {
         if (!frame) return;
-
         if (frame.timeLine.function === 'pre-setup') {
           loopText = 'Setup Code';
           return;
         }
-
         if (frame.timeLine.function === 'setup') {
           loopText = 'Setup Block';
           return;
         }
-        loopText = `Loop: ${frame.timeLine.iteration}`;
+        loopText = `Iteration: ${frame.timeLine.iteration}`;
       })
     );
   });
 
-  function zoomIn() {
-    draw.zoom(draw.zoom() + 0.05);
-  }
-
-  function zoomOut() {
-    draw.zoom(draw.zoom() - 0.05);
-  }
-
+  function zoomIn() { draw.zoom(draw.zoom() + 0.05); }
+  function zoomOut() { draw.zoom(draw.zoom() - 0.05); }
   function reCenter() {
     if (draw) {
-      centerCircuit(
-        draw,
-        frames.length > 0 ? frames[frames.length - 1] : undefined
-      );
+      centerCircuit(draw, frames.length > 0 ? frames[frames.length - 1] : undefined);
     }
   }
 
-  onDestroy(() => {
-    unsubscribes.forEach((unSubFunc) => unSubFunc());
-  });
+  onDestroy(() => { unsubscribes.forEach((unSubFunc) => unSubFunc()); });
 </script>
 
-<div style="background-color: {($settings as any).backgroundColor}" id="container">
+<div class="relative w-full h-full flex flex-col bg-bg overflow-hidden" id="container">
   <LedColorChanger />
-  <div bind:this={container} id="simulator" />
-  <div id="simulator-controls">
-    <h3>{loopText}</h3>
-    <i on:click={reCenter} class="fa" id="recenter-icon" aria-hidden="true" />
-    <i on:click={zoomIn} class="fa fa-search-plus" aria-hidden="true" />
-    <i on:click={zoomOut} class="fa fa-search-minus" aria-hidden="true" />
+  
+  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+    <div class="data-readout shadow-glow-blue border-primary/40 px-6 py-1 flex items-center space-x-3">
+      <span class="led led-blue"></span>
+      <span class="font-mono text-xs uppercase tracking-widest opacity-70">Circuit Status:</span>
+      <span class="font-mono font-bold">{loopText}</span>
+    </div>
   </div>
-  <SimDebugger />
+
+  <div 
+    bind:this={container} 
+    id="simulator" 
+    class="flex-grow w-full min-h-0 bg-grid-schematic"
+    style="background-size: 24px 24px;"
+  ></div>
+  
+  <div id="simulator-controls" class="absolute" style="right: 16px; bottom: 91px; display: flex; align-items: center; gap: 8px; z-index: 20;">
+    <button on:click={reCenter} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Recenter">
+      <i class="fa fa-crosshairs text-lg group-hover:scale-110 transition-transform"></i>
+    </button>
+    <button on:click={zoomIn} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom In">
+      <i class="fa fa-plus text-lg group-hover:scale-110 transition-transform"></i>
+    </button>
+    <button on:click={zoomOut} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom Out">
+      <i class="fa fa-minus text-lg group-hover:scale-110 transition-transform"></i>
+    </button>
+  </div>
+
+  <div class="absolute" style="left: 16px; bottom: 91px; z-index: 20;">
+    <SimDebugger />
+  </div>
+
+  <div class="h-[75px] shrink-0 border-t border-border bg-bg-surface">
+    <Player />
+  </div>
 </div>
-<Player />
 
 <style>
-  #container,
   #simulator {
-    width: 100%;
-    height: calc(100% - 75px);
-    position: relative;
-    top: 0;
-    left: 0;
+    cursor: grab;
   }
-  #container {
-    background-color: #d9e4ec;
-  }
-  #simulator {
-    width: 100%;
-    height: calc(100% - 10px);
-  }
-  #simulator-controls {
-    text-align: right;
-    position: absolute;
-    right: 10px;
-    bottom: 5px;
-    width: 100%;
-  }
-  #simulator-controls i {
-    cursor: pointer;
-    margin-left: 10px;
-    user-select: none;
-  }
-  #recenter-icon {
-    background-image: url(/target.svg?raw);
-    width: 25px;
-    height: 25px;
-    background-size: contain;
-    vertical-align: middle;
-    background-repeat: no-repeat;
-  }
-
-  h3 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: -5px;
+  #simulator:active {
+    cursor: grabbing;
   }
 </style>

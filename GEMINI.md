@@ -1,7 +1,7 @@
-# Arduino Workflow Builder - Developer Guide
+# Wireloop - Developer Guide
 
 ## Project Overview
-Arduino Workflow Builder is a visual programming platform for Arduino development and electronics education. It allows users to create Arduino programs using a drag-and-drop block interface (Blockly) and provides real-time circuit simulation and code generation.
+Wireloop is a visual programming platform for Arduino development and electronics education. It allows users to create Arduino programs using a drag-and-drop block interface (Blockly) and provides real-time circuit simulation and code generation.
 
 ### Core Technologies
 - **Frontend**: [SvelteKit](https://kit.svelte.dev/) (using Svelte 5 runes) with TypeScript.

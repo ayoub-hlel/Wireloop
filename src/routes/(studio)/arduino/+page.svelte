@@ -1,7 +1,7 @@
 <script lang="ts">
-  import VerticalComponentContainer from '../../../components/arduino-workflow-builder/VerticalComponentContainer.svelte';
-  import Debug from '../../../components/arduino-workflow-builder/arduino/Debug.svelte';
-  import Message from '../../../components/arduino-workflow-builder/arduino/Message.svelte';
+  import VerticalComponentContainer from '../../../components/wireloop/VerticalComponentContainer.svelte';
+  import Debug from '../../../components/wireloop/arduino/Debug.svelte';
+  import Message from '../../../components/wireloop/arduino/Message.svelte';
 </script>
 
 <VerticalComponentContainer>
@@ -13,7 +13,7 @@
   </div>
 </VerticalComponentContainer>
 <svelte:head>
-  <title>Arduino Workflow Builder - Arduino</title>
+  <title>Wireloop - Arduino</title>
 </svelte:head>
 
 <style>

@@ -1,5 +1,5 @@
 # AGENT_MISSION.md
-# Arduino Workflow Builder — Complete AI Agent Mission Document
+# Wireloop — Complete AI Agent Mission Document
 # Version: 1.0.0 | Last Updated: 2025
 # This document is the single source of truth for all AI-assisted development sessions.
 # Drop this file in your repo root. Gemini_CLI reads it at the start of every session.
@@ -38,7 +38,7 @@ RULE 20 → Never install a new package without flagging it for human review fir
 
 ## 📋 PROJECT OVERVIEW
 
-**Project Name:** Arduino Workflow Builder
+**Project Name:** Wireloop
 **Purpose:** Visual programming platform for Arduino development. Drag-and-drop block interface (Google Blockly v10), real-time SVG circuit simulation, automatic Arduino C++ code generation. Designed to make electronics and embedded programming accessible to beginners and students.
 
 ### Complete Technology Stack
@@ -505,7 +505,7 @@ html, body {
 
 ### Design Audit Agent Prompt
 ```
-SYSTEM: You are a design audit agent for the Arduino Workflow Builder project.
+SYSTEM: You are a design audit agent for the Wireloop project.
 You enforce the Schematic UI design system. Your job is ONLY to audit and report.
 Do NOT modify any files. Do NOT suggest fixes outside the design system.
 
@@ -1152,7 +1152,7 @@ These packages should be audited on every `npm install` of a new dependency:
 ## Alert Agent Prompt (run on demand)
 
 ```
-SYSTEM: You are a best-practices audit agent for Arduino Workflow Builder.
+SYSTEM: You are a best-practices audit agent for Wireloop.
 Stack: SvelteKit 2, Svelte 5, TypeScript strict, Tailwind v4, Convex, Auth.js v5.
 You audit and report ONLY. You do NOT modify files.
 
@@ -1963,7 +1963,7 @@ git push origin [branch]
 ## Qwen Commit Prompt (use after every completed goal)
 
 ```
-TASK: Commit completed work following Arduino Workflow Builder conventions.
+TASK: Commit completed work following Wireloop conventions.
 
 Pre-commit (run ALL before any git commands):
 1. npm run check → must exit 0. If not: STOP, report full error, propose fix, wait.
@@ -2306,7 +2306,7 @@ export const createProject = mutation({
 ## Session Start Checklist (paste this at the start of EVERY Qwen session)
 
 ```
-You are working on Arduino Workflow Builder.
+You are working on Wireloop.
 Read AGENT_MISSION.md before doing anything.
 
 Current session goal: [GOAL N — NAME]
@@ -2325,6 +2325,6 @@ Standing rules summary:
 
 ---
 
-*AGENT_MISSION.md — Arduino Workflow Builder*
+*AGENT_MISSION.md — Wireloop*
 *Maintained by: [Your Name] + Gemini_CLI*
 *This document evolves with the project. Update it when decisions change.*

@@ -16,7 +16,7 @@
 </style>
 
 <svelte:head>
-  <title>Arduino Workflow Builder - About</title>
+  <title>Wireloop - About</title>
 </svelte:head>
 
 {#if config.site === 'arduino-workflow-builder-org'}
@@ -28,7 +28,7 @@
   <div class="row">
     <div class="col">
       <p>
-        Arduino Workflow Builder is website for coding microcontrollers like the Arduino
+        Wireloop is website for coding microcontrollers like the Arduino
         Uno and Arduino Mega. The basic idea is video editting for code. It
         allows you to create code with an easy to use drag and drop language
         called Blockly. I wanted to create something easy to use and fun for

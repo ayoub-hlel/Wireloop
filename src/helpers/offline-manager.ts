@@ -1,5 +1,5 @@
 // Offline Capability Manager
-// Provides local storage caching and offline functionality for Arduino Workflow Builder
+// Provides local storage caching and offline functionality for Wireloop
 
 import { writable, derived, type Readable } from 'svelte/store';
 import { browser } from '$app/environment';

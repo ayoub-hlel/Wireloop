@@ -3,20 +3,11 @@
   import debounce from 'lodash/debounce';
   import config from '../../env';
   import { isPathOnHomePage } from '../../helpers/is-path-on-homepage';
-  import Nav from '../../components/arduino-workflow-builder/Nav.svelte';
-  import Blockly from '../../components/arduino-workflow-builder/Blockly.svelte';
+  import Nav from '../../components/wireloop/Nav.svelte';
+  import Blockly from '../../components/wireloop/Blockly.svelte';
   import { resizeStore } from '../../stores/resize.store';
   import { page } from '$app/stores';
   // TODO: CLERK_REMOVAL — do not delete yet.
-  /*
-  import { 
-    initializeClerkAuth, 
-    authState, 
-    user, 
-    userId, 
-    isSignedIn 
-  } from '../../stores/clerk-auth.store';
-  */
   const initializeClerkAuth = () => {};
   const authState = { subscribe: (cb: any) => { cb({ isLoaded: true, isSignedIn: false }); return () => {}; } };
   const user = { subscribe: (cb: any) => { cb(null); return () => {}; } };
@@ -33,14 +24,9 @@
     arduinoLoopBlockShowNumberOfTimesThroughLoop,
   } from '../../core/blockly/helpers/arduino_loop_block.helper';
   import swal from 'sweetalert';
-  // Legacy: Firebase Analytics removed - replaced with alternative analytics
-  // Legacy: Firebase app initialization removed
 
 
   let showScrollOnRightSide = false;
-
-  // this controls whether the arduino start block show numbers of times in to execute the loop for the virtual circuit
-  // or the loop forever text.  If segment is null that means we are home the home page and that is page that shows virtual circuit
   let showLoopExecutionTimesArduinoStartBlock: boolean;
   $: showLoopExecutionTimesArduinoStartBlock = isPathOnHomePage($page.url.pathname);
   let height = '500px';
@@ -50,9 +36,6 @@
   let isResizingLeft = false;
   let isResizingRight = false;
 
-  /**
-   * Event is on grabber on is trigger by a mouse down event
-   */
   function startResize(side: string) {
     if (side == 'right') {
       isResizingRight = true;
@@ -61,9 +44,6 @@
     }
   }
 
-  /**
-   * Event is on the body so that all mouse up events stop resizing
-   */
   function stopResize() {
     isResizingRight = false;
     isResizingLeft = false;
@@ -71,78 +51,40 @@
 
   const resize = (side: string) => {
     return (e : MouseEvent) => {
-      if (!isResizingLeft && side == 'left') {
-        return;
-      }
+      if (!isResizingLeft && side == 'left') return;
+      if (!isResizingRight && side == 'right') return;
 
-      if (!isResizingRight && side == 'right') {
-        return;
-      }
-
-      // Width of the window
       const windowWidth = window.innerWidth;
+      if (e.clientX < 20 || windowWidth - e.clientX < 20) return;
 
-      // If the either window size is less than 200 px don't resize window
-      if (e.clientX < 20 || windowWidth - e.clientX < 20) {
-        return;
-      }
-
-      // Because e.clientX represents the number of pixels the mouse is to the left
-      // Subtract that from the total window size to get the width of the right side
-      // Then divide that by total width and multiply by 100 to get the flex size
-      // Subtract .5 for the size of the grabber which is 1 flex
       if (side == 'right') {
         rightFlex = ((windowWidth - e.clientX) / windowWidth) * 100;
       } else {
         leftFlex = (e.clientX / windowWidth) * 100;
       }
-
-      // If this is false we should not worry about lesson side of the screen.
       leftFlex = 0;
-
-      // Derive the from right flex calculation
       middleFlex = 100 - rightFlex - leftFlex - 1;
-
-      // Trigger an main windows that need to be resized
       resizeStore.mainWindow();
     };
   };
 
-  /**
-   * This is a mouse move event on the main section of the html
-   * It will resize the 2 windows,
-   * Slight Trottling with debounce
-   */
   const resizeRightSide = debounce(resize('right'), 2);
   const resizeLeftSide = debounce(resize('left'), 2);
 
   function resizeHeight() {
-    // Calculates the height of the window
-    // We know that if it's  the home page that we want less height
-    // for the main window because we want to display the player component
     const navBarHeight = 56;
-
     height = window.innerHeight - navBarHeight + 'px';
-    // Hack to make sure everything update
     setTimeout(() => {
       resizeStore.mainWindow();
     }, 5);
   }
 
   onMount(async () => {
-    console.log('🚀 Arduino Workflow Builder: Initializing application services...');
-
-    // Initialize Clerk authentication
-    console.log('🔐 Initializing authentication...');
+    console.log('🚀 Wireloop: Initializing application services...');
     initializeClerkAuth();
-
-    // Initialize Convex database client  
-    console.log('💾 Initializing database client...');
     initializeConvexClient();
-
     localStorage.removeItem('no_alert');
     
-    // Wrapped in an onMount because we don't want it executed by the server
     page.subscribe(({ url }) => {
       if (
         ['open', 'settings', 'lessons', 'code'].reduce((found, value) => {
@@ -170,31 +112,17 @@
       loadedProject = true;
     }
 
-    // Subscribe to Clerk authentication state changes
     // @ts-ignore
     authState.subscribe(async (clerkAuth: any) => {
-      if (!clerkAuth.isLoaded) {
-        return; // Wait for Clerk to load
-      }
+      if (!clerkAuth.isLoaded) return;
 
       if (!clerkAuth.isSignedIn || !clerkAuth.user) {
-        // Update legacy auth store for compatibility
-        authStore.set({
-          isLoggedIn: false,
-          uid: null,
-          legacyControlled: false,
-        });
+        authStore.set({ isLoggedIn: false, uid: null, legacyControlled: false });
         return;
       }
 
-      // Update legacy auth store for compatibility
-      authStore.set({
-        isLoggedIn: true,
-        uid: clerkAuth.user.id,
-        legacyControlled: false,
-      });
+      authStore.set({ isLoggedIn: true, uid: clerkAuth.user.id, legacyControlled: false });
 
-      // Handle project loading for authenticated users
       if (
         $projectStore.projectId === $page.url.searchParams.get('projectid') ||
         !$page.url.searchParams.get('projectid') ||
@@ -207,17 +135,12 @@
         title: 'Loading your project',
         allowEscapeKey: false,
         allowOutsideClick: false,
-        onOpen: () => {
-          (swal as any).showLoading();
-        },
+        onOpen: () => { (swal as any).showLoading(); },
       } as any);
 
       try {
-        // Use Convex operations for project loading
         const projectId = $page.url.searchParams.get('projectid');
         const convexClient = getConvexClient();
-        
-        // Load project data from Convex
         const project = await convexClient.query('projects:getProject', { projectId });
         const projectFile = await convexClient.query('projects:getProjectFile', { 
           projectId, 
@@ -225,7 +148,6 @@
         });
         
         if (project && projectFile) {
-          // Use the content field for the workspace XML
           loadProject(projectFile.content || projectFile.workspace || '<xml></xml>');
           projectStore.set({ project, projectId });
         } else {
@@ -251,55 +173,56 @@
   });
 </script>
 
-<Nav  />
+<Nav />
 <svelte:body on:mouseup={stopResize} />
 <main
   style="height: {height}"
-  on:mousemove={resizeLeftSide}
-  on:mousemove={resizeRightSide}
+  on:mousemove={(e) => { resizeLeftSide(e); resizeRightSide(e); }}
+  class="bg-bg text-text w-full flex box-border overflow-hidden"
 >
-  
-  <div style="flex: {middleFlex}" id="middle_panel">
+  <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
     <Blockly {showLoopExecutionTimesArduinoStartBlock} />
   </div>
-  <div on:mousedown={() => startResize('right')} class="grabber" />
+  
+  <div 
+    on:mousedown={() => startResize('right')} 
+    class="w-1.5 cursor-col-resize bg-border hover:bg-primary/50 transition-colors flex items-center justify-center relative z-10"
+    role="separator"
+    aria-label="Resize panels"
+  >
+    <div class="h-8 w-[1px] bg-primary/30"></div>
+  </div>
+
   <div
     style="flex: {rightFlex}"
-    class:scroll={showScrollOnRightSide}
-    class:hide={rightFlex < 15}
+    class="bg-bg-surface overflow-hidden relative"
+    class:overflow-y-auto={showScrollOnRightSide}
+    class:opacity-0={rightFlex < 5}
+    class:pointer-events-none={rightFlex < 5}
     id="right_panel"
   >
-    <slot />
+    <div class="p-4 h-full min-h-full flex flex-col">
+      <div class="flex-1 min-h-0">
+        <slot />
+      </div>
+    </div>
   </div>
 </main>
 
 <svelte:window on:resize={resizeHeight} />
 
-<!-- This means we are on the home page and need to display the player component -->
 <style>
-  /** the container of all the elements */
-  main {
-    width: 100%;
-    display: flex;
-    box-sizing: border-box; /** */
+  #right_panel::-webkit-scrollbar {
+    width: 6px;
   }
-
-  /** div used to resize both items */
-  .grabber {
-    flex: 1;
-    cursor: col-resize;
-    background-color: #eff0f1;
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==);
+  #right_panel::-webkit-scrollbar-track {
+    background: #0A0E14;
   }
-  #right_panel {
-    overflow: hidden;
+  #right_panel::-webkit-scrollbar-thumb {
+    background: #1E3A5F;
+    border-radius: 2px;
   }
-  #right_panel.scroll {
-    overflow-y: scroll;
-  }
-  .hide {
-    opacity: 0.01;
+  #right_panel::-webkit-scrollbar-thumb:hover {
+    background: #2563EB;
   }
 </style>

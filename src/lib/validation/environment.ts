@@ -1,6 +1,6 @@
 /**
  * Environment Validation Utility
- * Part of Arduino Workflow Builder debugging infrastructure
+ * Part of Wireloop debugging infrastructure
  * 
  * Constitutional compliance: Environment verification per principle X
  */
@@ -45,7 +45,7 @@ export interface EnvironmentConfiguration {
 }
 
 /**
- * Validates environment variables required for Arduino Workflow Builder
+ * Validates environment variables required for Wireloop
  */
 import { PUBLIC_CLERK_PUBLISHABLE_KEY, PUBLIC_CONVEX_URL } from '$env/static/public';
 
@@ -216,7 +216,7 @@ export function validateBrowserEnvironment(): {
 export function logEnvironmentValidation(): void {
   const serverValidation = validateEnvironment();
   
-  console.group('🔧 Arduino Workflow Builder - Environment Validation');
+  console.group('🔧 Wireloop - Environment Validation');
   
   if (serverValidation.valid) {
     console.log('✅ Server environment validation passed');

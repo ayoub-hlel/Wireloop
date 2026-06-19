@@ -11,7 +11,7 @@
   google.
 </p>
 <svelte:head>
-  <title>Arduino Workflow Builder - Login</title>
+  <title>Wireloop - Login</title>
 </svelte:head>
 
 <style>

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import VerticalComponentContainer from '../../components/arduino-workflow-builder/VerticalComponentContainer.svelte';
-  import Simulator from '../../components/arduino-workflow-builder/home/Simulator.svelte';
-  import Step from '../../components/arduino-workflow-builder/home/Steps.svelte';
+  import VerticalComponentContainer from '../../components/wireloop/VerticalComponentContainer.svelte';
+  import Simulator from '../../components/wireloop/home/Simulator.svelte';
+  import Step from '../../components/wireloop/home/Steps.svelte';
 </script>
 
 <VerticalComponentContainer>
@@ -13,12 +13,13 @@
   </div>
 </VerticalComponentContainer>
 <svelte:head>
-  <title>Arduino Workflow Builder</title>
+  <title>Wireloop</title>
 </svelte:head>
 
 <style>
   .slot-wrapper {
     height: 100%;
     width: 100%;
+    overflow: hidden;
   }
 </style>

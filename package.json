@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "arduino-workflow-builder",
-  "description": "Arduino Workflow Builder - Visual programming for Arduino development and electronics education",
+  "name": "wireloop",
+  "description": "Wireloop - Visual programming for Arduino development and electronics education",
   "version": "3.0.0",
   "scripts": {
     "dev": "cp env/env.development.ts src/env.ts && vite dev",
@@ -54,6 +54,9 @@
     "uuid": "^8.3.1",
     "vite": "^6.4.2",
     "vitest": "^1.5.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "svelte-preprocess"]
   },
   "type": "module",
   "dependencies": {
