@@ -19,7 +19,11 @@
     unsubscribes.forEach((unSubFunc) => unSubFunc());
   });
 
-  $effect.pre(() => {
+  $effect(() => {
+    // Guard: bind:this is undefined during SSR/hydration first pass
+    if (!stepContainer) return;
+    // Track current step as a reactive dependency so we re-scroll on change
+    const _step = $currentStepStore;
     const activeStep = stepContainer.querySelector(".current");
     if (activeStep) {
       activeStep.scrollIntoView({ block: "center", behavior: 'smooth' });
@@ -72,10 +76,10 @@
   }
   
   #steps::-webkit-scrollbar { width: 6px; }
-  #steps::-webkit-scrollbar-track { background: #0A0E14; }
+  #steps::-webkit-scrollbar-track { background: hsl(var(--background)); }
   #steps::-webkit-scrollbar-thumb {
-    background: #1E3A5F;
-    border-radius: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius);
   }
-  #steps::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+  #steps::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
 </style>

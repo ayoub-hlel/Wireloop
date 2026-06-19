@@ -94,10 +94,10 @@
 
 <style>
   #bottom::-webkit-scrollbar { width: 6px; }
-  #bottom::-webkit-scrollbar-track { background: #0A0E14; }
+  #bottom::-webkit-scrollbar-track { background: hsl(var(--background)); }
   #bottom::-webkit-scrollbar-thumb {
-    background: #1E3A5F;
-    border-radius: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius);
   }
-  #bottom::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+  #bottom::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
 </style>

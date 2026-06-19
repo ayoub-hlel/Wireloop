@@ -1,0 +1,14 @@
+<svg width="197" height="114" viewBox="0 0 197 114" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="1.5" y="1.5" width="120" height="36" fill="black" stroke="black"/>
+<rect x="0.5" y="0.5" width="119" height="35" fill="white" stroke="black"/>
+<rect x="46.5" y="39.5" width="120" height="36" fill="black" stroke="black"/>
+<rect x="45.5" y="38.5" width="119" height="35" fill="white" stroke="black"/>
+<rect x="76.5" y="77.5" width="120" height="36" fill="black" stroke="black"/>
+<rect x="75.5" y="76.5" width="119" height="35" fill="white" stroke="black"/>
+<line x1="180" y1="77" x2="180" y2="18" stroke="black" stroke-width="2"/>
+<line x1="120" y1="19" x2="180" y2="19" stroke="black" stroke-width="2"/>
+<g opacity="0.9">
+<line y1="-1" x2="59" y2="-1" transform="matrix(-1 0 0 1 76 96)" stroke="black" stroke-width="2"/>
+<line y1="-1" x2="60" y2="-1" transform="matrix(0 1 1 0 19 36)" stroke="black" stroke-width="2"/>
+</g>
+</svg>

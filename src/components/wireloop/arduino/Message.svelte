@@ -215,10 +215,10 @@
 
 <style>
   #messages::-webkit-scrollbar { width: 6px; }
-  #messages::-webkit-scrollbar-track { background: #0A0E14; }
+  #messages::-webkit-scrollbar-track { background: hsl(var(--background)); }
   #messages::-webkit-scrollbar-thumb {
-    background: #1E3A5F;
-    border-radius: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius);
   }
-  #messages::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+  #messages::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
 </style>

@@ -217,13 +217,13 @@
     width: 6px;
   }
   #right_panel::-webkit-scrollbar-track {
-    background: #0A0E14;
+    background: hsl(var(--background));
   }
   #right_panel::-webkit-scrollbar-thumb {
-    background: #1E3A5F;
-    border-radius: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius);
   }
   #right_panel::-webkit-scrollbar-thumb:hover {
-    background: #2563EB;
+    background: hsl(var(--muted-foreground));
   }
 </style>

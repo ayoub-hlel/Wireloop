@@ -100,7 +100,7 @@
 <nav class="w-full h-14 bg-bg-surface border-b border-border shadow-card flex items-center px-4 relative z-50" class:justify-between={!$authStore.isLoggedIn}>
   <div class="flex items-center">
     <a href="/" class="flex items-center mr-8 no-underline">
-      <span class="font-mono font-bold text-2xl text-primary tracking-tighter shadow-glow-blue px-2 border border-primary/20 rounded-sm">AWB</span>
+      <img src="/LOGO%20-%20Inversed.svg" alt="Wireloop" class="h-9 w-auto brightness-110" />
     </a>
     
     <div class="flex items-center space-x-1">
@@ -297,11 +297,11 @@
 <style>
   :global(.tooltip.nav-tooltip) {
     margin-top: 8px;
-    background-color: #1A2236 !important;
-    border: 1px solid #1E3A5F !important;
-    color: #00BFFF !important;
-    font-family: 'JetBrains Mono', monospace !important;
+    background-color: hsl(var(--bg-elevated)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    color: hsl(var(--primary)) !important;
+    font-family: var(--font-mono) !important;
     font-size: 0.75rem !important;
-    border-radius: 2px !important;
+    border-radius: var(--radius) !important;
   }
 </style>

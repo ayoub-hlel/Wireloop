@@ -97,17 +97,17 @@
     background: transparent !important;
     color: #E2E8F0 !important;
   }
-  :global(.hljs-keyword) { color: #00BFFF !important; }
-  :global(.hljs-string) { color: #00FF88 !important; }
-  :global(.hljs-comment) { color: #64748B !important; }
-  :global(.hljs-number) { color: #FFB800 !important; }
-  :global(.hljs-function) { color: #00BFFF !important; }
+  :global(.hljs-keyword) { color: hsl(var(--primary)) !important; }
+  :global(.hljs-string) { color: hsl(var(--success)) !important; }
+  :global(.hljs-comment) { color: hsl(var(--muted-foreground)) !important; }
+  :global(.hljs-number) { color: hsl(var(--warning)) !important; }
+  :global(.hljs-function) { color: hsl(var(--primary)) !important; }
   
   pre::-webkit-scrollbar { width: 6px; }
-  pre::-webkit-scrollbar-track { background: #0A0E14; }
+  pre::-webkit-scrollbar-track { background: hsl(var(--background)); }
   pre::-webkit-scrollbar-thumb {
-    background: #1E3A5F;
-    border-radius: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius);
   }
-  pre::-webkit-scrollbar-thumb:hover { background: #2563EB; }
+  pre::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
 </style>

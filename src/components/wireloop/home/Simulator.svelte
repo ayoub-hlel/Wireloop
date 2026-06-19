@@ -22,8 +22,6 @@
   let currentFrame: ArduinoFrame | undefined = undefined;
   let draw: Svg;
   let unsubscribes: (() => void)[] = [];
-  let loopText = '';
-
   onMount(async () => {
     try {
       await import('@svgdotjs/svg.draggable.js');
@@ -103,21 +101,6 @@
         }
       })
     );
-
-    unsubscribes.push(
-      currentFrameStore.subscribe((frame) => {
-        if (!frame) return;
-        if (frame.timeLine.function === 'pre-setup') {
-          loopText = 'Setup Code';
-          return;
-        }
-        if (frame.timeLine.function === 'setup') {
-          loopText = 'Setup Block';
-          return;
-        }
-        loopText = `Iteration: ${frame.timeLine.iteration}`;
-      })
-    );
   });
 
   function zoomIn() { draw.zoom(draw.zoom() + 0.05); }
@@ -134,14 +117,6 @@
 <div class="relative w-full h-full flex flex-col bg-bg overflow-hidden" id="container">
   <LedColorChanger />
   
-  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20">
-    <div class="data-readout shadow-glow-blue border-primary/40 px-6 py-1 flex items-center space-x-3">
-      <span class="led led-blue"></span>
-      <span class="font-mono text-xs uppercase tracking-widest opacity-70">Circuit Status:</span>
-      <span class="font-mono font-bold">{loopText}</span>
-    </div>
-  </div>
-
   <div 
     bind:this={container} 
     id="simulator" 
