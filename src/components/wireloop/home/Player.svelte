@@ -141,7 +141,7 @@
   });
 </script>
 
-<div class="px-6 py-2 flex flex-col justify-center h-full w-full bg-bg-surface">
+<div class="h-full w-full flex flex-col justify-center bg-bg-surface px-6 -mt-1">
   <div class="w-full relative group">
     <input
       oninput={moveSlider}
@@ -155,16 +155,16 @@
     />
   </div>
 
-  <div class="flex items-center justify-center mt-2 space-x-4">
-    <div class="flex items-center space-x-2">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-1.5 ml-3">
       <button
         use:tooltip={{}}
         title="Previous Step"
         onclick={prev}
         disabled={disablePlayer || frameNumber <= 0}
-        class="p-2 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        class="p-1 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
-        <i class="fa fa-step-backward text-xl"></i>
+        <i class="fa fa-step-backward text-base"></i>
       </button>
 
       <button
@@ -172,12 +172,12 @@
         title={playing ? "Stop" : "Play"}
         onclick={play}
         disabled={disablePlayer}
-        class="w-12 h-12 flex items-center justify-center rounded-full border-2 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary transition-all active:scale-95 shadow-glow-blue/20"
+        class="w-8 h-8 flex items-center justify-center rounded-full border-2 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary transition-all active:scale-95"
       >
         {#if playing}
-          <i class="fa fa-stop text-lg"></i>
+          <i class="fa fa-stop text-[10px]"></i>
         {:else}
-          <i class="fa fa-play text-lg ml-1"></i>
+          <i class="fa fa-play text-[10px] ml-0.5"></i>
         {/if}
       </button>
 
@@ -186,22 +186,14 @@
         title="Next Step"
         onclick={next}
         disabled={disablePlayer || isLastFrame()}
-        class="p-2 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        class="p-1 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
-        <i class="fa fa-step-forward text-xl"></i>
+        <i class="fa fa-step-forward text-base"></i>
       </button>
     </div>
-    
-    <div class="absolute right-6 flex items-center space-x-3">
-      <div class="font-mono text-[10px] uppercase tracking-widest text-text-muted">
-        Step
-      </div>
-      <div class="data-readout py-1 px-3 min-w-[60px] text-center border-primary/30">
-        {frameNumber}
-      </div>
-      <div class="font-mono text-[10px] uppercase tracking-widest text-text-muted">
-        / {frames.length > 0 ? frames.length - 1 : 0}
-      </div>
+
+    <div class="font-mono text-[10px] text-text-muted tracking-wider whitespace-nowrap mr-2">
+      {frameNumber} / {frames.length > 0 ? frames.length - 1 : 0}
     </div>
   </div>
 </div>

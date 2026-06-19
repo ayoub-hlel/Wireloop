@@ -50,7 +50,7 @@
       >
         <div class="flex items-start space-x-4">
           <div class="pin-label flex-shrink-0 mt-0.5">
-            Step {i + 1}
+            {i + 1}
           </div>
           <div class="flex-grow font-sans text-sm leading-relaxed" class:text-primary={i === $currentStepStore}>
             {frame.explanation}
