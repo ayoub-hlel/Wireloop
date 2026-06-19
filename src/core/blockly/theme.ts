@@ -1,6 +1,14 @@
 import { COLOR_THEME } from './constants/colors';
 
 export const theme = {
+  componentStyles: {
+    toolboxBackgroundColour: '#1C1C1C',
+    toolboxForegroundColour: '#FAFAFA',
+    flyoutBackgroundColour: '#212121',
+    flyoutForegroundColour: '#FAFAFA',
+    scrollbarColour: '#555555',
+    workspaceBackgroundColour: '#0A0A0A',
+  },
   blockStyles: {
     logic_blocks: {
       colourPrimary: COLOR_THEME.CONTROL,
