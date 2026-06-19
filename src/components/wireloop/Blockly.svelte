@@ -59,14 +59,61 @@
     unsubscribes.push(() => observer.disconnect());
   }
 
+  function relocateToolbox() {
+    const toolboxEl = document.querySelector('.blocklyToolboxDiv') as HTMLElement;
+    const hostEl = document.getElementById('blockly-toolbox-host');
+    if (toolboxEl && hostEl) {
+      // Clear Blockly's absolute positioning so it flows naturally in our flex layout
+      toolboxEl.style.position = 'relative';
+      toolboxEl.style.top = 'auto';
+      toolboxEl.style.right = 'auto';
+      toolboxEl.style.width = '100%';
+      toolboxEl.style.height = '100%';
+      toolboxEl.style.left = 'auto';
+      toolboxEl.style.bottom = 'auto';
+      toolboxEl.style.overflowY = 'auto';
+      toolboxEl.style.overflowX = 'hidden';
+      hostEl.appendChild(toolboxEl);
+    }
+  }
+
+  function fixFlyoutPosition() {
+    // Blockly internally translates the flyout SVG by the toolbox width
+    // (which is now our 180px sidebar). Reset the translation so the
+    // flyout sits flush against the workspace left edge.
+    const flyoutSvgs = document.querySelectorAll('.blocklyFlyout');
+    flyoutSvgs.forEach((svg) => {
+      const el = svg as HTMLElement;
+      if (el.style.display !== 'none') {
+        el.style.setProperty('transform', 'translate(0, 0)', 'important');
+      }
+    });
+  }
+
+  function watchFlyoutPosition() {
+    const injectionDiv = document.querySelector('.injectionDiv');
+    if (!injectionDiv) return;
+    const observer = new MutationObserver(() => fixFlyoutPosition());
+    observer.observe(injectionDiv, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['transform', 'style'],
+    });
+    fixFlyoutPosition();
+    unsubscribes.push(() => observer.disconnect());
+  }
+
   onMount(() => {
     (window as any).Blockly = Blockly;
     startBlocly(blocklyElement);
     workspaceInitialize = true;
     resizeBlockly();
     setTimeout(() => {
+      relocateToolbox();
       resizeBlockly();
       fixFlyoutScrollbarVisibility();
+      watchFlyoutPosition();
     }, 200);
 
     unsubscribes.push(
