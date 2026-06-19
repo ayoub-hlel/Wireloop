@@ -6,6 +6,7 @@ export const theme = {
     toolboxForegroundColour: '#FAFAFA',
     flyoutBackgroundColour: '#212121',
     flyoutForegroundColour: '#FAFAFA',
+    flyoutOpacity: 1,
     scrollbarColour: '#555555',
     workspaceBackgroundColour: '#0A0A0A',
   },

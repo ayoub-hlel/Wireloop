@@ -31,12 +31,43 @@
     }
   });
 
+  function syncFlyoutScrollbars() {
+    // Pick the last flyout SVG (Blockly may keep old hidden ones)
+    const all = document.querySelectorAll('.blocklyFlyout');
+    const active = all[all.length - 1] as HTMLElement;
+    const visible = active && active.style.display !== 'none';
+    document.querySelectorAll('.blocklyFlyoutScrollbar').forEach((sb) => {
+      const el = sb as HTMLElement;
+      el.style.setProperty('display', visible ? 'block' : 'none', 'important');
+    });
+  }
+
+  function fixFlyoutScrollbarVisibility() {
+    // Blockly uses SVG display="none" attribute to hide flyout scrollbars,
+    // but for outermost <svg> elements this has lower priority than the UA
+    // stylesheet's `svg { display: block }`, so the scrollbar stays visible
+    // after the flyout closes. This observer tracks ALL flyout SVGs' display
+    // state and forces CSS display on all flyout scrollbar SVGs.
+    const flyoutSvgs = document.querySelectorAll('.blocklyFlyout');
+    if (!flyoutSvgs.length) return;
+    const observer = new MutationObserver(() => syncFlyoutScrollbars());
+    flyoutSvgs.forEach((svg) => {
+      observer.observe(svg, { attributes: true, attributeFilter: ['style'] });
+    });
+    // Sync immediately to handle the initial state (observer won't fire if already stable)
+    syncFlyoutScrollbars();
+    unsubscribes.push(() => observer.disconnect());
+  }
+
   onMount(() => {
     (window as any).Blockly = Blockly;
     startBlocly(blocklyElement);
     workspaceInitialize = true;
     resizeBlockly();
-    setTimeout(() => { resizeBlockly(); }, 200);
+    setTimeout(() => {
+      resizeBlockly();
+      fixFlyoutScrollbarVisibility();
+    }, 200);
 
     unsubscribes.push(
       currentFrameStore.subscribe((frame) => {
