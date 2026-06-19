@@ -10,17 +10,17 @@
   import type { ArduinoFrame } from "../../../core/frames/arduino.frame";
   import { tooltip } from "@svelte-plugins/tooltips";
 
-  let frames: ArduinoFrame[] = [];
-  let frameNumber = 1;
-  let playing = false;
+  let frames: ArduinoFrame[] = $state([]);
+  let frameNumber = $state(1);
+  let playing = $state(false);
   let speedDivisor = 1;
   let maxTimePerStep = 1000;
 
   const unsubscribes: Array<() => void> = [];
 
-  $: setCurrentFrame(frameNumber);
-  $: disablePlayer = frames.length === 0;
-  $: frameIndex = frameNumber - 1;
+  $effect(() => { setCurrentFrame(frameNumber); });
+  let disablePlayer = $derived(frames.length === 0);
+  let frameIndex = $derived(frameNumber - 1);
 
   unsubscribes.push(
     currentStepStore.subscribe((currentIndex) => {
@@ -144,7 +144,7 @@
 <div class="px-6 py-2 flex flex-col justify-center h-full w-full bg-bg-surface">
   <div class="w-full relative group">
     <input
-      on:input={moveSlider}
+      oninput={moveSlider}
       type="range"
       min="0"
       disabled={frames.length === 0}
@@ -160,7 +160,7 @@
       <button
         use:tooltip={{}}
         title="Previous Step"
-        on:click={prev}
+        onclick={prev}
         disabled={disablePlayer || frameNumber <= 0}
         class="p-2 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
@@ -170,7 +170,7 @@
       <button
         use:tooltip={{}}
         title={playing ? "Stop" : "Play"}
-        on:click={play}
+        onclick={play}
         disabled={disablePlayer}
         class="w-12 h-12 flex items-center justify-center rounded-full border-2 border-primary/40 text-primary hover:bg-primary/10 hover:border-primary transition-all active:scale-95 shadow-glow-blue/20"
       >
@@ -184,7 +184,7 @@
       <button
         use:tooltip={{position: "top"}}
         title="Next Step"
-        on:click={next}
+        onclick={next}
         disabled={disablePlayer || isLastFrame()}
         class="p-2 text-primary/60 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >

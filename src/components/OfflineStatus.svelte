@@ -12,23 +12,23 @@
   import { getOfflineStatus, syncAllOfflineChanges } from '../stores/project.store';
   
   // Reactive offline status
-  $: projectOfflineStatus = getOfflineStatus();
+  let projectOfflineStatus = $derived(getOfflineStatus());
   
   // Connection status indicators
-  $: statusColor = getStatusColor($offlineStatus);
-  $: statusText = getStatusText($offlineStatus, $pendingChanges);
-  $: showSyncButton = $projectOfflineStatus.canSync;
+  let statusColor = $derived(getStatusColor($offlineStatus));
+  let statusText = $derived(getStatusText($offlineStatus, $pendingChanges));
+  let showSyncButton = $derived($projectOfflineStatus.canSync);
   
   // Sync state
-  let isSyncing = false;
-  let lastSyncText = '';
+  let isSyncing = $state(false);
+  let lastSyncText = $state('');
   
   // Auto-update last sync text
-  $: {
+  $effect(() => {
     if ($lastSyncTime > 0) {
       updateLastSyncText($lastSyncTime);
     }
-  }
+  });
   
   let syncInterval: NodeJS.Timeout;
   
@@ -148,7 +148,7 @@
       class="sync-button"
       class:syncing={isSyncing}
       disabled={isSyncing}
-      on:click={handleSync}
+      onclick={handleSync}
       title="Sync offline changes"
     >
       {#if isSyncing}

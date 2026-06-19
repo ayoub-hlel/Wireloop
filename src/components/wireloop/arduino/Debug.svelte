@@ -3,11 +3,11 @@
   import arduionMessageStore from "../../../stores/arduino-message.store";
   import { rgbToHex } from "../../../core/blockly/helpers/color.helper";
 
-  let variables: any[] = [];
-  let tempVariables: any[] = [];
-  let portStatus = PortState.CLOSE;
-  let inDebugStatement = false;
-  let debugStart = false;
+  let variables: any[] = $state([]);
+  let tempVariables: any[] = $state([]);
+  let portStatus: PortState = $state(PortState.CLOSE);
+  let inDebugStatement = $state(false);
+  let debugStart = $state(false);
 
   arduinoStore.subscribe((newPortStatus) => {
     portStatus = newPortStatus;
@@ -52,7 +52,7 @@
     });
   }
 
-  $: disableDebugBtn = portStatus !== PortState.OPEN || !inDebugStatement;
+  let disableDebugBtn = $derived((portStatus as PortState) !== PortState.OPEN || !inDebugStatement);
 
   function continueDebug() {
     if (inDebugStatement) {
@@ -78,7 +78,7 @@
     
     <div class="flex items-center space-x-2">
       <button 
-        on:click={continueDebug} 
+        onclick={continueDebug} 
         disabled={disableDebugBtn}
         class="btn-schematic !w-9 !h-9 p-0 flex items-center justify-center group"
         title="Continue Execution"
@@ -86,7 +86,7 @@
         <i class="fa fa-play text-sm group-hover:scale-110 transition-transform"></i>
       </button>
       <button 
-        on:click={stopDebug} 
+        onclick={stopDebug} 
         disabled={disableDebugBtn}
         class="btn-schematic !w-9 !h-9 p-0 flex items-center justify-center !border-danger !text-danger group"
         title="Halt Execution"

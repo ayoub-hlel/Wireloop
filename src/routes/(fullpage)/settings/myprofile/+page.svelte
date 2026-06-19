@@ -6,10 +6,10 @@
     import { wait } from "../../../../helpers/wait";
     import FlashMessage from "../../../../components/wireloop/ui/FlashMessage.svelte";
     import { onErrorMessage } from "../../../../help/alerts";
-    let username = "";
-    let bio = "";
-    let canSave = true;
-    let showMessage = false;
+    let username = $state("");
+    let bio = $state("");
+    let canSave = $state(true);
+    let showMessage = $state(false);
     async function save() {
         if (!canSave || !$authStore.uid) return;
         try {
@@ -55,7 +55,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <button class="btn btn-success" type="button" on:click={save}>Save</button>
+            <button class="btn btn-success" type="button" onclick={save}>Save</button>
         </div>
     </div>
     <div class="row">

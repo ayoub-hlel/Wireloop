@@ -3,7 +3,6 @@
   import codeStore from "../../../stores/code.store";
   import arduinoStore, { PortState } from "../../../stores/arduino.store";
   import { upload } from "../../../core/serial/upload";
-  import { afterUpdate } from "svelte";
   import { getBoard } from "../../../core/microcontroller/selectBoard";
   import { onErrorMessage, onSuccess } from "../../../help/alerts";
   import { tooltip } from "@svelte-plugins/tooltips";
@@ -11,15 +10,15 @@
 
   const navigatorSerialNotAvailableMessaeg = `To upload code you must use chrome or a chromium based browser like edge, or brave.  This will work with chrome version 89 or higher. `;
 
-  let autoScroll = false;
-  let messages: any[] = [];
-  let arduinoStatus = PortState.CLOSE;
-  let messageToSend = "";
+  let autoScroll = $state(false);
+  let messages: any[] = $state([]);
+  let arduinoStatus: PortState = $state(PortState.CLOSE);
+  let messageToSend = $state("");
   let code = "";
   let boardType: MicroControllerType;
   let messagesEl: HTMLElement;
 
-  $: uploadingClass = arduinoStatus === PortState.UPLOADING ? "fa-spinner fa-spin" : "fa-upload";
+  let uploadingClass = $derived((arduinoStatus as PortState) === PortState.UPLOADING ? "fa-spinner fa-spin" : "fa-upload");
 
   codeStore.subscribe((codeInfo) => {
     code = codeInfo.code;
@@ -100,7 +99,7 @@
   
   function clearMessages() { messages = []; }
 
-  afterUpdate(() => {
+  $effect.pre(() => {
     if (autoScroll && messagesEl) { messagesEl.scrollTop = messagesEl.scrollHeight; }
   });
 
@@ -149,7 +148,7 @@
   <div class="p-4 border-t border-border bg-bg-surface shadow-card">
     <div class="flex items-center space-x-2">
       <div class="flex-grow relative">
-        <form on:submit|preventDefault={sendMessage}>
+        <form onsubmit={(e) => { e.preventDefault(); sendMessage(); }}>
           <input
             readonly={!(arduinoStatus === PortState.OPEN)}
             type="text"
@@ -160,7 +159,7 @@
         </form>
         <button 
           disabled={!(arduinoStatus === PortState.OPEN)}
-          on:click={sendMessage}
+          onclick={sendMessage}
           class="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-primary hover:text-primary-glow disabled:text-text-subtle transition-colors"
           aria-label="Send message"
         >
@@ -172,7 +171,7 @@
         <button
           use:tooltip={tooltipStyle}
           title={arduinoStatus === PortState.OPEN ? "Disconnect" : "Connect"}
-          on:click={connectOrDisconnectArduino}
+          onclick={connectOrDisconnectArduino}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
           class:!border-danger={arduinoStatus === PortState.OPEN}
           class:!text-danger={arduinoStatus === PortState.OPEN}
@@ -184,7 +183,7 @@
           use:tooltip={tooltipStyle}
           title="Upload to Hardware"
           disabled={!(arduinoStatus === PortState.CLOSE)}
-          on:click={uploadCode}
+          onclick={uploadCode}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
         >
           <i class="fa text-lg {uploadingClass}"></i>
@@ -193,7 +192,7 @@
         <button 
           use:tooltip={tooltipStyle} 
           title="Clear Buffer" 
-          on:click={clearMessages}
+          onclick={clearMessages}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
         >
           <i class="fa fa-trash text-lg"></i>
@@ -202,7 +201,7 @@
         <button
           use:tooltip={tooltipStyle}
           title="Toggle Auto-Scroll"
-          on:click={() => autoScroll = !autoScroll}
+          onclick={() => autoScroll = !autoScroll}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center transition-all"
           class:!bg-primary={autoScroll}
           class:!text-bg={autoScroll}

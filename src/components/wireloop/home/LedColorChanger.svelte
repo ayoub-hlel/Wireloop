@@ -48,7 +48,7 @@
           <button
             type="button"
             class="color {color}"
-            on:click={changeColor}
+            onclick={changeColor}
             style="background-color: {color};"
             data-color={color}
             class:selected={ledColor == color}
@@ -64,7 +64,7 @@
         <button
           id="close-btn-led"
           class="w-full px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
-          on:click={close}
+          onclick={close}
         >
           Close
         </button>

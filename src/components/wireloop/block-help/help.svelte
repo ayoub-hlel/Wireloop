@@ -2,10 +2,11 @@
     import type { Help } from '../../../help/help-model';
     import  { HelpType } from '../../../help/help-model';
     import get from 'lodash/get';
-    export let help: Help;
-    let pictureUrl = get(help, 'help.data.url');
-    let altText = get(help, 'help.data.alt');
-    let youtubeId = get(help, 'help.data.youtubeid');
+
+    let { help }: { help: Help } = $props();
+    let pictureUrl = $derived(get(help, 'help.data.url'));
+    let altText = $derived(get(help, 'help.data.alt'));
+    let youtubeId = $derived(get(help, 'help.data.youtubeid'));
 
 </script>
 

@@ -1,13 +1,12 @@
 <script lang="ts">
   import frameStore from "../../../stores/frame.store";
   import currentStepStore from "../../../stores/currentStep.store";
-  import { afterUpdate } from "svelte";
   import currentFrameStore from "../../../stores/currentFrame.store";
   import { onDestroy } from "svelte";
   import type { ArduinoFrame } from "../../../core/frames/arduino.frame";
 
   let stepContainer: HTMLElement;
-  let frames: ArduinoFrame[] = [];
+  let frames: ArduinoFrame[] = $state([]);
   let unsubscribes: (() => void)[] = [];
 
   unsubscribes.push(
@@ -20,7 +19,7 @@
     unsubscribes.forEach((unSubFunc) => unSubFunc());
   });
 
-  afterUpdate(() => {
+  $effect.pre(() => {
     const activeStep = stepContainer.querySelector(".current");
     if (activeStep) {
       activeStep.scrollIntoView({ block: "center", behavior: 'smooth' });
@@ -37,8 +36,8 @@
   <div class="space-y-3">
     {#each frames as frame, i (i)}
       <div
-        on:click={() => changeFrame(i)}
-        on:keydown={(e) => e.key === 'Enter' && changeFrame(i)}
+        onclick={() => changeFrame(i)}
+        onkeydown={(e) => e.key === 'Enter' && changeFrame(i)}
         role="button"
         tabindex="0"
         class="card-schematic p-4 cursor-pointer transition-all duration-200 group"

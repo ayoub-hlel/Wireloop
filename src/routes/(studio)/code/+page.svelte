@@ -4,14 +4,13 @@
   import hljs from 'highlight.js/lib/core';
   import arduinoLang from 'highlight.js/lib/languages/arduino';
   import 'highlight.js/styles/arduino-light.css';
-  import { afterUpdate } from "svelte";
   import { tooltip } from "@svelte-plugins/tooltips";
   import { get } from "svelte/store";
 
-  let code = "";
-  let loaded = false;
-  let fontSize = 14;
-  let hasCopiedCode = false;
+  let code = $state("");
+  let loaded = $state(false);
+  let fontSize = $state(14);
+  let hasCopiedCode = $state(false);
 
   onMount(async () => {
     hljs.registerLanguage('arduino', arduinoLang);
@@ -26,7 +25,7 @@
     loaded = true;
   });
 
-  afterUpdate(() => {
+  $effect.pre(() => {
     if (loaded) {
       try {
         hljs.highlightAll();
@@ -62,8 +61,8 @@
       <button 
         use:tooltip={tooltipStyle} 
         title={hasCopiedCode ? "Copied!" : "Copy Source"} 
-        on:click={copy}
-        on:mouseleave={() => hasCopiedCode = false}
+        onclick={copy}
+        onmouseleave={() => hasCopiedCode = false}
         class="btn-schematic flex items-center space-x-2"
       >
         <i class="fa fa-clipboard"></i>
@@ -72,10 +71,10 @@
 
       <div class="trace-divider w-8 mx-2 rotate-90"></div>
 
-      <button on:click={zoomOut} use:tooltip={tooltipStyle} title="Decrease Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
+      <button onclick={zoomOut} use:tooltip={tooltipStyle} title="Decrease Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
         <i class="fa fa-search-minus"></i>
       </button>
-      <button on:click={zoomIn} use:tooltip={tooltipStyle} title="Increase Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
+      <button onclick={zoomIn} use:tooltip={tooltipStyle} title="Increase Font" class="btn-schematic p-2 w-9 h-9 flex items-center justify-center">
         <i class="fa fa-search-plus"></i>
       </button>
     </div>

@@ -1,9 +1,8 @@
 <script lang="ts">
     import { fade } from 'svelte/transition';
-    export let message: string;
-    export let delay = 2000;
-    export let show = false;
-    let showMessageQueue: number[] = [];
+
+    let { message, delay = 2000, show = $bindable(false) }: { message: string; delay?: number; show?: boolean } = $props();
+    let showMessageQueue: number[] = $state([]);
 
     function addSaveMessage() {
         showMessageQueue = [1, ...showMessageQueue];
@@ -13,10 +12,12 @@
         }, delay);
     }
     
-    $: if (show) {
-        addSaveMessage();
-        show = false;
-    }
+    $effect(() => {
+        if (show) {
+            addSaveMessage();
+            show = false;
+        }
+    });
 
 </script>
 

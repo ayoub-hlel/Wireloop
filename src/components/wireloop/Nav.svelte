@@ -146,8 +146,8 @@
         <span
           title="New File/Blank File"
           use:tooltip={navTooltipStyle}
-          on:click={onNewFileAuth}
-          on:keydown={(e) => e.key === 'Enter' && onNewFileAuth()}
+          onclick={onNewFileAuth}
+          onkeydown={(e) => e.key === 'Enter' && onNewFileAuth()}
           role="button"
           tabindex="0"
           class="p-2 text-primary/60 hover:text-primary transition-colors cursor-pointer flex items-center justify-center rounded-sm"
@@ -157,8 +157,8 @@
         <span
           title="Save Project"
           use:tooltip={navTooltipStyle}
-          on:click={onSaveClick}
-          on:keydown={(e) => e.key === 'Enter' && onSaveClick()}
+          onclick={onSaveClick}
+          onkeydown={(e) => e.key === 'Enter' && onSaveClick()}
           role="button"
           tabindex="0"
           class="p-2 text-primary/60 hover:text-primary transition-colors cursor-pointer flex items-center justify-center rounded-sm"
@@ -225,8 +225,8 @@
         <span
           use:tooltip={navTooltipStyle}
           title="New File/Blank File"
-          on:click={onNewFileNoAuth}
-          on:keydown={(e) => e.key === 'Enter' && onNewFileNoAuth()}
+          onclick={onNewFileNoAuth}
+          onkeydown={(e) => e.key === 'Enter' && onNewFileNoAuth()}
           role="button"
           tabindex="0"
           class="p-2 text-primary transition-colors cursor-pointer flex items-center justify-center rounded-sm bg-primary/10"
@@ -257,8 +257,8 @@
     {#if $authStore.isLoggedIn}
       <span 
         use:tooltip={navTooltipStyle} 
-        on:click={onSignOut} 
-        on:keydown={(e) => e.key === 'Enter' && onSignOut()}
+        onclick={onSignOut} 
+        onkeydown={(e) => e.key === 'Enter' && onSignOut()}
         title="Sign Out"
         role="button"
         tabindex="0"

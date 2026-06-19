@@ -31,7 +31,7 @@
 
         <button 
             class="btn-schematic flex items-center space-x-3 px-6 py-3 group"
-            on:click={googleLogin} 
+            onclick={googleLogin} 
             type="button" 
             aria-label="Sign in with Google"
         >

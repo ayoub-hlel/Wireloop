@@ -1,13 +1,16 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type { Snippet } from 'svelte';
   import { resizeStore } from '../../stores/resize.store';
+
+  let { top: topContent, bottom: bottomContent }: { top: Snippet; bottom: Snippet } = $props();
 
   const MIN_PANEL = 100;
   const GRABBER_HEIGHT = 6; // h-1.5 = 6px
 
-  let top = 300;
-  let bottom = 200;
-  let isResizing = false;
+  let top = $state(300);
+  let bottom = $state(200);
+  let isResizing = $state(false);
   let initialRatio = 0.55;
   let mainSection: HTMLElement;
   let previousMainHeight = 0;
@@ -60,21 +63,21 @@
   });
 </script>
 
-<svelte:body on:mouseup={stopResize} />
+<svelte:body onmouseup={stopResize} />
 
 <main
-  on:mouseleave={stopResize}
-  on:mousemove={onResize}
+  onmouseleave={stopResize}
+  onmousemove={onResize}
   bind:this={mainSection}
   class="h-full flex flex-col overflow-hidden"
   id="split-container"
 >
   <section style="height: {top}px" id="top" class="overflow-hidden">
-    <slot name="top" />
+    {@render topContent()}
   </section>
   
   <div 
-    on:mousedown={startResize} 
+    onmousedown={startResize} 
     id="grabber" 
     class="h-1.5 w-full cursor-row-resize bg-border hover:bg-primary/50 transition-colors flex items-center justify-center relative z-10 shrink-0"
     role="separator"
@@ -84,7 +87,7 @@
   </div>
 
   <section style="height: {bottom}px" id="bottom" class="overflow-y-auto bg-bg-surface border-t border-border shadow-inset-trace shrink-0">
-    <slot name="bottom" />
+    {@render bottomContent()}
   </section>
 </main>
 <svelte:window on:resize={onResizeWindow} />

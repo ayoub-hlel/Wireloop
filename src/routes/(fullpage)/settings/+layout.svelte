@@ -1,8 +1,9 @@
 <script lang="ts">
-  export let segment;
-  import { goto } from '$app/navigation';;
+  import type { Snippet } from 'svelte';
+  let { segment, children }: { segment?: string; children: Snippet } = $props();
+  import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
-  let value: string;
+  let value = $state('');
   async function navigate(e: Event) {
     await goto((e.target as HTMLSelectElement).value);
   }
@@ -10,12 +11,13 @@
   onMount(() => {
     // This is to fix the drop down box
     value = segment ? '/settings/' + segment : '/settings';
-    //selectBox.value = value;
   });
 
-  $: if (segment) {
-    value = segment ? '/settings/' + segment : '/settings';
-  }
+  $effect(() => {
+    if (segment) {
+      value = segment ? '/settings/' + segment : '/settings';
+    }
+  });
 </script>
 
 <main class="container-fluid">
@@ -31,7 +33,7 @@
         <select
           bind:value
           name="select"
-          on:change={navigate}
+          onchange={navigate}
           id="exampleSelect"
           class="form-control"
         >
@@ -49,7 +51,7 @@
   </div>
   <hr />
 
-  <slot />
+  {@render children()}
 </main>
 
 <style>

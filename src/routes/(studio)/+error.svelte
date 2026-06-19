@@ -1,8 +1,9 @@
 <script lang="ts">
   import { dev } from '$app/environment';
+  import { page } from '$app/stores';
   
-  export let status: number;
-  export const error: Error = null as unknown as Error;
+  let { status }: { status: number } = $props();
+  let error = $derived($page.error);
 </script>
 
 <style>

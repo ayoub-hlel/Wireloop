@@ -150,13 +150,13 @@
   ></div>
   
   <div id="simulator-controls" class="absolute" style="right: 16px; bottom: 91px; display: flex; align-items: center; gap: 8px; z-index: 20;">
-    <button on:click={reCenter} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Recenter">
+    <button onclick={reCenter} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Recenter">
       <i class="fa fa-crosshairs text-lg group-hover:scale-110 transition-transform"></i>
     </button>
-    <button on:click={zoomIn} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom In">
+    <button onclick={zoomIn} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom In">
       <i class="fa fa-plus text-lg group-hover:scale-110 transition-transform"></i>
     </button>
-    <button on:click={zoomOut} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom Out">
+    <button onclick={zoomOut} class="btn-schematic p-2 w-10 h-10 flex items-center justify-center group" title="Zoom Out">
       <i class="fa fa-minus text-lg group-hover:scale-110 transition-transform"></i>
     </button>
   </div>

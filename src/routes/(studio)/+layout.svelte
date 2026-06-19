@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
+  import type { Snippet } from 'svelte';
+  let { children }: { children: Snippet } = $props();
   import debounce from 'lodash/debounce';
   import config from '../../env';
   import { isPathOnHomePage } from '../../helpers/is-path-on-homepage';
@@ -26,13 +28,12 @@
   import swal from 'sweetalert';
 
 
-  let showScrollOnRightSide = false;
-  let showLoopExecutionTimesArduinoStartBlock: boolean;
-  $: showLoopExecutionTimesArduinoStartBlock = isPathOnHomePage($page.url.pathname);
-  let height = '500px';
-  let middleFlex = 59.5;
-  let rightFlex = 39.5;
-  let leftFlex = 0;
+  let showScrollOnRightSide = $state(false);
+  let showLoopExecutionTimesArduinoStartBlock = $derived(isPathOnHomePage($page.url.pathname));
+  let height = $state('500px');
+  let middleFlex = $state(59.5);
+  let rightFlex = $state(39.5);
+  let leftFlex = $state(0);
   let isResizingLeft = false;
   let isResizingRight = false;
 
@@ -174,10 +175,10 @@
 </script>
 
 <Nav />
-<svelte:body on:mouseup={stopResize} />
+<svelte:body onmouseup={stopResize} />
 <main
   style="height: {height}"
-  on:mousemove={(e) => { resizeLeftSide(e); resizeRightSide(e); }}
+  onmousemove={(e) => { resizeLeftSide(e); resizeRightSide(e); }}
   class="bg-bg text-text w-full flex box-border overflow-hidden"
 >
   <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
@@ -185,7 +186,7 @@
   </div>
   
   <div 
-    on:mousedown={() => startResize('right')} 
+    onmousedown={() => startResize('right')} 
     class="w-1.5 cursor-col-resize bg-border hover:bg-primary/50 transition-colors flex items-center justify-center relative z-10"
     role="separator"
     aria-label="Resize panels"
@@ -203,7 +204,7 @@
   >
     <div class="p-4 h-full min-h-full flex flex-col">
       <div class="flex-1 min-h-0">
-        <slot />
+        {@render children()}
       </div>
     </div>
   </div>

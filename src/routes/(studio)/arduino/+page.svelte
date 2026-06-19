@@ -5,12 +5,16 @@
 </script>
 
 <VerticalComponentContainer>
-  <div class="slot-wrapper" slot="top">
-    <Message />
-  </div>
-  <div class="slot-wrapper" slot="bottom">
-    <Debug />
-  </div>
+  {#snippet top()}
+    <div class="slot-wrapper">
+      <Message />
+    </div>
+  {/snippet}
+  {#snippet bottom()}
+    <div class="slot-wrapper">
+      <Debug />
+    </div>
+  {/snippet}
 </VerticalComponentContainer>
 <svelte:head>
   <title>Wireloop - Arduino</title>

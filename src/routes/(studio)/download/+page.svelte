@@ -3,7 +3,7 @@
   import codeStore from "../../../stores/code.store";
   import { onDestroy } from "svelte";
 
-  let code: string = "";
+  let code = $state("");
 
   let unsubCodeStore = codeStore.subscribe((newCode) => {
     code = newCode.code || "";
@@ -56,12 +56,12 @@
   </div>
   <div class="row">
     <div class="col">
-      <button class="btn btn-primary" on:click={downloadProject}>
+      <button class="btn btn-primary" onclick={downloadProject}>
         Download Project
       </button>
     </div>
     <div class="col">
-      <button id="download-code-btn" class="btn btn-info" on:click={downlaodCode}>
+      <button id="download-code-btn" class="btn btn-info" onclick={downlaodCode}>
         Download Code
       </button>
     </div>

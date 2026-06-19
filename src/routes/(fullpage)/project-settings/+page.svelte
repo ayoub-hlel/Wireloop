@@ -11,11 +11,11 @@
   import codeStore from "../../../stores/code.store";
   import { saveAs } from "file-saver";
 
-  let showMessage = false;
-  let projectName = "";
-  let projectDescription = "";
-  let canSave = true;
-  let code = "";
+  let showMessage = $state(false);
+  let projectName = $state("");
+  let projectDescription = $state("");
+  let canSave = $state(true);
+  let code = $state("");
 
   const unSubProjectStore = projectStore.subscribe((projectInfo) => {
     if (projectInfo.project) {
@@ -125,7 +125,7 @@
 
     <div class="row">
       <div class="col">
-        <button class="btn btn-success w-100" on:click={saveFile}>Save</button>
+        <button class="btn btn-success w-100" onclick={saveFile}>Save</button>
       </div>
     </div>
     <div class="row">
@@ -135,14 +135,14 @@
     </div>
     <div class="row">
       <div class="col">
-        <button class="btn btn-info w-100" on:click={downloadProject}>
+        <button class="btn btn-info w-100" onclick={downloadProject}>
           Download Project
         </button>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <button class="btn btn-info w-100" on:click={downlaodCode}>
+        <button class="btn btn-info w-100" onclick={downlaodCode}>
           Download Code
         </button>
       </div>

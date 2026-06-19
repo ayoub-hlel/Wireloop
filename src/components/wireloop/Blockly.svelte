@@ -18,17 +18,18 @@
   import updateLoopblockStore from '../../stores/update-loopblock.store';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
 
-  export let showLoopExecutionTimesArduinoStartBlock = true;
+  let { showLoopExecutionTimesArduinoStartBlock = true }: { showLoopExecutionTimesArduinoStartBlock: boolean } = $props();
   let blocklyElement: HTMLElement;
   let workspaceInitialize = false;
   const unsubscribes: Array<() => void> = [];
 
-  $: if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
-    arduinoLoopBlockShowNumberOfTimesThroughLoop();
-  }
-  $: if (!showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
-    arduinoLoopBlockShowLoopForeverText();
-  }
+  $effect(() => {
+    if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
+      arduinoLoopBlockShowNumberOfTimesThroughLoop();
+    } else if (workspaceInitialize) {
+      arduinoLoopBlockShowLoopForeverText();
+    }
+  });
 
   onMount(() => {
     (window as any).Blockly = Blockly;

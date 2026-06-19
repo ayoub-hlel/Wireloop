@@ -5,12 +5,16 @@
 </script>
 
 <VerticalComponentContainer>
-  <div class="slot-wrapper" slot="top">
-    <Simulator />
-  </div>
-  <div class="slot-wrapper" slot="bottom">
-    <Step />
-  </div>
+  {#snippet top()}
+    <div class="slot-wrapper">
+      <Simulator />
+    </div>
+  {/snippet}
+  {#snippet bottom()}
+    <div class="slot-wrapper">
+      <Step />
+    </div>
+  {/snippet}
 </VerticalComponentContainer>
 <svelte:head>
   <title>Wireloop</title>

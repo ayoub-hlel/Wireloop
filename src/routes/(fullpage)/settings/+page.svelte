@@ -9,13 +9,13 @@
   import { onErrorMessage } from "../../../help/alerts";
   import { MicroControllerType } from "../../../core/microcontroller/microcontroller";
   import { ledColors } from "../../../blocks/led/virtual-circuit";
-  let uid: string;
+  let uid: string = $state('');
 
-  let settings: Settings;
+  let settings: Settings = $state(defaultSetting as Settings);
 
-  let showMessage = false;
+  let showMessage = $state(false);
 
-  let previousSettings: Settings | null = null;
+  let previousSettings: Settings | null = $state(null);
 
   settingsStore.subscribe((newSettings) => {
     settings = newSettings as unknown as Settings;
@@ -109,7 +109,7 @@
               <button
                 type="button"
                 class="color {color}"
-                on:click={changeLedColor}
+                onclick={changeLedColor}
                 style="background-color: {color};"
                 data-color={color}
                 class:selected={settings.ledColor == color}
@@ -154,10 +154,10 @@
 
   <div class="row">
     <div class="col">
-      <button type="button" class="btn btn-success me-2" on:click={onSaveSettings}>
+      <button type="button" class="btn btn-success me-2" onclick={onSaveSettings}>
         Save
       </button>
-      <button type="button" class="btn btn-warning" on:click={onReset}>Reset</button>
+      <button type="button" class="btn btn-warning" onclick={onReset}>Reset</button>
     </div>
   </div>
 {/if}
