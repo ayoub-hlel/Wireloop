@@ -5,7 +5,7 @@
   import { upload } from "../../../core/serial/upload";
   import { getBoard } from "../../../core/microcontroller/selectBoard";
   import { onErrorMessage, onSuccess } from "../../../help/alerts";
-  import { tooltip } from "@svelte-plugins/tooltips";
+  import { tooltip } from "$lib/tooltip";
   import type { MicroControllerType } from "../../../core/microcontroller/microcontroller";
 
   const navigatorSerialNotAvailableMessaeg = `To upload code you must use chrome or a chromium based browser like edge, or brave.  This will work with chrome version 89 or higher. `;

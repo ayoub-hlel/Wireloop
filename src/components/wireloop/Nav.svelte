@@ -18,7 +18,7 @@
   import { onConfirm, onErrorMessage } from "../../help/alerts";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { tooltip } from "@svelte-plugins/tooltips";
+  import { tooltip } from "$lib/tooltip";
 
   let canSave = true;
   let showSaveSuccess = false;
@@ -294,14 +294,4 @@
   </p>
 {/if}
 
-<style>
-  :global(.tooltip.nav-tooltip) {
-    margin-top: 8px;
-    background-color: hsl(var(--bg-elevated)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    color: hsl(var(--primary)) !important;
-    font-family: var(--font-mono) !important;
-    font-size: 0.75rem !important;
-    border-radius: var(--radius) !important;
-  }
-</style>
+

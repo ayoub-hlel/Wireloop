@@ -18,9 +18,6 @@ importers:
       '@rollup/plugin-commonjs':
         specifier: ^25.0.7
         version: 25.0.8(rollup@4.62.0)
-      '@svelte-plugins/tooltips':
-        specifier: ^3.0.1
-        version: 3.0.3(svelte@5.56.3)
       '@sveltejs/adapter-static':
         specifier: ^3.0.1
         version: 3.0.10(@sveltejs/kit@2.65.2(@sveltejs/vite-plugin-svelte@5.1.1(svelte@5.56.3)(vite@6.4.3(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)))(svelte@5.56.3)(typescript@5.9.3)(vite@6.4.3(@types/node@25.9.3)(jiti@2.7.0)(lightningcss@1.32.0)))
@@ -1059,11 +1056,6 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
-
-  '@svelte-plugins/tooltips@3.0.3':
-    resolution: {integrity: sha512-Hs1N/c68yf3OavELTNWWC5W7esrbYp+p0ytRBxihuGXvoiP/TJ7yd5g8qQ8NeTv6ealuqJkBpGo1IrrT8Zy1+Q==}
-    peerDependencies:
-      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
   '@sveltejs/acorn-typescript@1.0.10':
     resolution: {integrity: sha512-4WfKk68eTih+MiJD4fSbxN7E8kVBmTMPWHUPYjvl2N0rMs53YLTT8/YjKU5Dtnz5LqDjl7LEw4U7lXR2W3J5WA==}
@@ -4027,10 +4019,6 @@ snapshots:
       '@sinonjs/commons': 3.0.1
 
   '@standard-schema/spec@1.1.0': {}
-
-  '@svelte-plugins/tooltips@3.0.3(svelte@5.56.3)':
-    dependencies:
-      svelte: 5.56.3
 
   '@sveltejs/acorn-typescript@1.0.10(acorn@8.17.0)':
     dependencies:

@@ -4,7 +4,7 @@
   import hljs from 'highlight.js/lib/core';
   import arduinoLang from 'highlight.js/lib/languages/arduino';
   import 'highlight.js/styles/arduino-light.css';
-  import { tooltip } from "@svelte-plugins/tooltips";
+  import { tooltip } from "$lib/tooltip";
   import { get } from "svelte/store";
 
   let code = $state("");
