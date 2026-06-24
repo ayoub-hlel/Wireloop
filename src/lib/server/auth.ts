@@ -1,39 +1,27 @@
-/**
- * Better Auth server — self-hosted Postgres-backed.
- * Uses Drizzle adapter so all tables share the same Neon DB.
- */
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from '$lib/db';
+import { betterAuth } from "better-auth";
+import { sveltekitCookies } from "better-auth/svelte-kit";
+import { getRequestEvent } from "$app/server";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { dash } from "@better-auth/infra";
+import * as schema from "../db/schema/auth";
+
+const db = drizzle(new Pool({ connectionString: process.env.DATABASE_URL }), {
+  schema,
+});
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: 'pg',
-    // Drizzle adapter reads the schemas above automatically
-  }),
-  emailAndPassword: {
-    enabled: true,
-    autoSignIn: true,
+  database: drizzleAdapter(db, { provider: "pg", schema }),
+  secret: process.env.BETTER_AUTH_SECRET,
+  basePath: "/api/auth",
+  baseURL: {
+    allowedHosts: [
+      process.env.PUBLIC_APP_URL || "http://localhost:5173",
+      "*.ngrok-free.dev",
+    ],
+    fallback: process.env.PUBLIC_APP_URL || "http://localhost:5173",
   },
-  socialProviders: {
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24,      // refresh every 24h
-  },
-  // User profile fields beyond email/name
-  user: {
-    additionalFields: {
-      username: { type: 'string', required: false },
-      bio: { type: 'string', required: false },
-    },
-  },
+  emailAndPassword: { enabled: true },
+  plugins: [sveltekitCookies(getRequestEvent), dash()],
 });
