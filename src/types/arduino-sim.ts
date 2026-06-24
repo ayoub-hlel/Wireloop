@@ -1,4 +1,4 @@
-// Legacy: Firebase Timestamp replaced with Date
+// ponytail: migrated from firebase/model.ts — Arduino simulator visual settings
 import { MicroControllerType } from '../core/microcontroller/microcontroller';
 
 export interface User {
@@ -22,6 +22,7 @@ export interface Toolbox {
   show: boolean;
 }
 
+/** Arduino simulator visual/color settings (separate from user preference Settings) */
 export interface Settings {
   backgroundColor: string;
   touchSkinColor: string;

@@ -5,9 +5,6 @@ import { defaultSetting } from "../types/models";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
 import { getConvexClient, createQuery, createMutation } from "./convex.store";
-// TODO: CLERK_REMOVAL — do not delete yet.
-// import { userId } from "./clerk-auth.store";
-
 /**
  * Settings state interface
  */
@@ -71,15 +68,11 @@ authStore.subscribe(async (auth) => {
   try {
     let cloudSettings: Settings | null = null;
 
-    // Try to load from Convex first, fallback to Firebase during migration
     try {
       const convexClient = getConvexClient();
       cloudSettings = await convexClient.query('users:getUserSettings', { userId: auth.uid });
-    } catch (convexError) {
-      console.log('Convex settings not available, trying Firebase fallback:', convexError);
-      
-              // Firebase fallback removed - migration complete
-        console.log('Settings not found in Convex, using defaults');
+    } catch {
+      console.log('Settings not found, using defaults');
     }
 
     if (cloudSettings) {

@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import type { ArduinoFrameContainer } from "../core/frames/arduino.frame";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
-import { defaultSetting } from "../firebase/model";
+import { defaultSetting } from "../types/arduino-sim";
 
 const stateStore = writable<ArduinoFrameContainer>({
   frames: [],

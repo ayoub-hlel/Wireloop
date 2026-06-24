@@ -101,7 +101,7 @@ import {
   analogSensorPosition,
   createWireAnalogSensors,
 } from "../../blocks/analogsensor/virtual-circuit";
-import type { Settings } from "../../firebase/model";
+import type { Settings } from "../../types/arduino-sim";
 import {
   showPin,
   takeBoardArea,

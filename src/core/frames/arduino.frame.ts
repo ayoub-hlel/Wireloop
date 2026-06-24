@@ -1,4 +1,4 @@
-import type { Settings } from "../../firebase/model";
+import type { Settings } from "../../types/arduino-sim";
 import type { VariableTypes } from "../blockly/dto/variable.type";
 import type { MicroControllerType } from "../microcontroller/microcontroller";
 import type { ARDUINO_PINS } from "../microcontroller/selectBoard";

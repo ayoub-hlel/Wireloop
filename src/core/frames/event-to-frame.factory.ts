@@ -20,8 +20,8 @@ import {
   convertToState,
 } from "../blockly/transformers/sensor-data.transformer";
 import { generateInputFrame } from "./transformer/block-to-frame.transformer";
-import type { Settings } from "../../firebase/model";
-import { defaultSetting } from "../../firebase/model";
+import type { Settings } from "../../types/arduino-sim";
+import { defaultSetting } from "../../types/arduino-sim";
 
 export const eventToFrameFactory = (
   event: BlockEvent,

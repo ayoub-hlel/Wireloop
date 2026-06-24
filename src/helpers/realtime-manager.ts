@@ -1,12 +1,6 @@
-// ponytail: stub — real-time subscriptions are handled by Svelte store refetches
-import { writable, type Readable } from 'svelte/store';
+// ponytail: dead code stub — realtime subscriptions removed
+import type { Readable } from 'svelte/store';
 
-export function subscribeToProject(_projectId: string): Readable<any> {
-  return writable({ data: null, isLoading: false, error: null });
-}
-export function subscribeToUserProjects(_userId: string): Readable<any> {
-  return writable({ data: null, isLoading: false, error: null });
-}
-export function subscribeToPublicProjects(): Readable<any> {
-  return writable({ data: null, isLoading: false, error: null });
-}
+export const subscribeToProject = (_id: string): Readable<any> => ({ subscribe: (cb: any) => { cb(null); return () => {}; } });
+export const subscribeToUserProjects = (_uid: string): Readable<any[]> => ({ subscribe: (cb: any) => { cb([]); return () => {}; } });
+export const subscribeToPublicProjects = (): Readable<any[]> => ({ subscribe: (cb: any) => { cb([]); return () => {}; } });

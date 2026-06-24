@@ -2,8 +2,6 @@ import { writable, derived, get, type Readable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
 import { getConvexClient, createQuery, createMutation } from "./convex.store";
-// TODO: CLERK_REMOVAL — do not delete yet.
-// import { userId } from "./clerk-auth.store";
 import { 
   subscribeToProject, 
   subscribeToUserProjects, 
@@ -306,26 +304,23 @@ export async function createNewProject(
       isPublic
     });
     
-    // Type assertion for Convex project with _id
-    const convexProject = project as Project & { _id: string };
-    
     // Create initial backup
     const backupId = await createDataBackup(
-      `project:${convexProject._id}`,
-      convexProject,
+      `project:${project.id}`,
+      project,
       'user'
     );
     
     projectStore.set({
-      project: convexProject,
-      projectId: convexProject._id,
+      project,
+      projectId: project.id,
       isLoading: false,
       error: null,
       validationResult,
       lastBackupId: backupId
     });
     
-    return convexProject._id;
+    return project.id;
   } catch (error) {
     console.error('Error creating project:', error);
     throw error;
@@ -417,8 +412,8 @@ export function subscribeToPublicProjectsUpdates(): Readable<{
  * Load project with dual-read fallback
  */
 async function loadProjectWithFallback(projectId: string): Promise<DataReadResult<Project>> {
-  // TODO: CLERK_REMOVAL — use null for now
-  const currentUserId = null; // get(userId);
+  // ponytail: fallback function is dead code
+  const currentUserId = null;
   if (!currentUserId) {
     return {
       data: null,
@@ -477,8 +472,8 @@ async function loadProjectWithFallback(projectId: string): Promise<DataReadResul
  * Load user projects with dual-read fallback
  */
 async function loadUserProjectsWithFallback(): Promise<DataReadResult<Project[]>> {
-  // TODO: CLERK_REMOVAL — use null for now
-  const currentUserId = null; // get(userId);
+  // ponytail: fallback function is dead code
+  const currentUserId = null;
   if (!currentUserId) {
     return {
       data: null,
@@ -506,8 +501,8 @@ async function loadUserProjectsWithFallback(): Promise<DataReadResult<Project[]>
  * Load project file with dual-read fallback
  */
 async function loadProjectFileWithFallback(projectId: string): Promise<DataReadResult<{ content: string; filename: string }>> {
-  // TODO: CLERK_REMOVAL — use null for now
-  const currentUserId = null; // get(userId);
+  // ponytail: fallback function is dead code
+  const currentUserId = null;
   if (!currentUserId) {
     return {
       data: null,

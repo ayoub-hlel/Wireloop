@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { defaultSetting } from "../../../firebase/model";
-  import type { Settings } from "../../../firebase/model";
+  import { defaultSetting } from "../../../types/arduino-sim";
+  import type { Settings } from "../../../types/arduino-sim";
   import { fbSaveSettings } from "../../../firebase/db";
   import authStore from "../../../stores/auth.store";
   import settingsStore from "../../../stores/settings.store";

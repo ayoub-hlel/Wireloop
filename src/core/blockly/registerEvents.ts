@@ -32,8 +32,8 @@ import {
 import type { MicroControllerType } from "../microcontroller/microcontroller";
 import { getBoardType } from "./helpers/get-board.helper";
 import { disableBlocksWithInvalidPinNumbers } from "./actions/disable/disableBlocksWithInvalidPinNumbers";
-import type { Settings as FirebaseSettings, defaultSetting } from "../../firebase/model";
-import { defaultSetting as defaultSettingValue } from "../../firebase/model";
+import type { Settings as FirebaseSettings } from "../../types/arduino-sim";
+import { defaultSetting as defaultSettingValue } from "../../types/arduino-sim";
 import type { Settings as AppSettings } from "../../types/models";
 import settingStore from "../../stores/settings.store";
 import UpdateLCDScreenPrintBlock from "./actions/updateLcdScreenPrintBlock";

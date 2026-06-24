@@ -13,12 +13,6 @@ export default defineConfig({
       'node_modules/**',
       'dist/**',
       '.svelte-kit/**',
-      'src/tests/validation/**',
-      'src/tests/contract/test_auth_contract.ts',
-      'src/tests/contract/test_projects_contract.ts',
-      'src/tests/e2e/test_offline_functionality.ts',
-      'src/tests/integration/test_auth_flows.ts',
-      'src/tests/integration/test_realtime_features.ts',
       'src/tests/mocks/**',
       'src/tests/fake-block.ts',
       'src/tests/tests.helper.ts'

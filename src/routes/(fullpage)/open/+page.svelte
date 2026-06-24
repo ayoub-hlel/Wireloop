@@ -11,7 +11,7 @@
     getProject,
     getProjects,
   } from '../../../firebase/db';
-  import type { Project } from '../../../firebase/model';
+  import type { Project } from '../../../types/arduino-sim';
   // Legacy: Firebase Timestamp replaced with Date
 
   import { onConfirm, onErrorMessage } from '../../../help/alerts';

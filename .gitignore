@@ -64,6 +64,7 @@ package-lock.json
 
 # Application specific
 /src/env.ts
+.env
 
 # AI agent instructions and documentation (not needed to run)
 AGENT_MISSION.md

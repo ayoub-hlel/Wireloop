@@ -9,7 +9,6 @@
   import projectStore from "../../stores/project.store";
   import { isPathOnHomePage } from "../../helpers/is-path-on-homepage";
   import { fade } from "svelte/transition";
-  // TODO: CLERK_REMOVAL — do not delete yet.
   const logout = async () => { await authStore.signOut(); };
   import { resetWorkspace, workspaceToXML } from "../../core/blockly/helpers/workspace.helper";
   import { saveCurrentProject } from "../../stores/project.store";
@@ -87,7 +86,6 @@
 
   async function onSignOut() {
     try {
-      // TODO: CLERK_REMOVAL — do not delete yet.
       await logout();
     } catch (e: unknown) {
       onErrorMessage("Please try again in 5 minutes", e);

@@ -1,5 +1,5 @@
 // ponytail: compat shim — calls API routes through convex.store.ts until pages are migrated
-import { type Settings, type Project, defaultSetting } from "./model";
+import { type Settings, type Project, defaultSetting } from "../types/arduino-sim";
 import { workspaceToXML } from "../core/blockly/helpers/workspace.helper";
 import { getConvexClient } from "../stores/convex.store";
 
