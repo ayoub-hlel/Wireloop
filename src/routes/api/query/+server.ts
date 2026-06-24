@@ -2,6 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import { db } from '$lib/db';
 import { projects, settings, profiles, projectFiles } from '$lib/db/schema/projects';
 import { eq, and, desc, sql } from 'drizzle-orm';
+import { getFile, isR2Configured } from '$lib/server/r2';
 
 /**
  * Query endpoint — mirrors Convex query() interface.
@@ -69,7 +70,15 @@ export async function POST({ request, locals }) {
           eq(projectFiles.userId, uid)
         ))
         .then(r => r[0] ?? null);
-      return json(row ?? { content: '' });
+      if (!row) return json({ content: '' });
+
+      // Fetch from R2 when stored externally
+      let content = '';
+      if (row.storageId.startsWith('r2:') && isR2Configured()) {
+        content = await getFile(`projects/${projectId}.xml`) ?? '';
+      }
+
+      return json({ ...row, content });
     }
 
     // ── Settings ──
