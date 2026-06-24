@@ -5,59 +5,15 @@
   import Step from './home/Steps.svelte';
   import Debug from './arduino/Debug.svelte';
   import Message from './arduino/Message.svelte';
+  import CodeEditor from './home/CodeEditor.svelte';
   import codeStore from '../../stores/code.store';
-  import hljs from 'highlight.js/lib/core';
-  import arduinoLang from 'highlight.js/lib/languages/arduino';
-  import 'highlight.js/styles/arduino-light.css';
-  import { tooltip } from '$lib/tooltip';
   import { get } from 'svelte/store';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
+  import { tooltip } from '$lib/tooltip';
 
   type TabId = 'emulator' | 'code' | 'upload';
 
   let activeTab = $state<TabId>('emulator');
-  let fontSize = $state(14);
-  let hasCopiedCode = $state(false);
-  let highlightedCode = $state('');
-  let codeLoaded = $state(false);
-
-  const tooltipStyle = {
-    position: "bottom",
-    align: "center",
-    animation: "slide",
-    theme: "nav-tooltip",
-  };
-
-  // --- Code tab logic (ported from code/+page.svelte) ---
-  onMount(async () => {
-    hljs.registerLanguage('arduino', arduinoLang);
-    codeStore.subscribe((codeInfo) => {
-      try {
-        // @ts-ignore
-        highlightedCode = hljs.highlight(codeInfo.code, { language: 'arduino' }).value;
-      } catch(e) {
-        console.log(e);
-      }
-    });
-    codeLoaded = true;
-  });
-
-  $effect.pre(() => {
-    if (codeLoaded && activeTab === 'code') {
-      try {
-        hljs.highlightAll();
-      } catch (error) {
-        console.log(error, 'error');
-      }
-    }
-  });
-
-  function zoomIn() { fontSize += 2; }
-  function zoomOut() { fontSize -= 2; }
-  function copyCode() {
-    navigator.clipboard.writeText(get(codeStore).code);
-    hasCopiedCode = true;
-  }
 
   // --- Download logic (ported from download/+page.svelte) ---
   function downloadIno() {
@@ -106,39 +62,7 @@
       </VerticalComponentContainer>
 
     {:else if activeTab === 'code'}
-      <div class="flex flex-col flex-1 min-h-0 bg-bg">
-        <div class="flex items-center justify-between p-3 border-b border-border bg-bg-surface shadow-card shrink-0">
-          <div class="flex items-center space-x-3 min-w-0">
-            <div class="pin-label shrink-0">SRC_GEN_V3</div>
-            <h2 class="text-xs font-mono font-bold text-primary tracking-widest uppercase truncate">Arduino Output Stream</h2>
-          </div>
-          <div class="flex items-center space-x-1 shrink-0">
-            <button
-              use:tooltip={tooltipStyle}
-              title={hasCopiedCode ? "Copied!" : "Copy Source"}
-              onclick={copyCode}
-              onmouseleave={() => hasCopiedCode = false}
-              class="btn-schematic flex items-center space-x-1 text-[10px]"
-            >
-              <i class="fa fa-clipboard"></i>
-              <span class="hidden sm:inline">{hasCopiedCode ? 'DATA_SYNC_OK' : 'COPY_BUFFER'}</span>
-            </button>
-            <div class="trace-divider w-4 mx-0.5 rotate-90 shrink-0"></div>
-            <button onclick={zoomOut} use:tooltip={tooltipStyle} title="Decrease Font" class="btn-schematic p-1.5 w-7 h-7 flex items-center justify-center shrink-0">
-              <i class="fa fa-search-minus"></i>
-            </button>
-            <button onclick={zoomIn} use:tooltip={tooltipStyle} title="Increase Font" class="btn-schematic p-1.5 w-7 h-7 flex items-center justify-center shrink-0">
-              <i class="fa fa-search-plus"></i>
-            </button>
-          </div>
-        </div>
-        <div class="flex-1 min-h-0 relative">
-          <div class="absolute inset-0 bg-grid-schematic opacity-5 pointer-events-none"></div>
-          <pre class="absolute inset-0 p-4 overflow-auto font-mono selection:bg-primary/20" style="font-size: {fontSize}px">
-            <code class="language-arduino !bg-transparent !p-0 block">{@html highlightedCode}</code>
-          </pre>
-        </div>
-      </div>
+      <CodeEditor />
 
     {:else if activeTab === 'upload'}
       <VerticalComponentContainer>

@@ -7,8 +7,7 @@
   import Blockly from '../../components/wireloop/Blockly.svelte';
   import { resizeStore } from '../../stores/resize.store';
   import { page } from '$app/stores';
-  // TODO: CLERK_REMOVAL — do not delete yet.
-  const initializeClerkAuth = () => {};
+  const initAuth = () => { authStore.init(); };
 
   import { initializeConvexClient } from '../../stores/convex.store';
   import authStore from '../../stores/auth.store';
@@ -55,7 +54,7 @@
 
   onMount(async () => {
     console.log('🚀 Wireloop: Initializing application services...');
-    initializeClerkAuth();
+    initAuth();
     initializeConvexClient();
     localStorage.removeItem('no_alert');
     
@@ -75,17 +74,12 @@
       loadedProject = true;
     }
 
-    // @ts-ignore
-    const authState = { subscribe: (cb: any) => { cb({ isLoaded: true, isSignedIn: false }); return () => {}; } };
-    authState.subscribe(async (clerkAuth: any) => {
-      if (!clerkAuth.isLoaded) return;
+    const unsub = authStore.subscribe(async (auth) => {
+      if (auth.loading) return;
 
-      if (!clerkAuth.isSignedIn || !clerkAuth.user) {
-        authStore.set({ isLoggedIn: false, uid: null, legacyControlled: false });
+      if (!auth.isLoggedIn || !auth.uid) {
         return;
       }
-
-      authStore.set({ isLoggedIn: true, uid: clerkAuth.user.id, legacyControlled: false });
 
       if (
         $projectStore.projectId === $page.url.searchParams.get('projectid') ||
@@ -108,7 +102,7 @@
         const project = await convexClient.query('projects:getProject', { projectId });
         const projectFile = await convexClient.query('projects:getProjectFile', { 
           projectId, 
-          userId: clerkAuth.user.id 
+          userId: auth.uid
         });
         
         if (project && projectFile) {

@@ -1,77 +1,79 @@
-import { writable, derived } from "svelte/store";
-// TODO: CLERK_REMOVAL — do not delete yet.
-// import { authState as clerkAuthState, isSignedIn, userId } from "./clerk-auth.store";
+import { writable, derived } from 'svelte/store';
+import { authClient } from '$lib/client/auth-client';
+import type { Session, User } from 'better-auth';
 
-/**
- * Legacy auth store interface for backward compatibility
- */
-export interface LegacyAuthState {
+export interface AuthState {
   isLoggedIn: boolean;
   uid: string | null;
-  legacyControlled: boolean;
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
 }
 
-/**
- * Internal writable store for legacy compatibility
- * This allows manual overrides during migration phase
- */
-const legacyAuthStore = writable<LegacyAuthState>({ 
-  isLoggedIn: false, 
-  uid: null, 
-  legacyControlled: false 
-});
-
-/**
- * Derived store that combines Clerk auth state with legacy overrides
- * This provides seamless migration from Firebase to Clerk
- */
-const combinedAuthStore = derived(
-  [legacyAuthStore],
-  ([legacyAuth]) => {
-    // During migration, allow manual overrides via legacyAuthStore.set()
-    
-    if (legacyAuth.legacyControlled) {
-      // Legacy compatibility mode - use the manually set state
-      return legacyAuth;
-    }
-    
-    // TODO: CLERK_REMOVAL — default to signed out
-    return {
-      isLoggedIn: false,
-      uid: null,
-      legacyControlled: false
-    };
-  }
-);
-
-/**
- * Export the combined store with legacy interface
- * This maintains compatibility with existing components
- */
-export default {
-  subscribe: combinedAuthStore.subscribe,
-  set: legacyAuthStore.set,
-  
-  // Additional helper methods for migration
-  /**
-   * Force update to Clerk-only mode
-   */
-  useClerkOnly: () => {
-    legacyAuthStore.set({
-      isLoggedIn: false,
-      uid: null,
-      legacyControlled: false
-    });
-  },
-  
-  /**
-   * Temporarily enable Firebase compatibility mode
-   */
-  enableFirebaseMode: () => {
-    legacyAuthStore.update(state => ({
-      ...state,
-      // @ts-ignore
-      firebaseControlled: true
-    }));
-  }
+const initial: AuthState = {
+  isLoggedIn: false,
+  uid: null,
+  user: null,
+  session: null,
+  loading: true,
 };
+
+function createAuthStore() {
+  const { subscribe, set, update } = writable<AuthState>(initial);
+
+  return {
+    subscribe,
+    set,
+
+    /** Initialize — fetch session from Better Auth */
+    async init() {
+      try {
+        const { data, error } = await authClient.getSession();
+        if (data) {
+          set({
+            isLoggedIn: true,
+            uid: data.user.id,
+            user: data.user,
+            session: data.session,
+            loading: false,
+          });
+        } else {
+          set({ ...initial, loading: false });
+        }
+      } catch {
+        set({ ...initial, loading: false });
+      }
+    },
+
+    /** Sign in with a social provider */
+    async signInSocial(provider: 'google' | 'github') {
+      await authClient.signIn.social({ provider });
+    },
+
+    /** Sign in with email + password */
+    async signInEmail(email: string, password: string) {
+      const { error } = await authClient.signIn.email({ email, password });
+      if (error) throw error;
+    },
+
+    /** Sign up */
+    async signUp(email: string, password: string, name: string) {
+      const { error } = await authClient.signUp.email({ email, password, name });
+      if (error) throw error;
+    },
+
+    /** Sign out */
+    async signOut() {
+      await authClient.signOut();
+      set({ ...initial, loading: false });
+    },
+
+    reset() {
+      set(initial);
+    },
+  };
+}
+
+const authStore = createAuthStore();
+
+export default authStore;

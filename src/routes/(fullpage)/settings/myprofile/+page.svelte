@@ -25,7 +25,7 @@
 
     onMount(async () => {
         const unsub = authStore.subscribe(async (auth) => {
-            if (auth.legacyControlled && auth.uid) {
+            if (!auth.loading && auth.uid) {
                 const userInfo = await getUserProfile(auth.uid);
                 username = userInfo.username;
                 bio = userInfo.bio;

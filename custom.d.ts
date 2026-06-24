@@ -14,7 +14,4 @@ declare module 'blockly-field-color-wheel' {
   export const FieldColorWheel: any;
 }
 
-declare module '$env/static/public' {
-  export const PUBLIC_CLERK_PUBLISHABLE_KEY: string;
-  export const PUBLIC_CONVEX_URL: string;
-}
+

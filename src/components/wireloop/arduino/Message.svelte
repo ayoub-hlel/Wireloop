@@ -7,8 +7,10 @@
   import { onErrorMessage, onSuccess } from "../../../help/alerts";
   import { tooltip } from "$lib/tooltip";
   import type { MicroControllerType } from "../../../core/microcontroller/microcontroller";
+  import swal from "sweetalert";
+  import { onDestroy } from "svelte";
 
-  const navigatorSerialNotAvailableMessaeg = `To upload code you must use chrome or a chromium based browser like edge, or brave.  This will work with chrome version 89 or higher. `;
+  const navigatorSerialNotAvailableMessage = `To upload code you must use chrome or a chromium based browser like edge, or brave. This will work with chrome version 89 or higher.`;
 
   let autoScroll = $state(false);
   let messages: any[] = $state([]);
@@ -20,14 +22,14 @@
 
   let uploadingClass = $derived((arduinoStatus as PortState) === PortState.UPLOADING ? "fa-spinner fa-spin" : "fa-upload");
 
-  codeStore.subscribe((codeInfo) => {
+  const unsubCode = codeStore.subscribe((codeInfo) => {
     code = codeInfo.code;
     boardType = codeInfo.boardType;
   });
 
-  arduinoStore.subscribe((status) => { arduinoStatus = status; });
+  const unsubArduino = arduinoStore.subscribe((status) => { arduinoStatus = status; });
 
-  arduionMessageStore.subscribe((newMessage) => {
+  const unsubMessage = arduionMessageStore.subscribe((newMessage) => {
     if (!newMessage) return;
     if (newMessage.message.includes("C_D_B_C_D")) { arduionMessageStore.sendMessage("START_DEBUG"); }
     if (
@@ -42,9 +44,15 @@
     messages = [...messages, newMessage];
   });
 
+  onDestroy(() => {
+    unsubCode();
+    unsubArduino();
+    unsubMessage();
+  });
+
   async function connectOrDisconnectArduino() {
     if (!(navigator as any).serial) {
-      onErrorMessage(navigatorSerialNotAvailableMessaeg, new Error("Web Serial not available"));
+      onErrorMessage(navigatorSerialNotAvailableMessage, new Error("Web Serial not available"));
       return;
     }
 
@@ -78,7 +86,7 @@
 
   async function uploadCode() {
     if (!(navigator as any).serial) {
-      onErrorMessage(navigatorSerialNotAvailableMessaeg, new Error("Web Serial not available"));
+      onErrorMessage(navigatorSerialNotAvailableMessage, new Error("Web Serial not available"));
       return;
     }
     if (arduinoStatus !== PortState.CLOSE) return;
@@ -96,8 +104,17 @@
     }
     arduinoStore.set(PortState.CLOSE);
   }
-  
-  function clearMessages() { messages = []; }
+
+  async function clearMessages() {
+    if (messages.length === 0) return;
+    const confirmed = await swal({
+      text: "Clear all serial messages?",
+      icon: "warning",
+      dangerMode: true,
+      buttons: ["Cancel", "Clear"],
+    });
+    if (confirmed) messages = [];
+  }
 
   $effect.pre(() => {
     if (autoScroll && messagesEl) { messagesEl.scrollTop = messagesEl.scrollHeight; }
@@ -112,7 +129,7 @@
       <div class="pin-label">UART_0</div>
       <h2 class="text-xs font-mono font-bold text-primary uppercase tracking-widest">Serial Console</h2>
     </div>
-    
+
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
         <span class="led" class:led-green={arduinoStatus === PortState.OPEN} class:led-off={arduinoStatus === PortState.CLOSE} class:led-blue={arduinoStatus === PortState.UPLOADING}></span>
@@ -123,9 +140,9 @@
     </div>
   </div>
 
-  <section 
-    bind:this={messagesEl} 
-    id="messages" 
+  <section
+    bind:this={messagesEl}
+    id="messages"
     class="flex-grow p-4 overflow-y-auto font-mono text-xs space-y-1 bg-grid-schematic-dense"
     style="background-size: 12px 12px;"
   >
@@ -153,11 +170,11 @@
             readonly={!(arduinoStatus === PortState.OPEN)}
             type="text"
             bind:value={messageToSend}
-            placeholder={arduinoStatus === PortState.OPEN ? "TERMINAL_INPUT >" : "CONNECT_PORT_FIRST"}
-            class="input-schematic w-full pl-3 pr-10 uppercase !bg-bg/50"
+            placeholder={arduinoStatus === PortState.OPEN ? "type a message..." : "connect port first"}
+            class="input-schematic w-full pl-3 pr-10 !bg-bg/50"
           />
         </form>
-        <button 
+        <button
           disabled={!(arduinoStatus === PortState.OPEN)}
           onclick={sendMessage}
           class="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-primary hover:text-primary-glow disabled:text-text-subtle transition-colors"
@@ -189,9 +206,9 @@
           <i class="fa text-lg {uploadingClass}"></i>
         </button>
 
-        <button 
-          use:tooltip={tooltipStyle} 
-          title="Clear Buffer" 
+        <button
+          use:tooltip={tooltipStyle}
+          title="Clear Buffer"
           onclick={clearMessages}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
         >
@@ -205,6 +222,7 @@
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center transition-all"
           class:!bg-primary={autoScroll}
           class:!text-bg={autoScroll}
+          class:!border-primary={autoScroll}
         >
           <i class="fa fa-angle-double-down text-lg"></i>
         </button>

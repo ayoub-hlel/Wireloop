@@ -69,7 +69,7 @@
     code = newCode.code;
   });
 
-  function downlaodCode() {
+  function downloadCode() {
     const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
     saveAs(blob, "arduino_workflow_builder_code.ino");
   }
@@ -142,7 +142,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <button class="btn btn-info w-100" onclick={downlaodCode}>
+        <button class="btn btn-info w-100" onclick={downloadCode}>
           Download Code
         </button>
       </div>
@@ -151,10 +151,7 @@
     <div class="row">
       <div class="col">
         <p>
-          To Save project you must be logged in. If you don't want to login you
-          can go to the
-          <a href="/projects/download">download page</a>
-          to download the code or project onto your computer.
+          To save a project you must be logged in. You can also copy the code from the Code tab and paste it into the Arduino IDE to upload it to your board.
         </p>
         <Login />
       </div>

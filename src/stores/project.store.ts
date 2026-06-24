@@ -356,7 +356,7 @@ export function getUserProjects(userId: string): Readable<{
   return derived([query, isOnline], ([$query, $isOnline]) => ({
     data: $query.data,
     isLoading: $query.isLoading,
-    error: $query.error ? $query.error.message : null,
+    error: $query.error ?? null,
     isOffline: !$isOnline
   }));
 }
@@ -375,7 +375,7 @@ export function getPublicProjects(): Readable<{
   return derived([query, isOnline], ([$query, $isOnline]) => ({
     data: $query.data,
     isLoading: $query.isLoading,
-    error: $query.error ? $query.error.message : null,
+    error: $query.error ?? null,
     isOffline: !$isOnline
   }));
 }

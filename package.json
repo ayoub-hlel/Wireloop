@@ -10,7 +10,11 @@
     "test": "vitest",
     "test-coverage": "vitest --coverage",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "devDependencies": {
     "@lucide/svelte": "^1.7.0",
@@ -33,6 +37,7 @@
     "blockly": "^10.4.3",
     "blockly-field-color-wheel": "^1.0.5",
     "clsx": "^2.1.1",
+    "drizzle-kit": "^0.31.10",
     "file-saver": "^2.0.5",
     "highlight.js": "^11.9.0",
     "jest": "^29.7.0",
@@ -62,6 +67,16 @@
   },
   "type": "module",
   "dependencies": {
-    "convex": "^1.27.3"
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/search": "^6.7.1",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.43.1",
+    "@neondatabase/serverless": "^1.1.0",
+    "better-auth": "^1.6.20",
+    "codemirror": "^6.0.2",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2"
   }
 }

@@ -18,7 +18,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['@clerk/clerk-js', 'convex']
+    include: ['@clerk/clerk-js']
   },
   resolve: {
     extensions: ['.js', '.ts', '.svelte']

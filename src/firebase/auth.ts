@@ -1,30 +1,10 @@
-// Legacy Firebase Auth Interface - Redirects to Clerk
-// This file provides backward compatibility for Firebase Auth operations
+// ponytail: compat shim — redirects to Better Auth
+import authStore from '../stores/auth.store';
 
-import { signInWithGoogle, signOutWithClerk } from "../helpers/auth";
-
-/**
- * Legacy Firebase Google Auth - Now using Clerk
- */
 export const loginGoogleUser = async () => {
-  console.warn('loginGoogleUser: Firebase compatibility layer - redirecting to Clerk');
-  try {
-    await signInWithGoogle();
-  } catch (error) {
-    console.error('Error signing in with Clerk:', error);
-    throw error;
-  }
+  await authStore.signInSocial('google');
 };
 
-/**
- * Legacy Firebase Logout - Now using Clerk
- */
 export const logout = async () => {
-  console.warn('logout: Firebase compatibility layer - redirecting to Clerk');
-  try {
-    await signOutWithClerk();
-  } catch (error) {
-    console.error('Error signing out with Clerk:', error);
-    throw error;
-  }
+  await authStore.signOut();
 };

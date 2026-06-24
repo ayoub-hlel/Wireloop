@@ -10,8 +10,7 @@
   import { isPathOnHomePage } from "../../helpers/is-path-on-homepage";
   import { fade } from "svelte/transition";
   // TODO: CLERK_REMOVAL — do not delete yet.
-  // import { logout } from "../../auth/clerk-auth";
-  const logout = async () => {};
+  const logout = async () => { await authStore.signOut(); };
   import { resetWorkspace, workspaceToXML } from "../../core/blockly/helpers/workspace.helper";
   import { saveCurrentProject } from "../../stores/project.store";
   import { wait } from "../../helpers/wait";
@@ -89,8 +88,7 @@
   async function onSignOut() {
     try {
       // TODO: CLERK_REMOVAL — do not delete yet.
-      // await logout();
-      console.log('Clerk logout commented out');
+      await logout();
     } catch (e: unknown) {
       onErrorMessage("Please try again in 5 minutes", e);
     }
@@ -233,14 +231,6 @@
         >
           <i class="fa fa-file-o text-2xl"></i>
         </span>
-        <a
-          href="/download"
-          use:tooltip={navTooltipStyle}
-          title="Download"
-          class="p-2 text-primary/60 hover:text-primary transition-colors flex items-center justify-center rounded-sm {$page.url.pathname.includes("download") ? 'text-primary bg-primary/10' : ''}"
-        >
-          <i class="fa fa-download text-2xl"></i>
-        </a>
         <a
           href="/settings"
           use:tooltip={navTooltipStyle}
