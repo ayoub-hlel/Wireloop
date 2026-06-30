@@ -1,8 +1,0 @@
-name = "wireloop"
-compatibility_date = "2026-06-01"
-pages_build_output_dir = ".svelte-kit/cloudflare"
-
-# R2 bucket — used via binding instead of env vars for S3 client
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "wireloop"
