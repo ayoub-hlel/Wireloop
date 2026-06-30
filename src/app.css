@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+/* ═══════════════════════════════════════════════════════════════════
+   Theme: Import shadcn/ui-compatible globals
+   
+   src/globals.css defines ALL design tokens as CSS variables in
+   shadcn/ui format. This file layers Tailwind v4 on top.
+   ═══════════════════════════════════════════════════════════════════ */
+@import "./globals.css";
+
