@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon, neonConfig } from "@neondatabase/serverless";
 import { dash } from "@better-auth/infra";
 import * as schema from "../db/schema/auth";
 
@@ -15,7 +15,8 @@ export function getAuth() {
   if (!_auth) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL not set');
-    const db = drizzle(new Pool({ connectionString: url }), { schema });
+    neonConfig.fetchConnectionCache = true;
+    const db = drizzle(neon(url), { schema });
     _auth = betterAuth({
       database: drizzleAdapter(db, { provider: "pg", schema }),
       secret: process.env.BETTER_AUTH_SECRET,
