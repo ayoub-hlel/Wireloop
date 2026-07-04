@@ -18,6 +18,8 @@ build*
 # Application specific
 /src/env.ts
 .env
+r2-bucket/
+static/example-projects/
 
 # IDE and OS files
 .DS_Store
