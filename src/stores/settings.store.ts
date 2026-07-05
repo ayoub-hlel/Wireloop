@@ -4,7 +4,7 @@ import is_browser from "../helpers/is_browser";
 import { defaultSetting } from "../types/models";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
-import { getConvexClient, createQuery, createMutation } from "./convex.store";
+import { getApiClient, createQuery, createMutation } from "./api.client";
 /**
  * Settings state interface
  */
@@ -69,8 +69,8 @@ authStore.subscribe(async (auth) => {
     let cloudSettings: Settings | null = null;
 
     try {
-      const convexClient = getConvexClient();
-      cloudSettings = await convexClient.query('users:getUserSettings', { userId: auth.uid });
+      const client = getApiClient();
+      cloudSettings = await client.query('users:getUserSettings', { userId: auth.uid });
     } catch {
       console.log('Settings not found, using defaults');
     }

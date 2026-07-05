@@ -1,7 +1,7 @@
 <script lang="ts">
     import Login from "../../../../components/auth/Login.svelte";
     import authStore from "../../../../stores/auth.store";
-    import { saveUserProfile, getUserProfile } from "../../../../firebase/db";
+    import { getApiClient } from "../../../../stores/api.client";
     import { onMount } from "svelte";
     import { wait } from "../../../../helpers/wait";
     import FlashMessage from "../../../../components/wireloop/ui/FlashMessage.svelte";
@@ -14,7 +14,7 @@
         if (!canSave || !$authStore.uid) return;
         try {
             canSave = false;
-            await saveUserProfile(username, bio, $authStore.uid);
+            await getApiClient().mutation('users:updateUserProfile', { userId: $authStore.uid, username, bio });
             await wait(2000);
             canSave = true;
             showMessage = true;
@@ -26,7 +26,8 @@
     onMount(async () => {
         const unsub = authStore.subscribe(async (auth) => {
             if (!auth.loading && auth.uid) {
-                const userInfo = await getUserProfile(auth.uid);
+                const client = getApiClient();
+                const userInfo = await client.query('users:getUserProfile', { userId: auth.uid });
                 username = userInfo.username;
                 bio = userInfo.bio;
                 await wait(10);

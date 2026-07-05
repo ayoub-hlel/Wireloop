@@ -35,7 +35,6 @@ export const projects = pgTable('projects', {
   tags: text('tags').array(),
   likes: integer('likes').default(0),
   views: integer('views').default(0),
-  firebaseId: text('firebase_id'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (t) => ({

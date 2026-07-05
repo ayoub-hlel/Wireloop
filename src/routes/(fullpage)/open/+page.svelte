@@ -5,12 +5,7 @@
 
   import { loadProject } from '../../../core/blockly/helpers/workspace.helper';
   import authStore from '../../../stores/auth.store';
-  import {
-    deleteProject,
-    getFile,
-    getProject,
-    getProjects,
-  } from '../../../firebase/db';
+  import { getApiClient } from '../../../stores/api.client';
   import type { Project } from '../../../types/arduino-sim';
   // Legacy: Firebase Timestamp replaced with Date
 
@@ -84,7 +79,8 @@
   async function updateProjectList() {
     if (!$authStore.uid) return;
     try {
-      projectList = await getProjects($authStore.uid);
+      const projects = await getApiClient().query('projects:getUserProjects', { userId: $authStore.uid });
+      projectList = (projects || []).map((p: any) => [p, p.id] as [Project, string]);
       projectList = [...projectList];
       searchList = [...projectList];
     } catch (e: any) {
@@ -102,7 +98,7 @@
       return;
     }
     try {
-      await deleteProject(projectId, $authStore.uid);
+      await getApiClient().mutation('projects:deleteProject', { projectId });
       await updateProjectList();
     } catch (e: any) {
       onErrorMessage('Please try again in 5 minutes.', e);
@@ -111,8 +107,8 @@
 
   async function openProject(projectId: string) {
     await goto(`/?projectid=${projectId}`);
-    const project = await getProject(projectId);
-    const file = await getFile(projectId, $authStore.uid!);
+    const project = await getApiClient().query('projects:getProject', { projectId });
+    const file = (await getApiClient().query('projects:getProjectFile', { projectId, userId: $authStore.uid! }))?.content || '';
     loadProject(file);
     projectStore.set({ project: project as any, projectId });
   }

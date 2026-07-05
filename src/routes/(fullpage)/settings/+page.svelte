@@ -1,7 +1,7 @@
 <script lang="ts">
   import { defaultSetting } from "../../../types/arduino-sim";
   import type { Settings } from "../../../types/arduino-sim";
-  import { fbSaveSettings } from "../../../firebase/db";
+  import { getApiClient } from "../../../stores/api.client";
   import authStore from "../../../stores/auth.store";
   import settingsStore from "../../../stores/settings.store";
   import FlashMessage from "../../../components/wireloop/ui/FlashMessage.svelte";
@@ -42,7 +42,7 @@
 
     if (uid) {
       try {
-        await fbSaveSettings(uid, settings as any);
+        await getApiClient().mutation('users:updateUserSettings', { ...settings });
         console.log("saved settings", settings);
       } catch (e: any) {
         onErrorMessage("Please try again in 5 minutes.", e);

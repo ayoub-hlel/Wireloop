@@ -11,10 +11,9 @@
   import { page } from '$app/stores';
   const initAuth = () => { authStore.init(); };
 
-  import { initializeConvexClient } from '../../stores/convex.store';
+  import { initializeApiClient, getApiClient } from '../../stores/api.client';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
-  import { getConvexClient } from '../../stores/convex.store';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
   import {
     arduinoLoopBlockShowLoopForeverText,
@@ -57,7 +56,7 @@
   onMount(async () => {
     console.log('🚀 Wireloop: Initializing application services...');
     initAuth();
-    initializeConvexClient();
+    initializeApiClient();
     localStorage.removeItem('no_alert');
     
     page.subscribe(() => { resizeHeight(); });
@@ -100,9 +99,9 @@
 
       try {
         const projectId = $page.url.searchParams.get('projectid');
-        const convexClient = getConvexClient();
-        const project = await convexClient.query('projects:getProject', { projectId });
-        const projectFile = await convexClient.query('projects:getProjectFile', { 
+        const client = getApiClient();
+        const project = await client.query('projects:getProject', { projectId });
+        const projectFile = await client.query('projects:getProjectFile', { 
           projectId, 
           userId: auth.uid
         });

@@ -12,8 +12,7 @@ export interface DBClient {
   subscribe: (name: string, args?: any, callback?: (data: any) => void) => () => void;
 }
 
-// ponytail: alias for backward compat
-export type ConvexClient = DBClient;
+export type ApiClient = DBClient;
 
 export interface DBConnectionState {
   isConnected: boolean;
@@ -32,7 +31,7 @@ const initialConnectionState: DBConnectionState = {
 export const connectionState = writable<DBConnectionState>(initialConnectionState);
 
 // ── API Client ──
-class ApiClient implements DBClient {
+class Client implements DBClient {
   private baseUrl = '/api';
 
   async query(name: string, args: any = {}): Promise<any> {
@@ -62,23 +61,22 @@ class ApiClient implements DBClient {
   }
 
   subscribe(_name: string, _args: any = {}, _callback?: (data: any) => void): () => void {
-    // ponytail: subscriptions not needed — Svelte stores refetch on demand
     return () => {};
   }
 }
 
 let client: DBClient | null = null;
 
-export function initializeConvexClient(): void {
+export function initializeApiClient(): void {
   if (!browser) return;
 
   connectionState.set({ isConnected: true, isLoading: false, error: null, lastUpdated: Date.now() });
-  client = new ApiClient();
+  client = new Client();
 }
 
-export function getConvexClient(): DBClient {
+export function getApiClient(): DBClient {
   if (!client) {
-    throw new Error('DB client not initialized. Call initializeConvexClient() first.');
+    throw new Error('DB client not initialized. Call initializeApiClient() first.');
   }
   return client;
 }
@@ -88,7 +86,7 @@ export const isConnected: Readable<boolean> = derived(connectionState, ($s) => $
 export const isLoading: Readable<boolean> = derived(connectionState, ($s) => $s.isLoading);
 export const error: Readable<string | null> = derived(connectionState, ($s) => $s.error);
 
-// ── Reactive helpers (adapted from original) ──
+// ── Reactive helpers ──
 export function createQuery<T>(queryName: string, args: any = {}): Readable<{
   data: T | null;
   isLoading: boolean;
@@ -106,12 +104,10 @@ export function createQuery<T>(queryName: string, args: any = {}): Readable<{
   return { subscribe: store.subscribe };
 }
 
-export function createMutation<TArgs, TResult>(_mutationName: string) {
+export function createMutation<TArgs, TResult>(mutationName: string) {
   return async (args: TArgs): Promise<TResult> => {
     if (!client) throw new Error('DB client not initialized');
-    const result = await client.mutation(_mutationName, args);
+    const result = await client.mutation(mutationName, args);
     return result as TResult;
   };
 }
-
-

@@ -45,30 +45,27 @@ Wireloop uses [Clerk](https://clerk.com) for user authentication and management.
    - Copy the **Publishable Key** (starts with `pk_test_` or `pk_live_`)
    - Keep this handy for step 4
 
-#### 3. Set Up Database (Convex)
+#### 3. Set Up Database (Neon)
 
-Wireloop uses [Convex](https://convex.dev) for real-time database and backend functions.
+Wireloop uses [Neon](https://neon.tech) for the Postgres database, with [Better Auth](https://better-auth.com) for authentication.
 
-1. **Create a Convex Account**
-   - Go to [https://convex.dev](https://convex.dev)
-   - Sign up for a free account
-   - Install the Convex CLI globally:
+1. **Create a Neon Account**
+   - Go to [https://neon.tech](https://neon.tech)
+   - Sign up or log in
+   - Create a project or use the existing one
+
+2. **Get Your Connection String**
    ```bash
-   pnpm add -g convex
+   # Copy your DATABASE_URL from the Neon Console → Connect
+   # Add it to your .env file:
+   DATABASE_URL="postgresql://..."
    ```
 
-2. **Initialize Your Convex Project**
+3. **Run Database Migrations**
    ```bash
-   # In your Wireloop directory
-   pnpm dlx convex dev
+   pnpm db:generate   # Generate SQL from schema
+   pnpm db:migrate    # Apply to database
    ```
-   - Follow the prompts to create a new project
-   - This will create a `convex/` directory with your backend functions
-   - Copy the deployment URL (looks like `https://your-project.convex.cloud`)
-
-3. **Deploy the Schema**
-   - The project already includes the database schema in `convex/schema.ts`
-   - Convex will automatically deploy this when you run `pnpm dlx convex dev`
 
 #### 4. Configure Environment Variables
 
@@ -84,9 +81,6 @@ export default {
   clerk: {
     publishableKey: "pk_test_YOUR_CLERK_KEY_HERE", // Your Clerk publishable key
   },
-  convex: {
-    url: "https://your-project.convex.cloud", // Your Convex deployment URL
-  },
   server_arduino_url: "https://compile-staging.arduino-workflow-builder.org", // Arduino compilation service
   bucket_name: "arduino-workflow-builder-lesson-staging", // Asset storage
   useEmulator: false,
@@ -94,14 +88,13 @@ export default {
 };
 ```
 
+> **Note:** Database configuration is handled via `DATABASE_URL` in your `.env` file, not `src/env.ts`.
+
 #### 5. Start Development
 
 #### 5. Start Development
 
 ```bash
-# Make sure Convex is running (in a separate terminal)
-pnpm dlx convex dev
-
 # Start the development server
 pnpm dev
 ```
@@ -134,7 +127,7 @@ Here are all the services and their required keys:
 | Service | Purpose | Required | How to Get |
 |---------|---------|----------|------------|
 | **Clerk** | User authentication | ✅ Yes | [clerk.com](https://clerk.com) → Create App → API Keys |
-| **Convex** | Database & real-time updates | ✅ Yes | [convex.dev](https://convex.dev) → Create Project → `pnpm dlx convex dev` |
+| **Neon** | Database | ✅ Yes | [neon.tech](https://neon.tech) → Create Project → Connection String |
 | **Arduino Compiler** | Code compilation | ⚠️ Optional* | Uses staging service by default |
 | **Asset Storage** | Lesson assets | ⚠️ Optional* | Uses staging bucket by default |
 
@@ -152,10 +145,10 @@ Here are all the services and their required keys:
 
 #### Database Connection Issues
 ```bash
-# If you see "Convex connection failed" errors:
-1. Make sure `pnpm dlx convex dev` is running in another terminal
-2. Check your Convex URL in src/env.ts
-3. Verify the URL format: https://your-project.convex.cloud
+# If you see database connection errors:
+1. Check your DATABASE_URL in .env
+2. Make sure DATABASE_URL starts with postgresql://
+3. Verify the Neon project is active
 ```
 
 #### Build Errors
@@ -276,7 +269,7 @@ Wireloop uses a modern, scalable architecture:
 
 - **Frontend**: SvelteKit with TypeScript
 - **Authentication**: Clerk for secure user management
-- **Database**: Convex for real-time, type-safe data operations
+- **Database**: Neon (Postgres) via Drizzle ORM
 - **Block Editor**: Google Blockly for visual programming
 - **Circuit Simulation**: Custom SVG-based virtual circuit
 - **Code Generation**: Real-time Arduino C++ code generation
@@ -303,19 +296,17 @@ Wireloop/
 │   │   └── wireloop/  # Core app components
 │   ├── routes/             # SvelteKit routing
 │   │   ├── (blockly)/     # Main app routes
-│   │   └── (fullpage)/    # Full-page routes
+│   │   ├── (fullpage)/    # Full-page routes
+│   │   └── api/           # API endpoints (query, mutation)
 │   ├── stores/            # Svelte stores for state
 │   ├── core/              # Core logic
 │   │   ├── blockly/       # Blockly integration
 │   │   ├── microcontroller/ # Arduino simulation
 │   │   └── virtual-circuit/  # Circuit simulation
 │   ├── blocks/            # Custom Blockly blocks
+│   ├── lib/               # Shared libraries
+│   │   └── db/            # Drizzle ORM schema
 │   └── helpers/           # Utility functions
-├── convex/                # Convex backend functions
-│   ├── auth.ts           # Authentication queries/mutations
-│   ├── projects.ts       # Project CRUD operations
-│   ├── users.ts          # User data operations
-│   └── schema.ts         # Database schema
 └── static/               # Static assets
 ```
 

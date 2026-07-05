@@ -2,7 +2,7 @@
   import authStore from "../../../stores/auth.store";
   import projectStore from "../../../stores/project.store";
   import Login from "../../../components/auth/Login.svelte";
-  import { addProject, saveProject } from "../../../firebase/db";
+  import { getApiClient } from "../../../stores/api.client";
   import { onDestroy } from "svelte";
   import FlashMessage from "../../../components/wireloop/ui/FlashMessage.svelte";
   import { wait } from "../../../helpers/wait";
@@ -36,11 +36,15 @@
     canSave = false;
     try {
       if (!$projectStore.projectId) {
-        const { projectId, project } = await addProject({
+        const xml = workspaceToXML() || '';
+        const { projectId, project } = await getApiClient().mutation('projects:createProject', {
           name: projectName,
           description: projectDescription,
-          userId: $authStore.uid,
-        } as any);
+          workspace: xml,
+        });
+        await getApiClient().mutation('projects:saveProjectFile', {
+          projectId, userId: $authStore.uid, content: xml, filename: `${projectId}.xml`,
+        });
         projectStore.set({ project: project as any, projectId });
         showMessage = true;
         wait(400);
@@ -52,7 +56,13 @@
         name: projectName,
         description: projectDescription,
       };
-      await saveProject(projectToSave, $projectStore.projectId);
+      await getApiClient().mutation('projects:updateProject', {
+        projectId: $projectStore.projectId, name: projectToSave.name, description: projectToSave.description,
+      });
+      const xml = workspaceToXML() || '';
+      await getApiClient().mutation('projects:saveProjectFile', {
+        projectId: $projectStore.projectId, userId: $authStore.uid, content: xml, filename: `${$projectStore.projectId}.xml`,
+      });
       projectStore.set({
         projectId: $projectStore.projectId,
         project: projectToSave,

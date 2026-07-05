@@ -1,7 +1,7 @@
 import { writable, derived, get, type Readable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
-import { getConvexClient, createQuery, createMutation } from "./convex.store";
+import { getApiClient, createQuery, createMutation } from "./api.client";
 
 interface ProjectState {
   project: Project | null;
@@ -54,8 +54,8 @@ export async function loadProject(projectId: string): Promise<void> {
   }));
 
   try {
-    const convexClient = getConvexClient();
-    const project = await convexClient.query('projects:getProject', { projectId });
+    const client = getApiClient();
+    const project = await client.query('projects:getProject', { projectId });
 
     if (project) {
       projectStore.set({
