@@ -4,33 +4,59 @@ import { getRequestEvent } from "$app/server";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon, neonConfig } from "@neondatabase/serverless";
-import { dash } from "@better-auth/infra";
 import * as schema from "../db/schema/auth";
 
-// ponytail: lazy init — doesn't connect at import time so SvelteKit's
-// postbuild analysis can run without DATABASE_URL in the build env
+import {
+  DATABASE_URL,
+  BETTER_AUTH_SECRET,
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+} from "$env/static/private";
+import { PUBLIC_APP_URL } from "$env/static/public";
+
+neonConfig.fetchConnectionCache = true;
+
 let _auth: ReturnType<typeof betterAuth> | null = null;
 
 export function getAuth() {
   if (!_auth) {
-    const url = process.env.DATABASE_URL;
-    if (!url) throw new Error('DATABASE_URL not set');
-    neonConfig.fetchConnectionCache = true;
+    const url = DATABASE_URL;
+    if (!url) return null;
+
+    const base = PUBLIC_APP_URL || "http://localhost:5173";
     const db = drizzle(neon(url), { schema });
+
     _auth = betterAuth({
       database: drizzleAdapter(db, { provider: "pg", schema }),
-      secret: process.env.BETTER_AUTH_SECRET,
+      secret: BETTER_AUTH_SECRET,
       basePath: "/api/auth",
       baseURL: {
-        allowedHosts: [
-          process.env.PUBLIC_APP_URL || "http://localhost:5173",
-          "*.ngrok-free.dev",
-        ],
-        fallback: process.env.PUBLIC_APP_URL || "http://localhost:5173",
+        allowedHosts: [base, "*.ngrok-free.dev"],
+        fallback: base,
       },
       emailAndPassword: { enabled: true },
-      plugins: [sveltekitCookies(getRequestEvent), dash()],
-    });
+      socialProviders: {
+        ...(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
+          ? {
+              github: {
+                clientId: GITHUB_CLIENT_ID,
+                clientSecret: GITHUB_CLIENT_SECRET,
+              },
+            }
+          : {}),
+        ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+          ? {
+              google: {
+                clientId: GOOGLE_CLIENT_ID,
+                clientSecret: GOOGLE_CLIENT_SECRET,
+              },
+            }
+          : {}),
+      },
+      plugins: [sveltekitCookies(getRequestEvent)],
+    } as any);
   }
   return _auth;
 }

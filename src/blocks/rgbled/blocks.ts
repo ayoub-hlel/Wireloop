@@ -123,32 +123,3 @@ Blockly.common.defineBlocks({
   set_color_led: set_color_led,
   set_simple_color_led: set_simple_color_led,
 });
-                    
-                    
-
-// Blockly.defineBlocksWithJsonArray([
-//   {
-//     type: "set_color_led",
-//     message0: "%1 Set RGB LED's Color %2",
-//     args0: [
-//       {
-//         type: "field_image",
-//         src: "./blocks/led/color_led.png",
-//         width: 15,
-//         height: 15,
-//         alt: "*",
-//         flipRtl: false,
-//       },
-//       {
-//         type: "input_value",
-//         name: "COLOUR",
-//         check: "Colour",
-//       },
-//     ],
-//     previousStatement: null,
-//     nextStatement: null,
-//     colour: COLOR_THEME.COMPONENTS,
-//     tooltip: "",
-//     helpUrl: "",
-//   },
-// ]);

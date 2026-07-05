@@ -7,7 +7,8 @@ export default defineConfig({
     environment: 'jsdom',
     include: [
       'src/tests/**/*.{test,spec}.{js,ts}',
-      'src/tests/**/*.ts' // Include our TDD test files
+      'src/tests/**/*.ts',
+      'tests/**/*.{test,spec}.{js,ts}',
     ],
     exclude: [
       'node_modules/**',
@@ -15,11 +16,13 @@ export default defineConfig({
       '.svelte-kit/**',
       'src/tests/mocks/**',
       'src/tests/fake-block.ts',
-      'src/tests/tests.helper.ts'
+      'src/tests/tests.helper.ts',
+      'tests/setup.ts',
     ],
     deps: {
       inline: [/svelte/],
     },
+    globalSetup: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {

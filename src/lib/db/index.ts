@@ -7,6 +7,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { neon, neonConfig } from '@neondatabase/serverless';
 import * as auth from './schema/auth';
 import * as projects from './schema/projects';
+import { DATABASE_URL } from '$env/static/private';
 
 neonConfig.fetchConnectionCache = true;
 
@@ -15,8 +16,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 /** Get or create the drizzle DB client. Throws if DATABASE_URL is not set. */
 export function getDb() {
   if (!_db) {
-    if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL not set');
-    _db = drizzle(neon(process.env.DATABASE_URL), { schema: { ...auth, ...projects } });
+    if (!DATABASE_URL) throw new Error('DATABASE_URL not set');
+    _db = drizzle(neon(DATABASE_URL), { schema: { ...auth, ...projects } });
   }
   return _db;
 }

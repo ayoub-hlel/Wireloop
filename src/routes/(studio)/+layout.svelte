@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type { Snippet } from 'svelte';
+  let { children }: { children: Snippet } = $props();
   import debounce from 'lodash/debounce';
   import { isPathOnHomePage } from '../../helpers/is-path-on-homepage';
   import LeftToolbar from '../../components/wireloop/LeftToolbar.svelte';
@@ -143,6 +145,7 @@
     <Blockly {showLoopExecutionTimesArduinoStartBlock} />
   </div>
   
+  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <div 
     onmousedown={startResize} 
     class="w-1.5 cursor-col-resize bg-border hover:bg-primary/50 transition-colors flex items-center justify-center relative z-10"
@@ -162,6 +165,8 @@
     <RightPanelTabs />
   </div>
 </main>
+
+{@render children()}
 
 <svelte:window on:resize={resizeHeight} />
 

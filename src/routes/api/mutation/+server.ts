@@ -10,7 +10,7 @@ import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
  * POST  { name: 'projects:createProject', args: { ... } } → result
  */
 export async function POST({ request, locals }) {
-  const { name, args } = await request.json();
+  const { name, args } = await request.json() as { name: string; args: any };
   if (!locals.user) throw error(401, 'Unauthorized');
   const db = getDb();
 
@@ -222,11 +222,6 @@ export async function POST({ request, locals }) {
         });
       }
       return json({ success: true, userId: locals.user.id });
-    }
-
-    // ── Migration (legacy, no-op) ──
-    case 'users:migrateUserData': {
-      return json({ migrated: 0, errors: ['Migration no longer supported — use direct Neon import'] });
     }
 
     default:

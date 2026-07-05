@@ -17,7 +17,7 @@ build*
 
 # Application specific
 /src/env.ts
-.env
+.env.local
 r2-bucket/
 static/example-projects/
 
@@ -67,9 +67,18 @@ AGENT_MISSION.md
 GEMINI.md
 QWEN.md
 TODO.md
+mcp.json
+.agents/
+.claude/
+.neon
+skills-lock.json
+opencode.json
 
 # Generated knowledge graph (graphify)
 graphify-out/
+
+# Local DB integrity tests (run before push)
+/tests/
 
 # Local pnpm configuration
 .npmrc
@@ -82,3 +91,6 @@ gha-creds-*.json
 
 # Pi AI agent directory
 .pi/
+
+.wrangler
+.env

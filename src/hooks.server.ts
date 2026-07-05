@@ -12,16 +12,20 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   // Populate session for all routes — auth is lazy, doesn't connect at import
   const auth = getAuth();
-  const session = await auth.api.getSession({
-    headers: event.request.headers,
-  });
-  if (session) {
-    event.locals.session = session.session;
-    event.locals.user = session.user;
-  } else {
-    event.locals.session = null;
-    event.locals.user = null;
+  if (auth) {
+    const session = await auth.api.getSession({
+      headers: event.request.headers,
+    });
+    if (session) {
+      event.locals.session = session.session;
+      event.locals.user = session.user;
+    } else {
+      event.locals.session = null;
+      event.locals.user = null;
+    }
+    return svelteKitHandler({ event, resolve, auth, building });
   }
-
-  return svelteKitHandler({ event, resolve, auth, building });
+  event.locals.session = null;
+  event.locals.user = null;
+  return resolve(event);
 };

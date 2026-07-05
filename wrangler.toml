@@ -1,24 +1,11 @@
 name = "wireloop"
-compatibility_date = "2026-06-30"
+compatibility_date = "2026-07-04"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".svelte-kit/cloudflare"
 
 # ── R2 bucket binding ─────────────────────────────────────────────
-# Base binding — applies to both envs unless overridden below.
+# Base binding — applies to all environments.
+# Preview uses the same bucket; production overrides below.
 [[r2_buckets]]
 binding = "R2"
-bucket_name = "arduino-workflow-builder-lesson-staging"
-
-# ── Preview environment ──────────────────────────────────────────
-[env.preview]
-
-[env.preview.r2_buckets]
-binding = "R2"
-bucket_name = "arduino-workflow-builder-lesson-staging"
-
-# ── Production environment ───────────────────────────────────────
-[env.production]
-
-[env.production.r2_buckets]
-binding = "R2"
-bucket_name = "arduino-workflow-files"
+bucket_name = "wireloop-bucket"

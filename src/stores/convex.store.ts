@@ -42,7 +42,7 @@ class ApiClient implements DBClient {
       body: JSON.stringify({ name, args }),
     });
     if (!res.ok) {
-      const body = await res.json().catch(() => ({ message: res.statusText }));
+      const body = await res.json().catch(() => ({ message: res.statusText })) as { message?: string };
       throw new Error(body.message || `Query failed: ${name}`);
     }
     return res.json();
@@ -55,7 +55,7 @@ class ApiClient implements DBClient {
       body: JSON.stringify({ name, args }),
     });
     if (!res.ok) {
-      const body = await res.json().catch(() => ({ message: res.statusText }));
+      const body = await res.json().catch(() => ({ message: res.statusText })) as { message?: string };
       throw new Error(body.message || `Mutation failed: ${name}`);
     }
     return res.json();
@@ -114,57 +114,4 @@ export function createMutation<TArgs, TResult>(_mutationName: string) {
   };
 }
 
-// ponytail: legacy exports kept for compat — no-ops
-export function createOptimisticMutation<TArgs, TResult>(name: string, _opt: (a: TArgs) => void, _roll: () => void) {
-  return async (args: TArgs): Promise<TResult> => {
-    if (!client) throw new Error('DB client not initialized');
-    return client.mutation(name, args) as Promise<TResult>;
-  };
-}
 
-export async function executeQuery<T>(name: string, args: any = {}): Promise<T> {
-  if (!client) throw new Error('DB client not initialized');
-  return client.query(name, args) as Promise<T>;
-}
-
-export async function executeBatchMutations<T>(
-  _mutations: Array<{ name: string; args: any }>,
-  _options?: any
-): Promise<Array<{ success: boolean; result?: T; error?: any }>> {
-  return [];
-}
-
-export function reconnectConvex(): void {
-  initializeConvexClient();
-}
-
-export function cleanupConvexClient(): void {
-  client = null;
-  connectionState.set(initialConnectionState);
-}
-
-export async function checkConvexHealth(): Promise<{
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  issues: string[];
-  metrics: { responseTime: number; isConnected: boolean };
-  lastCheck: number;
-}> {
-  return {
-    status: 'healthy',
-    issues: [],
-    metrics: { responseTime: 0, isConnected: !!client },
-    lastCheck: Date.now(),
-  };
-}
-
-export function enableAutoRecovery(): () => void {
-  return () => {};
-}
-
-export function clearDatabaseCache(): void {
-  // no-op
-}
-
-export function getDatabaseStats(): any {
-  return { cacheSize: 0, connectionUptime: 0, connectionState: initialConnectionState };
-}

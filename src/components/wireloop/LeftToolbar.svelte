@@ -94,7 +94,8 @@
 
     <!-- Dropdown Menu -->
     {#if isDropdownOpen}
-      <div class="dropdown-menu" onmouseleave={closeDropdown} transition:fly={{ y: -8, duration: 120 }}>
+      <!-- svelte-ignore a11y_interactive_supports_focus -->
+      <div class="dropdown-menu" onmouseleave={closeDropdown} transition:fly={{ y: -8, duration: 120 }} role="menu">
         <button class="dropdown-item" onclick={() => handleNavigate('/open')}>
           <i class="fa fa-folder-open-o"></i>
           <span>My Projects</span>
