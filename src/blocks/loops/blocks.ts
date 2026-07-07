@@ -1,7 +1,7 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
-Blockly.defineBlocksWithJsonArray([
+const blocks = [
   {
     lastDummyAlign0: "RIGHT",
     type: "controls_for",
@@ -50,4 +50,6 @@ Blockly.defineBlocksWithJsonArray([
     helpUrl: "%{BKY_CONTROLS_FOR_HELPURL}",
     extensions: ["contextMenu_newGetVariableBlock", "controls_for_tooltip"],
   },
-]);
+];
+
+Blockly.defineBlocksWithJsonArray(blocks.filter(b => !Blockly.Blocks[b.type]));

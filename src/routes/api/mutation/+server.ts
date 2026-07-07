@@ -176,6 +176,7 @@ export async function POST({ request, locals }) {
       const existing = await db.select().from(profiles).where(eq(profiles.userId, locals.user.id)).then(r => r[0]);
       const updateData = {
         username: args.username ?? existing?.username,
+        profileImage: args.profileImage ?? existing?.profileImage,
         bio: args.bio ?? existing?.bio,
         location: args.location ?? existing?.location,
         website: args.website ?? existing?.website,

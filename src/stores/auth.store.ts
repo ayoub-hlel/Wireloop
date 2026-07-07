@@ -53,13 +53,13 @@ function createAuthStore() {
     /** Sign in with email + password */
     async signInEmail(email: string, password: string) {
       const { error } = await authClient.signIn.email({ email, password });
-      if (error) throw error;
+      if (error) throw new Error(error.message ?? error.statusText ?? "Sign in failed");
     },
 
-    /** Sign up */
-    async signUp(email: string, password: string, name: string) {
-      const { error } = await authClient.signUp.email({ email, password, name });
-      if (error) throw error;
+    /** Sign up — creates Better Auth user only, caller handles profile */
+    async signUp(email: string, password: string, username: string) {
+      const { error } = await authClient.signUp.email({ email, password, name: username });
+      if (error) throw new Error(error.message ?? error.statusText ?? "Sign up failed");
     },
 
     /** Sign out */

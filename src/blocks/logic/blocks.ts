@@ -1,7 +1,7 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
-Blockly.defineBlocksWithJsonArray([
+const blocks = [
   // If/else block that does not use a mutator.
   {
     type: "control_if",
@@ -58,4 +58,6 @@ Blockly.defineBlocksWithJsonArray([
     helpUrl: "%{BKY_CONTROLS_IF_HELPURL}",
     extensions: ["controls_if_tooltip"],
   },
-]);
+];
+
+Blockly.defineBlocksWithJsonArray(blocks.filter(b => !Blockly.Blocks[b.type]));

@@ -1,18 +1,18 @@
 import { betterAuth } from "better-auth";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
+<<<<<<< Updated upstream
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon, neonConfig } from "@neondatabase/serverless";
 import * as schema from "../db/schema/auth";
+=======
+import { createAuth } from "./auth-factory";
+>>>>>>> Stashed changes
 
 import {
   DATABASE_URL,
   BETTER_AUTH_SECRET,
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
 } from "$env/static/private";
 import { PUBLIC_APP_URL } from "$env/static/public";
 
@@ -31,6 +31,7 @@ export function getAuth() {
     _auth = betterAuth({
       database: drizzleAdapter(db, { provider: "pg", schema }),
       secret: BETTER_AUTH_SECRET,
+<<<<<<< Updated upstream
       basePath: "/api/auth",
       baseURL: {
         allowedHosts: [base, "*.ngrok-free.dev"],
@@ -57,6 +58,12 @@ export function getAuth() {
       },
       plugins: [sveltekitCookies(getRequestEvent)],
     } as any);
+=======
+      baseURL: base,
+      allowedHosts: ["*.ngrok-free.dev"],
+      extraPlugins: [sveltekitCookies(getRequestEvent)],
+    });
+>>>>>>> Stashed changes
   }
   return _auth;
 }

@@ -145,7 +145,7 @@
   );
 
   unsubscribes.push(
-    arduinoStore.subscribe((m) => console.log(m, 'arduino store blockly component'))
+    arduinoStore.subscribe(() => {})
   );
 
   unsubscribes.push(

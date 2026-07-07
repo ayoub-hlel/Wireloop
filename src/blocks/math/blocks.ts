@@ -1,7 +1,7 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
-Blockly.defineBlocksWithJsonArray([
+const blocks = [
   {
     type: "string_to_number",
     message0: "Text to Number %1",
@@ -44,4 +44,6 @@ Blockly.defineBlocksWithJsonArray([
     tooltip: "%{BKY_MATH_IS_TOOLTIP}",
     mutator: "math_is_divisibleby_mutator",
   },
-]);
+];
+
+Blockly.defineBlocksWithJsonArray(blocks.filter(b => !Blockly.Blocks[b.type]));

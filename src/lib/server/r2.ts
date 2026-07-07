@@ -24,7 +24,7 @@ export function isR2Configured(): boolean {
   return !!(R2_ENDPOINT && R2_ACCESS_KEY && R2_SECRET_KEY && R2_BUCKET);
 }
 
-export async function putFile(key: string, content: string, contentType: string): Promise<void> {
+export async function putFile(key: string, content: string | ArrayBuffer | Uint8Array, contentType: string): Promise<void> {
   if (_binding) {
     await _binding.put(key, content, { httpMetadata: { contentType } });
     return;
@@ -49,6 +49,23 @@ export async function getFile(key: string): Promise<string | null> {
     Key: key,
   }));
   return await result.Body?.transformToString() ?? null;
+}
+
+export async function getFileBuffer(key: string): Promise<{ body: ArrayBuffer; contentType: string } | null> {
+  if (_binding) {
+    const obj = await _binding.get(key);
+    if (!obj) return null;
+    const buf = await obj.arrayBuffer();
+    return { body: buf, contentType: obj.httpMetadata?.contentType ?? 'application/octet-stream' };
+  }
+  if (!isR2Configured()) return null;
+  const result = await getClient().send(new GetObjectCommand({
+    Bucket: R2_BUCKET,
+    Key: key,
+  }));
+  if (!result.Body) return null;
+  const buf = await result.Body.transformToByteArray();
+  return { body: buf, contentType: result.ContentType ?? 'application/octet-stream' };
 }
 
 export async function deleteFile(key: string): Promise<void> {
