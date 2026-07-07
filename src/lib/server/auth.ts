@@ -2,14 +2,8 @@ import { createAuth } from "./auth-factory";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 
-import {
-  DATABASE_URL,
-  BETTER_AUTH_SECRET,
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-} from "$env/static/private";
+import { DATABASE_URL, BETTER_AUTH_SECRET } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 
 let _auth: ReturnType<typeof createAuth> | null = null;
 
@@ -27,19 +21,19 @@ export function getAuth(baseURL?: string) {
       allowedHosts: ["*.ngrok-free.dev"],
       extraPlugins: [sveltekitCookies(getRequestEvent)],
       socialProviders: {
-        ...(GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
+        ...(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET
           ? {
               github: {
-                clientId: GITHUB_CLIENT_ID,
-                clientSecret: GITHUB_CLIENT_SECRET,
+                clientId: env.GITHUB_CLIENT_ID,
+                clientSecret: env.GITHUB_CLIENT_SECRET,
               },
             }
           : {}),
-        ...(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
+        ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
           ? {
               google: {
-                clientId: GOOGLE_CLIENT_ID,
-                clientSecret: GOOGLE_CLIENT_SECRET,
+                clientId: env.GOOGLE_CLIENT_ID,
+                clientSecret: env.GOOGLE_CLIENT_SECRET,
               },
             }
           : {}),
