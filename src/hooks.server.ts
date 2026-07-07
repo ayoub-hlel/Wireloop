@@ -1,8 +1,15 @@
 import { getAuth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { setR2Binding } from '$lib/server/r2';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
+
+export const handleError: HandleServerError = async ({ error, event }) => {
+  console.error('SvelteKit error:', error, 'URL:', event.url.pathname);
+  return {
+    message: error instanceof Error ? error.message : 'Unknown error',
+  };
+};
 
 export const handle: Handle = async ({ event, resolve }) => {
   // Wire Cloudflare R2 binding (avoids exposing access keys)
