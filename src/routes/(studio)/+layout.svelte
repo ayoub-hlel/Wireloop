@@ -20,9 +20,6 @@
     arduinoLoopBlockShowNumberOfTimesThroughLoop,
   } from '../../core/blockly/helpers/arduino_loop_block.helper';
   import swal from 'sweetalert';
-
-
-  let showLoopExecutionTimesArduinoStartBlock = $derived(isPathOnHomePage($page.url.pathname));
   let height = $state('500px');
   let middleFlex = $state(59.5);
   let rightFlex = $state(39.5);
@@ -141,7 +138,7 @@
   <LeftToolbar />
   
   <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
-    <Blockly {showLoopExecutionTimesArduinoStartBlock} />
+    <Blockly showLoopExecutionTimesArduinoStartBlock={isPathOnHomePage($page.url.pathname)} />
   </div>
   
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
