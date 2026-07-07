@@ -1,5 +1,6 @@
 <script lang="ts">
   let { status, error }: { status: number; error: any } = $props();
+  console.log('ERROR PAGE RENDERED', { status, error, msg: error?.message });
 </script>
 
 <style>
