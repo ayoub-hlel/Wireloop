@@ -1,10 +1,9 @@
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
-import commonjs from "@rollup/plugin-commonjs";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [tailwindcss(), commonjs({ sourceMap: true }), sveltekit()],
+  plugins: [tailwindcss(), sveltekit()],
   
   define: {
     // Prevent process references in client code
@@ -22,6 +21,9 @@ export default defineConfig({
     include: ['@clerk/clerk-js']
   },
   resolve: {
+    alias: {
+      lodash: 'lodash-es'
+    },
     extensions: ['.js', '.ts', '.svelte']
   },
   build: {

@@ -1,7 +1,6 @@
 import Blockly from "blockly";
 import type { Block } from "blockly";
 import { createDoubleToStringCFunc } from "../debug/generators";
-import * as _ from "lodash";
 
 Blockly["Arduino"]["text"] = function (block: Block) {
   // Text value.
