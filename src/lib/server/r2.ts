@@ -1,5 +1,6 @@
 // ponytail: thin R2 wrapper — Cloudflare binding preferred, S3 env-var fallback
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import type { PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { R2_ENDPOINT, R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET } from '$env/static/private';
 
 // ponytail: global lock, per-account locks if throughput matters
@@ -33,7 +34,7 @@ export async function putFile(key: string, content: string | ArrayBuffer | Uint8
   await getClient().send(new PutObjectCommand({
     Bucket: R2_BUCKET,
     Key: key,
-    Body: content,
+    Body: content as any,
     ContentType: contentType,
   }));
 }
@@ -51,12 +52,12 @@ export async function getFile(key: string): Promise<string | null> {
   return await result.Body?.transformToString() ?? null;
 }
 
-export async function getFileBuffer(key: string): Promise<{ body: ArrayBuffer; contentType: string } | null> {
+export async function getFileBuffer(key: string): Promise<{ body: Uint8Array; contentType: string } | null> {
   if (_binding) {
     const obj = await _binding.get(key);
     if (!obj) return null;
     const buf = await obj.arrayBuffer();
-    return { body: buf, contentType: obj.httpMetadata?.contentType ?? 'application/octet-stream' };
+    return { body: new Uint8Array(buf), contentType: obj.httpMetadata?.contentType ?? 'application/octet-stream' };
   }
   if (!isR2Configured()) return null;
   const result = await getClient().send(new GetObjectCommand({

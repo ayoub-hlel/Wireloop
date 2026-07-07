@@ -55,7 +55,7 @@ describe("Sign-Up", () => {
     });
 
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data = (await res.json()) as { user: { email: string; name: string; emailVerified: boolean }; token: string };
     expect(data.user.email).toBe(email);
     expect(data.user.name).toBe("Valid User");
     expect(data.user.emailVerified).toBe(false);

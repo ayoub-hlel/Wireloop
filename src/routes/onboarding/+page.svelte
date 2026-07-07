@@ -61,7 +61,7 @@
           body: formData,
         });
         if (!uploadRes.ok) throw new Error("Avatar upload failed");
-        const { url } = await uploadRes.json();
+        const { url } = (await uploadRes.json()) as { url: string };
         profileImageUrl = url;
       }
 

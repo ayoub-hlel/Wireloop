@@ -7,7 +7,7 @@ export const GET: RequestHandler = async ({ params }) => {
   for (const ext of exts) {
     const result = await getFileBuffer(`avatars/${params.userId}.${ext}`);
     if (result) {
-      return new Response(result.body, {
+      return new Response(result.body as BodyInit, {
         headers: {
           'content-type': result.contentType,
           'cache-control': 'public, max-age=31536000, immutable',

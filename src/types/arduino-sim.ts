@@ -1,4 +1,4 @@
-/* Arduino simulator types */ — Arduino simulator visual settings
+/* Arduino simulator types — Arduino simulator visual settings */
 import { MicroControllerType } from '../core/microcontroller/microcontroller';
 
 export interface User {

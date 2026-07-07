@@ -190,7 +190,6 @@ export async function POST({ request, locals }) {
           userId: locals.user.id,
           email: locals.user.email ?? '',
           name: locals.user.name ?? '',
-          profileImage: locals.user.image,
           ...updateData,
           lastLogin: new Date(),
           createdAt: new Date(),

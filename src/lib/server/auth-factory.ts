@@ -33,6 +33,10 @@ export type AuthFactoryDeps = {
    * Additional allowed hosts for baseURL.
    */
   allowedHosts?: string[];
+  /**
+   * OAuth / social provider configs (GitHub, Google, etc.).
+   */
+  socialProviders?: BetterAuthOptions["socialProviders"];
 };
 
 export function createAuth(deps: AuthFactoryDeps) {
@@ -54,6 +58,9 @@ export function createAuth(deps: AuthFactoryDeps) {
       minPasswordLength: 8,
       maxPasswordLength: 128,
     },
+
+    // ── Social / OAuth providers ────────────────────────────────
+    ...(deps.socialProviders ? { socialProviders: deps.socialProviders } : {}),
 
     // ── Password complexity hook ─────────────────────────────────
     hooks: {

@@ -47,7 +47,7 @@ describe("Auth Guard", () => {
       asResponse: true,
     });
 
-    const signInData = await signInRes.json();
+    const signInData = (await signInRes.json()) as { token: string };
     const token = signInData.token;
 
     const sessionRes = await auth.api.getSession({

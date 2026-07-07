@@ -25,7 +25,7 @@ describe("Sign-In", () => {
     });
 
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data = (await res.json()) as { user: { email: string }; token: string };
     expect(data.user.email).toBe(email);
     expect(data.token).toBeDefined();
   });
