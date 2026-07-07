@@ -7,7 +7,6 @@
   import { onErrorMessage, onSuccess } from "../../../help/alerts";
   import { tooltip } from "$lib/tooltip";
   import type { MicroControllerType } from "../../../core/microcontroller/microcontroller";
-  import swal from "sweetalert";
   import { onDestroy } from "svelte";
 
   const navigatorSerialNotAvailableMessage = `To upload code you must use chrome or a chromium based browser like edge, or brave. This will work with chrome version 89 or higher.`;
@@ -107,6 +106,7 @@
 
   async function clearMessages() {
     if (messages.length === 0) return;
+    const swal = (await import('sweetalert')).default;
     const confirmed = await swal({
       text: "Clear all serial messages?",
       icon: "warning",

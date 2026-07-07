@@ -1,11 +1,22 @@
-import swal from "sweetalert";
-export const onErrorMessage = (message: string, e?: unknown) => {
-  swal("Opps", message, "error");
+let _swal: any;
+const getSwal = async () => {
+  if (!_swal) {
+    _swal = (await import('sweetalert')).default;
+  }
+  return _swal;
+};
+
+export const onErrorMessage = async (message: string, e?: unknown) => {
+  try {
+    const swal = await getSwal();
+    swal("Opps", message, "error");
+  } catch {}
   if (e) console.error(e);
 };
 
 export const onConfirm = async (message: string): Promise<boolean> => {
   try {
+    const swal = await getSwal();
     return await swal({
       text: message,
       icon: "info",
@@ -18,6 +29,9 @@ export const onConfirm = async (message: string): Promise<boolean> => {
   }
 };
 
-export const onSuccess = (message: string) => {
-  swal("Good job!", message, "success");
+export const onSuccess = async (message: string) => {
+  try {
+    const swal = await getSwal();
+    swal("Good job!", message, "success");
+  } catch {}
 };
