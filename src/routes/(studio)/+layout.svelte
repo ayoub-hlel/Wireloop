@@ -19,7 +19,6 @@
     arduinoLoopBlockShowLoopForeverText,
     arduinoLoopBlockShowNumberOfTimesThroughLoop,
   } from '../../core/blockly/helpers/arduino_loop_block.helper';
-  import swal from 'sweetalert';
   let height = $state('500px');
   let middleFlex = $state(59.5);
   let rightFlex = $state(39.5);
@@ -87,6 +86,7 @@
         return;
       }
 
+      const swal = (await import('sweetalert')).default;
       swal({
         title: 'Loading your project',
         allowEscapeKey: false,
