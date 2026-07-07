@@ -1,7 +1,7 @@
 // ponytail: thin R2 wrapper — Cloudflare binding preferred, S3 env-var fallback
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { PutObjectCommandInput } from '@aws-sdk/client-s3';
-import { R2_ENDPOINT, R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 // ponytail: global lock, per-account locks if throughput matters
 let _binding: any = null;
@@ -14,15 +14,15 @@ export function setR2Binding(binding: any) {
 function getClient() {
   return new S3Client({
     region: 'auto',
-    endpoint: R2_ENDPOINT || '',
-    credentials: { accessKeyId: R2_ACCESS_KEY || '', secretAccessKey: R2_SECRET_KEY || '' },
+    endpoint: env.R2_ENDPOINT || '',
+    credentials: { accessKeyId: env.R2_ACCESS_KEY || '', secretAccessKey: env.R2_SECRET_KEY || '' },
     requestChecksumCalculation: 'WHEN_REQUIRED',
   });
 }
 
 export function isR2Configured(): boolean {
   if (_binding) return true;
-  return !!(R2_ENDPOINT && R2_ACCESS_KEY && R2_SECRET_KEY && R2_BUCKET);
+  return !!(env.R2_ENDPOINT && env.R2_ACCESS_KEY && env.R2_SECRET_KEY && env.R2_BUCKET);
 }
 
 export async function putFile(key: string, content: string | ArrayBuffer | Uint8Array, contentType: string): Promise<void> {
@@ -32,7 +32,7 @@ export async function putFile(key: string, content: string | ArrayBuffer | Uint8
   }
   if (!isR2Configured()) throw new Error('R2 not configured');
   await getClient().send(new PutObjectCommand({
-    Bucket: R2_BUCKET,
+    Bucket: env.R2_BUCKET,
     Key: key,
     Body: content as any,
     ContentType: contentType,
@@ -46,7 +46,7 @@ export async function getFile(key: string): Promise<string | null> {
   }
   if (!isR2Configured()) return null;
   const result = await getClient().send(new GetObjectCommand({
-    Bucket: R2_BUCKET,
+    Bucket: env.R2_BUCKET,
     Key: key,
   }));
   return await result.Body?.transformToString() ?? null;
@@ -61,7 +61,7 @@ export async function getFileBuffer(key: string): Promise<{ body: Uint8Array; co
   }
   if (!isR2Configured()) return null;
   const result = await getClient().send(new GetObjectCommand({
-    Bucket: R2_BUCKET,
+    Bucket: env.R2_BUCKET,
     Key: key,
   }));
   if (!result.Body) return null;
@@ -76,7 +76,7 @@ export async function deleteFile(key: string): Promise<void> {
   }
   if (!isR2Configured()) return;
   await getClient().send(new DeleteObjectCommand({
-    Bucket: R2_BUCKET,
+    Bucket: env.R2_BUCKET,
     Key: key,
   }));
 }
