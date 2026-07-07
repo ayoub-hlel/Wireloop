@@ -134,29 +134,29 @@
         }
       })
     );
+
+    unsubscribes.push(
+      resizeStore.subscribe((event) => {
+        if (event.type == WindowType.MAIN) {
+          resizeBlockly();
+        }
+      })
+    );
+
+    unsubscribes.push(
+      arduinoStore.subscribe(() => {})
+    );
+
+    unsubscribes.push(
+      arduinoMessageStore.subscribe((m) => {
+        if (!m || m.type === 'Computer' || m.message.indexOf('DEBUG_BLOCK_') === -1) return;
+        const blockId = m.message.replace('DEBUG_BLOCK_', '').trim();
+        getAllBlocks().forEach((b) => b.unselect());
+        const selectedBlock = getBlockById(blockId);
+        if (selectedBlock) { selectedBlock.select(); }
+      })
+    );
   });
-
-  unsubscribes.push(
-    resizeStore.subscribe((event) => {
-      if (event.type == WindowType.MAIN) {
-        resizeBlockly();
-      }
-    })
-  );
-
-  unsubscribes.push(
-    arduinoStore.subscribe(() => {})
-  );
-
-  unsubscribes.push(
-    arduinoMessageStore.subscribe((m) => {
-      if (!m || m.type === 'Computer' || m.message.indexOf('DEBUG_BLOCK_') === -1) return;
-      const blockId = m.message.replace('DEBUG_BLOCK_', '').trim();
-      getAllBlocks().forEach((b) => b.unselect());
-      const selectedBlock = getBlockById(blockId);
-      if (selectedBlock) { selectedBlock.select(); }
-    })
-  );
 
   function resizeBlockly() {
     if (Blockly.getMainWorkspace()) {
