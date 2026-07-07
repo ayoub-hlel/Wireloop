@@ -138,7 +138,7 @@
   <LeftToolbar />
   
   <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
-    <Blockly showLoopExecutionTimesArduinoStartBlock={isPathOnHomePage($page.url.pathname)} />
+    <Blockly showLoopExecutionTimesArduinoStartBlock={true} />
   </div>
   
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
