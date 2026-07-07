@@ -1,7 +1,13 @@
 import { createAuthClient } from 'better-auth/client';
-import { PUBLIC_APP_URL } from '$env/static/public';
+
+function getBaseURL(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'http://localhost:5173';
+}
 
 export const authClient = createAuthClient({
-  baseURL: PUBLIC_APP_URL || 'http://localhost:5173',
+  baseURL: getBaseURL(),
   basePath: "/api/auth",
 });

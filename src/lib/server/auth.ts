@@ -10,16 +10,15 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
 } from "$env/static/private";
-import { PUBLIC_APP_URL } from "$env/static/public";
 
 let _auth: ReturnType<typeof createAuth> | null = null;
 
-export function getAuth() {
+export function getAuth(baseURL?: string) {
   if (!_auth) {
     const url = DATABASE_URL;
     if (!url) return null;
 
-    const base = PUBLIC_APP_URL || "http://localhost:5173";
+    const base = baseURL || "http://localhost:5173";
 
     _auth = createAuth({
       databaseUrl: url,

@@ -11,7 +11,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // Populate session for all routes — auth is lazy, doesn't connect at import
-  const auth = getAuth();
+  const auth = getAuth(event.url.origin);
   if (auth) {
     const session = await auth.api.getSession({
       headers: event.request.headers,
