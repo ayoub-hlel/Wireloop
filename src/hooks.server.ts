@@ -11,20 +11,27 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   // Populate session for all routes — auth is lazy, doesn't connect at import
-  const auth = getAuth(event.url.origin);
-  if (auth) {
-    const session = await auth.api.getSession({
-      headers: event.request.headers,
-    });
-    if (session) {
-      event.locals.session = session.session;
-      event.locals.user = session.user;
-    } else {
-      event.locals.session = null;
-      event.locals.user = null;
+  try {
+    const auth = getAuth(event.url.origin);
+    if (auth) {
+      const session = await auth.api.getSession({
+        headers: event.request.headers,
+      });
+      if (session) {
+        event.locals.session = session.session;
+        event.locals.user = session.user;
+      } else {
+        event.locals.session = null;
+        event.locals.user = null;
+      }
+      return svelteKitHandler({ event, resolve, auth, building });
     }
-    return svelteKitHandler({ event, resolve, auth, building });
+  } catch (e) {
+    console.error('Auth init or session check failed:', e);
+    event.locals.session = null;
+    event.locals.user = null;
   }
+
   event.locals.session = null;
   event.locals.user = null;
   return resolve(event);

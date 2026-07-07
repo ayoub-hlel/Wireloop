@@ -13,6 +13,7 @@ export async function POST({ request, locals }) {
   const { name, args } = await request.json() as { name: string; args: any };
   if (!locals.user) throw error(401, 'Unauthorized');
   const db = getDb();
+  if (!db) throw error(503, 'Database not available');
 
   switch (name) {
     // ── Projects ──

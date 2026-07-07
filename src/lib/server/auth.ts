@@ -14,13 +14,18 @@ export function getAuth(baseURL?: string) {
 
     const base = baseURL || "http://localhost:5173";
 
-    _auth = createAuth({
-      databaseUrl: url,
-      secret,
-      baseURL: base,
-      allowedHosts: ["*.ngrok-free.dev"],
-      extraPlugins: [sveltekitCookies(getRequestEvent)],
-    });
+    try {
+      _auth = createAuth({
+        databaseUrl: url,
+        secret,
+        baseURL: base,
+        allowedHosts: ["*.ngrok-free.dev"],
+        extraPlugins: [sveltekitCookies(getRequestEvent)],
+      });
+    } catch (e) {
+      console.error('Auth creation failed:', e);
+      return null;
+    }
   }
   return _auth;
 }

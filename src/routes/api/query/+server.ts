@@ -11,6 +11,7 @@ import { getFile, isR2Configured } from '$lib/server/r2';
 export async function POST({ request, locals }) {
   const { name, args } = await request.json() as { name: string; args: any };
   const db = getDb();
+  if (!db) throw error(503, 'Database not available');
 
   switch (name) {
     // ── Projects ──

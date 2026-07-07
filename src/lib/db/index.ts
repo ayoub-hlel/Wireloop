@@ -7,17 +7,18 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { neon, neonConfig } from '@neondatabase/serverless';
 import * as auth from './schema/auth';
 import * as projects from './schema/projects';
-import { DATABASE_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 neonConfig.fetchConnectionCache = true;
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-/** Get or create the drizzle DB client. Throws if DATABASE_URL is not set. */
+/** Get or create the drizzle DB client. Returns null if DATABASE_URL is not set. */
 export function getDb() {
   if (!_db) {
-    if (!DATABASE_URL) throw new Error('DATABASE_URL not set');
-    _db = drizzle(neon(DATABASE_URL), { schema: { ...auth, ...projects } });
+    const url = env.DATABASE_URL;
+    if (!url) return null;
+    _db = drizzle(neon(url), { schema: { ...auth, ...projects } });
   }
   return _db;
 }
