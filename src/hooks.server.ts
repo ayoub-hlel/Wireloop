@@ -6,8 +6,9 @@ import { building } from '$app/environment';
 
 export const handleError: HandleServerError = async ({ error, event }) => {
   console.error('SvelteKit error:', error, 'URL:', event.url.pathname);
+  const detail = error instanceof Error ? error.stack || error.message : String(error);
   return {
-    message: error instanceof Error ? error.message : 'Unknown error',
+    message: detail.substring(0, 2000),
   };
 };
 
