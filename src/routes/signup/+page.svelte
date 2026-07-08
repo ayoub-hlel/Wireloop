@@ -9,7 +9,7 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import authStore from "../../stores/auth.store";
 
-  let activeTab = $state("signin");
+  let activeTab = $state("signup");
   let signinEmail = $state("");
   let signinPassword = $state("");
   let signupUsername = $state("");
@@ -20,7 +20,7 @@
 
   onMount(() => {
     const tab = $page.url.searchParams.get("tab");
-    if (tab === "signup") activeTab = "signup";
+    if (tab === "signin") activeTab = "signin";
   });
 
   async function handleSignIn() {
@@ -50,15 +50,13 @@
       submitting = false;
     }
   }
-
-
 </script>
 
 <svelte:head>
-  <title>Wireloop — Sign In</title>
+  <title>Wireloop — Sign Up</title>
 </svelte:head>
 
-<!-- Temp Nav -->
+<!-- Nav -->
 <nav class="fixed top-0 left-0 right-0 z-50 h-14 bg-surface border-b border-border flex items-center px-6">
   <a href="/" class="flex items-center gap-2 no-underline">
     <img src="/LOGO%20-%20Inversed.svg" alt="Wireloop" class="h-8 w-auto brightness-110" />
@@ -69,7 +67,7 @@
   <Card.Root class="w-full max-w-sm">
     <Card.Header>
       <Card.Title class="text-center">Welcome</Card.Title>
-      <Card.Description class="text-center">Sign in or create an account</Card.Description>
+      <Card.Description class="text-center">Create your account</Card.Description>
     </Card.Header>
     <Card.Content>
       {#if error}
@@ -122,8 +120,8 @@
       </Tabs.Root>
     </Card.Content>
     <Card.Footer class="flex justify-center">
-      <a href="/signup" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-        Don't have an account? Sign up
+      <a href="/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        Already have an account? Sign in
       </a>
     </Card.Footer>
   </Card.Root>
