@@ -27,12 +27,16 @@ Blockly["Arduino"].text.forceString_ = function (value: string) {
  */
 Blockly["Arduino"].text.forceString_.strRegExp = /^\s*'([^']|\\')*'\s*$/;
 
-Blockly["Arduino"]["text_join"] = function (block: Block | any) {
-  if (block.itemCount_ === 0) {
+Blockly["Arduino"]["text_join"] = function (block: Block) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Blockly dynamic property
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((block as any).itemCount_ === 0) {
     return ['""', Blockly["Arduino"].ORDER_ATOMIC];
   }
 
-  if (block.itemCount_ === 1) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Blockly dynamic property
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if ((block as any).itemCount_ === 1) {
     const element =
       Blockly["Arduino"].valueToCode(
         block,
@@ -63,7 +67,7 @@ Blockly["Arduino"]["text_join"] = function (block: Block | any) {
   return [code, Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["text_length"] = function (block: Block | any) {
+Blockly["Arduino"]["text_length"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["textLength"] =
     "double textLength(String str) {\n" +
     "\t return (double)str.length(); \n" +
@@ -78,7 +82,7 @@ Blockly["Arduino"]["text_length"] = function (block: Block | any) {
   return ["textLength(" + str + ")", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["text_isEmpty"] = function (block: Block | any) {
+Blockly["Arduino"]["text_isEmpty"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["textLength"] =
     "double textLength(String str) {\n" +
     "\t return (double)str.length(); \n" +
@@ -93,7 +97,7 @@ Blockly["Arduino"]["text_isEmpty"] = function (block: Block | any) {
   return ["(textLength(" + str + ") > 0)", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["number_to_string"] = function (block: Block | any) {
+Blockly["Arduino"]["number_to_string"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["double_to_string_debug"] =
     createDoubleToStringCFunc();
 
@@ -109,7 +113,7 @@ Blockly["Arduino"]["number_to_string"] = function (block: Block | any) {
   ];
 };
 
-Blockly["Arduino"]["text_changeCase"] = function (block: Block | any) {
+Blockly["Arduino"]["text_changeCase"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["upperCaseString"] =
     "\nString upperCaseString(String str) {\n" +
     "\tstr.toUpperCase(); \n" +
@@ -136,7 +140,7 @@ Blockly["Arduino"]["text_changeCase"] = function (block: Block | any) {
   }
 };
 
-Blockly["Arduino"]["parse_string_block"] = function (block: Block | any) {
+Blockly["Arduino"]["parse_string_block"] = function (block: Block) {
   Blockly["Arduino"].functionNames_["text_get_part_of_string"] =
     "\nString getParseValue(String data, char separator, int index) { \n" +
     "\tint found = 0;" +

@@ -3,6 +3,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import loopTimes from "../../core/blockly/helpers/looptimes";
+import type { BlocklyBlockDef } from "../../types/blockly";
 Blockly.defineBlocksWithJsonArray([
   {
     type: "rfid_scan",
@@ -67,7 +68,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const rfidSetupBlock: any = {
+const rfidSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(new Blockly.FieldImage("./blocks/rfid/rfid.png", 15, 15))

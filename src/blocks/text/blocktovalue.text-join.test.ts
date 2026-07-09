@@ -25,7 +25,9 @@ describe("text_join state factories", () => {
 
   it("should be able to join text blocks and variable string together", () => {
     const textJoinBlock = workspace.newBlock("text_join") as BlockSvg;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     (textJoinBlock as any).itemCount_ = 3;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     (textJoinBlock as any).updateShape_();
 
     const stringVariableBlock = createSetVariableBlockWithValue(
@@ -81,7 +83,9 @@ describe("text_join state factories", () => {
 
   it("should return an empty string if nothing is connected to it.", () => {
     const textJoinBlock = workspace.newBlock("text_join") as BlockSvg;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     (textJoinBlock as any).itemCount_ = 3;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     (textJoinBlock as any).updateShape_();
     const variableStringTest = workspace.createVariable(
       "test_string",

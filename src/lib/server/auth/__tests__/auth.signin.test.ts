@@ -52,8 +52,9 @@ describe("Sign-In", () => {
         headers: new Headers(),
       });
       expect.fail("Expected 401 for wrong password");
-    } catch (e: any) {
-      const status = e.status ?? e.statusCode ?? e.body?.status ?? e.message;
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number; statusCode?: number; body?: { status?: number } };
+      const status = err.status ?? err.statusCode ?? err.body?.status ?? err.message;
       expect(String(status).toLowerCase()).toMatch(/unauthorized|401/);
     }
   });
@@ -71,8 +72,9 @@ describe("Sign-In", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error for nonexistent email");
-    } catch (e: any) {
-      const status = e.status ?? e.statusCode ?? e.body?.status ?? e.message;
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number; statusCode?: number; body?: { status?: number } };
+      const status = err.status ?? err.statusCode ?? err.body?.status ?? err.message;
       expect(String(status).toLowerCase()).toMatch(/unauthorized|401/);
     }
   });

@@ -44,11 +44,12 @@
       try {
         await getApiClient().mutation('users:updateUserSettings', { ...settings });
         console.log("saved settings", settings);
-      } catch (e: any) {
+      } catch (e: unknown) {
         onErrorMessage("Please try again in 5 minutes.", e);
       }
     }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     settingsStore.set(settings as any);
     previousSettings = { ...settings };
     showMessage = true;

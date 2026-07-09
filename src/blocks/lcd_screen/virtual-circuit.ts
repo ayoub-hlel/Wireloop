@@ -12,6 +12,7 @@ import type { LCDScreenState } from "./state";
 import type { Element, Svg, Text } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -65,7 +66,7 @@ export const lcdReset: ResetComponent = (lcdScreenEl: Element) => {
 };
 
 export const lcdUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   lcdScreenEl
 ) => {
   const lcdState = state as LCDScreenState;

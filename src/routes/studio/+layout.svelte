@@ -91,7 +91,9 @@
         title: 'Loading your project',
         allowEscapeKey: false,
         allowOutsideClick: false,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         onOpen: () => { (swal as any).showLoading(); },
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       try {
@@ -115,8 +117,10 @@
           title: 'Error',
           text: 'Failed to load project. Please try again.',
           icon: 'error'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       } finally {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         (swal as any).close?.();
       }
     });

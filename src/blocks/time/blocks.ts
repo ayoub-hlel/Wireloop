@@ -1,5 +1,6 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
 Blockly.defineBlocksWithJsonArray([
   {
@@ -46,7 +47,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const timeSetupBlock: any = {
+const timeSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(new Blockly.FieldImage("./blocks/time/time.png", 15, 15))

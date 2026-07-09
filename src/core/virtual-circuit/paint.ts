@@ -71,7 +71,9 @@ const findOrCreateMicroController = (draw: Svg, board: MicroController) => {
   arduino.node.id = 'microcontroller_main_svg';
   const messageEl = arduino.findOne('#MESSAGE');
   if (messageEl) messageEl.hide();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).arduino = arduino;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).draw = draw;
   // Events
 

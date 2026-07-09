@@ -45,6 +45,7 @@
         await getApiClient().mutation('projects:saveProjectFile', {
           projectId, userId: $authStore.uid, content: xml, filename: `${projectId}.xml`,
         });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         projectStore.set({ project: project as any, projectId });
         showMessage = true;
         wait(400);
@@ -52,6 +53,7 @@
         return;
       }
       const projectToSave = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...($projectStore.project as any),
         name: projectName,
         description: projectDescription,
@@ -69,7 +71,7 @@
       });
       showMessage = true;
       canSave = true;
-    } catch (e: any) {
+    } catch (e: unknown) {
       onErrorMessage("Please try again in 5 minutes", e);
       canSave = true;
     }

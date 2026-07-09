@@ -16,6 +16,7 @@ import {
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
 import { colorBrightnessAdjuster } from "../../core/virtual-circuit/svg-helpers";
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 
 export const analogSensorCreate: AfterComponentCreateHook<AnalogSensorState> = (
   state,
@@ -68,7 +69,7 @@ export const analogSensorPosition: PositionComponent<AnalogSensorState> = (
 };
 
 export const analogSensorUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   analogSensorEl
 ) => {
   const analogState = state as AnalogSensorState;

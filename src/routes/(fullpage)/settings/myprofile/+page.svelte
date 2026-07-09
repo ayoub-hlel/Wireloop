@@ -18,7 +18,7 @@
             await wait(2000);
             canSave = true;
             showMessage = true;
-        } catch (e: any) {
+        } catch (e: unknown) {
             onErrorMessage("Error Saving Profile", e);
         }
     }

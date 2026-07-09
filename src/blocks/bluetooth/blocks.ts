@@ -3,6 +3,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import loopTimes from "../../core/blockly/helpers/looptimes";
+import type { BlocklyBlockDef } from "../../types/blockly";
 Blockly.defineBlocksWithJsonArray([
   {
     type: "bluetooth_get_message",
@@ -66,7 +67,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const bluetoothSetupBlock: any = {
+const bluetoothSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

@@ -64,11 +64,14 @@ settingStore.subscribe((newSettings) => {
 });
 
 export const createFrames = async (blocklyEvent: Blockly.Events.Abstract) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((Blockly.getMainWorkspace() as any).isDragging()) {
     return; // Don't update while changes are happening.
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((blocklyEvent as any).varName !== undefined) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.log("Variable deletion detected:", (blocklyEvent as any).varName);
     // Prevent the default alert from triggering
     // blocklyEvent.preventDefault?.(); // Removed - method doesn't exist on Abstract

@@ -231,7 +231,7 @@ const createSetVariableBlockWithListItemAttached = (
   type: VariableTypes,
   listVariableId: string,
   position: number,
-  defaultValue: any
+  defaultValue: string | number | boolean | Color
 ) => {
   const variableBlock = createSetVariableBlockWithValue(
     workspace,

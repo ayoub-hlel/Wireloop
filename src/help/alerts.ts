@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _swal: any;
 const getSwal = async () => {
   if (!_swal) {

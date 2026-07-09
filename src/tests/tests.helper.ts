@@ -24,7 +24,7 @@ export const createArduinoAndWorkSpace = (): [WorkspaceSvg, BlockSvg] => {
 export const verifyVariable = (
   variableName: string,
   type: VariableTypes,
-  value: any,
+  value: unknown,
   variables: { [key: string]: Variable }
 ) => {
   const variable = variables[variableName];

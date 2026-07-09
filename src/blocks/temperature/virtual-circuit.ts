@@ -13,6 +13,7 @@ import { Element, Svg } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { TemperatureState } from "./state";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -39,7 +40,7 @@ export const positionTemp: PositionComponent<TemperatureState> = (
   positionComponent(tempEl, arduinoEl, draw, holes[1], isDown, "PIN_DATA");
 };
 
-export const updateTemp: SyncComponent = (state: any, tempEl) => {
+export const updateTemp: SyncComponent = (state: ArduinoComponentState, tempEl) => {
   const tempState = state as TemperatureState;
   const tempTextEl = tempEl.findOne("#TEMP_TEXT") as Element;
   const humidText = tempEl.findOne("#HUMID_TEXT") as Element;

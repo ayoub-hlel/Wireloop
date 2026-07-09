@@ -13,6 +13,7 @@ import type { Svg, Text, Element } from "@svgdotjs/svg.js";
 
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createGroundOrPowerWire,
   createResistor,
   createWireFromArduinoToBreadBoard,
@@ -46,7 +47,7 @@ export const createThermistorSensorHook: AfterComponentCreateHook<ThermistorStat
 };
 
 export const updateThermistorSensor: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   thermistorEl
 ) => {
   const thermState = state as ThermistorState;

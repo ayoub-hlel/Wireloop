@@ -12,7 +12,8 @@
   const navigatorSerialNotAvailableMessage = `To upload code you must use chrome or a chromium based browser like edge, or brave. This will work with chrome version 89 or higher.`;
 
   let autoScroll = $state(false);
-  let messages: any[] = $state([]);
+  import type { ArduinoMessage } from "../../../stores/arduino-message.store";
+  let messages: ArduinoMessage[] = $state([]);
   let arduinoStatus: PortState = $state(PortState.CLOSE);
   let messageToSend = $state("");
   let code = "";
@@ -50,14 +51,14 @@
   });
 
   async function connectOrDisconnectArduino() {
-    if (!(navigator as any).serial) {
+    if (!navigator.serial) {
       onErrorMessage(navigatorSerialNotAvailableMessage, new Error("Web Serial not available"));
       return;
     }
 
     if (arduinoStatus == PortState.OPEN) {
       arduinoStore.set(PortState.CLOSING);
-      try { await arduionMessageStore.closePort(); } catch (e: any) {
+      try { await arduionMessageStore.closePort(); } catch (e: unknown) {
         onErrorMessage("Sorry, error with the arduino. Please refresh your browser to disconnect.", e);
       }
       arduinoStore.set(PortState.CLOSE);
@@ -80,21 +81,21 @@
     try {
       arduionMessageStore.sendMessage(messageToSend);
       messageToSend = "";
-    } catch (e: any) { console.log(e, "sendMessage error"); }
+    } catch (e: unknown) { console.log(e, "sendMessage error"); }
   }
 
   async function uploadCode() {
-    if (!(navigator as any).serial) {
+    if (!navigator.serial) {
       onErrorMessage(navigatorSerialNotAvailableMessage, new Error("Web Serial not available"));
       return;
     }
     if (arduinoStatus !== PortState.CLOSE) return;
     arduinoStore.set(PortState.UPLOADING);
     try {
-      const avrgirl = new (window as any).AvrgirlArduino({ board: boardType, debug: true });
+      const avrgirl = new AvrgirlArduino({ board: boardType, debug: true });
       await upload(code, avrgirl, boardType);
       onSuccess("Your code is uploaded!! :)");
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e.message.toLowerCase() === "no port selected by the user.") {
         arduinoStore.set(PortState.CLOSE);
         return;

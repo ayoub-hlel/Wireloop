@@ -76,8 +76,9 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
-      const msg = (e.message ?? e.body?.message ?? "").toLowerCase();
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      const msg = (err.message ?? err.body?.message ?? "").toLowerCase();
       expect(msg).toMatch(/password too short|at least 8/i);
     }
   });
@@ -96,8 +97,9 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
-      const msg = (e.message ?? e.body?.message ?? "").toLowerCase();
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      const msg = (err.message ?? err.body?.message ?? "").toLowerCase();
       expect(msg).toMatch(/uppercase/i);
     }
   });
@@ -116,8 +118,9 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
-      const msg = (e.message ?? e.body?.message ?? "").toLowerCase();
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      const msg = (err.message ?? err.body?.message ?? "").toLowerCase();
       expect(msg).toMatch(/lowercase/i);
     }
   });
@@ -136,8 +139,9 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
-      const msg = (e.message ?? e.body?.message ?? "").toLowerCase();
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      const msg = (err.message ?? err.body?.message ?? "").toLowerCase();
       expect(msg).toMatch(/number/i);
     }
   });
@@ -156,8 +160,9 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
-      const msg = (e.message ?? e.body?.message ?? "").toLowerCase();
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      const msg = (err.message ?? err.body?.message ?? "").toLowerCase();
       expect(msg).toMatch(/special character/i);
     }
   });
@@ -175,7 +180,7 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
+    } catch (e: unknown) {
       expect(e).toBeDefined();
     }
   });
@@ -192,7 +197,7 @@ describe("Sign-Up", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error");
-    } catch (e: any) {
+    } catch (e: unknown) {
       expect(e).toBeDefined();
     }
   });

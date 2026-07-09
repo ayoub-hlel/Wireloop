@@ -3,6 +3,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import loopTimes from "../../core/blockly/helpers/looptimes";
 
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import type { BlocklyBlockDef } from "../../types/blockly";
 Blockly.defineBlocksWithJsonArray([
   {
     type: "temp_get_temp",
@@ -43,7 +44,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const tempSetupBlock: any = {
+const tempSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(new Blockly.FieldImage("./blocks/temp/temp.png", 15, 15))

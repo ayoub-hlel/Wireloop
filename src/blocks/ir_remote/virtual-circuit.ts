@@ -14,6 +14,7 @@ import {
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
 import type { IRRemoteState } from "./state";
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 
 export const createIrRemote: AfterComponentCreateHook<IRRemoteState> = (
   state,
@@ -36,7 +37,7 @@ export const positionIrRemote: PositionComponent<IRRemoteState> = (
 };
 
 export const updateIrRemote: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   irRemoteEl,
   draw
 ) => {

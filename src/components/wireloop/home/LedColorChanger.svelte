@@ -8,12 +8,12 @@
   } from "../../../blocks/led/virtual-circuit";
 
   let showLedChanger = false;
-  let ledEl: any;
+  let ledEl: Element | null = null;
   let pin: string = "";
   let ledColor: string = "";
 
   onMount(() => {
-    document.addEventListener("led-color-show", (e: any) => {
+    document.addEventListener("led-color-show", (e: Event) => {
       console.log("check details", e.detail);
       ledEl = e.detail.componentEl;
       pin = e.detail.pin;

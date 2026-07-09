@@ -6,8 +6,9 @@ import {
 import loopTimes from "../../core/blockly/helpers/looptimes";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
-const digitalReadBlock: any = {
+const digitalReadBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(
@@ -33,7 +34,7 @@ const digitalReadBlock: any = {
 
 Blockly.Blocks["digital_read"] = digitalReadBlock;
 
-const digitalReadSetupBlock: any = {
+const digitalReadSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

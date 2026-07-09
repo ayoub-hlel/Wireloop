@@ -2,7 +2,7 @@ import type { MicroControllerType } from "../microcontroller/microcontroller";
 import config from "../../config";
 
 declare class AvrgirlArduino {
-  constructor(config: any);
+  constructor(config: { board: string; debug: boolean });
 
   flash(hex: string, call: (error: Error | null) => void): void;
 }
@@ -16,6 +16,7 @@ export const upload = async (
 
   const enc = new TextEncoder();
   return new Promise((res, rej) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     avrgirl.flash(enc.encode(hexCode) as any, (error) => {
       if (error) {
         rej(error);

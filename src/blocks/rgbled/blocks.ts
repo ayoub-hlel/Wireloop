@@ -1,8 +1,9 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
-const rgbLedSetupBlock: any = {
+const rgbLedSetupBlock: BlocklyBlockDef = {
   init: function(this: Blockly.Block) {
     this.appendDummyInput()
       .appendField(new Blockly.FieldImage("./blocks/led/color_led.png", 15, 15))
@@ -13,24 +14,24 @@ const rgbLedSetupBlock: any = {
         new Blockly.FieldDropdown([
           ["1", "1"],
           ["2", "2"],
-        ]) as any,
+        ]) as Blockly.Field,
         "NUMBER_OF_COMPONENTS"
       );
     this.appendDummyInput("COMPONENT_1")
       .appendField("LED 1: ")
       .appendField("Red")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_RED_1"
       )
       .appendField("Green")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_GREEN_1"
       )
       .appendField("Blue")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_BLUE_1"
       );
 
@@ -38,17 +39,17 @@ const rgbLedSetupBlock: any = {
       .appendField("LED 2: ")
       .appendField("Red")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_RED_2"
       )
       .appendField("Green")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_GREEN_2"
       )
       .appendField("Blue")
       .appendField(
-        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as any,
+        new Blockly.FieldDropdown(() => selectBoardBlockly().pwmNonAnalogPins) as Blockly.Field,
         "PIN_BLUE_2"
       );
 
@@ -58,7 +59,7 @@ const rgbLedSetupBlock: any = {
   },
 };
 Blockly.Blocks["rgb_led_setup"] = rgbLedSetupBlock;
-const set_color_led: any = {
+const set_color_led: BlocklyBlockDef = {
   init: function(this: Blockly.Block) {
     this.appendDummyInput("NAME")
       .appendField(new Blockly.FieldImage("./blocks/led/color_led.png", 15, 15))
@@ -71,7 +72,7 @@ const set_color_led: any = {
         new Blockly.FieldDropdown([
           ["1", "1"],
           ["2", "2"],
-        ]) as any,
+        ]) as Blockly.Field,
         "WHICH_COMPONENT"
       );
 
@@ -86,7 +87,7 @@ const set_color_led: any = {
   },
 };
 
-const set_simple_color_led: any = {
+const set_simple_color_led: BlocklyBlockDef = {
   init: function(this: Blockly.Block) {
     this.appendDummyInput("NAME")
       .appendField(new Blockly.FieldImage("./blocks/led/color_led.png", 15, 15))
@@ -99,7 +100,7 @@ const set_simple_color_led: any = {
         new Blockly.FieldDropdown([
           ["1", "1"],
           ["2", "2"],
-        ]) as any,
+        ]) as Blockly.Field,
         "WHICH_COMPONENT"
       );
     this.appendDummyInput("COLOR")

@@ -13,6 +13,7 @@ import type { Svg, Text, Element } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import type { ServoState } from "./state";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -22,7 +23,7 @@ export const servoReset: ResetComponent = (servoEl) => {
   setText(servoEl, 0);
 };
 
-export const servoUpdate: SyncComponent = (state: any, servoEl) => {
+export const servoUpdate: SyncComponent = (state: ArduinoComponentState, servoEl) => {
   const servoState = state as ServoState;
   setDegrees(servoEl, servoState.degree);
 

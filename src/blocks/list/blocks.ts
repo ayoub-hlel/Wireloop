@@ -1,5 +1,6 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
 [
   { type: "number", blockName: "number", variable_type: "List Number" },
@@ -17,7 +18,9 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
         [variable_type],
         variable_type
       );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       (varField as any).showOnlyVariableAssigned = true;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       (varField as any).createNewVariable = false;
       this.appendDummyInput()
         .appendField(`List`)
@@ -45,6 +48,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
         [variable_type],
         variable_type
       );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       (varField as any).showOnlyVariableAssigned = false;
 
       this.appendValueInput("VALUE")
@@ -78,6 +82,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
         [variable_type],
         variable_type
       );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       (varField as any).showOnlyVariableAssigned = false;
 
       this.appendDummyInput()

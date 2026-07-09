@@ -21,8 +21,9 @@ describe("Auth Configuration", () => {
         headers: new Headers(),
       });
       expect.fail("Expected error for short password");
-    } catch (e: any) {
-      expect(e.message || e.body?.message || "").toMatch(/password too short|at least 8/i);
+    } catch (e: unknown) {
+      const err = e as { message?: string; body?: { message?: string } };
+      expect(err.message || err.body?.message || "").toMatch(/password too short|at least 8/i);
     }
   });
 });

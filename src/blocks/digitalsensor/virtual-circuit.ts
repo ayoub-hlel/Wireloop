@@ -14,6 +14,7 @@ import {
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
 import { DigitalPictureType, DigitalSensorState } from "./state";
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 
 export const createDigitalSensor: AfterComponentCreateHook<DigitalSensorState> = (
   state,
@@ -61,7 +62,7 @@ export const resetDigitalSensor: ResetComponent = (componentEl: Element) => {
 };
 
 export const updateDigitalSensor: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   analogSensorEl,
   draw
 ) => {

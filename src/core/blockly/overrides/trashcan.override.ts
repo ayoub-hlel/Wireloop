@@ -1,16 +1,19 @@
 import Blockly, { type WorkspaceSvg, Events as BlockEvents } from "blockly";
 
 export const overrideTrashBlocks = (workspace: WorkspaceSvg) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (workspace.trashcan as any)?.flyout?.workspace?.addChangeListener(function (event: BlockEvents.Abstract) {
     const workspace = Blockly.Workspace.getById(
       event.workspaceId!
     ) as WorkspaceSvg;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const trashCan: any = (Blockly.getMainWorkspace() as WorkspaceSvg).trashcan;
 
     // This handles removing items from the trash can
     // after they have been used
     if (event.type === Blockly.Events.UI) {
       // Deletes them once they have been used
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       const block = workspace.getBlockById((event as any).newValue as string);
       if (!block) return;
       const xml = Blockly.Xml.blockToDom(block);

@@ -115,10 +115,13 @@ export async function saveProjectWorkspace(workspace: string, options: {
   const { autoSave = true, debounceMs = 1000 } = options;
 
   if (autoSave) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).autoSaveTimeout) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       clearTimeout((window as any).autoSaveTimeout);
     }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).autoSaveTimeout = setTimeout(async () => {
       try {
         await saveCurrentProject(workspace);
@@ -197,7 +200,9 @@ export function setAutoSave(enabled: boolean): void {
     console.log('Auto-save enabled for current project');
   } else {
     console.log('Auto-save disabled for current project');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).autoSaveTimeout) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       clearTimeout((window as any).autoSaveTimeout);
     }
   }

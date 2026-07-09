@@ -13,6 +13,7 @@ import type { Element, Svg } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import type { RfidState } from "./state";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -37,7 +38,7 @@ export const createRfid: AfterComponentCreateHook<RfidState> = (
   rfidEl.findOne("#PIN_TEXT_RX")!.node.innerHTML = state.rxPin;
 };
 
-export const updateRfid: SyncComponent = (state: any, rfidEl) => {
+export const updateRfid: SyncComponent = (state: ArduinoComponentState, rfidEl) => {
   const rfidState = state as RfidState;
   if (!rfidState.scannedCard) {
     rfidEl.findOne("#RFID")!.hide();

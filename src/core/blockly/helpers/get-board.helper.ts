@@ -8,6 +8,7 @@ export const getBoardType = (): MicroControllerType => {
     return MicroControllerType.ARDUINO_UNO;
   }
   // Convert string board type to MicroControllerType enum if needed
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const boardType = (currentSettings as any)["boardType"] as string;
   if (boardType === 'ARDUINO_UNO' || boardType === 'uno') {
     return MicroControllerType.ARDUINO_UNO;

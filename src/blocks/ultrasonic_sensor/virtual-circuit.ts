@@ -13,6 +13,7 @@ import type { Element, Svg } from '@svgdotjs/svg.js';
 
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from '../../core/virtual-circuit/wire';
@@ -45,7 +46,7 @@ export const createUltraSonicSensor: AfterComponentCreateHook<UltraSonicSensorSt
 };
 
 export const updateUltraSonicSensor: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   ultraSonicEl
 ) => {
   const sensorState = state as UltraSonicSensorState;

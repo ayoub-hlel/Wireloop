@@ -158,7 +158,7 @@ export const getInputValue = (
   variables: VariableData[],
   timeline: Timeline,
   inputName: string,
-  defaultValue: any,
+  defaultValue: unknown,
   previousState: ArduinoFrame | undefined
 ) => {
   const inputBlock = findBlockInput(blocks, block, inputName);

@@ -561,7 +561,7 @@ export interface BlockData {
 
 export interface FieldValue {
   name: string;
-  value: any;
+  value: unknown;
   validOptions?: Array<{ name: string; value: string }>;
 }
 

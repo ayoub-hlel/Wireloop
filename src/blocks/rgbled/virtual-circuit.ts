@@ -18,6 +18,7 @@ import {
   createWireFromArduinoToBreadBoard,
 } from "../../core/virtual-circuit/wire";
 import { Text } from "@svgdotjs/svg.js";
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 
 export const createRgbLed: AfterComponentCreateHook<LedColorState> = (
   state,
@@ -47,7 +48,7 @@ export const positionRgbLed: PositionComponent<LedColorState> = (
   rgbLedEl.data("disableDraggable", "TRUE");
 };
 
-export const updateRgbLed: SyncComponent = (state: any, rgbLedEl) => {
+export const updateRgbLed: SyncComponent = (state: ArduinoComponentState, rgbLedEl) => {
   const ledState = state as LedColorState;
   const color = rgbToHex(ledState.color);
   if (color.toUpperCase() === "#000000") {

@@ -13,6 +13,7 @@ import { rgbToHex } from '../../core/blockly/helpers/color.helper';
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
 import type { FastLEDState } from './state';
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from '../../core/virtual-circuit/wire';
@@ -49,7 +50,7 @@ export const fastLEDReset: ResetComponent = (fastLEDEl: Element) => {
 };
 
 export const fastLEDUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   fastLEDEl
 ) => {
   const ledState = state as FastLEDState;

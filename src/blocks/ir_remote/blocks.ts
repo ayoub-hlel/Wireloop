@@ -2,6 +2,7 @@ import Blockly from "blockly";
 import loopTimes from "../../core/blockly/helpers/looptimes";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
 Blockly.defineBlocksWithJsonArray([
   {
@@ -42,7 +43,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const irSetupBlock: any = {
+const irSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

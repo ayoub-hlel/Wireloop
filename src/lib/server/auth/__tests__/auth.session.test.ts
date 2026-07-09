@@ -28,6 +28,7 @@ describe("Session Management", () => {
     });
 
     expect(sessionRes).toBeDefined();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = sessionRes as any;
     expect(data.user).toBeDefined();
     expect(data.user.email).toBe(email);
@@ -46,8 +47,9 @@ describe("Session Management", () => {
         asResponse: true,
       });
       expect.fail("Expected error for invalid token");
-    } catch (e: any) {
-      const status = e.status ?? e.statusCode ?? e.body?.status ?? e.message;
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number; statusCode?: number; body?: { status?: number } };
+      const status = err.status ?? err.statusCode ?? err.body?.status ?? err.message;
       expect(String(status).toLowerCase()).not.toBe("200");
     }
   });
@@ -76,8 +78,9 @@ describe("Session Management", () => {
         asResponse: true,
       });
       expect.fail("Expected error after sign-out");
-    } catch (e: any) {
-      const status = e.status ?? e.statusCode ?? e.body?.status ?? e.message;
+    } catch (e: unknown) {
+      const err = e as { message?: string; status?: number; statusCode?: number; body?: { status?: number } };
+      const status = err.status ?? err.statusCode ?? err.body?.status ?? err.message;
       expect(String(status).toLowerCase()).not.toBe("200");
     }
   });
@@ -97,6 +100,7 @@ describe("Session Management", () => {
       }),
     });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = sessionRes as any;
     expect(data.user.id).toBeDefined();
     expect(data.user.email).toBe(email);

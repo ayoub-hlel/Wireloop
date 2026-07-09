@@ -1,13 +1,13 @@
+import type { R2Bucket } from "@cloudflare/workers-types";
 // ponytail: thin R2 wrapper — Cloudflare binding preferred, S3 env-var fallback
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import type { PutObjectCommandInput } from '@aws-sdk/client-s3';
 import { env } from '$env/dynamic/private';
 
 // ponytail: global lock, per-account locks if throughput matters
-let _binding: any = null;
+let _binding: R2Bucket | null = null;
 
 /** Call from hooks.server.ts to inject the Cloudflare R2 binding from platform.env.R2 */
-export function setR2Binding(binding: any) {
+export function setR2Binding(binding: R2Bucket) {
   _binding = binding;
 }
 
@@ -34,6 +34,7 @@ export async function putFile(key: string, content: string | ArrayBuffer | Uint8
   await getClient().send(new PutObjectCommand({
     Bucket: env.R2_BUCKET,
     Key: key,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     Body: content as any,
     ContentType: contentType,
   }));

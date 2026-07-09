@@ -12,6 +12,7 @@ import type { DigitilDisplayState } from "./state";
 import type { Element, Svg, Text } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -60,7 +61,7 @@ export const digitalDisplayReset: ResetComponent = (
 };
 
 export const digitalDisplayUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   digitalDisplayEl
 ) => {
   const displayState = state as DigitilDisplayState;

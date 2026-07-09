@@ -13,6 +13,7 @@ import type { Element, Svg, Text } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { WritePinState, WritePinType } from "./state";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -57,7 +58,7 @@ export const digitalAnanlogWritePinCreate: AfterComponentCreateHook<WritePinStat
 };
 
 export const digitalAnalogWritePinSync: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   pinEl,
   draw
 ) => {

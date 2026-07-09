@@ -15,6 +15,7 @@ Blockly.FieldVariable.prototype.initModel = function () {
   let variableId = null;
 
   // This create new variable make it so that it creates a new variable
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (variables.length > 0 && (this as any).createNewVariable !== true) {
     variableId = variables[variables.length - 1].getId();
   }
@@ -53,6 +54,7 @@ Blockly.FieldVariable.dropdownCreate = function (): Blockly.MenuOption[] {
   }
 
   let variableModelList: Blockly.VariableModel[] = [];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (workspace && (this as any).showOnlyVariableAssigned === false) {
     const variableTypes = workspace.getVariableTypes().filter((x) => x !== "");
     // Get a copy of the list, so that adding rename and new variable options
@@ -65,6 +67,7 @@ Blockly.FieldVariable.dropdownCreate = function (): Blockly.MenuOption[] {
     variableModelList.sort(Blockly.VariableModel.compareByName);
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (workspace && (this as any).showOnlyVariableAssigned !== false) {
     const varModel = this.getVariable();
     if (varModel) {
@@ -94,7 +97,9 @@ Blockly.FieldVariable.fromJson = function (options) {
   );
   const variableTypes = options["variableTypes"];
   const defaultType = options["defaultType"];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const showOnlyVariableAssigned = (options as any)["showOnlyVariableAssigned"] || false;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const createNewVariable = (options as any)["createNewVariable"] || false;
   const fieldVariable = new Blockly.FieldVariable(
     varname,
@@ -103,7 +108,9 @@ Blockly.FieldVariable.fromJson = function (options) {
     defaultType
   );
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (fieldVariable as any).showOnlyVariableAssigned = showOnlyVariableAssigned;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (fieldVariable as any).createNewVariable = createNewVariable;
 
   return fieldVariable;

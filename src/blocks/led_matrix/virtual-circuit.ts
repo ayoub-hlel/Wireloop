@@ -13,6 +13,7 @@ import type { Element, Svg } from '@svgdotjs/svg.js';
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
 import type { LedMatrixState } from './state';
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createComponentWire,
   createGroundOrPowerWire,
 } from '../../core/virtual-circuit/wire';
@@ -30,7 +31,7 @@ export const ledMatrixPosition: PositionComponent<LedMatrixState> = (
 };
 
 export const ledMatrixUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   ledMatrixEl
 ) => {
   const matrixState = state as LedMatrixState;

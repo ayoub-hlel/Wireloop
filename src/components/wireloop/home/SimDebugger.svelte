@@ -5,7 +5,8 @@
   import frameStore from "../../../stores/frame.store";
   import { onDestroy } from "svelte";
   import { VariableTypes } from "../../../core/blockly/dto/variable.type";
-  let variables: any[] = [];
+import type { VariableData } from "../../../core/blockly/dto/event.type";
+  let variables: VariableData[] = [];
 
   const unsubscribes: (() => void)[] = [];
 
@@ -31,9 +32,9 @@
     })
   );
 
-  function mapArrayValues(values: any[], type: string) {
+  function mapArrayValues(values: unknown[], type: string) {
     const innerString = values
-      .map((v: any) => (v === null ? "_" : v))
+      .map((v: unknown) => (v === null ? "_" : v))
       .map((v) => {
         if (v === "_" || type !== VariableTypes.LIST_STRING) {
           return v;

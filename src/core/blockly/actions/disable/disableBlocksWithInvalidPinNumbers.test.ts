@@ -25,11 +25,13 @@ describe("disable pins where the microcontroller does not have thoses pins", () 
 
   it("should disable pin numbers where the don't exists", () => {
     settingsStore.update((settings) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       return { ...settings, boardType: MicroControllerType.ARDUINO_MEGA } as any;
     });
     const servoBlock1 = workspace.newBlock("rotate_servo") as BlockSvg;
     servoBlock1.setFieldValue("45", "PIN");
     settingsStore.update((settings) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       return { ...settings, boardType: MicroControllerType.ARDUINO_UNO } as any;
     });
     const event = createTestEvent(arduinoBlock.id);

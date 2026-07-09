@@ -88,6 +88,7 @@ const createWorkspace = (blocklyElement: HTMLElement) => {
 const createLedWithDelay = (seconds = 1, isOn = true) => {
   const ledBlock = createBlock("led", 0, 0, true);
   ledBlock.setCommentText(LED_COMMENT);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (ledBlock.getIcon("comment") as any)?.setBubbleSize?.(new Blockly.utils.Size(460, 90));
   ledBlock.setFieldValue(ARDUINO_PINS.PIN_13, "PIN");
   ledBlock.setFieldValue(isOn ? "ON" : "OFF", "STATE");
@@ -95,6 +96,7 @@ const createLedWithDelay = (seconds = 1, isOn = true) => {
   const delayBlock = createBlock("delay_block", 0, 0, true);
 
   delayBlock.setCommentText(DELAY_COMMENT);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (delayBlock.getIcon("comment") as any)?.setBubbleSize?.(new Blockly.utils.Size(460, 90));
   const numberBlock1 = createBlock("math_number", 0, 0, true);
   numberBlock1.setFieldValue(seconds.toString(), "NUM");
@@ -122,6 +124,7 @@ const createBlockConfig = (): Blockly.BlocklyOptions => {
     media: "https://blockly-demo.appspot.com/static/media/",
     rtl: false,
     sounds: true,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     theme: theme as any,
     oneBasedIndex: true,
     grid: {

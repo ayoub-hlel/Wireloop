@@ -57,6 +57,7 @@ export const loadProject = (xmlString: string) => {
       localStorage.removeItem("reload_once_workspace");
       return;
     }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     Blockly.Xml.domToWorkspace(xml.documentElement as any, workspace); // load new blocks
     localStorage.removeItem("no_alert");
 

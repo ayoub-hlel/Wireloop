@@ -53,7 +53,7 @@ export interface UpdateLCDScreenPrintBlock extends BlockAction {
 }
 
 export interface UpdateSetupSensorBlockFields extends BlockAction {
-  fields: Array<{ name: string; value: any }>;
+  fields: Array<{ name: string; value: unknown }>;
 }
 
 export interface UpdateLedColor extends BlockAction {

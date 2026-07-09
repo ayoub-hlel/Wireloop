@@ -17,8 +17,8 @@
   let projectList: [Project, string][] = $state([]);
   let searchList: [Project, string][] = $state([]);
   let searchTerm = $state('');
-  let lessonList: any[] = lessons.reduce((acc: any[], lessons: any) => {
-    return [...acc, ...lessons.lessons];
+  let lessonList: Lesson[] = lessons.reduce((acc: Lesson[], lessonContainer: LessonContainer) => {
+    return [...acc, ...lessonContainer.lessons];
   }, []);
 
   $effect(() => { filterSearch(searchTerm); });
@@ -80,10 +80,10 @@
     if (!$authStore.uid) return;
     try {
       const projects = await getApiClient().query('projects:getUserProjects', { userId: $authStore.uid });
-      projectList = (projects || []).map((p: any) => [p, p.id] as [Project, string]);
+      projectList = (projects || []).map((p: Project) => [p, p.id] as [Project, string]);
       projectList = [...projectList];
       searchList = [...projectList];
-    } catch (e: any) {
+    } catch (e: unknown) {
       onErrorMessage('Please refresh the page and try again.', e);
     }
   }
@@ -100,7 +100,7 @@
     try {
       await getApiClient().mutation('projects:deleteProject', { projectId });
       await updateProjectList();
-    } catch (e: any) {
+    } catch (e: unknown) {
       onErrorMessage('Please try again in 5 minutes.', e);
     }
   }
@@ -110,6 +110,7 @@
     const project = await getApiClient().query('projects:getProject', { projectId });
     const file = (await getApiClient().query('projects:getProjectFile', { projectId, userId: $authStore.uid! }))?.content || '';
     loadProject(file);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     projectStore.set({ project: project as any, projectId });
   }
 

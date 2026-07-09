@@ -13,6 +13,7 @@ import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { arduinoComponentStateToId } from "../../core/frames/arduino-component-id";
 import type { LedState } from "./state";
 import {
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
   createWireComponentToBreadboard,
   createGroundOrPowerWire,
   createResistor,
@@ -69,7 +70,7 @@ export const ledPosition: PositionComponent<LedState> = (
   positionComponent(ledEl, arduinoEl, draw, holes[3], isDown, "POWER");
 };
 
-export const updateLed: SyncComponent = (state: any, ledEl, draw) => {
+export const updateLed: SyncComponent = (state: ArduinoComponentState, ledEl, draw) => {
   const ledState = state as LedState;
   const ledText = ledEl.findOne("#LED_TEXT") as Text;
   if (!ledState.fade) {

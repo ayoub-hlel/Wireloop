@@ -1,6 +1,7 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
 Blockly.defineBlocksWithJsonArray([
   // BEGIN JSON EXTRACT
@@ -100,7 +101,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const motor_setup: any = {
+const motor_setup: BlocklyBlockDef = {
   init: function(this: Blockly.Block) {
     this.appendDummyInput("")
       .appendField(new Blockly.FieldImage("./blocks/motor/motor.png", 15, 15))
@@ -111,41 +112,41 @@ const motor_setup: any = {
         new Blockly.FieldDropdown([
           ["1", "1"],
           ["2", "2"],
-        ]) as any,
+        ]) as Blockly.Field,
         "NUMBER_OF_COMPONENTS"
       );
     this.appendDummyInput("COMPONENT_1")
       .appendField("Motor 1 Pins")
       .appendField("EN1")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as Blockly.Field,
         "PIN_EN1"
       )
       .appendField("IN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as Blockly.Field,
         "PIN_IN1"
       )
       .appendField("IN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as Blockly.Field,
         "PIN_IN2"
       );
     this.appendDummyInput("COMPONENT_2")
       .appendField("Motor 2 Pins")
       .appendField("EN2")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().pwmPins) as Blockly.Field,
         "PIN_EN2"
       )
       .appendField("IN3")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as Blockly.Field,
         "PIN_IN3"
       )
       .appendField("IN4")
       .appendField(
-        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as any,
+        new Blockly.FieldDropdown(selectBoardBlockly().digitalPins) as Blockly.Field,
         "PIN_IN4"
       );
     this.setTooltip("");

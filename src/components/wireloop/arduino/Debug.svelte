@@ -3,8 +3,8 @@
   import arduionMessageStore from "../../../stores/arduino-message.store";
   import { rgbToHex } from "../../../core/blockly/helpers/color.helper";
 
-  let variables: any[] = $state([]);
-  let tempVariables: any[] = $state([]);
+  let variables: { name: string; type: string; value: string }[] = $state([]);
+  let tempVariables: { name: string; type: string; value: string }[] = $state([]);
   let portStatus: PortState = $state(PortState.CLOSE);
   let inDebugStatement = $state(false);
   let debugStart = $state(false);

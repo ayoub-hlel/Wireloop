@@ -2,6 +2,7 @@ import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
 import loopTimes from "../../core/blockly/helpers/looptimes";
+import type { BlocklyBlockDef } from "../../types/blockly";
 Blockly.defineBlocksWithJsonArray([
   {
     type: "arduino_receive_message",
@@ -65,7 +66,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const messageSetupBlock: any = {
+const messageSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

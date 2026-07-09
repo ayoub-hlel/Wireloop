@@ -10,6 +10,7 @@ export const disableDuplicateSetupBlocks = (
 ): DisableBlock[] => {
   const { blocks } = event;
   return blocks
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((b) => [BlockType.SETUP, BlockType.SENSOR_SETUP].includes(b.type as any))
     .filter((b) => !multipleTopBlocks.includes(b.blockName))
     .filter(

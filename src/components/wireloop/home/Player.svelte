@@ -52,6 +52,7 @@
 
   unsubscribes.push(
     settingStore.subscribe((newSettings) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxTimePerStep = (newSettings as any).maxTimePerMove ?? 1000;
     })
   );

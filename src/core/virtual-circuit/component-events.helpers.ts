@@ -6,7 +6,8 @@ export const addDraggableEvent = (
   arduino: Element,
   draw: Svg
 ) => {
-  (componentEl as any).draggable().on('dragmove', (e: any) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (componentEl as any).draggable().on('dragmove', (e: Event) => {
     e.stopPropagation();
     updateWires(componentEl, draw, arduino as Svg);
   });

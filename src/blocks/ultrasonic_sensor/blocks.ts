@@ -3,6 +3,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import loopTimes from "../../core/blockly/helpers/looptimes";
+import type { BlocklyBlockDef } from "../../types/blockly";
 Blockly.defineBlocksWithJsonArray([
   {
     type: "ultra_sonic_sensor_motion",
@@ -24,7 +25,7 @@ Blockly.defineBlocksWithJsonArray([
   },
 ]);
 
-const ultraSonicSensorBlock: any = {
+const ultraSonicSensorBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

@@ -10,11 +10,13 @@ export const disableBlockThatRequiredToBeInArduinoLoopSetupOrFunction = (
 ): DisableBlock[] => {
   const { blocks } = event;
   return blocks
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((block) => BlockTypeRequireRootBlock.includes(block.type as any))
     .filter(
       (block) =>
         block.rootBlockId === undefined ||
         BlockTypeRequireRootBlock.includes(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
           blocks.find((b) => b.id === block.rootBlockId)!.type as any
         )
     )

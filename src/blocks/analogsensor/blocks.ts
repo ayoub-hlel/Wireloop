@@ -1,14 +1,17 @@
-import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import {
+import type { BlocklyBlockDef } from "../../types/blockly"; selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import Blockly from "blockly";
 
-import { COLOR_THEME } from "../../core/blockly/constants/colors";
+import {
+import type { BlocklyBlockDef } from "../../types/blockly"; COLOR_THEME } from "../../core/blockly/constants/colors";
 import loopTimes from "../../core/blockly/helpers/looptimes";
 import {
+import type { BlocklyBlockDef } from "../../types/blockly";
   configuredPins,
   getAvailablePins,
 } from "../../core/blockly/helpers/getAvialablePinsFromSetupBlock";
 
-const analogReadBlock: any = {
+const analogReadBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(
@@ -34,7 +37,7 @@ const analogReadBlock: any = {
 
 Blockly.Blocks["analog_read"] = analogReadBlock;
 
-const analogReadSetupBlock: any = {
+const analogReadSetupBlock: BlocklyBlockDef = {
   init: function () {
     this.appendDummyInput()
       .appendField(

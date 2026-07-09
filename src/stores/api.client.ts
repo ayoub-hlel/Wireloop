@@ -7,9 +7,9 @@ import { browser } from '$app/environment';
 
 // ── Types ──
 export interface DBClient {
-  query: (name: string, args?: any) => Promise<any>;
-  mutation: (name: string, args?: any) => Promise<any>;
-  subscribe: (name: string, args?: any, callback?: (data: any) => void) => () => void;
+  query: (name: string, args?: Record<string, unknown>) => Promise<unknown>;
+  mutation: (name: string, args?: Record<string, unknown>) => Promise<unknown>;
+  subscribe: (name: string, args?: Record<string, unknown>, callback?: (data: unknown) => void) => () => void;
 }
 
 export type ApiClient = DBClient;
@@ -34,7 +34,7 @@ export const connectionState = writable<DBConnectionState>(initialConnectionStat
 class Client implements DBClient {
   private baseUrl = '/api';
 
-  async query(name: string, args: any = {}): Promise<any> {
+  async query(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
     const res = await fetch(`${this.baseUrl}/query`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -47,7 +47,7 @@ class Client implements DBClient {
     return res.json();
   }
 
-  async mutation(name: string, args: any = {}): Promise<any> {
+  async mutation(name: string, args: Record<string, unknown> = {}): Promise<unknown> {
     const res = await fetch(`${this.baseUrl}/mutation`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -60,7 +60,7 @@ class Client implements DBClient {
     return res.json();
   }
 
-  subscribe(_name: string, _args: any = {}, _callback?: (data: any) => void): () => void {
+  subscribe(_name: string, _args: Record<string, unknown> = {}, _callback?: (data: unknown) => void): () => void {
     return () => {};
   }
 }
@@ -87,7 +87,7 @@ export const isLoading: Readable<boolean> = derived(connectionState, ($s) => $s.
 export const error: Readable<string | null> = derived(connectionState, ($s) => $s.error);
 
 // ── Reactive helpers ──
-export function createQuery<T>(queryName: string, args: any = {}): Readable<{
+export function createQuery<T>(queryName: string, args: Record<string, unknown> = {}): Readable<{
   data: T | null;
   isLoading: boolean;
   error: string | null;

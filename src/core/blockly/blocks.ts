@@ -15,7 +15,9 @@ export function initializeBlocks() {
   blockRegistry.clear();
   
   // Clear any existing duplicate definitions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (typeof window !== 'undefined' && (window as any).Blockly) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
     const Blockly = (window as any).Blockly;
     
     // Clear known duplicate definitions

@@ -12,4 +12,5 @@ class FieldColorPicker {
   public doValueUpdate_(newValue: string) {}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (Blockly as any).FieldColorPicker = FieldColorPicker;

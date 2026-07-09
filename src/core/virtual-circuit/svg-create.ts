@@ -161,6 +161,7 @@ export default (
 
   componentEl = createComponentEl(draw, state, getSvgString(state));
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any)[state.type] = componentEl;
   if (area) {
     componentEl.data("holes", area.holes.join("-"));

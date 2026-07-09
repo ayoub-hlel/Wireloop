@@ -6,6 +6,7 @@ import { getBlockByType } from "../helpers/block.helper";
  * Arduino code generator.
  * @type !Blockly.Generator
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (Blockly as any)["Arduino"] = new Blockly.Generator("Arduino");
 
 /**
@@ -282,12 +283,14 @@ Blockly["Arduino"].scrub_ = function (block: Blockly.Block, code: string) {
         : null;
     // @ts-expect-error - Blockly.utils.string.wrap not in type definitions
     comment = comment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? (Blockly.utils as any).string.wrap(
           comment,
           Blockly["Arduino"].COMMENT_WRAP - 3
         )
       : null;
     if (comment) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((block as any).getProcedureDef) {
         // Use a comment block for function comments.
         commentCode +=
@@ -301,6 +304,7 @@ Blockly["Arduino"].scrub_ = function (block: Blockly.Block, code: string) {
     // Collect comments for all value arguments.
     // Don't collect comments for nested statements.
     for (let i = 0; i < block.inputList.length; i++) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((block.inputList[i].type as number) === (Blockly.INPUT_VALUE as any as number)) {
         const childBlock = block.inputList[i].connection!.targetBlock();
         if (childBlock) {

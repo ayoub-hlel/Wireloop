@@ -20,6 +20,7 @@ import { MotorShieldState, MOTOR_DIRECTION } from "./state";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import { MicroController } from "../../core/microcontroller/microcontroller";
 import { findComponentConnection } from "../../core/virtual-circuit/svg-helpers";
+import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 let motorSpin1TimerId: ReturnType<typeof setInterval> | undefined = undefined;
 let motorSpin2TimerId: ReturnType<typeof setInterval> | undefined = undefined;
 
@@ -124,7 +125,7 @@ export const createMotorWires: CreateWire<MotorShieldState> = (
 };
 
 export const motorUpdate: SyncComponent = (
-  state: any,
+  state: ArduinoComponentState,
   motorEl
 ) => {
   const motorState = state as MotorShieldState;

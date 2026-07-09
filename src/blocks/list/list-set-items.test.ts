@@ -236,7 +236,7 @@ const testSetListBlock = (
   ]);
 };
 
-const transformValueToString = (value: any, listType: VariableTypes) => {
+const transformValueToString = (value: string | Color, listType: VariableTypes) => {
   if (listType === VariableTypes.LIST_COLOUR) {
     return `(red=${value.red},green=${value.green},blue=${value.blue})`;
   }

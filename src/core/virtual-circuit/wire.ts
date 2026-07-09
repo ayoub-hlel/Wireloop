@@ -229,6 +229,7 @@ export const findResistorBreadboardHoleXY = (
   draw: Svg
 ) => {
   const hole = findSvgElement(holeId, draw);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).hole = hole;
   return {
     x: parseFloat(String(hole.cx())) + parseFloat(String(arduino.x())),
@@ -308,6 +309,7 @@ export const hideAllAnalogWires = (draw: Svg) => {
 export const updateWires = (element: Element, draw: Svg, arduino: Svg) => {
   const wires = draw.find(
     `[data-component-id=${element.id()}]`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) as any[] as Line[];
   wires
     .filter((w) => {
