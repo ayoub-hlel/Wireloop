@@ -58,7 +58,7 @@ function createAuthStore() {
 
     /** Sign up — creates Better Auth user only, caller handles profile */
     async signUp(email: string, password: string, username: string) {
-      const { error } = await authClient.signUp.email({ email, password, name: username });
+      const { error } = await authClient.signUp.email({ email, password, name: username, callbackURL: "/onboarding" });
       if (error) throw new Error(error.message ?? error.statusText ?? "Sign up failed");
     },
 

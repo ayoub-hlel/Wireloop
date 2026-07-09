@@ -21,25 +21,24 @@ export const handle: Handle = async ({ event, resolve }) => {
   try {
     const auth = getAuth(event.url.origin);
     if (auth) {
-      const session = await auth.api.getSession({
-        headers: event.request.headers,
-      });
-      if (session) {
-        event.locals.session = session.session;
-        event.locals.user = session.user;
-      } else {
-        event.locals.session = null;
-        event.locals.user = null;
+      try {
+        const session = await auth.api.getSession({
+          headers: event.request.headers,
+        });
+        if (session) {
+          event.locals.session = session.session;
+          event.locals.user = session.user;
+        }
+      } catch (e) {
+        console.error('Session check failed:', e);
       }
       return svelteKitHandler({ event, resolve, auth, building });
     }
   } catch (e) {
-    console.error('Auth init or session check failed:', e);
-    event.locals.session = null;
-    event.locals.user = null;
+    console.error('Auth init failed:', e);
   }
 
-  event.locals.session = null;
-  event.locals.user = null;
+  event.locals.session ??= null;
+  event.locals.user ??= null;
   return resolve(event);
 };
