@@ -81,7 +81,11 @@ function createAuthStore() {
 
     /** Sign out */
     async signOut() {
-      await authClient.signOut();
+      try {
+        await authClient.signOut();
+      } catch (e) {
+        console.error('Sign out failed:', e);
+      }
       set({ ...initial, loading: false });
     },
 

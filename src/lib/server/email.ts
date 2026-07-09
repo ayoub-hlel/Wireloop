@@ -19,12 +19,16 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
-  await getResend().emails.send({
-    from: 'Wireloop <noreply@wire-loop.tech>',
-    to,
-    subject,
-    html,
-  });
+  try {
+    await getResend().emails.send({
+      from: 'Wireloop <noreply@wire-loop.tech>',
+      to,
+      subject,
+      html,
+    });
+  } catch (e) {
+    console.error('Failed to send email:', e);
+  }
 }
 
 export async function sendVerificationEmail({

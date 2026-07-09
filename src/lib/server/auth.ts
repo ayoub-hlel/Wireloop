@@ -19,7 +19,7 @@ export function getAuth(baseURL?: string) {
         databaseUrl: url,
         secret,
         baseURL: base,
-        allowedHosts: ["*.ngrok-free.dev"],
+        allowedHosts: [],
         extraPlugins: [sveltekitCookies(getRequestEvent)],
       });
     } catch (e) {

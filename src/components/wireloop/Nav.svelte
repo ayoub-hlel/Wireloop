@@ -90,6 +90,7 @@
     } catch (e: unknown) {
       onErrorMessage("Please try again in 5 minutes", e);
     }
+    await goto('/');
   }
 </script>
 
