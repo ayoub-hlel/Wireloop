@@ -13,7 +13,9 @@ export default defineConfig(
   { ignores: [".svelte-kit/**", "graphify-out/**", "static/**", "dist/**", "build/**"] },
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: {...globals.browser, ...globals.node} } },
   tseslint.configs.recommended,
+  { files: ["**/*.{ts,svelte.ts}", ...SVELTE_FILES], rules: { "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }] } },
   ...svelte.configs.recommended.map((config) => ({ ...config, files: SVELTE_FILES })),
+  { files: SVELTE_FILES, rules: { "svelte/no-navigation-without-resolve": "off" } },
   {
     files: SVELTE_FILES,
     languageOptions: {
@@ -29,4 +31,5 @@ export default defineConfig(
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.json5"], plugins: { json }, language: "json/json5", extends: ["json/recommended"] },
   { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
+  { files: ["src/globals.css"], plugins: { css }, language: "css/css", rules: { "css/no-invalid-at-rules": "off", "css/no-important": "off", "css/use-baseline": "off" } },
 );

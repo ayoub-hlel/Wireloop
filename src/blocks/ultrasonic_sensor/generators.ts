@@ -1,7 +1,7 @@
 import Blockly from "blockly";
 import type { Block } from "blockly";
 
-Blockly["Arduino"]["ultra_sonic_sensor_motion"] = function (block: Block) {
+Blockly["Arduino"]["ultra_sonic_sensor_motion"] = function () {
   return ["ultraSonicDistance()", Blockly["Arduino"].ORDER_ATOMIC];
 };
 

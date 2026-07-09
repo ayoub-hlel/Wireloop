@@ -1,4 +1,4 @@
-import type { Element, Svg } from "@svgdotjs/svg.js";
+import type { Element } from "@svgdotjs/svg.js";
 import type {
   AfterComponentCreateHook,
   CreateWire,
@@ -39,7 +39,6 @@ export const positionIrRemote: PositionComponent<IRRemoteState> = (
 export const updateIrRemote: SyncComponent = (
   state: ArduinoComponentState,
   irRemoteEl,
-  draw
 ) => {
   const irState = state as IRRemoteState;
   if (!irState.hasCode) {

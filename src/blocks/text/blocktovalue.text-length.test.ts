@@ -13,14 +13,13 @@ import {
 
 describe("text_length state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should be able to get the text length of text, variable and no block", () => {
@@ -70,7 +69,7 @@ describe("text_length state factories", () => {
       .getInput("VALUE")!.connection!.connect(getStringVariableBlock.outputConnection!);
 
     const eventTest3 = createTestEvent(numVariableBlock.id);
-    const [state1Test3, state2Test3] = eventToFrameFactory(eventTest3).frames;
+    const [, state2Test3] = eventToFrameFactory(eventTest3).frames;
 
     expect(state2Test3.explanation).toBe('Variable "num_test" stores 12.');
     expect(state2Test3.variables["num_test"].value).toBe(12);

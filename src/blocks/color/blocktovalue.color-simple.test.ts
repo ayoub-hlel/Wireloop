@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import "../../tests/fake-block";
 
-import type { BlockSvg, Workspace } from "blockly";
+import type { Workspace } from "blockly";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import type { Color } from "../../core/frames/arduino.frame";
@@ -17,14 +17,13 @@ import {
 
 describe("simple color state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("test color picker block gives the right rgb value", () => {

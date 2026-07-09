@@ -1,6 +1,5 @@
 import type { WorkspaceSvg } from "blockly";
 import Blockly from "blockly";
-import { arduinoLoopBlockShowLoopForeverText } from "./arduino_loop_block.helper";
 import { getAllBlocks } from "./block.helper";
 import { deleteVariable, getAllVariables } from "./variable.helper";
 

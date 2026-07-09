@@ -1,9 +1,9 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
-import Blockly, { Workspace, BlockSvg, WorkspaceSvg, Blocks } from "blockly";
+import { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
+
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "../../core/blockly/updater";
 import {
@@ -14,7 +14,6 @@ import {
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import {
   ArduinoFrame,
-  ArduinoComponentType,
 } from "../../core/frames/arduino.frame";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { UltraSonicSensorState } from "./state";
@@ -58,7 +57,7 @@ describe("ultra sonic sensor state factories", () => {
 
     const event = createTestEvent(setVarNumBlock.id);
 
-    const [setup, state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state1, state2, state3] = eventToFrameFactory(event).frames;
 
     verifyState(state1, 10);
     verifyState(state2, 104);

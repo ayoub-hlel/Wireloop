@@ -5,7 +5,7 @@ import type { Workspace, BlockSvg } from "blockly";
 import { transformBlock } from "./block.transformer";
 import { BlockType, PinCategory } from "../dto/block.type";
 import { connectToArduinoBlock } from "../helpers/block.helper";
-import _ from "lodash";
+
 import { createArduinoAndWorkSpace } from "../../../tests/tests.helper";
 
 describe("block transformer", () => {

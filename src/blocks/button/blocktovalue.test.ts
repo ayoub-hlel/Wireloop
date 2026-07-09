@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "../../core/blockly/updater";
 import {
@@ -64,7 +63,7 @@ describe("button state factories", () => {
     setVariablePin3.nextConnection!.connect(setVariablePin5.previousConnection!);
     const event = createTestEvent(setVariablePin3.id);
 
-    const [setup1, setup2, state1, state2, state3, state4] =
+    const [, , state1, state2, state3, state4] =
       eventToFrameFactory(event).frames;
 
     expect(state1.variables["block1"].value).toBeTruthy();

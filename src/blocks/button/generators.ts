@@ -33,6 +33,6 @@ Blockly["Arduino"]["is_button_pressed"] = function (block: BlockSvg) {
 };
 
 // This is a simulation only block
-Blockly["Arduino"]["release_button"] = function (block: BlockSvg) {
+Blockly["Arduino"]["release_button"] = function () {
   return "";
 };

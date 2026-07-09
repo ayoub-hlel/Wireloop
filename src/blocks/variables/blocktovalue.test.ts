@@ -15,14 +15,13 @@ import _ from "lodash";
 
 describe("math_arithmetic state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("if the variable we are trying to get does not exist it should use default value", () => {

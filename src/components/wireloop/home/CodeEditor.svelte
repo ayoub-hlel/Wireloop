@@ -12,7 +12,7 @@
 
   let container: HTMLElement;
   let editorView: EditorView | undefined = $state();
-  let loaded = $state(false);
+  let _loaded = $state(false);
   let fontSize = $state(14);
   let cursorLine = $state(1);
   let cursorCol = $state(1);
@@ -78,7 +78,7 @@
   onMount(() => {
     const info = get(codeStore);
     makeEditor(info.code);
-    loaded = true;
+    _loaded = true;
 
     const unsub = codeStore.subscribe((info) => {
       if (!userEdited && editorView) {
@@ -208,7 +208,13 @@
   <!-- Editor -->
   <div class="flex-1 min-h-0 relative">
     <div class="absolute inset-0 bg-grid-schematic opacity-5 pointer-events-none"></div>
-    <div bind:this={container} class="absolute inset-0 overflow-hidden"></div>
+    {#if _loaded}
+      <div bind:this={container} class="absolute inset-0 overflow-hidden"></div>
+    {:else}
+      <div class="absolute inset-0 flex items-center justify-center text-muted-foreground font-mono text-sm">
+        Loading editor...
+      </div>
+    {/if}
   </div>
 
   <!-- Status bar -->

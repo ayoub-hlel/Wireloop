@@ -52,17 +52,17 @@ int internal_variable_degrees = 0;
   return "";
 };
 
-Blockly["Arduino"]["joystick_angle"] = function (block: Block) {
+Blockly["Arduino"]["joystick_angle"] = function () {
   return ["internal_variable_degrees", Blockly["Arduino"].ORDER_ATOMIC];
 };
-Blockly["Arduino"]["joystick_button"] = function (block: Block) {
+Blockly["Arduino"]["joystick_button"] = function () {
   return [
     "internal_variable_isJoystickButtonPressed",
     Blockly["Arduino"].ORDER_ATOMIC,
   ];
 };
 
-Blockly["Arduino"]["joystick_engaged"] = function (block: Block) {
+Blockly["Arduino"]["joystick_engaged"] = function () {
   return [
     "internal_variable_isJoyStickEngaged",
     Blockly["Arduino"].ORDER_ATOMIC,

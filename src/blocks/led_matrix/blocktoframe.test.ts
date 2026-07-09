@@ -1,7 +1,6 @@
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
@@ -130,7 +129,7 @@ describe("led matrix  factories", () => {
 
     const event = createTestEvent(ledMatrix1.id);
 
-    const [state0, state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state1, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state1.explanation).toBe("Led Matrix turn (1,1) on.");
     expect(state2.explanation).toBe("Led Matrix turn (2,2) on.");

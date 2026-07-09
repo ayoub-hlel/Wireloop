@@ -1,4 +1,4 @@
-import type { BlockSvg, Workspace } from "blockly";
+import type { Workspace } from "blockly";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
@@ -13,14 +13,13 @@ import {
 
 describe("text_isEmpty state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should is empty should detect whether a text block/variable or nothing is empty", () => {
@@ -69,7 +68,7 @@ describe("text_isEmpty state factories", () => {
     connectToArduinoBlock(setStringVariable);
 
     const event2 = createTestEvent(textIsEmpty.id);
-    const [state1Event2, state2Event2] = eventToFrameFactory(event2).frames;
+    const [, state2Event2] = eventToFrameFactory(event2).frames;
 
     expect(state2Event2.explanation).toBe('Variable "test_bool" stores false.');
     expect(state2Event2.variables["test_bool"].value).toBeFalsy();

@@ -5,7 +5,6 @@
   import { SVG, type Svg } from '@svgdotjs/svg.js';
   import frameStore from '../../../stores/frame.store';
   import currentFrameStore from '../../../stores/currentFrame.store';
-  import settings from '../../../stores/settings.store';
   import { resizeStore, WindowType } from '../../../stores/resize.store';
   import paint from '../../../core/virtual-circuit/paint';
   import update from '../../../core/virtual-circuit/update';

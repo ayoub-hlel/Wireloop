@@ -1,4 +1,4 @@
-import { writable, derived, get, type Readable } from "svelte/store";
+import { writable, derived, type Readable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
 import { getApiClient, createQuery, createMutation } from "./api.client";

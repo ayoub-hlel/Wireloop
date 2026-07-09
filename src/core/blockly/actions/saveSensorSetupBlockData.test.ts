@@ -4,7 +4,7 @@ import "../blocks";
 import Blockly from "blockly";
 import type { Workspace, BlockSvg } from "blockly";
 import { getAllBlocks } from "../helpers/block.helper";
-import _ from "lodash";
+
 import type { BlockEvent } from "../dto/event.type";
 import { transformBlock } from "../transformers/block.transformer";
 import { getAllVariables } from "../helpers/variable.helper";

@@ -21,14 +21,13 @@ import type { ServoState } from "./state";
 
 describe("test servos factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should be able to create different arduino", () => {

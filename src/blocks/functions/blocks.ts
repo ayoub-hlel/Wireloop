@@ -1,5 +1,4 @@
 import Blockly from "blockly";
-import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
 Blockly.Blocks["procedures_defnoreturn"] = {
   /**

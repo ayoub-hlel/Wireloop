@@ -1,6 +1,6 @@
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
-import _ from "lodash";
+
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import {
   ArduinoFrame,

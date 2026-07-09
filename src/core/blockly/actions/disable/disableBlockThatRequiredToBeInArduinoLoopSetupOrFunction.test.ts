@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../helpers/block.helper";
-import _ from "lodash";
+
 
 import { disableBlockThatRequiredToBeInArduinoLoopSetupOrFunction } from "./disableBlockThatRequiredToBeInArduinoLoopSetupOrFunction";
 import { ActionType } from "../actions";

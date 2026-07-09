@@ -6,7 +6,6 @@ import {
   Timeline,
 } from "../../core/frames/arduino.frame";
 import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
-import { joystickSetup } from "./blocktoframe";
 import type { JoystickState, JoyStickSensor } from "./state";
 
 export const joystickSetupBlockToComponentState = (

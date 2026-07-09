@@ -60,7 +60,7 @@ class Client implements DBClient {
     return res.json();
   }
 
-  subscribe(_name: string, _args: Record<string, unknown> = {}, _callback?: (data: unknown) => void): () => void {
+  subscribe(): () => void {
     return () => {};
   }
 }

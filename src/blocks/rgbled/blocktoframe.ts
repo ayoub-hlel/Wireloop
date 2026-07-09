@@ -5,7 +5,6 @@ import type { BlockToFrameTransformer } from "../../core/frames/transformer/bloc
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import {
   arduinoFrameByComponent,
-  findComponent,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { LedColorState } from "./state";
 

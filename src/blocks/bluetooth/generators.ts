@@ -31,11 +31,11 @@ Blockly["Arduino"]["bluetooth_setup"] = function (block: Block) {
   return "";
 };
 
-Blockly["Arduino"]["bluetooth_get_message"] = function (block: Block) {
+Blockly["Arduino"]["bluetooth_get_message"] = function () {
   return ["getBluetoothMessage()", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["bluetooth_has_message"] = function (block: Block) {
+Blockly["Arduino"]["bluetooth_has_message"] = function () {
   // available() returns the number of bytes.  Because 0 will return false
   // we can return 0 as false and greater than 0 as true for the blocks.
   return [

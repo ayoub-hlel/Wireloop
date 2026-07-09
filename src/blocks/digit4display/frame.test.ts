@@ -4,18 +4,15 @@ import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import {
   createArduinoAndWorkSpace,
-  createSetVariableBlockWithValue,
   createTestEvent,
   createValueBlock,
 } from "../../tests/tests.helper";
 import {
   connectToArduinoBlock,
-  createBlock,
 } from "../../core/blockly/helpers/block.helper";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import {
-  ArduinoComponentType,
   ArduinoFrame,
 } from "../../core/frames/arduino.frame";
 import { DigitilDisplayState } from "./state";

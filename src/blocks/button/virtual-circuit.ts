@@ -13,11 +13,9 @@ import type { Element, Svg } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import type { ButtonState } from "./state";
 import {
-  createComponentWire,
   createGroundOrPowerWire,
   createResistor,
   createWireBreadboard,
-  createWireComponentToBreadboard,
   createWireFromArduinoToBreadBoard,
   findBreadboardHoleXY,
   getGroundorPowerWireLetter,
@@ -41,17 +39,13 @@ export const positionButton: PositionComponent<ButtonState> = (
   buttonEl.y(hole.y - 43.5);
 };
 
-export const createButton: AfterComponentCreateHook<ButtonState> = (
-  state,
-  buttonEl
-) => {
+export const createButton: AfterComponentCreateHook<ButtonState> = () => {
   return;
 };
 
 export const updateButton: SyncComponent = (
   state: ArduinoComponentState,
   buttonEl,
-  draw
 ) => {
   const buttonState = state as ButtonState;
   toggleButton(buttonEl, buttonState.isPressed);

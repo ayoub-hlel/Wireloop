@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
 
-import type { Workspace, BlockSvg } from "blockly";
+import type { Workspace } from "blockly";
 import {
   createArduinoAndWorkSpace,
   createSetVariableBlockWithValue,

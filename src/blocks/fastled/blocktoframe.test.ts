@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../tests/fake-block";
 import "../../core/blockly/blocks";
 
-import { Workspace, BlockSvg, Block } from "blockly";
+import { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
@@ -19,7 +19,6 @@ import {
 } from "../../tests/tests.helper";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import type { FastLEDState } from "./state";
-import { hexToRgb } from "../../core/blockly/helpers/color.helper";
 
 describe("fastLED state factories", () => {
   let workspace: Workspace;
@@ -86,7 +85,7 @@ describe("fastLED state factories", () => {
     setAllColorBlock.setFieldValue("#00AA00", "2-2");
     connectToArduinoBlock(showAllColors);
     connectToArduinoBlock(setAllColorBlock);
-    const [_, state2, state3] = eventToFrameFactory(
+    const [, state2, state3] = eventToFrameFactory(
       createTestEvent(setAllColorBlock.id)
     ).frames;
 
@@ -165,7 +164,7 @@ describe("fastLED state factories", () => {
 
     const event = createTestEvent(setFastLED1Block.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe(
       "Setting LED 1 on light strip to color (red=0,green=0,blue=100)"

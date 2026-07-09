@@ -1,5 +1,4 @@
 import { Element } from "@svgdotjs/svg.js";
-import { getTopBlocks } from "../blockly/helpers/block.helper";
 
 const BOTTOM_MIDDLE_HOLES = ["A", "B", "C", "D", "E"];
 const TOP_MIDDLE_HOLES = ["F", "G", "H", "I", "J"];

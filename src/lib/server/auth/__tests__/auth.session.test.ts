@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createTestAuth, uniqueEmail, signUp, signIn, getSessionFromResponse } from "./helpers";
+import { createTestAuth, uniqueEmail, signUp, signIn } from "./helpers";
 
 async function signUpAndGetSession(auth: ReturnType<typeof createTestAuth>, email: string) {
   const signUpRes = await signUp(auth, {

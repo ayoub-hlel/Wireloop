@@ -8,7 +8,7 @@ import type { MicroControllerType } from "../../microcontroller/microcontroller"
 export const transformEvent = (
   blocks: BlockSvg[],
   variables: VariableModel[],
-  event: object | any,
+  event: Record<string, unknown>,
   microcontrollerType: MicroControllerType
 ): BlockEvent => {
   const blockDatum = blocks.map(transformBlock);

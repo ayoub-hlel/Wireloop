@@ -8,12 +8,12 @@ import type {
   AfterComponentCreateHook,
 } from '../../core/virtual-circuit/svg-create';
 
-import type { Dom, Element, ElementAlias, Svg } from '@svgdotjs/svg.js';
+import type { Dom, Element } from '@svgdotjs/svg.js';
 import { rgbToHex } from '../../core/blockly/helpers/color.helper';
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
 import type { FastLEDState } from './state';
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createComponentWire,
   createGroundOrPowerWire,
 } from '../../core/virtual-circuit/wire';

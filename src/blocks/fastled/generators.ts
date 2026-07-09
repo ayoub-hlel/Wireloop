@@ -61,7 +61,7 @@ Blockly["Arduino"]["fastled_set_all_colors"] = function (block: Block) {
   return statements.join("");
 };
 
-Blockly['Arduino']['fastled_show_all_colors'] = function (block: Block) {
+Blockly['Arduino']['fastled_show_all_colors'] = function () {
   return `FastLED.show();\n`;
 };
 

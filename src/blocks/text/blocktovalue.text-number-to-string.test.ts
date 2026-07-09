@@ -1,4 +1,4 @@
-import type { BlockSvg, Workspace } from "blockly";
+import type { Workspace } from "blockly";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
@@ -13,14 +13,13 @@ import {
 
 describe("number_to_string state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should be able be able change a number variable/text block/empty to a text", () => {
@@ -79,7 +78,7 @@ describe("number_to_string state factories", () => {
 
     const event2 = createTestEvent(numberBlock.id);
 
-    const [state1Event2, state2Event2] = eventToFrameFactory(event2).frames;
+    const [, state2Event2] = eventToFrameFactory(event2).frames;
 
     expect(state2Event2.explanation).toBe(
       'Variable "text_test" stores "333.334".'

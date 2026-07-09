@@ -4,7 +4,7 @@ import {
   ArduinoComponentType,
   ArduinoFrameContainer,
 } from '../frames/arduino.frame';
-import { ANALOG_PINS, getBoard } from '../microcontroller/selectBoard';
+import { getBoard } from '../microcontroller/selectBoard';
 import { hideAllAnalogWires, resetBreadBoardHoles } from './wire';
 import { findMicronControllerEl } from './svg-helpers';
 import createNewComponent from './svg-create';

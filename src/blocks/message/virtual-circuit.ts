@@ -67,4 +67,4 @@ const getMessage = (sendMessage: string, receiveMessage: string) => {
     : receiveMessage;
 };
 
-export const resetArduinoMessage: ResetComponent = (componentEl) => {};
+export const resetArduinoMessage: ResetComponent = () => {};

@@ -1,7 +1,7 @@
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
+
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
@@ -48,7 +48,7 @@ describe("get time block factories", () => {
 
     const event = createTestEvent(timesetup.id);
 
-    const [state1, state2, state3, state4] = eventToFrameFactory(event).frames;
+    const [, state2, state3, state4] = eventToFrameFactory(event).frames;
     expect(state2.variables["seconds"].value).toBe(0.3);
     expect(state3.variables["seconds"].value).toBe(0.6);
     expect(state4.variables["seconds"].value).toBe(0.9);

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+/* eslint-disable-next-line css/no-invalid-at-rules */
 @config "../tailwind.config.ts";
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -7,5 +8,4 @@
    src/globals.css defines ALL design tokens as CSS variables in
    shadcn/ui format. This file layers Tailwind v4 on top.
    ═══════════════════════════════════════════════════════════════════ */
-@import "./globals.css";
 

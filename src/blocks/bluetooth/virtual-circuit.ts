@@ -1,4 +1,4 @@
-import type { Element, Svg, Text } from "@svgdotjs/svg.js";
+import type { Element, Text } from "@svgdotjs/svg.js";
 import type {
   AfterComponentCreateHook,
   CreateWire,

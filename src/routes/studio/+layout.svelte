@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import type { Snippet } from 'svelte';
   let { children }: { children: Snippet } = $props();
   import debounce from 'lodash/debounce';
@@ -23,6 +23,7 @@
   let middleFlex = $state(59.5);
   let rightFlex = $state(39.5);
   let isResizingRight = false;
+  let unsubAuth: (() => void) | undefined;
 
   function startResize() {
     isResizingRight = true;
@@ -71,7 +72,7 @@
       loadedProject = true;
     }
 
-    const unsub = authStore.subscribe(async (auth) => {
+    unsubAuth = authStore.subscribe(async (auth) => {
       if (auth.loading) return;
 
       if (!auth.isLoggedIn || !auth.uid) {
@@ -130,6 +131,10 @@
       } else {
         arduinoLoopBlockShowLoopForeverText();
       }
+  });
+
+  onDestroy(() => {
+    unsubAuth?.();
   });
 </script>
 

@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "../../core/blockly/updater";
@@ -56,7 +55,7 @@ describe("arduino message state factories", () => {
 
     const event = createTestEvent(messageSetup.id);
 
-    const [state1, state2] = eventToFrameFactory(event).frames;
+    const [, state2] = eventToFrameFactory(event).frames;
 
     expect(state2.blockId).toBe(sendMessageBlock.id);
     expect(state2.explanation).toBe('Arduino sending message: "Hello World!".');

@@ -11,8 +11,8 @@ import type {
 import type { LCDScreenState } from "./state";
 import type { Element, Svg, Text } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -117,7 +117,7 @@ const centerLetters = (lcdScreenEl: Element, lcdState: LCDScreenState) => {
   for (let row = 1; row <= lcdState.rows; row += 1) {
     for (let col = 1; col <= lcdState.columns; col += 1) {
       const letterEl = lcdScreenEl.findOne(`#letter-${col}-${row}`) as Element;
-      const spaceEl = lcdScreenEl.findOne(`#space-${col}-${row}`) as Element;
+      lcdScreenEl.findOne(`#space-${col}-${row}`) as Element;
       letterEl.cx(lcdState.rows === 2 ? 5 : 12);
       letterEl.attr("y", "-2");
     }

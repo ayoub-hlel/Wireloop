@@ -1,10 +1,10 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import _ from "lodash";
+
 import type { BlockEvent } from "../dto/event.type";
 import updateLcdScreenPrintBlock from "./updateLcdScreenPrintBlock";
-import { type UpdateLCDScreenPrintBlock, ActionType } from "./actions";
+import { ActionType } from "./actions";
 import {
   createArduinoAndWorkSpace,
   createTestEvent,

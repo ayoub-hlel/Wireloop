@@ -13,10 +13,9 @@ import { AnalogSensorPicture, AnalogSensorState } from "./state";
 
 describe("test analog sensor blocks", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
   afterEach(() => {
     workspace.dispose();

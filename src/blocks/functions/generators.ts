@@ -1,7 +1,7 @@
 import Blockly from "blockly";
 import type { Block } from "blockly";
 
-Blockly["Arduino"]["procedures_defreturn"] = function (block: Block | any) {
+Blockly["Arduino"]["procedures_defreturn"] = function (block: Block) {
   // Define a procedure with a return value.
   const funcName = Blockly["Arduino"].variableDB_.getName(
     block.getFieldValue("NAME")
@@ -51,7 +51,7 @@ function translateType(type: string) {
 Blockly["Arduino"]["procedures_defnoreturn"] =
   Blockly["Arduino"]["procedures_defreturn"];
 
-Blockly["Arduino"]["procedures_callnoreturn"] = function (block: Block | any) {
+Blockly["Arduino"]["procedures_callnoreturn"] = function (block: Block) {
   // Call a procedure with no return value.
   const funcName = Blockly["Arduino"].variableDB_.getName(
     block.getFieldValue("NAME")

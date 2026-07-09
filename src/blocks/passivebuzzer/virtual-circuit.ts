@@ -1,4 +1,4 @@
-import { Element } from "@svgdotjs/svg.js";
+
 import {
   AfterComponentCreateHook,
   CreateWire,
@@ -13,14 +13,11 @@ import {
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
-import { PassiveBuzzerState, NOTE_TONES, Notes } from "./state";
+import { PassiveBuzzerState, Notes } from "./state";
 
 export const afterCreatePassiveBuzzer: AfterComponentCreateHook<PassiveBuzzerState> = (
   state,
   componentEl,
-  arduinoEl,
-  draw,
-  board
 ) => {
   const pin = state.pins[0];
   componentEl.findOne("#PIN_TEXT")!.node.textContent = pin;
@@ -29,8 +26,6 @@ export const afterCreatePassiveBuzzer: AfterComponentCreateHook<PassiveBuzzerSta
 export const updatePassiveBuzzer: SyncComponent = (
   state,
   componentEl,
-  draw,
-  frame
 ) => {
   const buzzerState = state as PassiveBuzzerState;
 

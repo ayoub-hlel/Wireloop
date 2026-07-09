@@ -20,10 +20,9 @@
   });
 
   $effect(() => {
+    const _currentStep = $currentStepStore;
     // Guard: bind:this is undefined during SSR/hydration first pass
     if (!stepContainer) return;
-    // Track current step as a reactive dependency so we re-scroll on change
-    const _step = $currentStepStore;
     const activeStep = stepContainer.querySelector(".current");
     if (activeStep) {
       activeStep.scrollIntoView({ block: "center", behavior: 'smooth' });

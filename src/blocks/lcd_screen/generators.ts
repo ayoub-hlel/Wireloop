@@ -1,4 +1,4 @@
-import Blockly, { CodeGenerator, type Block } from "blockly";
+import Blockly, { type Block } from "blockly";
 import { numberToCode } from "../../core/blockly/helpers/number-code.helper";
 
 Blockly["Arduino"]["lcd_setup"] = function (block: Block) {
@@ -39,7 +39,6 @@ Blockly["Arduino"]["lcd_scroll"] = function (block: Block) {
 
 Blockly["Arduino"]["lcd_screen_simple_print"] = function (
   block: Block,
-  generator: CodeGenerator
 ) {
   const textRow1 = Blockly["Arduino"].valueToCode(
     block,
@@ -103,7 +102,7 @@ Blockly["Arduino"]["lcd_backlight"] = function (block: Block) {
     : "\tlcd.noBacklight();\n";
 };
 
-Blockly["Arduino"]["lcd_screen_clear"] = function (block: Block) {
+Blockly["Arduino"]["lcd_screen_clear"] = function () {
   return "\tlcd.clear();\n";
 };
 

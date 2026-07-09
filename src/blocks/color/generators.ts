@@ -28,7 +28,7 @@ Blockly["Arduino"]["color_picker_custom"] = function (block: Block) {
   ];
 };
 
-Blockly["Arduino"]["colour_random"] = function (block: Block) {
+Blockly["Arduino"]["colour_random"] = function () {
   createColorStruct();
   return [
     "{ random(0, 255), random(0, 255), random(0, 255)}",

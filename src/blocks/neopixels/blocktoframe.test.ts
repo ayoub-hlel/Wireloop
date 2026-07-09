@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../tests/fake-block";
 import "../../core/blockly/blocks";
 
-import { Workspace, BlockSvg, Block } from "blockly";
+import { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
@@ -105,7 +105,7 @@ describe("neo pixle state factories", () => {
 
     const event = createTestEvent(setNeoPixel1Block.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe(
       "Setting LED 1 on light strip to color (red=0,green=0,blue=100)"

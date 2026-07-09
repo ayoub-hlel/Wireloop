@@ -9,17 +9,10 @@ import type {
 } from "../../core/virtual-circuit/svg-create";
 import {
   createComponentWire,
-  createGroundOrPowerWire,
-  createWireComponentToBreadboard,
-  createWireFromArduinoToBreadBoard,
-  findBreadboardHoleXY,
 } from "../../core/virtual-circuit/wire";
 
-import type { Element, Text } from "@svgdotjs/svg.js";
+import type { Element } from "@svgdotjs/svg.js";
 import { MotorShieldState, MOTOR_DIRECTION } from "./state";
-import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
-import { MicroController } from "../../core/microcontroller/microcontroller";
-import { findComponentConnection } from "../../core/virtual-circuit/svg-helpers";
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
 let motorSpin1TimerId: ReturnType<typeof setInterval> | undefined = undefined;
 let motorSpin2TimerId: ReturnType<typeof setInterval> | undefined = undefined;
@@ -180,7 +173,7 @@ function setDirectionAndSpeed(
   }`;
 }
 
-export const motorReset: ResetComponent = (componentEl: Element) => {
+export const motorReset: ResetComponent = () => {
   // (componentEl.findOne("#direction") as Text).node.innerHTML =
   //   "Direction: " +
   //   MOTOR_DIRECTION.CLOCKWISE.charAt(0).toUpperCase() +

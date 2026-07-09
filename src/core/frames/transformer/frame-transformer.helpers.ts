@@ -10,7 +10,7 @@ import type {
 import { arduinoComponentStateToId } from "../arduino-component-id";
 
 import cloneDeep from "lodash/cloneDeep";
-import type { BlockData, PinCategory } from "../../blockly/dto/block.type";
+import type { BlockData } from "../../blockly/dto/block.type";
 import { findBlockById } from "../../blockly/helpers/block-data.helper";
 import { VariableTypes } from "../../blockly/dto/variable.type";
 import type { ARDUINO_PINS } from "../../microcontroller/selectBoard";

@@ -28,7 +28,7 @@
       searchList = [...projectList];
       return;
     }
-    searchList = searchList.filter(([p, id]) =>
+    searchList = searchList.filter(([p]) =>
       p.name.toLowerCase().includes(term.toLowerCase())
     );
   }

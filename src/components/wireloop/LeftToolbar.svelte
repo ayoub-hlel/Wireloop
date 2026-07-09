@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
   import { resetWorkspace, workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
@@ -8,18 +7,10 @@
   import authStore from '../../stores/auth.store';
   import { onConfirm, onErrorMessage } from '../../help/alerts';
   import { wait } from '../../helpers/wait';
-  import { tooltip } from '$lib/tooltip';
   
   let isDropdownOpen = $state(false);
   let showSaveSuccess = $state(false);
   let canSave = $state(true);
-
-  const tooltipStyle = {
-    position: "bottom",
-    align: "center",
-    animation: "slide",
-    theme: "nav-tooltip",
-  };
 
   function toggleDropdown() {
     isDropdownOpen = !isDropdownOpen;

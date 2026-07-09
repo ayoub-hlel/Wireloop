@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../blocks";
 import type { Workspace, BlockSvg } from "blockly";
-import _ from "lodash";
+
 import { ActionType } from "../actions";
 import { disableSetupBlocksUsingSamePinNumbers } from "./disableSetupBlocksUsingSamePinNumbers";
 import {

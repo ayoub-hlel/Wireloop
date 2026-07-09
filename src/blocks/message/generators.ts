@@ -15,7 +15,7 @@ Blockly["Arduino"]["message_setup"] = function () {
   return "";
 };
 
-Blockly["Arduino"]["arduino_get_message"] = function (block: Block) {
+Blockly["Arduino"]["arduino_get_message"] = function () {
   Blockly["Arduino"].information_["message_recieve_block"] = true;
 
   Blockly["Arduino"].functionNames_[
@@ -30,7 +30,7 @@ Blockly["Arduino"]["arduino_get_message"] = function (block: Block) {
   return ["serialMessageDEV", Blockly["Arduino"].ORDER_ATOMIC];
 };
 
-Blockly["Arduino"]["arduino_receive_message"] = function (block: Block) {
+Blockly["Arduino"]["arduino_receive_message"] = function () {
   Blockly["Arduino"].information_["message_recieve_block"] = true;
   Blockly["Arduino"].functionNames_[
     "setSerialMessage"

@@ -1,6 +1,5 @@
 import { Element } from "@svgdotjs/svg.js";
 import {
-  AfterComponentCreateHook,
   CreateWire,
   PositionComponent,
 } from "../../core/virtual-circuit/svg-create";
@@ -30,8 +29,6 @@ export const positionStepperMotor: PositionComponent<StepperMotorState> = (
 export const updateStepperMotor: SyncComponent = (
   state,
   componentEl,
-  draw,
-  frame
 ) => {
   const stepperState = state as StepperMotorState;
   const degreesPerStep = 360 / stepperState.totalSteps;

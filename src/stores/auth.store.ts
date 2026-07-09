@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { authClient } from '$lib/client/auth-client';
 import type { Session, User } from 'better-auth';
 
@@ -19,7 +19,7 @@ const initial: AuthState = {
 };
 
 function createAuthStore() {
-  const { subscribe, set, update } = writable<AuthState>(initial);
+  const { subscribe, set } = writable<AuthState>(initial);
 
   return {
     subscribe,
@@ -28,7 +28,7 @@ function createAuthStore() {
     /** Initialize — fetch session from Better Auth */
     async init() {
       try {
-        const { data, error } = await authClient.getSession();
+        const { data } = await authClient.getSession();
         if (data) {
           set({
             isLoggedIn: true,

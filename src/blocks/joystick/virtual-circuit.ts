@@ -97,10 +97,6 @@ export const positionJoyStick: PositionComponent<JoystickState> = (
 export const afterComponentHookJoyStick: AfterComponentCreateHook<JoystickState> = (
   state,
   joyStickEl,
-  arduinoEl,
-  draw,
-  board,
-  settings
 ) => {
   joyStickEl.findOne("#PIN_Y_NUMBER")!.node.innerHTML = state.yPin;
   joyStickEl.findOne("#PIN_X_NUMBER")!.node.innerHTML = state.xPin;
@@ -110,8 +106,6 @@ export const afterComponentHookJoyStick: AfterComponentCreateHook<JoystickState>
 export const updateJoyStick: SyncComponent = (
   state,
   joyStickEl,
-  draw,
-  frame
 ) => {
   const joystickState = state as JoystickState;
   const movingPart = joyStickEl.findOne("#MOVING_PIECE") as Element;

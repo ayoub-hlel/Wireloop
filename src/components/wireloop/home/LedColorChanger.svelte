@@ -9,14 +9,12 @@
 
   let showLedChanger = false;
   let ledEl: Element | null = null;
-  let pin: string = "";
   let ledColor: string = "";
 
   onMount(() => {
     document.addEventListener("led-color-show", (e: Event) => {
       console.log("check details", e.detail);
       ledEl = e.detail.componentEl;
-      pin = e.detail.pin;
       ledColor = ledEl.data("color");
       showLedChanger = true;
     });
@@ -36,7 +34,6 @@
   function close() {
     showLedChanger = false;
     ledEl = null;
-    pin = "";
   }
 </script>
 

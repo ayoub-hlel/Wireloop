@@ -187,14 +187,14 @@ const testGetItemsInList = (
   const [
     state1,
     state2,
-    state3,
+    ,
     state4,
     state5,
     state6,
     state7,
     state8,
     state9,
-    state10,
+    ,
   ] = eventToFrameFactory(event).frames;
 
   // Testing variables are not being creating

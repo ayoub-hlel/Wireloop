@@ -7,24 +7,15 @@ import {
 } from "../../core/frames/transformer/block-to-value.factories";
 
 export const colorPicker: ValueGenerator = (
-  blocks,
+  _blocks,
   block,
-  variables,
-  timeline,
-  previousState
 ) => {
   const color = findFieldValue(block, "COLOR");
 
   return hexToRgb(color);
 };
 
-export const randomColor: ValueGenerator = (
-  blocks,
-  block,
-  variables,
-  timeline,
-  previousState
-) => {
+export const randomColor: ValueGenerator = () => {
   return {
     red: random(1, 256),
     green: random(1, 256),

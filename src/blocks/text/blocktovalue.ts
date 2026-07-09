@@ -8,11 +8,8 @@ import {
 } from "../../core/frames/transformer/block-to-value.factories";
 
 export const text: ValueGenerator = (
-  blocks,
+  _blocks,
   block,
-  variables,
-  timeline,
-  previousState
 ) => {
   return findFieldValue(block, "TEXT");
 };

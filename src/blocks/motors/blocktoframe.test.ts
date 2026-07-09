@@ -19,14 +19,13 @@ import type { MotorShieldState } from "./state";
 
 describe("test motors factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("test stop motor block will stop the right motors", () => {
@@ -44,7 +43,7 @@ describe("test motors factories", () => {
     stopMotor1.nextConnection!.connect(stopMotor2.previousConnection!);
     const event = createTestEvent(motor2Block2.id);
 
-    const [stateSetup, state1, state2, state3, state4] =
+    const [, , , state3, state4] =
       eventToFrameFactory(event).frames;
 
     expect("Stopping motor 1.").toBe(state3.explanation);
@@ -69,7 +68,7 @@ describe("test motors factories", () => {
 
     const event = createTestEvent(motor2Block2.id);
 
-    const [stateSetup, state1, state2, state3, state4] =
+    const [, state1, state2, state3, state4] =
       eventToFrameFactory(event).frames;
     expect(state1.explanation).toBe("Motor 1 moves clockwise at speed 50.");
     expect(state2.explanation).toBe(

@@ -231,25 +231,13 @@ export interface CreateWire<T extends ArduinoComponentState> {
   ): void;
 }
 
-const createNoWires: CreateWire<ArduinoComponentState> = (
-  state,
-  draw,
-  component,
-  arduino,
-  id,
-  area
-) => {};
+const createNoWires: CreateWire<ArduinoComponentState> = () => {};
 
-const emptyPositionComponent: PositionComponent<ArduinoComponentState> = (
-  state,
-  componentEl,
-  arduinoEl,
-  draw
-) => {};
+const emptyPositionComponent: PositionComponent<ArduinoComponentState> = () => {};
 
 const emptyCreateHookComponent: AfterComponentCreateHook<
   ArduinoComponentState
-> = (state, componentEl, arduinoEl, draw, wire) => {};
+> = () => {};
 
 const createWires: { [key: string]: CreateWire<ArduinoComponentState> } = {
   [ArduinoComponentType.BLUE_TOOTH]: createBluetoothWires as CreateWire<ArduinoComponentState>,

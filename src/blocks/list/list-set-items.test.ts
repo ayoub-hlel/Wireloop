@@ -15,18 +15,16 @@ import type { Workspace, BlockSvg } from "blockly";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
-import _ from "lodash";
 import type { Color } from "../../core/frames/arduino.frame";
 
 describe("list setup factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should be able to set values in a string list", () => {
@@ -173,7 +171,7 @@ const testSetListBlock = (
 
   const event = createTestEvent(numberBlock.id);
 
-  const [state1, state2, state3, state4, state5, state6, state7] =
+  const [, , state3, state4, state5, state6, state7] =
     eventToFrameFactory(event).frames;
 
   expect(state3.variables["list"].value).toEqual([

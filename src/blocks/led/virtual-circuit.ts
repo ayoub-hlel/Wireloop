@@ -12,8 +12,8 @@ import type { Element, Svg, Text } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { arduinoComponentStateToId } from "../../core/frames/arduino-component-id";
 import type { LedState } from "./state";
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createWireComponentToBreadboard,
   createGroundOrPowerWire,
   createResistor,
@@ -42,10 +42,10 @@ export const lightColorsShades: { [key: string]: string } = {
 export const ledCreate: AfterComponentCreateHook<LedState> = (
   state,
   ledEl,
-  arduinoEl,
-  draw,
-  board,
-  settings
+  _arduinoEl,
+  _draw,
+  _board,
+  _settings
 ) => {
   changeLedColor(state, ledEl);
   const pinText = ledEl.findOne("#PIN_NUMBER") as Text;
@@ -62,7 +62,7 @@ export const ledPosition: PositionComponent<LedState> = (
   ledEl,
   arduinoEl,
   draw,
-  board,
+  _board,
   area
 ) => {
   const { holes, isDown } = area!;
@@ -70,7 +70,7 @@ export const ledPosition: PositionComponent<LedState> = (
   positionComponent(ledEl, arduinoEl, draw, holes[3], isDown, "POWER");
 };
 
-export const updateLed: SyncComponent = (state: ArduinoComponentState, ledEl, draw) => {
+export const updateLed: SyncComponent = (state: ArduinoComponentState, ledEl, _draw) => {
   const ledState = state as LedState;
   const ledText = ledEl.findOne("#LED_TEXT") as Text;
   if (!ledState.fade) {

@@ -6,21 +6,20 @@ import {
   createSetVariableBlockWithValue,
   createTestEvent,
 } from "../../tests/tests.helper";
-import type { Workspace, BlockSvg } from "blockly";
+import type { Workspace } from "blockly";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 
 describe("text_changeCase state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should change case text block/variable or nothing is empty", () => {
@@ -98,7 +97,7 @@ describe("text_changeCase state factories", () => {
 
       const event1 = createTestEvent(textChangeCase.id);
 
-      const [state1Event1, state2Event1] = eventToFrameFactory(event1).frames;
+      const [, state2Event1] = eventToFrameFactory(event1).frames;
 
       expect(state2Event1.explanation).toBe(
         `Variable "test_string" stores "${expectedValue}".`

@@ -4,8 +4,6 @@ import {
   type PinConnection,
 } from "../../core/microcontroller/microcontroller";
 import type { MicroController } from "../../core/microcontroller/microcontroller";
-import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
-import keys from "lodash/keys";
 // A0 => #B637CC
 // A1 => #CC9E37
 // A2 => #34CE5F

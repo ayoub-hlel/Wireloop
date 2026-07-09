@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
 import type { Workspace, BlockSvg } from "blockly";
-import _ from "lodash";
+
 import type { BlockEvent } from "../dto/event.type";
 import updateForLoopText from "./updateForLoopText";
 import { type ForLoopTextChange, ActionType } from "./actions";

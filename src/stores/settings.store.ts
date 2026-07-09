@@ -4,7 +4,7 @@ import is_browser from "../helpers/is_browser";
 import { defaultSetting } from "../types/models";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
-import { getApiClient, createQuery, createMutation } from "./api.client";
+import { getApiClient, createMutation } from "./api.client";
 /**
  * Settings state interface
  */
@@ -23,7 +23,7 @@ function loadInitialSettings(): Settings {
   try {
     const storedSettings = is_browser() ? localStorage.getItem("settings") : null;
     settings = storedSettings ? JSON.parse(storedSettings) : defaultSetting;
-  } catch (e) {
+  } catch {
     settings = defaultSetting;
   }
 

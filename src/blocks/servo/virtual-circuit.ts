@@ -9,11 +9,11 @@ import type {
 } from "../../core/virtual-circuit/svg-create";
 
 import { findSvgElement } from "../../core/virtual-circuit/svg-helpers";
-import type { Svg, Text, Element } from "@svgdotjs/svg.js";
+import type { Text, Element } from "@svgdotjs/svg.js";
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import type { ServoState } from "./state";
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";
@@ -33,10 +33,10 @@ export const servoUpdate: SyncComponent = (state: ArduinoComponentState, servoEl
 export const servoCreate: AfterComponentCreateHook<ServoState> = (
   state,
   servoEl,
-  arduinoEl,
-  draw,
-  board,
-  area
+  _arduinoEl,
+  _draw,
+  _board,
+  _area
 ) => {
   setServoPinText(servoEl, state);
 };
@@ -44,10 +44,10 @@ export const servoCreate: AfterComponentCreateHook<ServoState> = (
 export const servoPosition: PositionComponent<ServoState> = (
   state,
   servoEl,
-  arduinoEl,
-  draw,
-  board,
-  area
+  _arduinoEl,
+  _draw,
+  _board,
+  _area
 ) => {
   const { holes, isDown } = area!;
   positionComponent(servoEl, arduinoEl, draw, holes[2], isDown, "PIN_POWER");

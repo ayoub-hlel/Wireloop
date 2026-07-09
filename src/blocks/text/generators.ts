@@ -29,13 +29,11 @@ Blockly["Arduino"].text.forceString_.strRegExp = /^\s*'([^']|\\')*'\s*$/;
 
 Blockly["Arduino"]["text_join"] = function (block: Block) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Blockly dynamic property
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((block as any).itemCount_ === 0) {
     return ['""', Blockly["Arduino"].ORDER_ATOMIC];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Blockly dynamic property
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((block as any).itemCount_ === 1) {
     const element =
       Blockly["Arduino"].valueToCode(

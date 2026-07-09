@@ -60,7 +60,7 @@ describe("sensor value blocks", () => {
 
     connectToArduinoBlock(setVariableBlock);
 
-    const [setupframe, frame1, frame2, frame3] = eventToFrameFactory(
+    const [, frame1, frame2, frame3] = eventToFrameFactory(
       createTestEvent(digitalReadSetupBlock.id)
     ).frames;
 

@@ -1,6 +1,6 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
-import type { BlocklyBlockDef } from "../../types/blockly";
+
 
 [
   { type: "number", blockName: "number", variable_type: "Number" },

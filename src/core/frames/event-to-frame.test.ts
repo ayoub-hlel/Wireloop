@@ -1,13 +1,13 @@
-import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { describe, it, beforeEach, expect, vi } from "vitest";
 
 import "../blockly/blocks";
-import Blockly, { Workspace, BlockSvg, WorkspaceSvg, Blocks } from "blockly";
+import Blockly, { Workspace, BlockSvg, WorkspaceSvg } from "blockly";
 import * as helpers from "../blockly/helpers/workspace.helper";
 import {
   getAllBlocks,
   connectToArduinoBlock,
 } from "../blockly/helpers/block.helper";
-import _ from "lodash";
+
 import type { BlockEvent } from "../blockly/dto/event.type";
 import { transformBlock } from "../blockly/transformers/block.transformer";
 import { getAllVariables } from "../blockly/helpers/variable.helper";
@@ -28,7 +28,6 @@ describe("generator", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
   let buttonSetup: BlockSvg;
-  let arduinoSetupBlock: BlockSvg;
 
   beforeEach(() => {
     workspace = new Workspace();
@@ -36,7 +35,7 @@ describe("generator", () => {
       workspace as WorkspaceSvg
     );
     arduinoBlock = workspace.newBlock("arduino_loop") as BlockSvg;
-    arduinoSetupBlock = workspace.newBlock("arduino_setup") as BlockSvg;
+    workspace.newBlock("arduino_setup") as BlockSvg;
 
     buttonSetup = workspace.newBlock("button_setup") as BlockSvg;
     buttonSetup.setFieldValue("3", "PIN");

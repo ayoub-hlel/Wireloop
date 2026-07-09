@@ -2,7 +2,7 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../blocks";
 import type { Workspace, BlockSvg } from "blockly";
-import _ from "lodash";
+
 import { ActionType } from "../actions";
 import { ARDUINO_PINS } from "../../../microcontroller/selectBoard";
 import { disableSetupBlockWithMultiplePinOutsSamePins } from "./disableSetupBlockWithMultiplePinOutsSamePins";

@@ -4,7 +4,6 @@ import isEmpty from 'lodash/isEmpty';
 import {
   hexToRgb,
   rgbToColorStruct,
-  rgbToHex,
 } from "../../core/blockly/helpers/color.helper";
 
 Blockly["Arduino"]["rgb_led_setup"] = function (block: Block) {

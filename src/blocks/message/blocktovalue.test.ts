@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "../../core/blockly/updater";
@@ -65,7 +64,7 @@ describe("arduino message state factories", () => {
     connectToArduinoBlock(textVariableBlock);
     const event = createTestEvent(messageSetup.id);
 
-    const [state1, state2, state3, state4] = eventToFrameFactory(event).frames;
+    const [, state2, state3, state4] = eventToFrameFactory(event).frames;
     expect(state2.variables["text"].value).toBe("one");
     expect(state3.variables["text"].value).toBe("two");
     expect(state4.variables["text"].value).toBe("");
@@ -87,7 +86,7 @@ describe("arduino message state factories", () => {
     connectToArduinoBlock(boolVariableBlock);
     const event = createTestEvent(boolVariableBlock.id);
 
-    const [_, state2, state3, state4] = eventToFrameFactory(event).frames;
+    const [, state2, state3, state4] = eventToFrameFactory(event).frames;
     expect(state2.variables["has_message"].value).toBeTruthy();
     expect(state3.variables["has_message"].value).toBeTruthy();
     expect(state4.variables["has_message"].value).toBeFalsy();

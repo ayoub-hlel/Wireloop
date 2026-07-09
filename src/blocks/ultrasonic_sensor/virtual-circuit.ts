@@ -9,11 +9,11 @@ import type {
 } from '../../core/virtual-circuit/svg-create';
 
 import type { UltraSonicSensorState } from './state';
-import type { Element, Svg } from '@svgdotjs/svg.js';
+import type { Element } from '@svgdotjs/svg.js';
 
 import { positionComponent } from '../../core/virtual-circuit/svg-position';
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createComponentWire,
   createGroundOrPowerWire,
 } from '../../core/virtual-circuit/wire';

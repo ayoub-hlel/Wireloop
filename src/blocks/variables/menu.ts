@@ -6,7 +6,7 @@ import {
 } from "../../core/blockly/helpers/block.helper";
 import { getVariableByName } from "../../core/blockly/helpers/variable.helper";
 export const registerVariableMenu = (workspace: WorkspaceSvg) => {
-  workspace.registerToolboxCategoryCallback("ARDUINO_WORKFLOW_BUILDER_VARIABLES", (_) => {
+  workspace.registerToolboxCategoryCallback("ARDUINO_WORKFLOW_BUILDER_VARIABLES", () => {
     let xmlList: Element[] = [];
     const castedWorkspace = workspace as WorkspaceSvg;
     const btnNumVariable = document.createElement("button");

@@ -11,8 +11,6 @@ import {
   createSetVariableBlockWithValue,
   createTestEvent,
 } from "../../tests/tests.helper";
-import { analogReadSetup } from "./blocktoframe";
-
 describe("sensor value blocks", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
@@ -61,7 +59,7 @@ describe("sensor value blocks", () => {
 
     connectToArduinoBlock(setVariableBlock);
 
-    const [setupframe, frame1, frame2, frame3] = eventToFrameFactory(
+    const [, frame1, frame2, frame3] = eventToFrameFactory(
       createTestEvent(analogReadSetupBlock.id)
     ).frames;
 

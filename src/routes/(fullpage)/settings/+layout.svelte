@@ -1,7 +1,8 @@
-<!-- svelte-ignore svelte/valid_prop_names_in_kit_pages -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  let { segment, children }: { segment?: string; children: Snippet } = $props();
+  import { page } from '$app/stores';
+  let { children }: { children: Snippet } = $props();
+  let segment = $derived($page.url.pathname.replace(/^\/settings\//, '') || undefined);
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   let value = $state('');

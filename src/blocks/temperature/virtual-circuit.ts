@@ -8,12 +8,12 @@ import {
   AfterComponentCreateHook,
 } from "../../core/virtual-circuit/svg-create";
 
-import { Element, Svg } from "@svgdotjs/svg.js";
+import { Element } from "@svgdotjs/svg.js";
 
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
 import { TemperatureState } from "./state";
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createComponentWire,
   createGroundOrPowerWire,
 } from "../../core/virtual-circuit/wire";

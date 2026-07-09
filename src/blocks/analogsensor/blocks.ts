@@ -1,12 +1,9 @@
-import {
-import type { BlocklyBlockDef } from "../../types/blockly"; selectBoardBlockly } from "../../core/microcontroller/selectBoard";
+import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import Blockly from "blockly";
 
-import {
-import type { BlocklyBlockDef } from "../../types/blockly"; COLOR_THEME } from "../../core/blockly/constants/colors";
+import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import loopTimes from "../../core/blockly/helpers/looptimes";
 import {
-import type { BlocklyBlockDef } from "../../types/blockly";
   configuredPins,
   getAvailablePins,
 } from "../../core/blockly/helpers/getAvialablePinsFromSetupBlock";
@@ -56,7 +53,7 @@ const analogReadSetupBlock: BlocklyBlockDef = {
         }),
         "PIN"
       );
-    const info = this.appendDummyInput("SHOW_CODE_VIEW")
+    this.appendDummyInput("SHOW_CODE_VIEW")
       .appendField("Type")
       .appendField(
         new Blockly.FieldDropdown([

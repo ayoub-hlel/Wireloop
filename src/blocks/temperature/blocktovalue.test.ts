@@ -61,7 +61,7 @@ describe("rfid value factories", () => {
     connectToArduinoBlock(tempVarBlock);
     tempVarBlock.nextConnection!.connect(humidityVarBlock.previousConnection!);
 
-    const [setup, state1, state2, state3, state4] = eventToFrameFactory(
+    const [, state1, state2, state3, state4] = eventToFrameFactory(
       createTestEvent(humidityVarBlock.id)
     ).frames;
 

@@ -16,9 +16,8 @@ import type { LedState } from "./state";
 
 describe("test leds", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
   afterEach(() => {
     workspace.dispose();

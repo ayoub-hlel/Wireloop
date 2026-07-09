@@ -1,7 +1,7 @@
 import bluetoothXMLString from "../../blocks/bluetooth/toolbox";
 import buttonXMLString from "../../blocks/button/toolbox";
 import irRmoteXMLString from "../../blocks/ir_remote/toolbox";
-import neoPixelXMLString from "../../blocks/neopixels/toolbox";
+
 import fastLEDXMLString from "../../blocks/fastled/toolbox";
 import ledMatrixXMLString from "../../blocks/led_matrix/toolbox";
 import arduinoXMLString from "../../blocks/arduino/toolbox";

@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../blocks";
-import type { Workspace, BlockSvg } from "blockly";
+import type { Workspace } from "blockly";
 import {
   createArduinoAndWorkSpace,
   createTestEvent,
@@ -12,10 +12,9 @@ import { ArduinoComponentType } from "../../frames/arduino.frame";
 
 describe("changeNumberOfComponentsInSetupBlock", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   afterEach(() => {

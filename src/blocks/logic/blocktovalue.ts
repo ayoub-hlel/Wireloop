@@ -5,11 +5,8 @@ import {
 } from "../../core/frames/transformer/block-to-value.factories";
 
 export const logicBoolean: ValueGenerator = (
-  blocks,
+  _blocks,
   block,
-  variables,
-  timeline,
-  previousState
 ) => {
   return findFieldValue(block, "BOOL") === "TRUE";
 };

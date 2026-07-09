@@ -1,4 +1,4 @@
-import type { Element, Svg, Text } from "@svgdotjs/svg.js";
+import type { Element } from "@svgdotjs/svg.js";
 import type {
   AfterComponentCreateHook,
   CreateWire,
@@ -64,7 +64,6 @@ export const resetDigitalSensor: ResetComponent = (componentEl: Element) => {
 export const updateDigitalSensor: SyncComponent = (
   state: ArduinoComponentState,
   analogSensorEl,
-  draw
 ) => {
   const sensorState = state as DigitalSensorState;
   if (sensorState.pictureType === DigitalPictureType.SENSOR) {

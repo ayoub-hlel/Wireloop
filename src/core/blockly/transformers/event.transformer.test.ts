@@ -6,7 +6,7 @@ import Blockly from "blockly";
 import { transformBlock } from "./block.transformer";
 import { transformEvent } from "./event.transformer";
 import { getAllBlocks } from "../helpers/block.helper";
-import _ from "lodash";
+
 import { getAllVariables } from "../helpers/variable.helper";
 import { VariableTypes } from "../dto/variable.type";
 import { createArduinoAndWorkSpace } from "../../../tests/tests.helper";

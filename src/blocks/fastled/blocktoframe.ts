@@ -65,14 +65,6 @@ export const showAllColors: BlockToFrameTransformer = (
     ArduinoComponentType.FASTLED_STRIP
   );
   if (!fastLED) return [];
-  const preShowLeds = Array.from({ length: fastLED.numberOfLeds }, (_, i) => ({
-    position: i,
-    color: {
-      red: 0,
-      green: 0,
-      blue: 0,
-    },
-  }));
   const newFastLeds = fastLED.preShowLEDs;
   fastLED.fastLEDs = cloneDeep(newFastLeds);
   const newComponent = cloneDeep(fastLED);

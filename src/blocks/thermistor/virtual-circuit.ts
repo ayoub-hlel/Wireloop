@@ -9,11 +9,11 @@ import type {
 } from "../../core/virtual-circuit/svg-create";
 
 import type { ThermistorState } from "./state";
-import type { Svg, Text, Element } from "@svgdotjs/svg.js";
+import type { Svg, Text } from "@svgdotjs/svg.js";
 
 import { positionComponent } from "../../core/virtual-circuit/svg-position";
-import {
 import type { ArduinoComponentState } from '../../core/frames/arduino.frame';
+import {
   createGroundOrPowerWire,
   createResistor,
   createWireFromArduinoToBreadBoard,
@@ -55,7 +55,7 @@ export const updateThermistorSensor: SyncComponent = (
   textEl.node.textContent = `${thermState.temp}°C`;
 };
 
-export const resetThermistorSensor: ResetComponent = (thermistorEl) => {};
+export const resetThermistorSensor: ResetComponent = (_thermistorEl) => {};
 
 export const createThermistorWires: CreateWire<ThermistorState> = (
   state,

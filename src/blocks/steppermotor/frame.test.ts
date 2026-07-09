@@ -13,7 +13,6 @@ import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import "../../tests/fake-block";
 import {
   createArduinoAndWorkSpace,
-  createSetVariableBlockWithValue,
   createTestEvent,
   createValueBlock,
 } from "../../tests/tests.helper";
@@ -21,7 +20,6 @@ import { StepperMotorState } from "./state";
 
 describe("Passive Buzzer Tests", () => {
   let workspace: Workspace;
-  let passivebuzzer: BlockSvg;
   let arduinoBlock: BlockSvg;
 
   afterEach(() => {

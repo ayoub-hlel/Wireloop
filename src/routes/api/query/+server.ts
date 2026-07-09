@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
 import { projects, settings, profiles, projectFiles } from '$lib/db/schema/projects';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { getFile, isR2Configured } from '$lib/server/r2';
 
 /**

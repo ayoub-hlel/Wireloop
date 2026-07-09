@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
   import VerticalComponentContainer from './VerticalComponentContainer.svelte';
   import Simulator from './home/Simulator.svelte';
   import Step from './home/Steps.svelte';

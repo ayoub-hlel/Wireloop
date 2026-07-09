@@ -7,22 +7,19 @@ import {
   createTestEvent,
 } from "../../tests/tests.helper";
 import "../../tests/fake-block";
-import type { Workspace, BlockSvg } from "blockly";
+import type { Workspace } from "blockly";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
-import _ from "lodash";
-
 describe("color rgb state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("test rgb color block can handle variables, number blocks, and blanks", () => {
@@ -102,7 +99,7 @@ describe("color rgb state factories", () => {
 
       const event = createTestEvent(rgbColorBlock.id);
 
-      const [state1, state2] = eventToFrameFactory(event).frames;
+      const [, state2] = eventToFrameFactory(event).frames;
       expect(state2.explanation).toBe(
         `Variable "color_test" stores (red=${expectedValue.red},green=${expectedValue.green},blue=${expectedValue.blue}).`
       );

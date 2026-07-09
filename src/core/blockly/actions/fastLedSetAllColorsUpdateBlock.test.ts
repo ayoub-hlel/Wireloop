@@ -1,31 +1,22 @@
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import { describe, it, beforeEach, expect } from "vitest";
 
 import "../blocks";
 import Blockly from "blockly";
 import type { Workspace, BlockSvg } from "blockly";
-import { connectToArduinoBlock, getAllBlocks } from "../helpers/block.helper";
-import _ from "lodash";
-import type { BlockEvent } from "../dto/event.type";
-import { transformBlock } from "../transformers/block.transformer";
-import { updateLoopNumberInSensorSetupBlock } from "./updateLoopNumberInSensorSetupBlock";
-import { ActionType } from "./actions";
-import { getAllVariables } from "../helpers/variable.helper";
-import { transformVariable } from "../transformers/variables.transformer";
+import { connectToArduinoBlock } from "../helpers/block.helper";
 import {
   createArduinoAndWorkSpace,
   createTestEvent,
 } from "../../../tests/tests.helper";
-import { MicroControllerType } from "../../microcontroller/microcontroller";
 import { updateFastLedSetAllColorsUpdateBlock } from "./fastLedSetAllColorsUpdateBlock";
 
 describe("fastLedSetAllColorsUpdateBlock", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
   let fastLedSetupBlock: BlockSvg;
   let fastledSetAllColorsBlock: BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
     fastLedSetupBlock = workspace.newBlock("fastled_setup") as BlockSvg;
     fastledSetAllColorsBlock = workspace.newBlock("fastled_set_all_colors") as BlockSvg;
     connectToArduinoBlock(fastledSetAllColorsBlock);

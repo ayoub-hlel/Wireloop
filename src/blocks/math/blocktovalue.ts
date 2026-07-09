@@ -3,11 +3,8 @@ import type { ValueGenerator } from "../../core/frames/transformer/block-to-valu
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 
 export const mathNumber: ValueGenerator = (
-  blocks,
+  _blocks,
   block,
-  variables,
-  timeline,
-  previousState
 ) => {
   return +findFieldValue(block, "NUM");
 };

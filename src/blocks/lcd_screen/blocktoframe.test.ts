@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import {
@@ -106,7 +105,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
     const lcdState = state2.components.find(
       (c) => c.type === ArduinoComponentType.LCD_SCREEN
     ) as LCDScreenState;
@@ -184,23 +183,23 @@ describe("lcd  factories", () => {
     const event = createTestEvent(lcdsetup.id);
 
     const [
-      setupLCDState,
+      ,
       printBlockState,
-      loopRight1State,
+      ,
       moveRight1State,
-      loopRight2State,
+      ,
       moveRight2State,
-      loopRight3State,
+      ,
       moveRight3State,
-      loopRight4State,
+      ,
       moveRight4State,
-      loopLeft1State,
+      ,
       moveLeft1State,
-      loopLeft2State,
+      ,
       moveLeft2State,
-      loopLeft3State,
+      ,
       moveLeft3State,
-      loopLeft4State,
+      ,
       moveLeft4State,
     ] = eventToFrameFactory(event).frames;
 
@@ -288,7 +287,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2] = eventToFrameFactory(event).frames;
+    const [, state2] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe(
       'Printing "THIS IS GOOFY" to the screen at position (20, 4).'
@@ -340,7 +339,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe(
       'Printing "Score: 10" to the screen at position (2, 2).'
@@ -428,7 +427,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2, state3, state4] = eventToFrameFactory(event).frames;
+    const [, state2, state3, state4] = eventToFrameFactory(event).frames;
     confirmBlinkAndExplanation(
       state2,
       turnOnBlink.id,
@@ -483,7 +482,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
     const lcdState2 = findComponent<LCDScreenState>(
       state2,
       ArduinoComponentType.LCD_SCREEN
@@ -511,7 +510,7 @@ describe("lcd  factories", () => {
 
     const event = createTestEvent(lcdsetup.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe("Turning on backlight.");
     const lcdState1 = findComponent<LCDScreenState>(

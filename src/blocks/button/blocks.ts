@@ -1,12 +1,10 @@
   import Blockly from "blockly";
 import {
   configuredPins,
-  getAvailablePins,
 } from "../../core/blockly/helpers/getAvialablePinsFromSetupBlock";
 import loopTimes from "../../core/blockly/helpers/looptimes";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
-import { virtualCircuitComment, whatIsAPin } from "../comment-text";
 import type { BlocklyBlockDef } from "../../types/blockly";
 const buttonSetupBlock: BlocklyBlockDef = {
   init: function () {

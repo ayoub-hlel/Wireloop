@@ -39,7 +39,7 @@ describe("generate states controls_repeat_ext", () => {
 
     const states = eventToFrameFactory(event).frames;
     expect(states.length).toBe(6);
-    const [state1, state2, state3, state4, state5, state6] = states;
+    const [state1, state2, state3, , state5, ,] = states;
 
     expect(state2.blockId).toBe(debugBlock.id);
 

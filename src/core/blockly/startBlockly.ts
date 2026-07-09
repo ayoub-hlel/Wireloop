@@ -31,7 +31,7 @@ import { getWorkspace, loadProject } from "./helpers/workspace.helper";
 const startBlockly = (blocklyElement: HTMLElement) => {
   // removing alert & confirms from blockly library
   Blockly.dialog.setAlert((m) => console.log(m));
-  Blockly.dialog.setConfirm((m) => true);
+  Blockly.dialog.setConfirm(() => true);
 
   // creates the blockly workspace and toolbox
   const workspace = createWorkspace(blocklyElement);

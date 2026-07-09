@@ -93,7 +93,7 @@ describe("bluetooth state factories", () => {
     const states = eventToFrameFactory(event).frames;
 
     expect(states.length).toBe(7);
-    const [state1, state2, state3, state4, state5, state6, state7] = states;
+    const [, state2, state3, state4, state5, state6, state7] = states;
 
     // LOOP 1
     expect(state2.variables["hasMessage"].value).toBe(true);

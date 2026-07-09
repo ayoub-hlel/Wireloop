@@ -16,7 +16,7 @@
     hljs.registerLanguage('arduino', arduinoLang);
     codeStore.subscribe(async (codeInfo) => {
       try {
-        // @ts-expect-error
+        // @ts-expect-error highlight.js v11 types incomplete
         code = hljs.highlight(codeInfo.code, { language: 'arduino' }).value;
       } catch(e) {
         console.log(e);
@@ -83,7 +83,8 @@
   <div class="flex-grow overflow-hidden relative">
     <div class="absolute inset-0 bg-grid-schematic opacity-5 pointer-events-none"></div>
     <pre class="p-6 h-full overflow-auto font-mono selection:bg-primary/20" style="font-size: {fontSize}px">
-      <code class="language-arduino !bg-transparent !p-0 block">{@html code}</code>
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html code}
     </pre>
   </div>
 </div>

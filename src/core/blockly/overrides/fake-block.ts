@@ -8,8 +8,8 @@ Blockly.FieldColour.prototype.doValueUpdate_ = function (newValue) {
 };
 
 class FieldColorPicker {
-  constructor(color: string) {}
-  public doValueUpdate_(newValue: string) {}
+  constructor() {}
+  public doValueUpdate_() {}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

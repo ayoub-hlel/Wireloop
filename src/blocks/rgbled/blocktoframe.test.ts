@@ -3,7 +3,6 @@ import "../../tests/fake-block";
 
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
@@ -91,7 +90,7 @@ describe("rgb led frame", () => {
 
     const event = createTestEvent(ledColorSetup.id);
 
-    const [state1, state2, state3] = eventToFrameFactory(event).frames;
+    const [, state2, state3] = eventToFrameFactory(event).frames;
 
     expect(state2.explanation).toBe(
       "Setting led color to (red=200,green=200,blue=0)."

@@ -45,12 +45,12 @@ export const getSvgString = (state: ArduinoComponentState) => {
 };
 
 const createSvgString: { [key: string]: GetSvgString } = {
-  [ArduinoComponentType.BLUE_TOOTH]: (_) => bluetoothSvg,
-  [ArduinoComponentType.BUTTON]: (_) => buttonSvgString,
-  [ArduinoComponentType.IR_REMOTE]: (_) => irRemoteSvgString,
-  [ArduinoComponentType.LED_MATRIX]: (_) => ledmatrixSvgString,
-  [ArduinoComponentType.MOTOR]: (_) => motorSvgString,
-  [ArduinoComponentType.NEO_PIXEL_STRIP]: (_) => neopixelSvgString,
+  [ArduinoComponentType.BLUE_TOOTH]: () => bluetoothSvg,
+  [ArduinoComponentType.BUTTON]: () => buttonSvgString,
+  [ArduinoComponentType.IR_REMOTE]: () => irRemoteSvgString,
+  [ArduinoComponentType.LED_MATRIX]: () => ledmatrixSvgString,
+  [ArduinoComponentType.MOTOR]: () => motorSvgString,
+  [ArduinoComponentType.NEO_PIXEL_STRIP]: () => neopixelSvgString,
   [ArduinoComponentType.FASTLED_STRIP]: ((state: FastLEDState) => {
     if (state.numberOfLeds < 25) {
       return fastledSvgString24;
@@ -62,19 +62,19 @@ const createSvgString: { [key: string]: GetSvgString } = {
       return fastledSvgString;
     }
   }) as GetSvgString,
-  [ArduinoComponentType.RFID]: (_) => rfidSvgString,
-  [ArduinoComponentType.SERVO]: (_) => servoSVGText,
-  [ArduinoComponentType.TEMPERATURE_SENSOR]: (_) => tempSvgString,
-  [ArduinoComponentType.ULTRASONICE_SENSOR]: (_) => ultraSonicSvgString,
+  [ArduinoComponentType.RFID]: () => rfidSvgString,
+  [ArduinoComponentType.SERVO]: () => servoSVGText,
+  [ArduinoComponentType.TEMPERATURE_SENSOR]: () => tempSvgString,
+  [ArduinoComponentType.ULTRASONICE_SENSOR]: () => ultraSonicSvgString,
   [ArduinoComponentType.LCD_SCREEN]: getLcdScreenSvgString as GetSvgString,
-  [ArduinoComponentType.LED_COLOR]: (_) => rgbLEDSVG,
+  [ArduinoComponentType.LED_COLOR]: () => rgbLEDSVG,
   [ArduinoComponentType.DIGITAL_SENSOR]: getDigitalSensorSvg as GetSvgString,
   [ArduinoComponentType.LED]: () => ledSvgString,
-  [ArduinoComponentType.WRITE_PIN]: (_) => writePinSvgString,
+  [ArduinoComponentType.WRITE_PIN]: () => writePinSvgString,
   [ArduinoComponentType.ANALOG_SENSOR]: getAnalogSensorSvg as GetSvgString,
-  [ArduinoComponentType.THERMISTOR]: (_) => thermistorSvgString,
-  [ArduinoComponentType.PASSIVE_BUZZER]: (_) => passiveBuzzerSvgString,
-  [ArduinoComponentType.STEPPER_MOTOR]: (_) => stepperMotorSvg,
-  [ArduinoComponentType.DIGITAL_DISPLAY]: (_) => digitalDisplaySvg,
-  [ArduinoComponentType.JOYSTICK]: (_) => joyStickSvg,
+  [ArduinoComponentType.THERMISTOR]: () => thermistorSvgString,
+  [ArduinoComponentType.PASSIVE_BUZZER]: () => passiveBuzzerSvgString,
+  [ArduinoComponentType.STEPPER_MOTOR]: () => stepperMotorSvg,
+  [ArduinoComponentType.DIGITAL_DISPLAY]: () => digitalDisplaySvg,
+  [ArduinoComponentType.JOYSTICK]: () => joyStickSvg,
 };

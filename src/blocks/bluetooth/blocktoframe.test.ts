@@ -7,7 +7,6 @@ import {
   getAllBlocks,
   connectToArduinoBlock,
 } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import type { BlockEvent } from "../../core/blockly/dto/event.type";
 import { transformBlock } from "../../core/blockly/transformers/block.transformer";
 import { getAllVariables } from "../../core/blockly/helpers/variable.helper";
@@ -106,7 +105,7 @@ describe("bluetooth state factories", () => {
       microController: MicroControllerType.ARDUINO_UNO,
     };
 
-    const [state1, state2, state3] = eventToFrameFactory(event1).frames;
+    const [, state2, state3] = eventToFrameFactory(event1).frames;
 
     expect(state2.explanation).toEqual(
       'Sending "HELLO WORLD" from bluetooth to computer.'
@@ -137,7 +136,7 @@ describe("bluetooth state factories", () => {
       microController: MicroControllerType.ARDUINO_UNO,
     };
 
-    const [state1e2, state2e2] = eventToFrameFactory(event2).frames;
+    const [, state2e2] = eventToFrameFactory(event2).frames;
 
     expect(state2e2.explanation).toEqual(
       'Sending "" from bluetooth to computer.'

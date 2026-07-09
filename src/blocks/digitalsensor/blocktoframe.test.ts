@@ -14,10 +14,9 @@ import { DigitalPictureType, DigitalSensorState } from "./state";
 
 describe("test digital sensor blocks", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
   afterEach(() => {
     workspace.dispose();

@@ -6,16 +6,9 @@ import {
   createSetVariableBlockWithValue,
   createTestEvent,
 } from "../../tests/tests.helper";
-import Blockly, { Workspace, BlockSvg } from "blockly";
+import { Workspace, BlockSvg } from "blockly";
 import { VariableTypes } from "../../core/blockly/dto/variable.type";
-import type { BlockEvent } from "../../core/blockly/dto/event.type";
-import {
-  getAllBlocks,
-  connectToArduinoBlock,
-} from "../../core/blockly/helpers/block.helper";
-import { transformBlock } from "../../core/blockly/transformers/block.transformer";
-import { getAllVariables } from "../../core/blockly/helpers/variable.helper";
-import { transformVariable } from "../../core/blockly/transformers/variables.transformer";
+import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import _ from "lodash";
 

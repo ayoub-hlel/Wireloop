@@ -64,7 +64,7 @@ describe("button state factories", () => {
 
     const event = createTestEvent(varCodeBlock.id);
 
-    const [setup, state1, state2, state3, state4, state5, state6] =
+    const [, state1, state2, state3, state4, state5, state6] =
       eventToFrameFactory(event).frames;
 
     expect(_.keys(state1.variables).length).toBe(1);

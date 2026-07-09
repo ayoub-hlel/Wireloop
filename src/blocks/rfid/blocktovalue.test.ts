@@ -3,7 +3,6 @@ import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import "../../core/blockly/blocks";
 import type { Workspace, BlockSvg, Block } from "blockly";
 import { connectToArduinoBlock } from "../../core/blockly/helpers/block.helper";
-import _ from "lodash";
 import { eventToFrameFactory } from "../../core/frames/event-to-frame.factory";
 import { saveSensorSetupBlockData } from "../../core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "../../core/blockly/updater";
@@ -73,7 +72,7 @@ describe("rfid value factories", () => {
       tagNumberVarBlock.previousConnection!);
 
     const [
-      setup,
+      ,
       state1,
       state2,
       state3,

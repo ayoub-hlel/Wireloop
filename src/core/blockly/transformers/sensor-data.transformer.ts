@@ -86,7 +86,7 @@ export const convertToState = (
     // if the sensor data does not have state for the loop
     // it will error most of the time
     return blockToSensorComponent[block.blockName](block, timeline);
-  } catch (e) {
+  } catch {
     return blockToSensorComponent[block.blockName](block, {
       iteration: 0,
       function: "pre-setup",

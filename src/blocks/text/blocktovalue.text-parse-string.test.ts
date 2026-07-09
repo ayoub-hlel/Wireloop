@@ -1,4 +1,4 @@
-import type { BlockSvg, Workspace } from "blockly";
+import type { Workspace } from "blockly";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "../../core/blockly/blocks";
@@ -13,14 +13,13 @@ import {
 
 describe("parse_string_block state factories", () => {
   let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
   });
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
+    [workspace] = createArduinoAndWorkSpace();
   });
 
   it("should be able to parse a string with an empty string", () => {

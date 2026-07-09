@@ -7,7 +7,7 @@ function isPureNumber(str: string) {
   return numberPattern.test(str);
 }
 
-Blockly["Arduino"]["time_seconds"] = function (block: Block) {
+Blockly["Arduino"]["time_seconds"] = function () {
   Blockly["Arduino"].functionNames_["secondsArduinoBeenOn"] =
     "double secondsArduinoBeenOn() {\n" + "\treturn millis() / 1000;\n" + "}\n";
 

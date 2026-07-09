@@ -1,6 +1,5 @@
 import Blockly from "blockly";
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
-import { IconType } from "blockly/core/icons";
 
 Blockly.Blocks["arduino_loop"] = {
   init: function () {
