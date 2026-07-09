@@ -20,6 +20,6 @@ export const digitalSetupBlockToComponentState = (
     pins: [pin],
     pin,
     pictureType: findFieldValue(block, "TYPE") as DigitalPictureType,
-    isOn: digitalSensorState.isOn,
+    isOn: digitalSensorState?.isOn ?? false,
   };
 };

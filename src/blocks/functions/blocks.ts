@@ -7,7 +7,7 @@ Blockly.Blocks["procedures_defnoreturn"] = {
    * @this Blockly.Block
    */
   init: function () {
-    var nameField = new Blockly.FieldTextInput("", Blockly.Procedures.rename);
+    const nameField = new Blockly.FieldTextInput("", Blockly.Procedures.rename);
     nameField.setSpellcheck(false);
     this.appendDummyInput()
       .appendField("create block")

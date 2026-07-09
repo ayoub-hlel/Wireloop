@@ -148,8 +148,8 @@ const changeLedColor = (state: LedState, ledEl: Element) => {
     "#800080": "purple",
     "#ffa500": "orange",
   };
-  let ledColor = mapColor[hexColor];
-  let ledLightColor = lightColorsShades[ledColor];
+  const ledColor = mapColor[hexColor];
+  const ledLightColor = lightColorsShades[ledColor];
 
   ledEl.data("pin-number", state.pin);
 

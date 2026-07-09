@@ -20,7 +20,7 @@ export interface VariableData {
     | number
     | string
     | boolean
-    | Color 
+    | Color
     | number[]
     | string[]
     | boolean[]

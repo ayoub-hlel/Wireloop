@@ -17,7 +17,7 @@ export const temperatureSetupBlockToComponentState = (
   return {
     type: ArduinoComponentType.TEMPERATURE_SENSOR,
     pins: [findFieldValue(block, "PIN") as ARDUINO_PINS],
-    temperature: tempSensor.temp,
-    humidity: tempSensor.humidity,
+    temperature: tempSensor?.temp ?? 0,
+    humidity: tempSensor?.humidity ?? 0,
   };
 };

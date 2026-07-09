@@ -62,6 +62,23 @@ function createAuthStore() {
       if (error) throw new Error(error.message ?? error.statusText ?? "Sign up failed");
     },
 
+    /** Verify email with token from verification link */
+    async verifyEmail(token: string) {
+      const { error } = await authClient.verifyEmail({ query: { token } });
+      if (error) throw new Error(error.message ?? "Verification failed");
+      // Refresh session after verification
+      await this.init();
+    },
+
+    /** Resend verification email */
+    async resendVerification(email: string) {
+      const { error } = await authClient.sendVerificationEmail({
+        email,
+        callbackURL: "/onboarding",
+      });
+      if (error) throw new Error(error.message ?? "Failed to resend verification email");
+    },
+
     /** Sign out */
     async signOut() {
       await authClient.signOut();

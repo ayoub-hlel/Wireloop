@@ -5,8 +5,13 @@ import type { Sensor } from "../dto/sensors.type";
 export const findSensorState = <S extends Sensor>(
   block: BlockData,
   timeline: Timeline
-): S => {
-  const sensorStates = JSON.parse(block.metaData) as S[];
+): S | undefined => {
+  let sensorStates: S[];
+  try {
+    sensorStates = block.metaData ? JSON.parse(block.metaData) : [];
+  } catch {
+    sensorStates = [];
+  }
 
   return sensorStates.find((s) => {
     return (
@@ -14,5 +19,5 @@ export const findSensorState = <S extends Sensor>(
       ((timeline.function === "pre-setup" || timeline.function === "setup") &&
         s.loop === 1)
     );
-  }) as S;
+  });
 };

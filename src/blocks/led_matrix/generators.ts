@@ -56,7 +56,7 @@ Blockly['Arduino']['led_matrix_turn_one_on_off'] = function (block: Block) {
     'ROW',
     Blockly['Arduino'].ORDER_ATOMIC
   );
-  let column = Blockly['Arduino'].valueToCode(
+  const column = Blockly['Arduino'].valueToCode(
     block,
     'COLUMN',
     Blockly['Arduino'].ORDER_ATOMIC

@@ -18,7 +18,7 @@ export const irRemoteSetupBlockToComponentState = (
     type: ArduinoComponentType.IR_REMOTE,
     analogPin: findFieldValue(block, "PIN") as ARDUINO_PINS,
     pins: [findFieldValue(block, "PIN") as ARDUINO_PINS],
-    code: irRemoteData.code,
-    hasCode: irRemoteData.scanned_new_code,
+    code: irRemoteData?.code ?? "",
+    hasCode: irRemoteData?.scanned_new_code ?? false,
   };
 };

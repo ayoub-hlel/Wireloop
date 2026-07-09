@@ -10,15 +10,20 @@ export const irRemoteSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const irRemoteSensorDatum = JSON.parse(block.metaData) as IRRemoteSensor[];
+  let irRemoteSensorDatum: IRRemoteSensor[] = [];
+  try {
+    irRemoteSensorDatum = JSON.parse(block.metaData) as IRRemoteSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
 
   const irRemoteData = irRemoteSensorDatum.find(
     (d) => d.loop == 1
-  ) as IRRemoteSensor;
+  );
   const [analogPin] = block.pins;
   const irRemoteState: IRRemoteState = {
-    hasCode: irRemoteData.scanned_new_code,
-    code: irRemoteData.code,
+    hasCode: irRemoteData?.scanned_new_code ?? false,
+    code: irRemoteData?.code ?? "",
     type: ArduinoComponentType.IR_REMOTE,
     pins: block.pins,
     analogPin,

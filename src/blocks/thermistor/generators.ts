@@ -45,6 +45,6 @@ Blockly["Arduino"]["thermistor_setup"] = function (block: Block) {
 };
 
 Blockly["Arduino"]["thermistor_read"] = function (block: Block) {
-  var unit = block.getFieldValue("UNIT");
+  const unit = block.getFieldValue("UNIT");
   return [`readThermistor("${unit}")`, Blockly["Arduino"].ORDER_ATOMIC];
 };

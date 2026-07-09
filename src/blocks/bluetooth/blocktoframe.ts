@@ -13,7 +13,12 @@ export const bluetoothSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const btSensorDatum = JSON.parse(block.metaData) as BluetoothSensor[];
+  let btSensorDatum: BluetoothSensor[] = [];
+  try {
+    btSensorDatum = JSON.parse(block.metaData) as BluetoothSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
   const btSensor = btSensorDatum.find((d) => d.loop === 1);
   if (!btSensor) return [];
 

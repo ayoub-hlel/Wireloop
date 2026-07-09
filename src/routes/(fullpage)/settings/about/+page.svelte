@@ -1,5 +1,5 @@
 <script lang="ts">
-  import config from "../../../../env";
+  import config from "../../../../config";
 </script>
 
 <style>

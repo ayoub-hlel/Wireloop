@@ -5,7 +5,7 @@ import { goto } from "$app/navigation";
  * @package
  */
 Blockly.BlockSvg.prototype.showHelp = function () {
-  var url = typeof this.helpUrl == "function" ? this.helpUrl() : this.helpUrl;
+  const url = typeof this.helpUrl == "function" ? this.helpUrl() : this.helpUrl;
   if (url) {
     goto(url);
   }

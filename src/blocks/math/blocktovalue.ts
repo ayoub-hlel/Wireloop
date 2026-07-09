@@ -217,7 +217,7 @@ export const mathNumberProperty: ValueGenerator = (
 function mathRandomInt(a: number, b: number) {
   if (a > b) {
     // Swap a and b to ensure a is smaller.
-    let c = a;
+    const c = a;
     a = b;
     b = c;
   }

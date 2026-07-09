@@ -11,11 +11,16 @@ export const ultraSonicSensor: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const sensorDatum = JSON.parse(block.metaData) as UltraSonicSensor[];
-  const sensorData = sensorDatum.find((d) => d.loop === 1) as UltraSonicSensor;
+  let sensorDatum: UltraSonicSensor[] = [];
+  try {
+    sensorDatum = JSON.parse(block.metaData) as UltraSonicSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
+  const sensorData = sensorDatum.find((d) => d.loop === 1);
 
   const ultraSonicState: UltraSonicSensorState = {
-    cm: sensorData.cm,
+    cm: sensorData?.cm ?? 0,
     pins: block.pins.sort(),
     trigPin: findFieldValue(block, "PIN_TRIG"),
     echoPin: findFieldValue(block, "PIN_ECHO"),

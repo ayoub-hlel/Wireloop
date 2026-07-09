@@ -10,7 +10,9 @@ export const onErrorMessage = async (message: string, e?: unknown) => {
   try {
     const swal = await getSwal();
     swal("Opps", message, "error");
-  } catch {}
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
   if (e) console.error(e);
 };
 
@@ -33,5 +35,7 @@ export const onSuccess = async (message: string) => {
   try {
     const swal = await getSwal();
     swal("Good job!", message, "success");
-  } catch {}
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
 };

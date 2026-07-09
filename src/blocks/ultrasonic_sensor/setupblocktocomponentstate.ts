@@ -22,6 +22,6 @@ export const ultraSonicSetupBlockToComponentState = (
       findFieldValue(block, "PIN_TRIG") as ARDUINO_PINS,
       findFieldValue(block, "PIN_ECHO") as ARDUINO_PINS,
     ],
-    cm: ultraSensor.cm,
+    cm: ultraSensor?.cm ?? 0,
   };
 };

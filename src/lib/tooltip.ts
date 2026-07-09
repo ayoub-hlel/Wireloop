@@ -46,7 +46,7 @@ box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 
 export function tooltip(element: HTMLElement, options?: TooltipOptions) {
   let state: TooltipState | null = null;
-  let title = element.getAttribute("title");
+  const title = element.getAttribute("title");
 
   const config: TooltipOptions = {
     position: "bottom",

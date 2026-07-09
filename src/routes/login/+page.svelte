@@ -17,6 +17,10 @@
   let signupPassword = $state("");
   let error = $state("");
   let submitting = $state(false);
+  let unverified = $state(false);
+  let resendCooldown = $state(0);
+  let resendLoading = $state(false);
+  let resendSent = $state(false);
 
   onMount(() => {
     const tab = $page.url.searchParams.get("tab");
@@ -26,11 +30,18 @@
   async function handleSignIn() {
     error = "";
     submitting = true;
+    unverified = false;
     try {
       await authStore.signInEmail(signinEmail, signinPassword);
       await goto("/studio");
     } catch (e: unknown) {
-      error = e instanceof Error ? e.message : "Sign in failed";
+      const msg = e instanceof Error ? e.message : "Sign in failed";
+      if (msg.toLowerCase().includes("verify") || msg.toLowerCase().includes("unverified")) {
+        unverified = true;
+        error = "";
+      } else {
+        error = msg;
+      }
     } finally {
       submitting = false;
     }
@@ -40,14 +51,31 @@
     error = "";
     submitting = true;
     try {
-      sessionStorage.setItem("pendingSignup", JSON.stringify({
-        email: signupEmail, password: signupPassword, username: signupUsername,
-      }));
-      await goto("/onboarding");
+      await authStore.signUp(signupEmail, signupPassword, signupUsername);
+      // After successful signup with email verification, go to signup page which shows the verification screen
+      await goto("/signup");
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "Sign up failed";
     } finally {
       submitting = false;
+    }
+  }
+
+  async function handleResend() {
+    resendLoading = true;
+    error = "";
+    try {
+      await authStore.resendVerification(signinEmail);
+      resendSent = true;
+      resendCooldown = 60;
+      const interval = setInterval(() => {
+        resendCooldown--;
+        if (resendCooldown <= 0) clearInterval(interval);
+      }, 1000);
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : "Failed to resend";
+    } finally {
+      resendLoading = false;
     }
   }
 
@@ -75,6 +103,27 @@
       {#if error}
         <div class="mb-4 p-3 rounded-md text-sm bg-destructive/10 border border-destructive/30 text-destructive">
           {error}
+        </div>
+      {/if}
+
+      {#if unverified}
+        <div class="mb-4 p-3 rounded-md text-sm bg-primary/10 border border-primary/30 text-primary">
+          <p class="font-medium mb-1">Please verify your email address</p>
+          <p class="text-xs text-muted-foreground mb-2">
+            We sent a verification link to <strong>{signinEmail}</strong>.
+            {#if resendSent}
+              A new verification email has been sent.
+            {/if}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            class="w-full"
+            onclick={handleResend}
+            disabled={resendCooldown > 0 || resendLoading}
+          >
+            {resendLoading ? "Sending..." : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend verification email"}
+          </Button>
         </div>
       {/if}
 

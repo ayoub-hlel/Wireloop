@@ -73,4 +73,4 @@ export interface DisableBlock extends BlockAction {
   stopCompiling: boolean;
 }
 
-export interface EnableBlock extends BlockAction {}
+export type EnableBlock = BlockAction;

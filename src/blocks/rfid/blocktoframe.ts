@@ -11,18 +11,23 @@ export const rfidSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const sensorData = JSON.parse(block.metaData) as RFIDSensor[];
+  let sensorData: RFIDSensor[];
+  try {
+    sensorData = block.metaData ? JSON.parse(block.metaData) : [];
+  } catch {
+    sensorData = [];
+  }
 
-  const rfidSensorLoop1 = sensorData.find((s) => s.loop === 1) as RFIDSensor;
+  const rfidSensorLoop1 = sensorData.find((s) => s.loop === 1);
 
   const rfidComponent: RfidState = {
     pins: block.pins,
     type: ArduinoComponentType.RFID,
     txPin: findFieldValue(block, "PIN_TX"),
     rxPin: findFieldValue(block, "PIN_RX"),
-    scannedCard: rfidSensorLoop1.scanned_card,
-    tag: rfidSensorLoop1.tag,
-    cardNumber: rfidSensorLoop1.card_number,
+    scannedCard: rfidSensorLoop1?.scanned_card ?? false,
+    tag: rfidSensorLoop1?.tag ?? "",
+    cardNumber: rfidSensorLoop1?.card_number ?? "",
   };
 
   return [

@@ -103,9 +103,8 @@ Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   // }
 
   const doubleVariables = workspace.getVariablesOfType("Number");
-  let i = 0;
-  let variableCode = "";
-  for (i = 0; i < doubleVariables.length; i += 1) {
+  let variableCode;
+  for (let i = 0; i < doubleVariables.length; i += 1) {
     variableCode +=
       "double " +
       Blockly["Arduino"].getVariableName(doubleVariables[i].getId()) +
@@ -281,7 +280,7 @@ Blockly["Arduino"].scrub_ = function (block: Blockly.Block, code: string) {
       ].includes(block.type) == false
         ? block.getCommentText()
         : null;
-    //@ts-ignore
+    // @ts-expect-error - Blockly.utils.string.wrap not in type definitions
     comment = comment
       ? (Blockly.utils as any).string.wrap(
           comment,

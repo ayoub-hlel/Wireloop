@@ -19,11 +19,17 @@ export const joystickSetup: BlockToFrameTransformer = (
   const yPin = findFieldValue(block, "PIN_Y") as ARDUINO_PINS;
   const buttonPin = findFieldValue(block, "PIN_BUTTON") as ARDUINO_PINS;
 
-  const sensorData = JSON.parse(block.metaData) as JoyStickSensor[];
+  let sensorData: JoyStickSensor[];
+  try {
+    sensorData = block.metaData ? JSON.parse(block.metaData) : [];
+  } catch {
+    sensorData = [];
+  }
 
-  const { buttonPressed, engaged, degree } = sensorData.find(
-    (s) => s.loop === 1
-  ) as JoyStickSensor;
+  const loop1 = sensorData.find((s) => s.loop === 1);
+  const buttonPressed = loop1?.buttonPressed ?? false;
+  const engaged = loop1?.engaged ?? false;
+  const degree = loop1?.degree ?? 0;
 
   const joystickState: JoystickState = {
     type: ArduinoComponentType.JOYSTICK,

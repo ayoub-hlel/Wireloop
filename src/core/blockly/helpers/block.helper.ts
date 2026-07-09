@@ -25,7 +25,7 @@ export const getTopBlocks = () => {
 };
 
 export const connectToArduinoBlock = function (variableBlock: BlockSvg) {
-  let arduinoBlock =
+  const arduinoBlock =
     getBlockByType("arduino_setup") || getBlockByType("arduino_loop"); // See if
   const inputToAttachVariableTo =
     arduinoBlock.type == "arduino_setup" ? "setup" : "loop";

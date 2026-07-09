@@ -53,7 +53,7 @@ export const motorSetup: BlockToFrameTransformer = (
     motorShieldState.pins.push(en2);
   }
 
-  var message =
+  const message =
     motorShieldState.numberOfMotors == 1
       ? "Setting up 1 motor with a motor shield"
       : "Setting up 2 motors with a motor shield.";

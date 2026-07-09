@@ -90,7 +90,7 @@ export const colorBrightnessAdjuster = (hex: string, lum: number) => {
   lum = lum || 0;
 
   // convert to decimal and change luminosity
-  var rgb = "#",
+  let rgb = "#",
     c,
     i;
   for (i = 0; i < 3; i++) {

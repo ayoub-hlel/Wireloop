@@ -49,7 +49,7 @@ export const positionRgbLed: PositionComponent<LedColorState> = (
 
 export const updateRgbLed: SyncComponent = (state: any, rgbLedEl) => {
   const ledState = state as LedColorState;
-  let color = rgbToHex(ledState.color);
+  const color = rgbToHex(ledState.color);
   if (color.toUpperCase() === "#000000") {
     (rgbLedEl.findOne("#MAIN_COLOR") as Element).hide();
     return;

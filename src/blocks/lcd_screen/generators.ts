@@ -108,14 +108,14 @@ Blockly["Arduino"]["lcd_screen_clear"] = function (block: Block) {
 };
 
 Blockly["Arduino"]["lcd_screen_print"] = function (block: Block) {
-  let row = numberToCode(
+  const row = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,
       "ROW",
       Blockly["Arduino"].ORDER_ATOMIC
     )
   );
-  let column = numberToCode(
+  const column = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,
       "COLUMN",
@@ -141,14 +141,14 @@ Blockly["Arduino"]["lcd_screen_print"] = function (block: Block) {
 };
 
 Blockly["Arduino"]["lcd_blink"] = function (block: Block) {
-  let row = numberToCode(
+  const row = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,
       "ROW",
       Blockly["Arduino"].ORDER_ATOMIC
     )
   );
-  let column = numberToCode(
+  const column = numberToCode(
     Blockly["Arduino"].valueToCode(
       block,
       "COLUMN",

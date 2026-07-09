@@ -51,7 +51,6 @@
 
 {#if show}
   <!-- Backdrop -->
-  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 z-40"
     onclick={onBackdropClick}
@@ -65,7 +64,7 @@
     style="left: {mx}px; top: {my}px;"
     role="menu"
   >
-    {#each items as item}
+    {#each items as item, i (i)}
       {#if item.divider}
         <div class="h-px bg-border my-1 mx-2"></div>
       {:else}

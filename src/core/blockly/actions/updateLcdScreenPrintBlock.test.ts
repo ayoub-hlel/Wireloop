@@ -30,8 +30,8 @@ describe("updateLcdScreenPrintBlock", () => {
   });
 
   it("should return 2 rows for if the lcd setup is set to 16 x 2", () => {
-    let lcdSetupBlock = workspace.newBlock("lcd_setup");
-    let lcdPrintDisplay = workspace.newBlock("lcd_screen_simple_print");
+    const lcdSetupBlock = workspace.newBlock("lcd_setup");
+    const lcdPrintDisplay = workspace.newBlock("lcd_screen_simple_print");
     lcdSetupBlock.setFieldValue("16 x 2", "SIZE");
     const event: BlockEvent = createTestEvent(arduinoBlock.id);
     expect(updateLcdScreenPrintBlock(event)).toEqual([
@@ -44,9 +44,9 @@ describe("updateLcdScreenPrintBlock", () => {
   });
 
   it("should return 4 rows for if the lcd setup is set to 20 x 4 and handle multiple blocks", () => {
-    let lcdSetupBlock = workspace.newBlock("lcd_setup");
-    let lcdPrintDisplay = workspace.newBlock("lcd_screen_simple_print");
-    let lcdPrintDisplay2 = workspace.newBlock("lcd_screen_simple_print");
+    const lcdSetupBlock = workspace.newBlock("lcd_setup");
+    const lcdPrintDisplay = workspace.newBlock("lcd_screen_simple_print");
+    const lcdPrintDisplay2 = workspace.newBlock("lcd_screen_simple_print");
     lcdSetupBlock.setFieldValue("20 x 4", "SIZE");
     const event: BlockEvent = createTestEvent(arduinoBlock.id);
     expect(updateLcdScreenPrintBlock(event)).toEqual([

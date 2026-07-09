@@ -1,9 +1,9 @@
 import Blockly, { type Block } from "blockly";
 
 Blockly["Arduino"]["joystick_setup"] = function (block: Block) {
-  var dropdown_pin_x = block.getFieldValue("PIN_X");
-  var dropdown_pin_y = block.getFieldValue("PIN_Y");
-  var dropdown_pin_button = block.getFieldValue("PIN_BUTTON");
+  const dropdown_pin_x = block.getFieldValue("PIN_X");
+  const dropdown_pin_y = block.getFieldValue("PIN_Y");
+  const dropdown_pin_button = block.getFieldValue("PIN_BUTTON");
   Blockly["Arduino"].libraries_["joystick"] = `
 #include <math.h>
 

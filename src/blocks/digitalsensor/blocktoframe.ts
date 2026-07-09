@@ -11,7 +11,12 @@ export const digitalReadSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const digitalSensorInfo = JSON.parse(block.metaData) as DigitalSensor[];
+  let digitalSensorInfo: DigitalSensor[] = [];
+  try {
+    digitalSensorInfo = JSON.parse(block.metaData) as DigitalSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
   const digitalSensor1 = digitalSensorInfo.find((d) => d.loop === 1);
   if (!digitalSensor1) return [];
 

@@ -55,7 +55,7 @@
 
 <div class="debugger" class:open={variables.length > 0} id="debugger">
   <ul>
-    {#each variables as variable}
+    {#each variables as variable (variable.name)}
       {#if ['Number', 'Boolean'].includes(variable.type)}
         <li>{variable.name} = {variable.value}</li>
       {/if}
@@ -83,7 +83,7 @@
       {#if 'List Colour' === variable.type}
         <li>
           <span class="color-list-name-equal">{variable.name} =</span>
-          {#each variable.value as color, i}
+          {#each variable.value as color, i (i)}
             {#if color}
               <span
                 class="color-item"

@@ -124,7 +124,7 @@
                   </div>
                 {:else if variable.type === 'List Colour'}
                   <div class="flex flex-wrap gap-1">
-                    {#each parseColorList(variable.value) as colorValue}
+                    {#each parseColorList(variable.value) as colorValue, ci (ci)}
                       <div class="w-3 h-3 rounded-sm border border-border shadow-sm" style="background-color: {rgbToHex(colorValue)}" title={rgbToHex(colorValue)}></div>
                     {/each}
                   </div>

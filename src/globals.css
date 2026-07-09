@@ -168,8 +168,7 @@ p { margin: 0; font-size: 1rem; line-height: 1.5; }
 
 /* ── Links ─────────────────────────────────────────────────────── */
 a {
-  @apply text-foreground no-underline hover:text-primary
-         transition-colors duration-150;
+  @apply text-foreground no-underline hover:text-primary transition-colors duration-150;
 }
 
 /* ── Inline Code ───────────────────────────────────────────────── */

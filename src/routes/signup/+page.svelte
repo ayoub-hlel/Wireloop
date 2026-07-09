@@ -17,6 +17,9 @@
   let signupPassword = $state("");
   let error = $state("");
   let submitting = $state(false);
+  let sentEmail = $state("");
+  let resendCooldown = $state(0);
+  let resendLoading = $state(false);
 
   onMount(() => {
     const tab = $page.url.searchParams.get("tab");
@@ -40,14 +43,29 @@
     error = "";
     submitting = true;
     try {
-      sessionStorage.setItem("pendingSignup", JSON.stringify({
-        email: signupEmail, password: signupPassword, username: signupUsername,
-      }));
-      await goto("/onboarding");
+      await authStore.signUp(signupEmail, signupPassword, signupUsername);
+      sentEmail = signupEmail;
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "Sign up failed";
     } finally {
       submitting = false;
+    }
+  }
+
+  async function handleResend() {
+    resendLoading = true;
+    error = "";
+    try {
+      await authStore.resendVerification(sentEmail);
+      resendCooldown = 60;
+      const interval = setInterval(() => {
+        resendCooldown--;
+        if (resendCooldown <= 0) clearInterval(interval);
+      }, 1000);
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : "Failed to resend";
+    } finally {
+      resendLoading = false;
     }
   }
 </script>
@@ -67,7 +85,9 @@
   <Card.Root class="w-full max-w-sm">
     <Card.Header>
       <Card.Title class="text-center">Welcome</Card.Title>
-      <Card.Description class="text-center">Create your account</Card.Description>
+      <Card.Description class="text-center">
+        {sentEmail ? "Verify your email" : "Create your account"}
+      </Card.Description>
     </Card.Header>
     <Card.Content>
       {#if error}
@@ -76,48 +96,75 @@
         </div>
       {/if}
 
-      <Tabs.Root bind:value={activeTab}>
-        <Tabs.List class="w-full mb-4">
-          <Tabs.Trigger value="signin" class="flex-1">Sign In</Tabs.Trigger>
-          <Tabs.Trigger value="signup" class="flex-1">Sign Up</Tabs.Trigger>
-        </Tabs.List>
+      {#if sentEmail}
+        <div class="flex flex-col gap-4 text-center">
+          <div class="flex justify-center">
+            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            We sent a verification email to <strong>{sentEmail}</strong>.
+            Click the link in the email to verify your account.
+          </p>
+          <p class="text-xs text-muted-foreground">
+            After verifying, you'll be redirected to set up your profile.
+          </p>
+          <Button
+            variant="outline"
+            class="w-full"
+            onclick={handleResend}
+            disabled={resendCooldown > 0 || resendLoading}
+          >
+            {resendLoading ? "Sending..." : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend verification email"}
+          </Button>
+        </div>
+      {:else}
+        <Tabs.Root bind:value={activeTab}>
+          <Tabs.List class="w-full mb-4">
+            <Tabs.Trigger value="signin" class="flex-1">Sign In</Tabs.Trigger>
+            <Tabs.Trigger value="signup" class="flex-1">Sign Up</Tabs.Trigger>
+          </Tabs.List>
 
-        <Tabs.Content value="signin">
-          <form onsubmit={(e) => { e.preventDefault(); handleSignIn(); }} class="flex flex-col gap-4">
-            <div class="grid gap-2">
-              <Label for="signin-email">Email</Label>
-              <Input id="signin-email" type="email" placeholder="you@example.com" bind:value={signinEmail} required />
-            </div>
-            <div class="grid gap-2">
-              <Label for="signin-password">Password</Label>
-              <Input id="signin-password" type="password" placeholder="••••••••" bind:value={signinPassword} required />
-            </div>
-            <Button type="submit" class="w-full" disabled={submitting}>
-              {submitting ? "Signing in…" : "Sign In"}
-            </Button>
-          </form>
-        </Tabs.Content>
+          <Tabs.Content value="signin">
+            <form onsubmit={(e) => { e.preventDefault(); handleSignIn(); }} class="flex flex-col gap-4">
+              <div class="grid gap-2">
+                <Label for="signin-email">Email</Label>
+                <Input id="signin-email" type="email" placeholder="you@example.com" bind:value={signinEmail} required />
+              </div>
+              <div class="grid gap-2">
+                <Label for="signin-password">Password</Label>
+                <Input id="signin-password" type="password" placeholder="••••••••" bind:value={signinPassword} required />
+              </div>
+              <Button type="submit" class="w-full" disabled={submitting}>
+                {submitting ? "Signing in…" : "Sign In"}
+              </Button>
+            </form>
+          </Tabs.Content>
 
-        <Tabs.Content value="signup">
-          <form onsubmit={(e) => { e.preventDefault(); handleSignUp(); }} class="flex flex-col gap-4">
-            <div class="grid gap-2">
-              <Label for="signup-username">Username</Label>
-              <Input id="signup-username" type="text" placeholder="Choose a username" bind:value={signupUsername} required />
-            </div>
-            <div class="grid gap-2">
-              <Label for="signup-email">Email</Label>
-              <Input id="signup-email" type="email" placeholder="you@example.com" bind:value={signupEmail} required />
-            </div>
-            <div class="grid gap-2">
-              <Label for="signup-password">Password</Label>
-              <Input id="signup-password" type="password" placeholder="••••••••" bind:value={signupPassword} required />
-            </div>
-            <Button type="submit" class="w-full" disabled={submitting}>
-              {submitting ? "Creating account…" : "Create Account"}
-            </Button>
-          </form>
-        </Tabs.Content>
-      </Tabs.Root>
+          <Tabs.Content value="signup">
+            <form onsubmit={(e) => { e.preventDefault(); handleSignUp(); }} class="flex flex-col gap-4">
+              <div class="grid gap-2">
+                <Label for="signup-username">Username</Label>
+                <Input id="signup-username" type="text" placeholder="Choose a username" bind:value={signupUsername} required />
+              </div>
+              <div class="grid gap-2">
+                <Label for="signup-email">Email</Label>
+                <Input id="signup-email" type="email" placeholder="you@example.com" bind:value={signupEmail} required />
+              </div>
+              <div class="grid gap-2">
+                <Label for="signup-password">Password</Label>
+                <Input id="signup-password" type="password" placeholder="••••••••" bind:value={signupPassword} required />
+              </div>
+              <Button type="submit" class="w-full" disabled={submitting}>
+                {submitting ? "Creating account…" : "Create Account"}
+              </Button>
+            </form>
+          </Tabs.Content>
+        </Tabs.Root>
+      {/if}
     </Card.Content>
     <Card.Footer class="flex justify-center">
       <a href="/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors">

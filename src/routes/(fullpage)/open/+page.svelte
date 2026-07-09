@@ -13,7 +13,7 @@
   import projectStore from '../../../stores/project.store';
   import chunk from 'lodash/chunk';
 
-  const unSubList: Function[] = [];
+  const unSubList: (() => void)[] = [];
   let projectList: [Project, string][] = $state([]);
   let searchList: [Project, string][] = $state([]);
   let searchTerm = $state('');
@@ -59,7 +59,7 @@
 
       projectStore.set({ project: null, projectId: null });
       localStorage.setItem('reload_once_workspace', evt.target!.result as string);
-      await goto('/');
+      await goto('/studio');
     };
 
     reader.readAsText(file);
@@ -106,7 +106,7 @@
   }
 
   async function openProject(projectId: string) {
-    await goto(`/?projectid=${projectId}`);
+    await goto(`/studio?projectid=${projectId}`);
     const project = await getApiClient().query('projects:getProject', { projectId });
     const file = (await getApiClient().query('projects:getProjectFile', { projectId, userId: $authStore.uid! }))?.content || '';
     loadProject(file);
@@ -152,7 +152,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each searchList as project}
+          {#each searchList as project, pi (pi)}
             <tr>
               <td>{project[0].name}</td>
               <td>{formatDate(project[0].updated)}</td>
@@ -201,11 +201,11 @@
         <p class="text-center w-100 mb-2">Hard</p>
     </div> -->
         
-      {#each chunk(lessonList, 3) as lessonRow }
+      {#each chunk(lessonList, 3) as lessonRow, ri (ri)}
         <div class="row g-2 g-lg-3">
-          {#each lessonRow as lesson }
+          {#each lessonRow as lesson, li (li)}
           <div class="col-4">
-            <div class="card" onclick={() => goto(`/?example_project=${lesson.file}`)} onkeydown={(e) => e.key === 'Enter' && goto(`/?example_project=${lesson.file}`)} role="button" tabindex="0">
+            <div class="card" onclick={() => goto(`/studio?example_project=${lesson.file}`)} onkeydown={(e) => e.key === 'Enter' && goto(`/studio?example_project=${lesson.file}`)} role="button" tabindex="0">
               <div class="card-body">
                 <img loading="lazy" src={lesson.levelImage} alt="difficulty-level" class="level">
                 <h5 class="card-title">{lesson.title}</h5>

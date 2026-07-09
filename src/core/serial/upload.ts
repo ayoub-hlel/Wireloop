@@ -1,5 +1,5 @@
 import type { MicroControllerType } from "../microcontroller/microcontroller";
-import config from "../../env";
+import config from "../../config";
 
 declare class AvrgirlArduino {
   constructor(config: any);

@@ -47,7 +47,7 @@ Blockly["Arduino"]["controls_for"] = function (block: Block) {
     ? startNumberStr
     : parseInt(startNumberStr || 0) || 0;
 
-  var toNumberStr = Blockly["Arduino"].valueToCode(
+  const toNumberStr = Blockly["Arduino"].valueToCode(
     block,
     "TO",
     Blockly["Arduino"].ORDER_ASSIGNMENT

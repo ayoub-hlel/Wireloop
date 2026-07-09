@@ -10,6 +10,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import type { BetterAuthOptions } from "better-auth";
 import * as schema from "../db/schema/auth";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
 export function validatePassword(pw: string): string[] {
   const errors: string[] = [];
@@ -54,9 +55,23 @@ export function createAuth(deps: AuthFactoryDeps) {
     // ── Email & password ─────────────────────────────────────────
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      requireEmailVerification: true,
       minPasswordLength: 8,
       maxPasswordLength: 128,
+      sendResetPassword: async ({ user, url }) => {
+        void sendPasswordResetEmail({ email: user.email, url });
+      },
+    },
+
+    // ── Email verification ────────────────────────────────────────
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url }) => {
+        void sendVerificationEmail({ email: user.email, url });
+      },
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+      expiresIn: 3600, // 1 hour
+      callbackURL: "/onboarding",
     },
 
     // ── Social / OAuth providers ────────────────────────────────

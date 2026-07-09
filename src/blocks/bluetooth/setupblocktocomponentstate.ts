@@ -22,8 +22,8 @@ export const bluetoothSetupBlockToComponentState = (
       findFieldValue(block, "PIN_TX") as ARDUINO_PINS,
       findFieldValue(block, "PIN_RX") as ARDUINO_PINS,
     ],
-    hasMessage: btState.receiving_message,
-    message: btState.message,
+    hasMessage: btState?.receiving_message ?? false,
+    message: btState?.message ?? "",
     sendMessage: "",
   };
 };

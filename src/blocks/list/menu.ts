@@ -7,7 +7,7 @@ import { createBlock } from "../../core/blockly/helpers/block.helper";
  */
 
 export const registerListMenu = (workspace: WorkspaceSvg) => {
-  var parser = new DOMParser();
+  const parser = new DOMParser();
 
   workspace.registerToolboxCategoryCallback("LIST", () => {
     const xmlList: Element[] = [];

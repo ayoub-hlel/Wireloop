@@ -5,14 +5,16 @@
   "version": "3.0.0",
   "packageManager": "pnpm@11.0.8",
   "scripts": {
-    "dev": "cp env/env.development.ts src/env.ts && vite dev",
-    "build": "cp ./env/env.staging.ts ./src/env.ts && vite build",
-    "build:prod": "cp ./env/env.prod.ts ./src/env.ts && vite build",
+    "dev": "cp env/env.development.ts src/config.ts && vite dev",
+    "build": "cp ./env/env.staging.ts ./src/config.ts && vite build",
+    "build:prod": "cp ./env/env.prod.ts ./src/config.ts && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test-coverage": "vitest --coverage",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "deploy": "wrangler pages deploy",
     "deploy:prod": "pnpm build:prod && wrangler pages deploy --branch main",
     "db:generate": "drizzle-kit generate",
@@ -22,6 +24,9 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260623.1",
+    "@eslint/css": "^1.4.0",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^2.0.1",
     "@lucide/svelte": "^1.7.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@sveltejs/adapter-cloudflare": "^7.2.9",
@@ -45,7 +50,10 @@
     "blockly-field-color-wheel": "^1.0.5",
     "clsx": "^2.1.1",
     "drizzle-kit": "^0.31.10",
+    "eslint": "^10.6.0",
+    "eslint-plugin-svelte": "^3.20.0",
     "file-saver": "^2.0.5",
+    "globals": "^17.7.0",
     "highlight.js": "^11.9.0",
     "jest": "^29.7.0",
     "lodash": "^4.17.21",
@@ -62,6 +70,7 @@
     "ts-jest": "^29.1.2",
     "tslib": "^2.4.1",
     "typescript": "^5.0.0",
+    "typescript-eslint": "^8.63.0",
     "uuid": "^8.3.1",
     "vite": "^6.4.2",
     "vitest": "^1.5.2",
@@ -90,6 +99,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "lodash-es": "^4.18.1",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "resend": "^6.17.1"
   }
 }

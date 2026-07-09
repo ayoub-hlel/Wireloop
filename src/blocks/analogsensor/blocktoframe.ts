@@ -15,7 +15,12 @@ export const analogReadSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const analogSensorInfo = JSON.parse(block.metaData) as AnalogSensor[];
+  let analogSensorInfo: AnalogSensor[] = [];
+  try {
+    analogSensorInfo = JSON.parse(block.metaData) as AnalogSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
   const analogSensor1 = analogSensorInfo.find((d) => d.loop === 1);
   if (!analogSensor1) return [];
 

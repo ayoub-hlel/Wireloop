@@ -91,7 +91,7 @@ export const setLedColor: BlockToFrameTransformer = (
   const ledColorStates = previousState.components.filter(
     (x) => x.type == ArduinoComponentType.LED_COLOR
   );
-  let ledState = ledColorStates.find(
+  const ledState = ledColorStates.find(
     (x) => (x as LedColorState).ledNumber == whichComponent
   );
   if (!ledState) return [];

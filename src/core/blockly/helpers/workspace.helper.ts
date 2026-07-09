@@ -38,7 +38,13 @@ export const loadProjectFromUrl = async (url: string) => {
 
 export const loadProject = (xmlString: string) => {
   try {
-    var parser = new DOMParser();
+    const workspace = getWorkspace();
+    if (!workspace) {
+      console.warn("Blockly workspace not ready, deferring project load");
+      return;
+    }
+
+    const parser = new DOMParser();
     localStorage.setItem("no_alert", "yes");
     // Delete all the old blocks and variables
     const blocksToDelete = getAllBlocks(); // get a list of all the old blocks
@@ -51,11 +57,11 @@ export const loadProject = (xmlString: string) => {
       localStorage.removeItem("reload_once_workspace");
       return;
     }
-    Blockly.Xml.domToWorkspace(xml.documentElement as any, getWorkspace()); // load new blocks
+    Blockly.Xml.domToWorkspace(xml.documentElement as any, workspace); // load new blocks
     localStorage.removeItem("no_alert");
 
     // Scroll to the center
-    getWorkspace().scrollCenter();
+    workspace.scrollCenter();
   } catch (e) {
     console.warn("Failed to load workspace XML:", e);
     localStorage.removeItem("reload_once_workspace");

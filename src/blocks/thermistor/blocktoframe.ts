@@ -11,15 +11,20 @@ export const thermistorSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const sensorDatum = JSON.parse(block.metaData) as ThermistorSensor[];
-  const sensorData = sensorDatum.find((d) => d.loop === 1) as ThermistorSensor;
+  let sensorDatum: ThermistorSensor[] = [];
+  try {
+    sensorDatum = JSON.parse(block.metaData) as ThermistorSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
+  const sensorData = sensorDatum.find((d) => d.loop === 1);
 
   const thermistorState: ThermistorState = {
     pins: block.pins,
     type: ArduinoComponentType.THERMISTOR,
-    temp: sensorData.temp,
-    tempC: sensorData.temp,
-    tempF: (sensorData.temp * 9) / 5 + 32,
+    temp: sensorData?.temp ?? 0,
+    tempC: sensorData?.temp ?? 0,
+    tempF: ((sensorData?.temp ?? 0) * 9) / 5 + 32,
     externalResistorsOhms: +findFieldValue(block, "NONIMAL_RESISTANCE"),
   };
 

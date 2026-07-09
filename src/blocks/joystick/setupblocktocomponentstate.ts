@@ -24,9 +24,9 @@ export const joystickSetupBlockToComponentState = (
     buttonPin,
     xPin,
     yPin,
-    buttonPressed: joyStickSensor.buttonPressed,
-    engaged: joyStickSensor.engaged,
-    degree: joyStickSensor.degree,
+    buttonPressed: joyStickSensor?.buttonPressed ?? false,
+    engaged: joyStickSensor?.engaged ?? false,
+    degree: joyStickSensor?.degree ?? 0,
   };
 
   return joystickState;

@@ -1,6 +1,7 @@
 <script lang="ts">
-  let { status, error }: { status: number; error: any } = $props();
-  console.log('ERROR PAGE RENDERED', { status, error, msg: error?.message });
+  let props = $props();
+  let status = $derived(props.status);
+  let error = $derived(props.error);
 </script>
 
 <style>

@@ -64,14 +64,14 @@ export class SerialPort {
       .then(() => (this.reader = this.port.readable.getReader()))
       .then(async () => {
         this.isOpen = true;
-        callback && callback(null);
+        void(callback && callback(null));
         while (this.port.readable.locked) {
           try {
             const { value, done } = await this.reader.read();
             if (done) {
               break;
             }
-            let textDecoder = new TextDecoder();
+            const textDecoder = new TextDecoder();
 
             // Append new chunks to existing chunks.
             this.chunks += textDecoder.decode(value);
@@ -85,7 +85,7 @@ export class SerialPort {
         }
       })
       .catch((error: Error) => {
-        callback && callback(error);
+        void(callback && callback(error));
       });
   }
 
@@ -101,7 +101,7 @@ export class SerialPort {
       if (callback) return callback(error as Error);
       throw error;
     }
-    callback && callback(null);
+    void(callback && callback(null));
   }
 
   async set(props: any = {}, callback?: (error: Error | null) => void) {
@@ -127,7 +127,7 @@ export class SerialPort {
   }
 
   write(message: string, callback?: (error: Error | null) => void) {
-    let textEncoder = new TextEncoder();
+    const textEncoder = new TextEncoder();
     this.writer.write(textEncoder.encode(message));
     if (callback) return callback(null);
   }

@@ -18,7 +18,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['@clerk/clerk-js']
+    include: []
   },
   resolve: {
     alias: {

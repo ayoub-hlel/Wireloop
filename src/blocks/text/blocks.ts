@@ -85,7 +85,7 @@ Blockly.Blocks["text_changeCase"] = {
    * @this {Blockly.Block}
    */
   init: function () {
-    var OPERATORS = [
+    const OPERATORS = [
       [Blockly.Msg["TEXT_CHANGECASE_OPERATOR_UPPERCASE"], "UPPERCASE"],
       [Blockly.Msg["TEXT_CHANGECASE_OPERATOR_LOWERCASE"], "LOWERCASE"],
     ];

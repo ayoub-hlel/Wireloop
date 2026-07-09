@@ -175,7 +175,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="flex flex-col flex-1 min-h-0 bg-bg" oncontextmenu={onContextMenu} role="region" aria-label="Code Editor">
   <!-- Toolbar -->
   <div class="flex items-center justify-between px-2 py-1 border-b border-border bg-bg-surface shrink-0">

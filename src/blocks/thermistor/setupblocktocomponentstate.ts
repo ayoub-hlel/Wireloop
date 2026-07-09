@@ -14,12 +14,14 @@ export const thermistorSetupBlockToComponentState = (
 ): ThermistorState => {
   const sensorData = findSensorState<ThermistorSensor>(block, timeline);
 
+  const temp = sensorData?.temp ?? 0;
+
   return {
     type: ArduinoComponentType.THERMISTOR,
     pins: [findFieldValue(block, "PIN") as ARDUINO_PINS],
-    temp: sensorData.temp,
-    tempC: sensorData.temp,
-    tempF: (sensorData.temp * 9) / 5 + 32,
+    temp,
+    tempC: temp,
+    tempF: (temp * 9) / 5 + 32,
     externalResistorsOhms: +findFieldValue(block, "NONIMAL_RESISTANCE"),
   };
 };

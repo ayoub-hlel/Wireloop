@@ -15,7 +15,12 @@ export const buttonSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const btnDatum = JSON.parse(block.metaData) as ButtonSensor[];
+  let btnDatum: ButtonSensor[] = [];
+  try {
+    btnDatum = JSON.parse(block.metaData) as ButtonSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
   const btnData = btnDatum.find((d) => d.loop === 1);
   if (!btnData) return [];
   const usePullup = findFieldValue(block, "PULLUP_RESISTOR") === "TRUE";

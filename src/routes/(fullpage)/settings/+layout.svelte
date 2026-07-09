@@ -1,3 +1,4 @@
+<!-- svelte-ignore svelte/valid_prop_names_in_kit_pages -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   let { segment, children }: { segment?: string; children: Snippet } = $props();

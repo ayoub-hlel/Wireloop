@@ -1,13 +1,12 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
-  import authStore from "../../stores/auth.store";
+  import { authClient } from "$lib/client/auth-client";
 
-  let email = $state("");
-  let password = $state("");
   let username = $state("");
   let bio = $state("");
   let avatarFile = $state<File | null>(null);
@@ -15,22 +14,29 @@
   let error = $state("");
   let submitting = $state(false);
   let done = $state(false);
+  let loading = $state(true);
+  let emailVerified = $state(false);
+  let userEmail = $state("");
+  let resendCooldown = $state(0);
+  let resendLoading = $state(false);
+  let resendSent = $state(false);
 
   const canSubmit = $derived(!submitting && !done && username.trim().length > 0);
 
-  $effect(() => {
-    const raw = sessionStorage.getItem("pendingSignup");
-    if (!raw) {
-      goto("/login", { replaceState: true });
-      return;
-    }
+  onMount(async () => {
     try {
-      const data = JSON.parse(raw);
-      email = data.email ?? "";
-      password = data.password ?? "";
-      username = data.username ?? "";
+      const { data } = await authClient.getSession();
+      if (!data) {
+        goto("/login", { replaceState: true });
+        return;
+      }
+      userEmail = data.user.email;
+      emailVerified = data.user.emailVerified;
+      username = data.user.name ?? "";
     } catch {
       goto("/login", { replaceState: true });
+    } finally {
+      loading = false;
     }
   });
 
@@ -43,16 +49,12 @@
     }
   }
 
-  async function completeSignup() {
+  async function completeProfile() {
     error = "";
     submitting = true;
     try {
-      // Step 1: Create Better Auth user — this is the first DB write
-      await authStore.signUp(email, password, username);
-
       let profileImageUrl = "";
 
-      // Step 2: Upload avatar (user now exists in DB, we have a userId)
       if (avatarFile) {
         const formData = new FormData();
         formData.append("avatar", avatarFile);
@@ -65,7 +67,6 @@
         profileImageUrl = url;
       }
 
-      // Step 3: Create profile row (username, bio, profileImage)
       const res = await fetch("/api/mutation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,12 +81,32 @@
       });
       if (!res.ok) throw new Error("Failed to save profile");
 
-      sessionStorage.removeItem("pendingSignup");
       done = true;
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "Something went wrong";
     } finally {
       submitting = false;
+    }
+  }
+
+  async function handleResend() {
+    resendLoading = true;
+    error = "";
+    try {
+      await authClient.sendVerificationEmail({
+        email: userEmail,
+        callbackURL: "/onboarding",
+      });
+      resendSent = true;
+      resendCooldown = 60;
+      const interval = setInterval(() => {
+        resendCooldown--;
+        if (resendCooldown <= 0) clearInterval(interval);
+      }, 1000);
+    } catch (e: unknown) {
+      error = e instanceof Error ? e.message : "Failed to resend";
+    } finally {
+      resendLoading = false;
     }
   }
 
@@ -101,9 +122,14 @@
 <div class="min-h-screen flex items-center justify-center px-4 bg-background">
   <Card.Root class="w-full max-w-sm">
     <Card.Header>
-      {#if done}
-        <Card.Title class="text-center">You're signed up!</Card.Title>
-        <Card.Description class="text-center">Your account is ready. You can start building.</Card.Description>
+      {#if loading}
+        <Card.Title class="text-center">Loading...</Card.Title>
+      {:else if !emailVerified}
+        <Card.Title class="text-center">Verify Your Email</Card.Title>
+        <Card.Description class="text-center">Check your email to continue</Card.Description>
+      {:else if done}
+        <Card.Title class="text-center">You're all set!</Card.Title>
+        <Card.Description class="text-center">Your profile is ready. Start building.</Card.Description>
       {:else}
         <Card.Title class="text-center">Set Up Your Profile</Card.Title>
         <Card.Description class="text-center">Add a profile picture and bio to personalize your account.</Card.Description>
@@ -116,13 +142,42 @@
         </div>
       {/if}
 
-      {#if done}
+      {#if loading}
+        <div class="flex justify-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      {:else if !emailVerified}
+        <div class="flex flex-col gap-4 text-center">
+          <div class="flex justify-center">
+            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            We sent a verification email to <strong>{userEmail}</strong>.
+            Click the link in the email to verify your account.
+          </p>
+          {#if resendSent}
+            <p class="text-xs text-primary">A new verification email has been sent.</p>
+          {/if}
+          <Button
+            variant="outline"
+            class="w-full"
+            onclick={handleResend}
+            disabled={resendCooldown > 0 || resendLoading}
+          >
+            {resendLoading ? "Sending..." : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend verification email"}
+          </Button>
+        </div>
+      {:else if done}
         <div class="flex flex-col gap-4">
-          <p class="text-sm text-muted-foreground text-center">You're signed in and ready to go.</p>
+          <p class="text-sm text-muted-foreground text-center">Your account is ready. Start building.</p>
           <Button class="w-full" onclick={goToStudio}>Go to Studio</Button>
         </div>
       {:else}
-        <form onsubmit={(e) => { e.preventDefault(); completeSignup(); }} class="flex flex-col gap-4">
+        <form onsubmit={(e) => { e.preventDefault(); completeProfile(); }} class="flex flex-col gap-4">
           <div class="flex flex-col items-center gap-3">
             <label for="avatar-upload" class="cursor-pointer">
               <div class="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border hover:border-primary transition-colors">
@@ -141,7 +196,7 @@
 
           <div class="grid gap-2">
             <Label for="onboarding-email">Email</Label>
-            <Input id="onboarding-email" type="email" value={email} disabled class="bg-muted" />
+            <Input id="onboarding-email" type="email" value={userEmail} disabled class="bg-muted" />
           </div>
 
           <div class="grid gap-2">
@@ -155,9 +210,9 @@
           </div>
 
           <Button type="submit" class="w-full" disabled={!canSubmit}>
-            {submitting ? "Creating account..." : "Complete Setup"}
+            {submitting ? "Saving..." : "Complete Setup"}
           </Button>
-          <Button variant="ghost" class="w-full" onclick={completeSignup} disabled={!canSubmit}>Skip for now</Button>
+          <Button variant="ghost" class="w-full" onclick={completeProfile} disabled={!canSubmit}>Skip for now</Button>
         </form>
       {/if}
     </Card.Content>

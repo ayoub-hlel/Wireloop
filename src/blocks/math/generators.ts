@@ -41,7 +41,7 @@ Blockly["Arduino"]["math_round"] = function (block: Block) {
       "NUM",
       Blockly["Arduino"].ORDER_NONE
     ) || "0";
-  let code = "";
+  let code: string;
   switch (operator) {
     case "ROUND":
       code = "(double)round(" + arg + ")";
@@ -137,7 +137,7 @@ Blockly["Arduino"]["math_random_int"] = function (block: Block) {
       Blockly["Arduino"].ORDER_MODULUS
     ) || 1;
 
-  let code = "";
+  let code: string;
   if (start > finish) {
     code = "(double)random(" + finish + ", " + start + ")";
   } else {

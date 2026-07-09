@@ -16,7 +16,7 @@
     hljs.registerLanguage('arduino', arduinoLang);
     codeStore.subscribe(async (codeInfo) => {
       try {
-        // @ts-ignore
+        // @ts-expect-error
         code = hljs.highlight(codeInfo.code, { language: 'arduino' }).value;
       } catch(e) {
         console.log(e);

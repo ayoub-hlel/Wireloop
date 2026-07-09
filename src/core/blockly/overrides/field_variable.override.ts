@@ -1,15 +1,15 @@
 import Blockly from "blockly";
 
-// @ts-ignore - overriding Blockly internal methods
+// @ts-expect-error - overriding Blockly internal methods
 Blockly.FieldVariable.prototype.initModel = function () {
-  // @ts-ignore - accessing private member
+  // @ts-expect-error - accessing private member
   if (this.variable) {
     return; // Initialization already happened.
   }
-  // @ts-ignore - accessing protected members
+  // @ts-expect-error - accessing protected members
   this.workspace_ = this.sourceBlock_!.workspace;
   const variables = Blockly.getMainWorkspace().getVariablesOfType(
-    // @ts-ignore - accessing private member
+    // @ts-expect-error - accessing private member
     this.defaultType
   );
   let variableId = null;
@@ -20,12 +20,12 @@ Blockly.FieldVariable.prototype.initModel = function () {
   }
 
   const variable = Blockly.Variables.getOrCreateVariablePackage(
-    // @ts-ignore - accessing protected members
+    // @ts-expect-error - accessing protected members
     this.workspace_,
     variableId,
-    // @ts-ignore - accessing private member
+    // @ts-expect-error - accessing private member
     this.defaultVariableName,
-    // @ts-ignore - accessing private member
+    // @ts-expect-error - accessing private member
     this.defaultType
   );
 

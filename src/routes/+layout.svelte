@@ -1,12 +1,28 @@
 <script lang="ts">
   import '../app.css';
   import type { Snippet } from 'svelte';
-  import type { LayoutData } from './$types';
-
-  export const data: LayoutData = null as unknown as LayoutData;
-  export const form: any = null;
+  import { onMount } from 'svelte';
+  import { page } from '$app/stores';
+  import authStore from '../stores/auth.store';
 
   let { children }: { children: Snippet } = $props();
+
+  onMount(() => {
+    const serverSession = $page.data.session;
+    const serverUser = $page.data.user;
+
+    if (serverSession && serverUser) {
+      authStore.set({
+        isLoggedIn: true,
+        uid: serverUser.id,
+        user: serverUser,
+        session: serverSession,
+        loading: false,
+      });
+    } else {
+      authStore.init();
+    }
+  });
 </script>
 
 <main>

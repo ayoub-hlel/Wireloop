@@ -24,7 +24,7 @@ let blinkingTimer: ReturnType<typeof setTimeout> | undefined = undefined;
 /**
  * Blink Position
  */
-let blinkPosition = { row: 0, col: 0 };
+const blinkPosition = { row: 0, col: 0 };
 
 /**
  * If true it will go dark

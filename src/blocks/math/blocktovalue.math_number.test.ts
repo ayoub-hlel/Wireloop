@@ -89,6 +89,6 @@ describe("math_number_property state factories", () => {
     mathPropertyBlock.setFieldValue("PRIME", "PROPERTY");
     const event = createTestEvent(mathPropertyBlock.id);
     expect(eventToFrameFactory).toThrowError();
-    eventToFrameFactory(event).frames;
+    void(eventToFrameFactory(event).frames);
   });
 });

@@ -16,7 +16,7 @@ pnpm-debug.log*
 build*
 
 # Application specific
-/src/env.ts
+/src/config.ts
 .env.local
 r2-bucket/
 static/example-projects/

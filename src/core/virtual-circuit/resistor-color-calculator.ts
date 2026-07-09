@@ -27,13 +27,9 @@ const resistorColor: Record<string, string> = {
 export const ohmsToBands = (ohms: number): [string, string, string] => {
   const firstColor = resistorColor[resistorIndex[+ohms.toString()[0]]];
   const secondColor = resistorColor[resistorIndex[+ohms.toString()[1]]];
-  let thirdColor = "";
-
-  if (ohms < 100) {
-    thirdColor = resistorColor.BLACK;
-  } else {
-    thirdColor = resistorColor[resistorIndex[ohms.toString().length - 2]];
-  }
+  const thirdColor = ohms < 100
+    ? resistorColor.BLACK
+    : resistorColor[resistorIndex[ohms.toString().length - 2]];
 
   return [firstColor, secondColor, thirdColor];
 };

@@ -13,7 +13,7 @@ export const passiveBuzzer: BlockToFrameTransformer = (
   previousState
 ) => {
   const pin = findFieldValue(block, "PIN");
-  let tone = 0;
+  let tone: number;
   if (block.blockName === "passive_buzzer_tone") {
     tone = getInputValue(
       blocks,

@@ -10,13 +10,18 @@ export const tempSetupSensor: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const sensorDatum = JSON.parse(block.metaData) as TempSensor[];
-  const sensorData = sensorDatum.find((d) => d.loop === 1) as TempSensor;
+  let sensorDatum: TempSensor[] = [];
+  try {
+    sensorDatum = JSON.parse(block.metaData) as TempSensor[];
+  // eslint-disable-next-line no-empty
+  } catch {
+  }
+  const sensorData = sensorDatum.find((d) => d.loop === 1);
 
   const tempSensorState: TemperatureState = {
     pins: block.pins,
-    temperature: sensorData.temp,
-    humidity: sensorData.humidity,
+    temperature: sensorData?.temp ?? 0,
+    humidity: sensorData?.humidity ?? 0,
     type: ArduinoComponentType.TEMPERATURE_SENSOR,
   };
 
