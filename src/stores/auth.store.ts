@@ -47,7 +47,7 @@ function createAuthStore() {
 
     /** Sign in with a social provider */
     async signInSocial(provider: 'google' | 'github') {
-      await authClient.signIn.social({ provider });
+      await authClient.signIn.social({ provider, callbackURL: "/studio" });
     },
 
     /** Sign in with email + password */
@@ -68,6 +68,21 @@ function createAuthStore() {
       if (error) throw new Error(error.message ?? "Verification failed");
       // Refresh session after verification
       await this.init();
+    },
+
+    /** Request password reset email */
+    async forgetPassword(email: string) {
+      const { error } = await authClient.requestPasswordReset({
+        email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw new Error(error.message ?? "Failed to send reset email");
+    },
+
+    /** Reset password with token from email link */
+    async resetPassword(token: string, newPassword: string) {
+      const { error } = await authClient.resetPassword({ newPassword, token });
+      if (error) throw new Error(error.message ?? "Password reset failed");
     },
 
     /** Resend verification email */

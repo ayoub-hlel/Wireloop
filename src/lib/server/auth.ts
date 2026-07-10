@@ -14,12 +14,31 @@ export function getAuth(baseURL?: string) {
 
     const base = baseURL || "http://localhost:5173";
 
+    const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};
+    if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
+      socialProviders.github = {
+        clientId: env.GITHUB_CLIENT_ID,
+        clientSecret: env.GITHUB_CLIENT_SECRET,
+      };
+    }
+    if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) {
+      socialProviders.google = {
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+      };
+    }
+
     try {
       _auth = createAuth({
         databaseUrl: url,
         secret,
         baseURL: base,
-        allowedHosts: [],
+        allowedHosts: [
+          "https://wire-loop.tech",
+          "https://www.wire-loop.tech",
+          "https://*.pages.dev",
+        ],
+        socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
         extraPlugins: [sveltekitCookies(getRequestEvent)],
       });
     } catch (e) {

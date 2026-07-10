@@ -1,50 +1,27 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { page } from "$app/stores";
-  import { goto } from "$app/navigation";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
-  import * as Tabs from "$lib/components/ui/tabs/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import { Label } from "$lib/components/ui/label/index.js";
+  import AuthTabBar from "$lib/components/auth/AuthTabBar.svelte";
+  import OAuthButtons from "$lib/components/auth/OAuthButtons.svelte";
   import authStore from "../../stores/auth.store";
 
-  let activeTab = $state("signup");
-  let signinEmail = $state("");
-  let signinPassword = $state("");
-  let signupUsername = $state("");
-  let signupEmail = $state("");
-  let signupPassword = $state("");
+  let username = $state("");
+  let email = $state("");
+  let password = $state("");
   let error = $state("");
   let submitting = $state(false);
   let sentEmail = $state("");
   let resendCooldown = $state(0);
   let resendLoading = $state(false);
 
-  onMount(() => {
-    const tab = $page.url.searchParams.get("tab");
-    if (tab === "signin") activeTab = "signin";
-  });
-
-  async function handleSignIn() {
-    error = "";
-    submitting = true;
-    try {
-      await authStore.signInEmail(signinEmail, signinPassword);
-      await goto("/studio");
-    } catch (e: unknown) {
-      error = e instanceof Error ? e.message : "Sign in failed";
-    } finally {
-      submitting = false;
-    }
-  }
-
   async function handleSignUp() {
     error = "";
     submitting = true;
     try {
-      await authStore.signUp(signupEmail, signupPassword, signupUsername);
-      sentEmail = signupEmail;
+      await authStore.signUp(email, password, username);
+      sentEmail = email;
     } catch (e: unknown) {
       error = e instanceof Error ? e.message : "Sign up failed";
     } finally {
@@ -74,7 +51,6 @@
   <title>Wireloop — Sign Up</title>
 </svelte:head>
 
-<!-- Nav -->
 <nav class="fixed top-0 left-0 right-0 z-50 h-14 bg-surface border-b border-border flex items-center px-6">
   <a href="/" class="flex items-center gap-2 no-underline">
     <img src="/LOGO%20-%20Inversed.svg" alt="Wireloop" class="h-8 w-auto brightness-110" />
@@ -90,6 +66,10 @@
       </Card.Description>
     </Card.Header>
     <Card.Content>
+      {#if !sentEmail}
+        <AuthTabBar active="signup" class="mb-4" />
+      {/if}
+
       {#if error}
         <div class="mb-4 p-3 rounded-md text-sm bg-destructive/10 border border-destructive/30 text-destructive">
           {error}
@@ -122,48 +102,34 @@
           </Button>
         </div>
       {:else}
-        <Tabs.Root bind:value={activeTab}>
-          <Tabs.List class="w-full mb-4">
-            <Tabs.Trigger value="signin" class="flex-1">Sign In</Tabs.Trigger>
-            <Tabs.Trigger value="signup" class="flex-1">Sign Up</Tabs.Trigger>
-          </Tabs.List>
+        <OAuthButtons />
 
-          <Tabs.Content value="signin">
-            <form onsubmit={(e) => { e.preventDefault(); handleSignIn(); }} class="flex flex-col gap-4">
-              <div class="grid gap-2">
-                <Label for="signin-email">Email</Label>
-                <Input id="signin-email" type="email" placeholder="you@example.com" bind:value={signinEmail} required />
-              </div>
-              <div class="grid gap-2">
-                <Label for="signin-password">Password</Label>
-                <Input id="signin-password" type="password" placeholder="••••••••" bind:value={signinPassword} required />
-              </div>
-              <Button type="submit" class="w-full" disabled={submitting}>
-                {submitting ? "Signing in…" : "Sign In"}
-              </Button>
-            </form>
-          </Tabs.Content>
+        <div class="relative my-4">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-border" />
+          </div>
+          <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-card px-2 text-muted-foreground">or</span>
+          </div>
+        </div>
 
-          <Tabs.Content value="signup">
-            <form onsubmit={(e) => { e.preventDefault(); handleSignUp(); }} class="flex flex-col gap-4">
-              <div class="grid gap-2">
-                <Label for="signup-username">Username</Label>
-                <Input id="signup-username" type="text" placeholder="Choose a username" bind:value={signupUsername} required />
-              </div>
-              <div class="grid gap-2">
-                <Label for="signup-email">Email</Label>
-                <Input id="signup-email" type="email" placeholder="you@example.com" bind:value={signupEmail} required />
-              </div>
-              <div class="grid gap-2">
-                <Label for="signup-password">Password</Label>
-                <Input id="signup-password" type="password" placeholder="••••••••" bind:value={signupPassword} required />
-              </div>
-              <Button type="submit" class="w-full" disabled={submitting}>
-                {submitting ? "Creating account…" : "Create Account"}
-              </Button>
-            </form>
-          </Tabs.Content>
-        </Tabs.Root>
+        <form onsubmit={(e) => { e.preventDefault(); handleSignUp(); }} class="flex flex-col gap-4">
+          <div class="grid gap-2">
+            <Label for="username">Username</Label>
+            <Input id="username" type="text" placeholder="Choose a username" bind:value={username} required />
+          </div>
+          <div class="grid gap-2">
+            <Label for="email">Email</Label>
+            <Input id="email" type="email" placeholder="you@example.com" bind:value={email} required />
+          </div>
+          <div class="grid gap-2">
+            <Label for="password">Password</Label>
+            <Input id="password" type="password" placeholder="••••••••" bind:value={password} required />
+          </div>
+          <Button type="submit" class="w-full" disabled={submitting}>
+            {submitting ? "Creating account…" : "Create Account"}
+          </Button>
+        </form>
       {/if}
     </Card.Content>
     <Card.Footer class="flex justify-center">

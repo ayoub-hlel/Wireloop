@@ -1,8 +1,13 @@
 import { getAuth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { setR2Binding } from '$lib/server/r2';
+import { validateEnv } from '$lib/server/env';
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building } from '$app/environment';
+
+if (!building) {
+  validateEnv();
+}
 
 export const handleError: HandleServerError = async ({ error, event }) => {
   console.error('SvelteKit error:', error, 'URL:', event.url.pathname);
