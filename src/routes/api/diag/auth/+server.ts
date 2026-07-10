@@ -16,35 +16,40 @@ export async function POST({ request }: { request: Request }) {
     return json(diag, 500);
   }
 
+  let auth: ReturnType<typeof createAuth>;
   try {
-    const auth = createAuth({ databaseUrl: dbUrl, secret, baseURL });
+    auth = createAuth({ databaseUrl: dbUrl, secret, baseURL });
     diag.authInit = { status: 'ok', detail: 'createAuth() OK' };
-
-    // Forward the sign-up body directly to Better Auth's handler
-    const body = await request.clone().text();
-    const forwarded = new Request(`${baseURL}/api/auth/sign-up/email`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'origin': baseURL,
-        'host': new URL(baseURL).host,
-      },
-      body,
-    });
-
-    const response = await auth.handler(forwarded);
-    const responseBody = await response.clone().text();
-    diag.signUpResponse = {
-      status: response.ok ? 'ok' : 'error',
-      detail: {
-        status: response.status,
-        body: responseBody || '(empty)',
-        headers: Object.fromEntries(response.headers.entries()),
-      },
-    };
   } catch (e: unknown) {
     const err = e as Error;
-    diag.signUpCatch = { status: 'error', detail: { message: err.message, name: err.name, stack: (err.stack ?? '').split('\n').slice(0, 8) } };
+    diag.authInit = { status: 'error', detail: { message: err.message, name: err.name } };
+    return json(diag, 500);
+  }
+
+  const email = `diag-internal-${Date.now()}@test.com`;
+  try {
+    const result = await auth.api.signUpEmail({
+      body: { email, password: 'Test123!', name: 'Diag Internal' },
+      headers: new Headers({ 'content-type': 'application/json', 'origin': baseURL }),
+    });
+    diag.signUpApi = { status: 'ok', detail: result };
+  } catch (e: unknown) {
+    const err = e as Error;
+    diag.signUpApi = {
+      status: 'error',
+      detail: { message: err.message, name: err.name, stack: (err.stack ?? '').split('\n').slice(0, 10) },
+    };
+  }
+
+  try {
+    await auth.api.signUpEmail({
+      body: { email, password: 'Test123!', name: 'Diag Internal' },
+      headers: new Headers({ 'content-type': 'application/json', 'origin': baseURL }),
+    });
+    diag.signUpRepeat = { status: 'ok', detail: 'second call succeeded' };
+  } catch (e: unknown) {
+    const err = e as Error;
+    diag.signUpRepeat = { status: 'error', detail: { message: err.message, name: err.name } };
   }
 
   const hasError = Object.values(diag).some(s => s.status === 'error');
