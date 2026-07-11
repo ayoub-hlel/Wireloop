@@ -38,6 +38,10 @@ export type AuthFactoryDeps = {
    * OAuth / social provider configs (GitHub, Google, etc.).
    */
   socialProviders?: BetterAuthOptions["socialProviders"];
+  /**
+   * Disable email verification requirement (for tests).
+   */
+  disableEmailVerification?: boolean;
 };
 
 export function createAuth(deps: AuthFactoryDeps) {
@@ -55,7 +59,7 @@ export function createAuth(deps: AuthFactoryDeps) {
     // ── Email & password ─────────────────────────────────────────
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      requireEmailVerification: !deps.disableEmailVerification,
       minPasswordLength: 8,
       maxPasswordLength: 128,
       sendResetPassword: async ({ user, url }) => {
@@ -64,15 +68,19 @@ export function createAuth(deps: AuthFactoryDeps) {
     },
 
     // ── Email verification ────────────────────────────────────────
-    emailVerification: {
-      sendVerificationEmail: async ({ user, url }) => {
-        void sendVerificationEmail({ email: user.email, url });
-      },
-      sendOnSignUp: true,
-      autoSignInAfterVerification: true,
-      expiresIn: 3600, // 1 hour
-      callbackURL: "/onboarding",
-    },
+    ...(deps.disableEmailVerification
+      ? {}
+      : {
+          emailVerification: {
+            sendVerificationEmail: async ({ user, url }) => {
+              void sendVerificationEmail({ email: user.email, url });
+            },
+            sendOnSignUp: true,
+            autoSignInAfterVerification: true,
+            expiresIn: 3600, // 1 hour
+            callbackURL: "/onboarding",
+          },
+        }),
 
     // ── Social / OAuth providers ────────────────────────────────
     ...(deps.socialProviders ? { socialProviders: deps.socialProviders } : {}),

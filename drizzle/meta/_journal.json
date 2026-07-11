@@ -15,6 +15,20 @@
       "when": 1783258269404,
       "tag": "0001_medical_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783771736711,
+      "tag": "0002_next_payback",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783772463144,
+      "tag": "0003_graceful_peter_quill",
+      "breakpoints": true
     }
   ]
 }
