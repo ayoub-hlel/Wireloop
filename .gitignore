@@ -80,6 +80,9 @@ graphify-out/
 # Local DB integrity tests (run before push)
 /tests/
 
+# Co-located unit tests (not needed to run app)
+src/lib/server/**/__tests__/
+
 # Local pnpm configuration
 .npmrc
 
