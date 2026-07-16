@@ -1,10 +1,14 @@
+import { sentrySvelteKit } from "@sentry/sveltekit";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  plugins: [tailwindcss(), sveltekit()],
+  plugins: [sentrySvelteKit({
+    org: "ws-consulting",
+    project: "javascript-sveltekit"
+  }), tailwindcss(), sveltekit()],
   
   define: {
     // Prevent process references in client code

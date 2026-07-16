@@ -97,3 +97,6 @@ gha-creds-*.json
 
 .wrangler
 .env
+
+# Sentry Config File
+.env.sentry-build-plugin

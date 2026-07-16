@@ -1,3 +1,5 @@
+import {sequence} from '@sveltejs/kit/hooks';
+import * as Sentry from '@sentry/sveltekit';
 import { getAuth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { setR2Binding } from '$lib/server/r2';
@@ -9,14 +11,14 @@ if (!building) {
   validateEnv();
 }
 
-export const handleError: HandleServerError = async ({ error, event }) => {
+export const handleError: HandleServerError = Sentry.handleErrorWithSentry(async ({ error, event }) => {
   console.error('SvelteKit error:', error, 'URL:', event.url.pathname);
   return {
     message: error instanceof Error ? error.message : String(error),
   };
-};
+});
 
-export const handle: Handle = async ({ event, resolve }) => {
+export const handle: Handle = sequence(Sentry.sentryHandle(), async ({ event, resolve }) => {
   // Wire Cloudflare R2 binding (avoids exposing access keys)
   if (!building && event.platform?.env?.R2) {
     setR2Binding(event.platform.env.R2);
@@ -46,4 +48,4 @@ export const handle: Handle = async ({ event, resolve }) => {
   event.locals.session ??= null;
   event.locals.user ??= null;
   return resolve(event);
-};
+});
