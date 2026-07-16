@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
-import { projects, settings, profiles, projectFiles } from '$lib/db/schema/projects';
+import { projects, settings, profiles, projectFiles, starredProjects } from '$lib/db/schema/projects';
 import { eq, and, sql } from 'drizzle-orm';
 import { generateId } from 'better-auth';
 import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
@@ -229,6 +229,17 @@ export async function POST({ request, locals }) {
           });
         }
         return json({ success: true, userId: locals.user.id });
+      }
+
+      case 'projects:starProject': {
+        await db.insert(starredProjects)
+          .values({
+            userId: locals.user.id,
+            projectId: data.projectId,
+            createdAt: new Date(),
+          })
+          .onConflictDoNothing();
+        return json({ success: true });
       }
 
       default:

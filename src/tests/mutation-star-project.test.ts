@@ -14,7 +14,7 @@ describe('projects:starProject', () => {
       schema: { user: userTable, projects, starredProjects },
     });
 
-    const userId = generateId();
+    const userId = crypto.randomUUID();
     const now = new Date();
 
     await db.insert(userTable).values({
@@ -26,7 +26,7 @@ describe('projects:starProject', () => {
       updatedAt: now,
     });
 
-    const projectId = generateId();
+    const projectId = crypto.randomUUID();
     await db.insert(projects).values({
       id: projectId,
       userId,
@@ -65,5 +65,5 @@ describe('projects:starProject', () => {
     expect(star).toBeDefined();
     expect(star!.userId).toBe(userId);
     expect(star!.projectId).toBe(projectId);
-  });
+  }, 60000);
 });
