@@ -18,6 +18,12 @@ const mutationSchemas = {
   'users:updateTutorialProgress': user.updateTutorial,
   'users:updateUserProfile': user.updateProfile,
   'users:syncUserProfile': user.syncProfile,
+  'projects:starProject': project.star,
+  'projects:unstarProject': project.unstar,
+  'projects:forkProject': project.fork,
+  'projects:trashProject': project.trash,
+  'projects:restoreProject': project.restore,
+  'projects:trackRecentProject': project.trackRecent,
 };
 
 export async function POST({ request, locals }) {

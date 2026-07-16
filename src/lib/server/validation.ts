@@ -53,6 +53,13 @@ export const project = {
   }).strict(),
 
   deleteFile: z.object({ projectId: uuid }).strict(),
+
+  star: z.object({ projectId: uuid }).strict(),
+  unstar: z.object({ projectId: uuid }).strict(),
+  fork: z.object({ projectId: uuid }).strict(),
+  trash: z.object({ projectId: uuid }).strict(),
+  restore: z.object({ projectId: uuid }).strict(),
+  trackRecent: z.object({ projectId: uuid }).strict(),
 };
 
 export const user = {
