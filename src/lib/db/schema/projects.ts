@@ -2,7 +2,7 @@
  * App data tables — mirrors the Convex schema but in Postgres.
  */
 import { pgTable, text, timestamp, integer, boolean, jsonb, index, pgEnum, primaryKey } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { user } from './auth';
 
 // ─── Custom Enums ───
@@ -42,12 +42,16 @@ export const projects = pgTable('projects', {
   orgId: text('org_id').references(() => organizations.id, { onDelete: 'set null' }),
   thumbnailUrl: text('thumbnail_url'),
   lastOpenedAt: timestamp('last_opened_at'),
+  deletedAt: timestamp('deleted_at'),
+  forkedFrom: text('forked_from').references(() => projects.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (t) => ({
-  userIdIdx: index().on(t.userId),
+  userIdDeletedAtIdx: index('user_id_deleted_at_idx').on(t.userId, t.deletedAt),
   publicIdx: index().on(t.isPublic),
   createdIdx: index().on(t.createdAt),
+  forkedFromIdx: index('forked_from_idx').on(t.forkedFrom),
+  deletedAtPartialIdx: index('deleted_at_partial_idx').on(t.deletedAt).where(sql`${t.deletedAt} IS NOT NULL`),
 }));
 
 // ─── Settings ───
@@ -154,6 +158,8 @@ export const projectRelations = relations(projects, ({ one, many }) => ({
   recentFor: many(recentProjects),
   sharedWith: many(sharedProjects),
   org: one(organizations, { fields: [projects.orgId], references: [organizations.id] }),
+  forkedFromProject: one(projects, { fields: [projects.forkedFrom], references: [projects.id], relationName: 'forkedFrom' }),
+  forks: many(projects, { relationName: 'forkedFrom' }),
 }));
 
 export const starredProjectsRelations = relations(starredProjects, ({ one }) => ({
