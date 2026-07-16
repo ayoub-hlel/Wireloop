@@ -29,6 +29,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
       '$lib': resolve(__dirname, 'src/lib'),
       '$app': resolve(__dirname, 'src/tests/mocks/app'),
+      '$env/dynamic/private': resolve(__dirname, 'src/tests/mocks/env/private.ts'),
     },
   },
 });
