@@ -8,6 +8,9 @@ Sentry.init({
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
+  // Skip OpenTelemetry setup — not supported in Cloudflare Workers
+  skipOpenTelemetrySetup: true,
+
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: import.meta.env.DEV,
 });

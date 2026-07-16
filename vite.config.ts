@@ -5,7 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [sentrySvelteKit({
     org: "ws-consulting",
-    project: "javascript-sveltekit"
+    project: "javascript-sveltekit",
+    autoInstrument: {
+      server: {
+        experimental: {
+          skipOpenTelemetrySetup: true,
+        },
+      },
+    },
   }), tailwindcss(), sveltekit()],
   
   define: {

@@ -242,6 +242,17 @@ export async function POST({ request, locals }) {
         return json({ success: true });
       }
 
+      case 'projects:unstarProject': {
+        await db.delete(starredProjects)
+          .where(
+            and(
+              eq(starredProjects.userId, locals.user.id),
+              eq(starredProjects.projectId, data.projectId),
+            ),
+          );
+        return json({ success: true });
+      }
+
       default:
         throw error(404, `Unknown mutation: ${name}`);
     }

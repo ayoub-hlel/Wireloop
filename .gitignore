@@ -83,6 +83,9 @@ graphify-out/
 # Co-located unit tests (not needed to run app)
 src/lib/server/**/__tests__/
 
+# Vitest mutation tests (DB-dependent, run against Neon temp branches)
+src/tests/
+
 # Local pnpm configuration
 .npmrc
 
