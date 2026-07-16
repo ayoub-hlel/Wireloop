@@ -3,7 +3,7 @@ export const trace = {
     return {
       startActiveSpan(_name: string, ...rest: unknown[]) {
         const fn = rest[rest.length - 1] as (...args: unknown[]) => unknown;
-        return fn({ end() {}, setAttribute() {}, setStatus() {}, recordException() {}, updateName() { return this } });
+        return fn({ end() {}, setAttribute() {}, setAttributes() {}, setStatus() {}, recordException() {}, updateName() { return this } });
       },
     };
   },
@@ -12,6 +12,15 @@ export const trace = {
 
 export const SpanStatusCode = { UNSET: 0, OK: 1, ERROR: 2 };
 
-export const context = {};
+export const propagation = {
+  extract(_carrier: unknown, _baggageHeaders?: unknown) { return {}; },
+  inject(_carrier: unknown) {},
+};
+
+export const context = {
+  active() { return {}; },
+  with(_ctx: unknown, fn: () => unknown) { return fn(); },
+  withValue(_ctx: unknown, _key: unknown, _value: unknown) { return {}; },
+};
 
 export const diag = { setLogger() {} };
