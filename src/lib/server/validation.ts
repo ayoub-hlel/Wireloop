@@ -95,6 +95,40 @@ export const user = {
   getProfile: z.object({ userId: uuid.optional() }).strict(),
 };
 
+export const organization = {
+  create: z.object({
+    name: z.string().min(1).max(200),
+    slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+    description: z.string().max(2000).optional().default(''),
+  }).strict(),
+
+  update: z.object({
+    orgId: uuid,
+    name: z.string().min(1).max(200).optional(),
+    slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+    description: z.string().max(2000).optional(),
+  }).strict(),
+
+  delete: z.object({ orgId: uuid }).strict(),
+
+  addMember: z.object({
+    orgId: uuid,
+    userId: uuid,
+    role: z.enum(['admin', 'member']).optional().default('member'),
+  }).strict(),
+
+  removeMember: z.object({
+    orgId: uuid,
+    userId: uuid,
+  }).strict(),
+
+  getUserOrgs: z.object({}).strict(),
+
+  getMembers: z.object({ orgId: uuid }).strict(),
+
+  getOrgProjects: z.object({ orgId: uuid }).strict(),
+};
+
 export const actionEnvelope = z.object({
   name: z.string().min(1),
   args: z.record(z.string(), z.unknown()).optional().default({}),

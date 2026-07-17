@@ -1,10 +1,10 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
-import { projects, settings, profiles, projectFiles } from '$lib/db/schema/projects';
-import { eq, and, desc } from 'drizzle-orm';
+import { projects, settings, profiles, projectFiles, starredProjects, recentProjects, organizations, orgMembers } from '$lib/db/schema/projects';
+import { eq, and, desc, isNotNull } from 'drizzle-orm';
 import { getFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
-import { actionEnvelope, project, user } from '$lib/server/validation';
+import { actionEnvelope, project, user, organization } from '$lib/server/validation';
 
 const querySchemas = {
   'projects:getProject': project.get,
@@ -12,6 +12,9 @@ const querySchemas = {
   'projects:getPublicProjects': project.getPublicList,
   'projects:getProjectFile': project.getFile,
   'users:getUserProfile': user.getProfile,
+  'org:getUserOrgs': organization.getUserOrgs,
+  'org:getMembers': organization.getMembers,
+  'org:getOrgProjects': organization.getOrgProjects,
 };
 
 export async function POST({ request, locals }) {
@@ -142,6 +145,88 @@ export async function POST({ request, locals }) {
         });
       }
 
+      case 'projects:getStarredProjects': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const starredRows = await db
+          .select()
+          .from(starredProjects)
+          .innerJoin(projects, eq(starredProjects.projectId, projects.id))
+          .where(eq(starredProjects.userId, locals.user.id))
+          .orderBy(desc(starredProjects.createdAt));
+        return json(starredRows.map(r => r.projects));
+      }
+
+      case 'projects:getTrashedProjects': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const trashedRows = await db
+          .select()
+          .from(projects)
+          .where(
+            and(
+              eq(projects.userId, locals.user.id),
+              isNotNull(projects.deletedAt),
+            ),
+          )
+          .orderBy(desc(projects.deletedAt));
+        return json(trashedRows);
+      }
+
+      case 'projects:getRecentProjects': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const recentRows = await db
+          .select()
+          .from(recentProjects)
+          .innerJoin(projects, eq(recentProjects.projectId, projects.id))
+          .where(eq(recentProjects.userId, locals.user.id))
+          .orderBy(desc(recentProjects.lastAccessedAt))
+          .limit(20);
+        return json(recentRows.map(r => r.projects));
+      }
+
+      case 'org:getUserOrgs': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const userOrgs = await db
+          .select()
+          .from(organizations)
+          .innerJoin(orgMembers, eq(organizations.id, orgMembers.orgId))
+          .where(eq(orgMembers.userId, locals.user.id))
+          .orderBy(desc(organizations.createdAt));
+        return json(userOrgs.map(r => r.organizations));
+      }
+
+      case 'org:getMembers': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const memberCheck = await getOrgRole(db, data.orgId, locals.user.id);
+        if (!memberCheck) return json([]);
+        const members = await db
+          .select()
+          .from(orgMembers)
+          .innerJoin(profiles, eq(orgMembers.userId, profiles.userId))
+          .where(eq(orgMembers.orgId, data.orgId))
+          .orderBy(orgMembers.createdAt);
+        return json(members.map(r => ({
+          userId: r.org_members.userId,
+          role: r.org_members.role,
+          createdAt: r.org_members.createdAt,
+          name: r.profiles.name,
+          email: r.profiles.email,
+          profileImage: r.profiles.profileImage,
+          username: r.profiles.username,
+        })));
+      }
+
+      case 'org:getOrgProjects': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const projectCheck = await getOrgRole(db, data.orgId, locals.user.id);
+        if (!projectCheck) return json([]);
+        const orgProjects = await db
+          .select()
+          .from(projects)
+          .where(eq(projects.orgId, data.orgId))
+          .orderBy(desc(projects.createdAt));
+        return json(orgProjects);
+      }
+
       default:
         throw error(404, `Unknown query: ${name}`);
     }
@@ -151,4 +236,12 @@ export async function POST({ request, locals }) {
     }
     throw e;
   }
+}
+
+async function getOrgRole(db: any, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+  const org = await db.select().from(organizations).where(eq(organizations.id, orgId)).then(r => r[0]);
+  if (!org) return null;
+  if (org.ownerId === userId) return 'owner';
+  const member = await db.select().from(orgMembers).where(and(eq(orgMembers.orgId, orgId), eq(orgMembers.userId, userId))).then(r => r[0]);
+  return member?.role ?? null;
 }

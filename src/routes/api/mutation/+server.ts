@@ -1,11 +1,11 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
-import { projects, settings, profiles, projectFiles, starredProjects } from '$lib/db/schema/projects';
+import { projects, settings, profiles, projectFiles, starredProjects, recentProjects, organizations, orgMembers } from '$lib/db/schema/projects';
 import { eq, and, sql } from 'drizzle-orm';
 import { generateId } from 'better-auth';
 import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
-import { actionEnvelope, project, user } from '$lib/server/validation';
+import { actionEnvelope, project, user, organization } from '$lib/server/validation';
 
 const mutationSchemas = {
   'projects:createProject': project.create,
@@ -24,6 +24,11 @@ const mutationSchemas = {
   'projects:trashProject': project.trash,
   'projects:restoreProject': project.restore,
   'projects:trackRecentProject': project.trackRecent,
+  'org:create': organization.create,
+  'org:update': organization.update,
+  'org:delete': organization.delete,
+  'org:addMember': organization.addMember,
+  'org:removeMember': organization.removeMember,
 };
 
 export async function POST({ request, locals }) {
@@ -253,6 +258,140 @@ export async function POST({ request, locals }) {
         return json({ success: true });
       }
 
+      case 'projects:forkProject': {
+        const source = await db.select().from(projects).where(eq(projects.id, data.projectId)).then(r => r[0]);
+        if (!source) throw error(404, 'Not found');
+        const id = generateId();
+        const now = new Date();
+        await db.insert(projects).values({
+          id,
+          userId: locals.user.id,
+          name: source.name,
+          description: source.description,
+          workspace: source.workspace,
+          boardType: source.boardType,
+          isPublic: false,
+          tags: source.tags,
+          likes: 0,
+          views: 0,
+          orgId: source.orgId,
+          thumbnailUrl: source.thumbnailUrl,
+          forkedFrom: source.id,
+          createdAt: now,
+          updatedAt: now,
+        });
+        const sourceFiles = await db.select().from(projectFiles).where(eq(projectFiles.projectId, source.id));
+        for (const f of sourceFiles) {
+          await db.insert(projectFiles).values({
+            id: generateId(),
+            projectId: id,
+            userId: locals.user.id,
+            filename: f.filename,
+            contentType: f.contentType,
+            size: f.size,
+            checksum: f.checksum,
+            storageId: f.storageId,
+            uploadedAt: now,
+          });
+        }
+        return json({ success: true, projectId: id });
+      }
+
+      case 'projects:trashProject': {
+        const row = await db.select().from(projects).where(eq(projects.id, data.projectId)).then(r => r[0]);
+        if (!row || row.userId !== locals.user.id) throw error(404, 'Not found');
+        await db.update(projects).set({ deletedAt: new Date() }).where(eq(projects.id, data.projectId));
+        return json({ success: true });
+      }
+
+      case 'projects:restoreProject': {
+        const row = await db.select().from(projects).where(eq(projects.id, data.projectId)).then(r => r[0]);
+        if (!row || row.userId !== locals.user.id) throw error(404, 'Not found');
+        await db.update(projects).set({ deletedAt: null }).where(eq(projects.id, data.projectId));
+        return json({ success: true });
+      }
+
+      case 'projects:trackRecentProject': {
+        const now = new Date();
+        await db.insert(recentProjects)
+          .values({
+            userId: locals.user.id,
+            projectId: data.projectId,
+            lastAccessedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: [recentProjects.userId, recentProjects.projectId],
+            set: { lastAccessedAt: now },
+          });
+        return json({ success: true });
+      }
+
+      case 'org:create': {
+        const id = generateId();
+        let slug = data.slug || slugify(data.name);
+        const existingSlug = await db.select().from(organizations).where(eq(organizations.slug, slug)).then(r => r[0]);
+        if (existingSlug) {
+          slug = slug + '-' + generateId().slice(0, 6);
+        }
+        const now = new Date();
+        await db.insert(organizations).values({
+          id, name: data.name, slug, description: data.description,
+          ownerId: locals.user.id, createdAt: now, updatedAt: now,
+        });
+        await db.insert(orgMembers).values({
+          orgId: id, userId: locals.user.id, role: 'owner', createdAt: now,
+        });
+        return json({ success: true, orgId: id });
+      }
+
+      case 'org:update': {
+        const updateRole = await getOrgRole(db, data.orgId, locals.user.id);
+        if (updateRole !== 'owner') throw error(403, 'Forbidden');
+        const org = await db.select().from(organizations).where(eq(organizations.id, data.orgId)).then(r => r[0]);
+        if (!org) throw error(404, 'Not found');
+        await db.update(organizations)
+          .set({
+            name: data.name ?? org.name,
+            slug: data.slug ?? org.slug,
+            description: data.description ?? org.description,
+            updatedAt: new Date(),
+          })
+          .where(eq(organizations.id, data.orgId));
+        return json({ success: true });
+      }
+
+      case 'org:delete': {
+        const deleteRole = await getOrgRole(db, data.orgId, locals.user.id);
+        if (deleteRole !== 'owner') throw error(403, 'Forbidden');
+        await db.delete(organizations).where(eq(organizations.id, data.orgId));
+        return json({ success: true });
+      }
+
+      case 'org:addMember': {
+        const addRole = await getOrgRole(db, data.orgId, locals.user.id);
+        if (addRole !== 'owner' && addRole !== 'admin') throw error(403, 'Forbidden');
+        await db.insert(orgMembers)
+          .values({ orgId: data.orgId, userId: data.userId, role: data.role, createdAt: new Date() })
+          .onConflictDoNothing({ target: [orgMembers.orgId, orgMembers.userId] });
+        return json({ success: true });
+      }
+
+      case 'org:removeMember': {
+        const removeRole = await getOrgRole(db, data.orgId, locals.user.id);
+        if (removeRole !== 'owner' && removeRole !== 'admin') throw error(403, 'Forbidden');
+        const target = await db.select().from(orgMembers).where(and(
+          eq(orgMembers.orgId, data.orgId),
+          eq(orgMembers.userId, data.userId),
+        )).then(r => r[0]);
+        if (!target) return json({ success: true });
+        if (target.role === 'owner') throw error(403, 'Cannot remove owner');
+        await db.delete(orgMembers).where(and(
+          eq(orgMembers.orgId, data.orgId),
+          eq(orgMembers.userId, data.userId),
+        ));
+        return json({ success: true });
+      }
+
       default:
         throw error(404, `Unknown mutation: ${name}`);
     }
@@ -262,6 +401,18 @@ export async function POST({ request, locals }) {
     }
     throw e;
   }
+}
+
+async function getOrgRole(db: any, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+  const org = await db.select().from(organizations).where(eq(organizations.id, orgId)).then(r => r[0]);
+  if (!org) return null;
+  if (org.ownerId === userId) return 'owner';
+  const member = await db.select().from(orgMembers).where(and(eq(orgMembers.orgId, orgId), eq(orgMembers.userId, userId))).then(r => r[0]);
+  return member?.role ?? null;
+}
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
 function simpleChecksum(data: string): string {
