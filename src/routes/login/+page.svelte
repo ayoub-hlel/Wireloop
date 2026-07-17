@@ -23,7 +23,7 @@
     unverified = false;
     try {
       await authStore.signInEmail(email, password);
-      await goto("/studio");
+      await goto("/projects");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Sign in failed";
       if (msg.toLowerCase().includes("verify") || msg.toLowerCase().includes("unverified")) {

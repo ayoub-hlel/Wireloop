@@ -47,7 +47,7 @@ function createAuthStore() {
 
     /** Sign in with a social provider */
     async signInSocial(provider: 'google' | 'github') {
-      await authClient.signIn.social({ provider, callbackURL: "/studio" });
+      await authClient.signIn.social({ provider, callbackURL: "/projects" });
     },
 
     /** Sign in with email + password */

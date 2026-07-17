@@ -110,8 +110,8 @@
     }
   }
 
-  async function goToStudio() {
-    await goto("/studio");
+  async function goToProjects() {
+    await goto("/projects");
   }
 </script>
 
@@ -174,7 +174,7 @@
       {:else if done}
         <div class="flex flex-col gap-4">
           <p class="text-sm text-muted-foreground text-center">Your account is ready. Start building.</p>
-          <Button class="w-full" onclick={goToStudio}>Go to Studio</Button>
+          <Button class="w-full" onclick={goToProjects}>Get Started</Button>
         </div>
       {:else}
         <form onsubmit={(e) => { e.preventDefault(); completeProfile(); }} class="flex flex-col gap-4">
