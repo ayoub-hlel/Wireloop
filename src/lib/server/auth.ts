@@ -39,6 +39,7 @@ export function getAuth(baseURL?: string) {
           "https://*.pages.dev",
         ],
         socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
+        disableEmailVerification: env.NODE_ENV === 'development',
         extraPlugins: [sveltekitCookies(getRequestEvent)],
       });
     } catch (e) {
