@@ -5,9 +5,12 @@
   import { page } from '$app/stores';
   import authStore from '../stores/auth.store';
 
+  import { initializeApiClient } from '../stores/api.client';
+
   let { children }: { children: Snippet } = $props();
 
   onMount(() => {
+    initializeApiClient();
     const serverSession = $page.data.session;
     const serverUser = $page.data.user;
 

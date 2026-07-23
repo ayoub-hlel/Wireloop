@@ -60,6 +60,8 @@ export const project = {
   trash: z.object({ projectId: uuid }).strict(),
   restore: z.object({ projectId: uuid }).strict(),
   trackRecent: z.object({ projectId: uuid }).strict(),
+
+  getDrafts: z.object({}).strict(),
 };
 
 export const user = {

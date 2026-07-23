@@ -4,23 +4,16 @@
   import { lessons } from '../../../lessons/lessons';
   import type { LessonContainer, Lesson } from '../../../lessons/lessons';
 
-  import { loadProject } from '../../../core/blockly/helpers/workspace.helper';
-  import { getApiClient } from '../../../stores/api.client';
-  import type { Project } from '../../../types/arduino-sim';
-
   import { onConfirm, onErrorMessage } from '../../../help/alerts';
   import projectStore from '../../../stores/project.store';
   import chunk from 'lodash/chunk';
 
   import Sidebar from './Sidebar.svelte';
-  import type { OrgInfo } from '../../../stores/org.store';
-  import orgStore from '../../../stores/org.store';
+  import orgStore, { type OrgInfo } from '../../../stores/org.store';
   import authStore from '../../../stores/auth.store';
+  import { createDashboard } from './dashboard.svelte.ts';
 
   const unSubList: (() => void)[] = [];
-  let projectList: [Project, string][] = $state([]);
-  let searchList: [Project, string][] = $state([]);
-  let searchTerm = $state('');
   let lessonList: Lesson[] = lessons.reduce((acc: Lesson[], lessonContainer: LessonContainer) => {
     return [...acc, ...lessonContainer.lessons];
   }, []);
@@ -33,25 +26,21 @@
   let userEmail = $state('');
   let userImage = $state<string | null>(null);
 
-  let drafts = $state<{ id: string; name: string }[]>([]);
+  const dashboard = createDashboard();
+  let searchTerm = $state('');
+  let projectList = $derived(dashboard.projects.map(p => ({ id: p.id, name: p.name, updatedAt: p.updatedAt })));
+  let searchList = $derived(
+    searchTerm === ''
+      ? projectList
+      : projectList.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+  let drafts = $derived(dashboard.projects.map(p => ({ id: p.id, name: p.name })));
   let resources = $state<{ label: string; href: string }[]>([
     { label: 'Documentation', href: '/docs' },
     { label: 'Community', href: '/community' },
   ]);
-  let trash = $state<{ id: string; name: string }[]>([]);
-  let starred = $state<{ id: string; name: string }[]>([]);
-
-  $effect(() => { filterSearch(searchTerm); });
-
-  function filterSearch(term: string) {
-    if (term === '') {
-      searchList = [...projectList];
-      return;
-    }
-    searchList = projectList.filter(([p]) =>
-      p.name.toLowerCase().includes(term.toLowerCase())
-    );
-  }
+  let trash = $derived(dashboard.trashed.map(p => ({ id: p.id, name: p.name })));
+  let starred = $derived(dashboard.starred.map(p => ({ id: p.id, name: p.name })));
 
   async function changeProject(e: Event) {
     const target = e.target as HTMLInputElement;
@@ -89,55 +78,26 @@
         userName = auth.user?.name ?? '';
         userEmail = auth.user?.email ?? '';
         userImage = auth.user?.image ?? null;
-        await updateProjectList();
-        return;
+        await dashboard.init();
       }
-      projectList = [];
     });
 
     unSubOrg = orgStore.subscribe(state => {
       orgs = state.orgs;
       selectedOrgId = state.selectedOrgId;
     });
-    orgStore.fetchOrgs();
 
     unSubList.push(unSubAuth);
     unSubList.push(unSubOrg);
   });
 
-  async function updateProjectList() {
-    if (!currentUid) return;
-    try {
-      const projects = await getApiClient().query('projects:getUserProjects', { userId: currentUid });
-      projectList = (projects || []).map((p: Project) => [p, p.id] as [Project, string]);
-      projectList = [...projectList];
-      searchList = [...projectList];
-    } catch (e: unknown) {
-      onErrorMessage('Please refresh the page and try again.', e);
-    }
-  }
-
   onDestroy(() => {
     unSubList.forEach((s) => s());
   });
 
-  async function onDeleteProject(projectId: string) {
-    if (!currentUid) return;
-    if (!(await onConfirm('Are you want to delete this project?'))) return;
-    try {
-      await getApiClient().mutation('projects:deleteProject', { projectId });
-      await updateProjectList();
-    } catch (e: unknown) {
-      onErrorMessage('Please try again in 5 minutes.', e);
-    }
-  }
-
   async function openProject(projectId: string) {
-    await goto(`/studio?projectid=${projectId}`);
-    const project = await getApiClient().query('projects:getProject', { projectId });
-    const file = (await getApiClient().query('projects:getProjectFile', { projectId, userId: currentUid! }))?.content || '';
-    loadProject(file);
-    projectStore.set({ project: project as any, projectId });
+    if (!projectId) return;
+    await dashboard.open(projectId);
   }
 
   function formatDate(timestamp: Date | string | null): string {
@@ -147,9 +107,9 @@
     return date.toDateString();
   }
 
-  function onSelectOrg(orgId: string | null) {
+  async function onSelectOrg(orgId: string | null) {
     selectedOrgId = orgId;
-    orgStore.setSelectedOrg(orgId);
+    await dashboard.setOrg(orgId);
   }
 
   async function handleSignOut() {
@@ -195,20 +155,20 @@
   <main class="main-content">
     {#if projectList.length > 0}
       <section class="project-grid">
-        {#each searchList as [project, projectId], pi (pi)}
+        {#each searchList as project (project.id)}
           <div class="project-card">
             <div class="project-card-body">
               <h3 class="project-name">{project.name}</h3>
-              <p class="project-date">{formatDate(project.updated)}</p>
+              <p class="project-date">{formatDate(project.updatedAt)}</p>
             </div>
             <div class="project-card-actions">
-              <button type="button" class="open-btn" onclick={() => openProject(projectId)}>
+              <button type="button" class="open-btn" onclick={() => openProject(project.id)}>
                 Open
               </button>
               <button
                 type="button"
                 class="delete-btn"
-                onclick={() => onDeleteProject(projectId)}
+                onclick={() => dashboard.trash(project.id)}
                 aria-label="Delete project: {project.name}"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
