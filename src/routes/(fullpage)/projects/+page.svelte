@@ -155,6 +155,7 @@
       {#if dashboard.view === 'grid'}
         <ProjectGrid
           projects={dashboard.visible}
+          starredIds={dashboard.starred.map(p => p.id)}
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
           onFork={(id) => dashboard.fork(id)}

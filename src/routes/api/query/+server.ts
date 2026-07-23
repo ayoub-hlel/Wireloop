@@ -8,8 +8,6 @@ import { actionEnvelope, project, user, organization } from '$lib/server/validat
 
 const querySchemas = {
   'projects:getProject': project.get,
-  'projects:getPublicProject': project.getPublic,
-  'projects:getPublicProjects': project.getPublicList,
   'projects:getProjectFile': project.getFile,
   'projects:getDrafts': project.getDrafts,
   'users:getUserProfile': user.getProfile,
@@ -29,16 +27,6 @@ export async function POST({ request, locals }) {
     const data: any = schema ? validate(schema, args) : args;
 
     switch (name) {
-      case 'projects:getUserProjects': {
-        if (!locals.user) throw error(401, 'Unauthorized');
-        const rows = await db
-          .select()
-          .from(projects)
-          .where(eq(projects.userId, locals.user.id))
-          .orderBy(desc(projects.createdAt));
-        return json(rows);
-      }
-
       case 'projects:getProject': {
         const row = await db
           .select()
@@ -48,25 +36,6 @@ export async function POST({ request, locals }) {
         if (!row) return json(null);
         if (row.userId !== locals.user?.id && !row.isPublic) return json(null);
         return json(row);
-      }
-
-      case 'projects:getPublicProject': {
-        const row = await db
-          .select()
-          .from(projects)
-          .where(and(eq(projects.id, data.projectId), eq(projects.isPublic, true)))
-          .then(r => r[0] ?? null);
-        return json(row);
-      }
-
-      case 'projects:getPublicProjects': {
-        const rows = await db
-          .select()
-          .from(projects)
-          .where(eq(projects.isPublic, true))
-          .orderBy(desc(projects.createdAt))
-          .limit(data.limit ?? 20);
-        return json(rows);
       }
 
       case 'projects:getProjectFile': {

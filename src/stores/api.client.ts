@@ -86,24 +86,6 @@ export const isConnected: Readable<boolean> = derived(connectionState, ($s) => $
 export const isLoading: Readable<boolean> = derived(connectionState, ($s) => $s.isLoading);
 export const error: Readable<string | null> = derived(connectionState, ($s) => $s.error);
 
-// ── Reactive helpers ──
-export function createQuery<T>(queryName: string, args: Record<string, unknown> = {}): Readable<{
-  data: T | null;
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: number;
-}> {
-  const store = writable({ data: null as T | null, isLoading: true, error: null as string | null, lastUpdated: 0 });
-
-  if (browser && client) {
-    client.query(queryName, args)
-      .then(data => store.set({ data, isLoading: false, error: null, lastUpdated: Date.now() }))
-      .catch(err => store.set({ data: null, isLoading: false, error: err.message, lastUpdated: Date.now() }));
-  }
-
-  return { subscribe: store.subscribe };
-}
-
 export function createMutation<TArgs, TResult>(mutationName: string) {
   return async (args: TArgs): Promise<TResult> => {
     if (!client) throw new Error('DB client not initialized');

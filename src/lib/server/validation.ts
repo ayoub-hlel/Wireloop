@@ -34,12 +34,6 @@ export const project = {
 
   get: z.object({ projectId: uuid }).strict(),
 
-  getPublic: z.object({ projectId: uuid }).strict(),
-
-  getPublicList: z.object({
-    limit: z.number().int().min(1).max(100).optional().default(20),
-  }).strict(),
-
   getFile: z.object({
     projectId: uuid,
     userId: uuid.optional(),

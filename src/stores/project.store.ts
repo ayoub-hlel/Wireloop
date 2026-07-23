@@ -1,7 +1,7 @@
-import { writable, derived, type Readable } from "svelte/store";
+import { writable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
-import { getApiClient, createQuery, createMutation } from "./api.client";
+import { getApiClient, createMutation } from "./api.client";
 
 interface ProjectState {
   project: Project | null;
@@ -108,104 +108,11 @@ export async function saveCurrentProject(workspace: string): Promise<void> {
   }
 }
 
-export async function saveProjectWorkspace(workspace: string, options: {
-  autoSave?: boolean;
-  debounceMs?: number;
-} = {}): Promise<void> {
-  const { autoSave = true, debounceMs = 1000 } = options;
-
-  if (autoSave) {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).autoSaveTimeout) {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-      clearTimeout((window as any).autoSaveTimeout);
-    }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).autoSaveTimeout = setTimeout(async () => {
-      try {
-        await saveCurrentProject(workspace);
-      } catch (error) {
-        console.error('Auto-save failed:', error);
-      }
-    }, debounceMs);
-  } else {
-    await saveCurrentProject(workspace);
-  }
-}
-
-export async function createNewProject(
-  name: string,
-  workspace: string,
-  isPublic: boolean = false
-): Promise<string> {
-  try {
-    const project = await createProject({
-      name,
-      workspace,
-      isPublic
-    });
-
-    projectStore.set({
-      project,
-      projectId: project.id,
-      isLoading: false,
-      error: null
-    });
-
-    return project.id;
-  } catch (error) {
-    console.error('Error creating project:', error);
-    throw error;
-  }
-}
-
 function getCurrentProjectState(): ProjectState {
   let currentState: ProjectState = initialState;
   const unsubscribe = projectStore.subscribe(state => { currentState = state; });
   unsubscribe();
   return currentState;
-}
-
-export function getUserProjects(userId: string): Readable<{
-  data: Project[] | null;
-  isLoading: boolean;
-  error: string | null;
-}> {
-  const query = createQuery<Project[]>('projects:getUserProjects', { userId });
-
-  return derived([query], ([$query]) => ({
-    data: $query.data,
-    isLoading: $query.isLoading,
-    error: $query.error ?? null
-  }));
-}
-
-export function getPublicProjects(): Readable<{
-  data: Project[] | null;
-  isLoading: boolean;
-  error: string | null;
-}> {
-  const query = createQuery<Project[]>('projects:getPublicProjects');
-
-  return derived([query], ([$query]) => ({
-    data: $query.data,
-    isLoading: $query.isLoading,
-    error: $query.error ?? null
-  }));
-}
-
-export function setAutoSave(enabled: boolean): void {
-  if (enabled) {
-    console.log('Auto-save enabled for current project');
-  } else {
-    console.log('Auto-save disabled for current project');
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).autoSaveTimeout) {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-      clearTimeout((window as any).autoSaveTimeout);
-    }
-  }
 }
 
 const enhancedProjectStore = {
@@ -220,14 +127,9 @@ const enhancedProjectStore = {
   },
   loadProject,
   saveCurrentProject,
-  createNewProject,
-  saveProjectWorkspace,
   createProject,
   updateProject,
   deleteProject,
-  getUserProjects,
-  getPublicProjects,
-  setAutoSave,
 };
 
 export default enhancedProjectStore;
