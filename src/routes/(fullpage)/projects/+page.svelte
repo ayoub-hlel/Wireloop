@@ -9,6 +9,9 @@
   import chunk from 'lodash/chunk';
 
   import Sidebar from './Sidebar.svelte';
+  import GridToolbar from './GridToolbar.svelte';
+  import ProjectGrid from './ProjectGrid.svelte';
+  import ProjectList from './ProjectList.svelte';
   import orgStore, { type OrgInfo } from '../../../stores/org.store';
   import authStore from '../../../stores/auth.store';
   import { createDashboard } from './dashboard.svelte.ts';
@@ -28,12 +31,6 @@
 
   const dashboard = createDashboard();
   let searchTerm = $state('');
-  let projectList = $derived(dashboard.projects.map(p => ({ id: p.id, name: p.name, updatedAt: p.updatedAt })));
-  let searchList = $derived(
-    searchTerm === ''
-      ? projectList
-      : projectList.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
   let drafts = $derived(dashboard.projects.map(p => ({ id: p.id, name: p.name })));
   let resources = $state<{ label: string; href: string }[]>([
     { label: 'Documentation', href: '/docs' },
@@ -100,13 +97,6 @@
     await dashboard.open(projectId);
   }
 
-  function formatDate(timestamp: Date | string | null): string {
-    if (timestamp instanceof Date) return timestamp.toDateString();
-    if (!timestamp) return '';
-    const date = new Date(timestamp);
-    return date.toDateString();
-  }
-
   async function onSelectOrg(orgId: string | null) {
     selectedOrgId = orgId;
     await dashboard.setOrg(orgId);
@@ -153,30 +143,33 @@
   </header>
 
   <main class="main-content">
-    {#if projectList.length > 0}
-      <section class="project-grid">
-        {#each searchList as project (project.id)}
-          <div class="project-card">
-            <div class="project-card-body">
-              <h3 class="project-name">{project.name}</h3>
-              <p class="project-date">{formatDate(project.updatedAt)}</p>
-            </div>
-            <div class="project-card-actions">
-              <button type="button" class="open-btn" onclick={() => openProject(project.id)}>
-                Open
-              </button>
-              <button
-                type="button"
-                class="delete-btn"
-                onclick={() => dashboard.trash(project.id)}
-                aria-label="Delete project: {project.name}"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              </button>
-            </div>
-          </div>
-        {/each}
-      </section>
+    {#if dashboard.visible.length > 0}
+      <GridToolbar
+        view={dashboard.view}
+        sort={dashboard.sort}
+        onViewChange={(v) => dashboard.view = v}
+        onSortChange={(s) => dashboard.setSort(s)}
+        onSearch={(q) => dashboard.search = q}
+      />
+
+      {#if dashboard.view === 'grid'}
+        <ProjectGrid
+          projects={dashboard.visible}
+          onOpen={(id) => openProject(id)}
+          onStar={(id) => dashboard.toggleStar(id)}
+          onFork={(id) => dashboard.fork(id)}
+        />
+      {:else}
+        <ProjectList
+          projects={dashboard.visible}
+          starredIds={dashboard.starred.map(p => p.id)}
+          sort={dashboard.sort}
+          sortDir={dashboard.sortDir}
+          onSortChange={(s) => dashboard.setSort(s)}
+          onOpen={(id) => openProject(id)}
+          onStar={(id) => dashboard.toggleStar(id)}
+        />
+      {/if}
     {:else if isLoggedIn}
       <section class="empty-state">
         <p>No projects yet. Import one above or start with a demo project below.</p>
@@ -279,80 +272,6 @@
     flex: 1;
     padding: 1.5rem;
     overflow-y: auto;
-  }
-
-  .project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  .project-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 1px solid hsl(var(--border));
-    border-radius: 0.5rem;
-    padding: 1rem;
-    background-color: hsl(var(--card));
-  }
-
-  .project-card-body {
-    margin-bottom: 0.75rem;
-  }
-
-  .project-name {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.25rem;
-    color: hsl(var(--card-foreground));
-  }
-
-  .project-date {
-    font-size: 0.8rem;
-    color: hsl(var(--muted-foreground));
-    margin: 0;
-  }
-
-  .project-card-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .open-btn {
-    padding: 0.375rem 1rem;
-    border-radius: 0.375rem;
-    border: 1px solid hsl(var(--border));
-    background: transparent;
-    color: hsl(var(--foreground));
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.15s;
-  }
-
-  .open-btn:hover {
-    background-color: hsl(var(--accent));
-  }
-
-  .delete-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.375rem;
-    border: none;
-    background: transparent;
-    color: hsl(var(--muted-foreground));
-    cursor: pointer;
-  }
-
-  .delete-btn:hover {
-    background-color: hsl(var(--destructive) / 0.1);
-    color: hsl(var(--destructive));
   }
 
   .empty-state {

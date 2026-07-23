@@ -4,6 +4,7 @@ import { loadProject } from '../../../core/blockly/helpers/workspace.helper';
 import { getApiClient } from '../../../stores/api.client';
 import orgStore from '../../../stores/org.store';
 import projectStore from '../../../stores/project.store';
+import debounce from 'lodash/debounce';
 
 export interface DashboardProject {
   id: string;
@@ -41,6 +42,30 @@ export function createDashboard() {
   let _view = $state<'grid' | 'list'>('grid');
   let _sort = $state<'updatedAt' | 'name'>('updatedAt');
   let seq = 0;
+  let _debouncedSearch = $state('');
+  let _sortDir = $state<'asc' | 'desc'>('desc');
+  const applySearch = debounce((v: string) => { _debouncedSearch = v; }, 250);
+
+  const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
+  let visible = $derived.by(() => {
+    let list = projects;
+    const q = _debouncedSearch.trim().toLowerCase();
+    if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
+    const dir = _sortDir === 'asc' ? 1 : -1;
+    return [...list].sort((a, b) => {
+      if (_sort === 'name') return collator.compare(a.name, b.name) * dir;
+      return (new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()) * dir;
+    });
+  });
+
+  function setSort(col: 'updatedAt' | 'name'): void {
+    if (_sort === col) {
+      _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      _sort = col;
+      _sortDir = col === 'name' ? 'asc' : 'desc';
+    }
+  }
 
   async function fetchSidebarData(): Promise<void> {
     const [draftsRes, starredRes, trashedRes] = await Promise.allSettled([
@@ -195,13 +220,15 @@ export function createDashboard() {
     get orgId() { return orgId; },
     get loading() { return loading; },
     get search() { return _search; },
-    set search(v) { _search = v; },
+    set search(v) { _search = v; applySearch(v); },
     get view() { return _view; },
     set view(v) { _view = v as 'grid' | 'list'; },
     get sort() { return _sort; },
-    set sort(v) { _sort = v as 'updatedAt' | 'name'; },
+    get sortDir() { return _sortDir; },
+    get visible() { return visible; },
     init,
     setOrg,
+    setSort,
     toggleStar,
     trash,
     restore,
