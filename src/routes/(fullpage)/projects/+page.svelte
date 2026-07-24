@@ -125,6 +125,7 @@
   {trash}
   {starred}
   onSignOut={handleSignOut}
+  onRestore={(id) => dashboard.restore(id)}
 />
 
 <div class="main-area">
@@ -159,6 +160,7 @@
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
           onFork={(id) => dashboard.fork(id)}
+          onTrash={(id) => dashboard.trash(id)}
         />
       {:else}
         <ProjectList
@@ -169,6 +171,7 @@
           onSortChange={(s) => dashboard.setSort(s)}
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
+          onTrash={(id) => dashboard.trash(id)}
         />
       {/if}
     {:else if isLoggedIn}

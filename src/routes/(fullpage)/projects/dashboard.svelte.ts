@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import type { Project } from '../../../types/models';
 import { onErrorMessage } from '../../../help/alerts';
 import { loadProject } from '../../../core/blockly/helpers/workspace.helper';
 import { getApiClient } from '../../../stores/api.client';
@@ -196,7 +197,7 @@ export function createDashboard() {
       // tracking failure should not block navigation
     }
 
-    const project = (await client().query('projects:getProject', { projectId })) as Record<string, unknown> | null;
+    const project = (await client().query('projects:getProject', { projectId })) as Project | null;
     if (!project) {
       onErrorMessage('Project not found');
       return;
@@ -209,7 +210,7 @@ export function createDashboard() {
       loadProject(workspace);
     }
 
-    projectStore.set({ project, projectId, isLoading: false, error: null });
+    projectStore.set({ project, projectId });
     await goto(`/studio?projectid=${encodeURIComponent(projectId)}`);
   }
 

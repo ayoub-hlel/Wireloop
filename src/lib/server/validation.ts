@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-const uuid = z.string().uuid();
+// ponytail: better-auth generateId() returns 32-char alnum IDs, not UUIDs.
+const uuid = z.string().min(1).max(128);
 const boardType = z.enum(['uno', 'nano', 'mega']);
 const theme = z.enum(['light', 'dark']);
 const httpUrl = z.string().url().refine(

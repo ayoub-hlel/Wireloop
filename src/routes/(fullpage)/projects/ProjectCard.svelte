@@ -2,6 +2,7 @@
   import type { DashboardProject } from './dashboard.svelte.ts';
   import Star from '@lucide/svelte/icons/star';
   import GitFork from '@lucide/svelte/icons/git-fork';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
 
   type Props = {
     project: DashboardProject;
@@ -9,6 +10,7 @@
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onFork?: (id: string) => void;
+    onTrash?: (id: string) => void;
   };
 
   let {
@@ -17,6 +19,7 @@
     onOpen = () => {},
     onStar = () => {},
     onFork = () => {},
+    onTrash = () => {},
   }: Props = $props();
 
   function dateStr(d: Date | string | null): string {
@@ -64,6 +67,13 @@
       onclick={(e) => { e.stopPropagation(); onFork(project.id); }}
     >
       <GitFork class="card-action-icon" />
+    </button>
+    <button
+      class="card-action-btn"
+      aria-label="Trash project"
+      onclick={(e) => { e.stopPropagation(); onTrash(project.id); }}
+    >
+      <Trash2 class="card-action-icon" />
     </button>
   </div>
 </div>

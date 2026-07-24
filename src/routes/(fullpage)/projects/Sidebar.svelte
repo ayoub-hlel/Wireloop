@@ -4,6 +4,7 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import OrgSwitcher from "./OrgSwitcher.svelte";
+  import Undo2 from '@lucide/svelte/icons/undo-2';
   import type { OrgInfo } from "../../../stores/org.store";
 
   type SidebarItem = { id: string; name: string };
@@ -22,6 +23,7 @@
     starred?: SidebarItem[];
     onSelectOrg?: (orgId: string | null) => void;
     onSignOut?: () => Promise<void>;
+    onRestore?: (id: string) => void;
   };
 
   let {
@@ -37,6 +39,7 @@
     starred = [] as SidebarItem[],
     onSelectOrg = (orgId: string | null) => {},
     onSignOut = async () => {},
+    onRestore = () => {},
   }: Props = $props();
 
   function getInitials(name: string): string {
@@ -44,6 +47,7 @@
   }
 
   let starredOpen = $state(true);
+  let trashOpen = $state(true);
 </script>
 
 <aside class="sidebar">
@@ -132,10 +136,37 @@
       <span>Resources</span>
     </button>
 
-    <button class="sidebar-row" aria-label="Trash">
+    <button
+      class="sidebar-row"
+      aria-label="Trash"
+      onclick={() => trashOpen = !trashOpen}
+    >
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" class="sidebar-row-icon"><path fill="currentColor" d="M16 6a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-.04l-.08 1h.62a.5.5 0 0 1 0 1h-.7l-.454 5.621A1.5 1.5 0 0 1 13.85 18H9.149a1.5 1.5 0 0 1-1.495-1.379L7.2 11h-.7a.5.5 0 0 1 0-1h.62l-.08-1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM8.651 16.54a.5.5 0 0 0 .498.46h4.702a.5.5 0 0 0 .498-.46L14.958 9H8.042zm3.496-4.893a.5.5 0 1 1 .707.707l-.647.646.646.646a.5.5 0 1 1-.707.707l-.646-.646-.646.646a.5.5 0 1 1-.707-.707l.646-.646-.646-.646a.5.5 0 1 1 .707-.707l.646.646zM7 8h9V7H7z"/></svg>
       <span>Trash</span>
+      {#if trash.length > 0}
+        <span class="sidebar-badge">{trash.length}</span>
+      {/if}
     </button>
+    {#if trashOpen}
+      <div class="sidebar-starred-items">
+        {#if trash.length > 0}
+          {#each trash as item (item.id)}
+            <div class="sidebar-row sidebar-row-nested sidebar-trash-row">
+              <span class="sidebar-trash-name">{item.name}</span>
+              <button
+                class="sidebar-icon-btn sidebar-icon-btn-small"
+                aria-label="Restore project"
+                onclick={() => onRestore(item.id)}
+              >
+                <Undo2 size={14} />
+              </button>
+            </div>
+          {/each}
+        {:else}
+          <div class="sidebar-starred-empty">Trash is empty</div>
+        {/if}
+      </div>
+    {/if}
 
     <div class="sidebar-divider"></div>
 
@@ -389,6 +420,30 @@
     font-size: 0.8125rem;
     color: hsl(var(--sidebar-foreground) / 0.4);
     font-style: italic;
+  }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background-color: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-foreground));
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .sidebar-trash-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .sidebar-trash-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .avatar-sm {

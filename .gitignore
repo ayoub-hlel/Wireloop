@@ -8,6 +8,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # SvelteKit build artifacts
+/test-results/
+/playwright-report/
 .svelte-kit/
 /build/
 /dist/
@@ -101,5 +103,5 @@ gha-creds-*.json
 .wrangler
 .env
 
-# Sentry Config File
-.env.sentry-build-plugin
+# Playwright auth state
+e2e/

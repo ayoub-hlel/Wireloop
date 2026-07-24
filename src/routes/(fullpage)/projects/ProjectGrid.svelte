@@ -9,6 +9,7 @@
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onFork?: (id: string) => void;
+    onTrash?: (id: string) => void;
   };
 
   let {
@@ -18,6 +19,7 @@
     onOpen = () => {},
     onStar = () => {},
     onFork = () => {},
+    onTrash = () => {},
   }: Props = $props();
 </script>
 
@@ -30,6 +32,7 @@
         {onOpen}
         {onStar}
         {onFork}
+        {onTrash}
       />
     {/each}
   </div>

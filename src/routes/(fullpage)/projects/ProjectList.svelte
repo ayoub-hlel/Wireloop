@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { DashboardProject } from './dashboard.svelte.ts';
   import Star from '@lucide/svelte/icons/star';
+  import Trash2 from '@lucide/svelte/icons/trash-2';
   import ArrowUp from '@lucide/svelte/icons/arrow-up';
   import ArrowDown from '@lucide/svelte/icons/arrow-down';
 
@@ -12,6 +13,7 @@
     onSortChange?: (col: 'updatedAt' | 'name') => void;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
+    onTrash?: (id: string) => void;
   };
 
   let {
@@ -22,6 +24,7 @@
     onSortChange = () => {},
     onOpen = () => {},
     onStar = () => {},
+    onTrash = () => {},
   }: Props = $props();
 
   function dateStr(d: Date | string | null): string {
@@ -65,6 +68,7 @@
           </button>
         </th>
         <th class="th-star">Star</th>
+        <th class="th-star"></th>
       </tr>
     </thead>
     <tbody>
@@ -92,6 +96,15 @@
                 class="star-icon"
                 fill={starredIds.includes(project.id) ? 'currentColor' : 'none'}
               />
+            </button>
+          </td>
+          <td class="td-star">
+            <button
+              class="star-btn"
+              aria-label="Trash project"
+              onclick={() => onTrash(project.id)}
+            >
+              <Trash2 class="star-icon" />
             </button>
           </td>
         </tr>
