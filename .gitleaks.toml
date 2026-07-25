@@ -1,0 +1,9 @@
+# ponytail: extends built-in defaults — no custom rules until a real gap surfaces
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Sentry DSN — public by design (https://docs.sentry.io/platforms/)"
+regexes = [
+  '''https://[a-f0-9]+@o\d+\.ingest\.\w+\.sentry\.io/\d+''',
+]
