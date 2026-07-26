@@ -17,13 +17,20 @@
   let resendLoading = $state(false);
   let resendSent = $state(false);
 
+  // ponytail: reactive guard — no race with authStore.init()
+  $effect(() => {
+    if ($authStore.isLoggedIn && !$authStore.loading) {
+      goto("/projects", { replaceState: true });
+    }
+  });
+
   async function handleSignIn() {
     error = "";
     submitting = true;
     unverified = false;
     try {
       await authStore.signInEmail(email, password);
-      await goto("/projects");
+      // ponytail: $effect handles redirect after store updates
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Sign in failed";
       if (msg.toLowerCase().includes("verify") || msg.toLowerCase().includes("unverified")) {

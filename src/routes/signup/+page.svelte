@@ -5,7 +5,15 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import AuthTabBar from "$lib/components/auth/AuthTabBar.svelte";
   import OAuthButtons from "$lib/components/auth/OAuthButtons.svelte";
+  import { goto } from "$app/navigation";
   import authStore from "../../stores/auth.store";
+
+  // ponytail: reactive guard — no race with authStore.init()
+  $effect(() => {
+    if ($authStore.isLoggedIn && !$authStore.loading) {
+      goto("/projects", { replaceState: true });
+    }
+  });
 
   let username = $state("");
   let email = $state("");
