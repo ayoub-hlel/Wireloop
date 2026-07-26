@@ -5,6 +5,7 @@ import { defaultSetting } from "../types/models";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
 import { getApiClient, createMutation } from "./api.client";
+import * as Sentry from "@sentry/sveltekit";
 /**
  * Settings state interface
  */
@@ -94,7 +95,7 @@ authStore.subscribe(async (auth) => {
       }));
     }
   } catch (error) {
-    console.error('Error loading settings:', error);
+    Sentry.captureException(error, { tags: { store: 'settings', action: 'load-cloud' } });
     settingsStore.update(state => ({
       ...state,
       isLoading: false,
@@ -139,7 +140,7 @@ export async function updateSettings(newSettings: Partial<Settings>): Promise<vo
         isCloudSynced: true
       }));
     } catch (error) {
-      console.error('Error syncing settings to cloud:', error);
+      Sentry.captureException(error, { tags: { store: 'settings', action: 'sync-cloud' } });
       settingsStore.update(state => ({
         ...state,
         isLoading: false,

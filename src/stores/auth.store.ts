@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
 import { authClient } from '$lib/client/auth-client';
 import type { Session, User } from 'better-auth';
+import * as Sentry from '@sentry/sveltekit';
 
 export interface AuthState {
   isLoggedIn: boolean;
@@ -30,6 +31,7 @@ function createAuthStore() {
       try {
         const { data } = await authClient.getSession();
         if (data) {
+          Sentry.setUser({ id: data.user.id, email: data.user.email ?? undefined, username: data.user.name ?? undefined });
           set({
             isLoggedIn: true,
             uid: data.user.id,
@@ -38,9 +40,12 @@ function createAuthStore() {
             loading: false,
           });
         } else {
+          Sentry.setUser(null);
           set({ ...initial, loading: false });
         }
-      } catch {
+      } catch (e) {
+        Sentry.captureException(e, { tags: { store: 'auth', action: 'init' } });
+        Sentry.setUser(null);
         set({ ...initial, loading: false });
       }
     },
@@ -99,8 +104,9 @@ function createAuthStore() {
       try {
         await authClient.signOut();
       } catch (e) {
-        console.error('Sign out failed:', e);
+        Sentry.captureException(e, { tags: { store: 'auth', action: 'signout' } });
       }
+      Sentry.setUser(null);
       set({ ...initial, loading: false });
     },
 

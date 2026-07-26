@@ -5,28 +5,46 @@ Sentry.init({
   dsn: 'https://f55ef0a612641830775820f46e4d45a0@o4511743013879808.ingest.de.sentry.io/4511743022530640',
 
   tracesSampleRate: 1.0,
+  environment: 'preview',
+  debug: true,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
-
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
-
-  // If the entire session is not sampled, use the below sample rate to sample
-  // sessions when an error occurs.
+  // Preview: capture 100% of everything
+  replaysSessionSampleRate: 1.0,
   replaysOnErrorSampleRate: 1.0,
 
-  // If you don't want to use Session Replay, just remove the line below:
-  integrations: [replayIntegration()],
+  enableLogs: true,
+
+  integrations: [
+    replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+    // Every console.log/warn/error → Sentry event
+    Sentry.captureConsoleIntegration({
+      levels: ['log', 'warn', 'error', 'info', 'debug'],
+    }),
+    // Capture HTTP failures (4xx, 5xx on API routes)
+    Sentry.httpClientIntegration({
+      failedRequestStatusCodes: [[400, 599]],
+      failedRequestTargets: [/\/api\//],
+    }),
+    Sentry.feedbackIntegration({
+      colorScheme: 'system',
+    }),
+  ],
 
   dataCollection: {
-    // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/sveltekit/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: [],
+    // Preview: capture everything
+  },
+
+  beforeSend(event) {
+    // Drop Sentry's own internal requests
+    const url = event.request?.url ?? '';
+    if (typeof url === 'string' && url.includes('sentry.io')) {
+      return null;
+    }
+    return event;
   },
 });
 
-// If you have a custom error handler, pass it to `handleErrorWithSentry`
 export const handleError = handleErrorWithSentry();

@@ -5,6 +5,7 @@ import { eq, and, desc, isNotNull, isNull } from 'drizzle-orm';
 import { getFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
 import { actionEnvelope, project, user, organization } from '$lib/server/validation';
+import * as Sentry from '@sentry/sveltekit';
 
 const querySchemas = {
   'projects:getProject': project.get,
@@ -220,6 +221,7 @@ export async function POST({ request, locals }) {
     if (e instanceof ValidationError) {
       return json({ error: 'Validation failed', issues: e.issues }, { status: 400 });
     }
+    Sentry.captureException(e, { tags: { route: 'query' } });
     throw e;
   }
 }

@@ -6,6 +6,7 @@ import { generateId } from 'better-auth';
 import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
 import { actionEnvelope, project, user, organization } from '$lib/server/validation';
+import * as Sentry from '@sentry/sveltekit';
 
 const mutationSchemas = {
   'projects:createProject': project.create,
@@ -399,6 +400,7 @@ export async function POST({ request, locals }) {
     if (e instanceof ValidationError) {
       return json({ error: 'Validation failed', issues: e.issues }, { status: 400 });
     }
+    Sentry.captureException(e, { tags: { route: 'mutation' } });
     throw e;
   }
 }

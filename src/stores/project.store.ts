@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
 import { getApiClient, createMutation } from "./api.client";
+import * as Sentry from "@sentry/sveltekit";
 
 interface ProjectState {
   project: Project | null;
@@ -47,6 +48,7 @@ export const deleteProject = createMutation<{
 export async function loadProject(projectId: string): Promise<void> {
   if (!projectId) return;
 
+  Sentry.addBreadcrumb({ category: 'store', message: 'loadProject', level: 'info', data: { projectId } });
   projectStore.update(state => ({
     ...state,
     isLoading: true,
@@ -73,7 +75,7 @@ export async function loadProject(projectId: string): Promise<void> {
       });
     }
   } catch (error) {
-    console.error('Error loading project:', error);
+    Sentry.captureException(error, { tags: { store: 'project', action: 'load' }, extra: { projectId } });
     projectStore.set({
       project: null,
       projectId: null,
@@ -90,6 +92,7 @@ export async function saveCurrentProject(workspace: string): Promise<void> {
     throw new Error('No project to save');
   }
 
+  Sentry.addBreadcrumb({ category: 'store', message: 'saveCurrentProject', level: 'info', data: { projectId: currentState.projectId } });
   const updatedProject = { ...currentState.project, workspace };
 
   try {
@@ -103,7 +106,7 @@ export async function saveCurrentProject(workspace: string): Promise<void> {
       workspace
     });
   } catch (error) {
-    console.error('Error saving project:', error);
+    Sentry.captureException(error, { tags: { store: 'project', action: 'save' }, extra: { projectId: currentState.projectId } });
     throw error;
   }
 }

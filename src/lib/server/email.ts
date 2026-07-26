@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { env } from '$env/dynamic/private';
+import * as Sentry from '@sentry/sveltekit';
 
 let _resend: Resend | null = null;
 
@@ -27,7 +28,7 @@ export async function sendEmail({
       html,
     });
   } catch (e) {
-    console.error('Failed to send email:', e);
+    Sentry.captureException(e, { tags: { service: 'email', action: 'send' }, extra: { to, subject } });
   }
 }
 

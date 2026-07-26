@@ -2,6 +2,7 @@ import { createAuth } from "./auth-factory";
 import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import { env } from "$env/dynamic/private";
+import * as Sentry from '@sentry/sveltekit';
 
 let _auth: ReturnType<typeof createAuth> | null = null;
 
@@ -43,7 +44,7 @@ export function getAuth(baseURL?: string) {
         extraPlugins: [sveltekitCookies(getRequestEvent)],
       });
     } catch (e) {
-      console.error('Auth creation failed:', e);
+      Sentry.captureException(e, { tags: { service: 'auth', action: 'create' } });
       return null;
     }
   }
