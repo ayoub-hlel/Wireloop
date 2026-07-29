@@ -22,7 +22,7 @@ Sentry.init({
     }),
     // Every console.log/warn/error → Sentry event
     Sentry.captureConsoleIntegration({
-      levels: ['log', 'warn', 'error', 'info', 'debug'],
+      levels: ['error'],
     }),
     // Capture HTTP failures (4xx, 5xx on API routes)
     Sentry.httpClientIntegration({

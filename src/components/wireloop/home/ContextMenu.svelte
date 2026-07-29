@@ -45,8 +45,8 @@
   }
 
   // Adjust position so menu doesn't overflow viewport
-  let mx = $derived(Math.min(x, window.innerWidth - 200));
-  let my = $derived(Math.min(y, window.innerHeight - 320));
+  let mx = $derived(Math.min(x, (typeof window !== 'undefined' ? window.innerWidth : 1024) - 200));
+  let my = $derived(Math.min(y, (typeof window !== 'undefined' ? window.innerHeight : 768) - 320));
 </script>
 
 {#if show}

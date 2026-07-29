@@ -1,25 +1,21 @@
 <script lang="ts">
-  import Blockly from 'blockly';
   import type { WorkspaceSvg } from 'blockly';
   import { onMount, onDestroy } from 'svelte';
   import { WindowType, resizeStore } from '../../stores/resize.store';
-  import startBlocly from '../../core/blockly/startBlockly';
   import currentFrameStore from '../../stores/currentFrame.store';
   import arduinoStore from '../../stores/arduino.store';
   import arduinoMessageStore from '../../stores/arduino-message.store';
-  import {
-    arduinoLoopBlockShowLoopForeverText,
-    arduinoLoopBlockShowNumberOfTimesThroughLoop,
-  } from '../../core/blockly/helpers/arduino_loop_block.helper';
-  import {
-    getAllBlocks,
-    getBlockById,
-  } from '../../core/blockly/helpers/block.helper';
   import updateLoopblockStore from '../../stores/update-loopblock.store';
-  import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
   import { mark } from '$lib/telemetry/boot';
 
   let { showLoopExecutionTimesArduinoStartBlock = true }: { showLoopExecutionTimesArduinoStartBlock: boolean } = $props();
+  let Blockly: any;
+  let startBlocly: (el: HTMLElement) => void;
+  let workspaceToXML: () => string;
+  let getAllBlocks: () => any[];
+  let getBlockById: (id: string) => any;
+  let arduinoLoopBlockShowLoopForeverText: () => void;
+  let arduinoLoopBlockShowNumberOfTimesThroughLoop: () => void;
   let blocklyElement: HTMLElement;
   let workspaceInitialize = false;
   const unsubscribes: Array<() => void> = [];
@@ -107,59 +103,78 @@
 
   onMount(() => {
     mark('blockly:mount');
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).Blockly = Blockly;
-    startBlocly(blocklyElement);
-    mark('blockly:workspace-created');
-    workspaceInitialize = true;
-    resizeBlockly();
-    setTimeout(() => {
-      relocateToolbox();
+    (async () => {
+      const blocklyModule = await import('blockly');
+      Blockly = blocklyModule.default;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).Blockly = Blockly;
+
+      const [sm, wm, bm, am] = await Promise.all([
+        import('../../core/blockly/startBlockly'),
+        import('../../core/blockly/helpers/workspace.helper'),
+        import('../../core/blockly/helpers/block.helper'),
+        import('../../core/blockly/helpers/arduino_loop_block.helper'),
+      ]);
+
+      startBlocly = sm.default;
+      workspaceToXML = wm.workspaceToXML;
+      getAllBlocks = bm.getAllBlocks;
+      getBlockById = bm.getBlockById;
+      arduinoLoopBlockShowLoopForeverText = am.arduinoLoopBlockShowLoopForeverText;
+      arduinoLoopBlockShowNumberOfTimesThroughLoop = am.arduinoLoopBlockShowNumberOfTimesThroughLoop;
+
+      startBlocly(blocklyElement);
+      mark('blockly:workspace-created');
+      workspaceInitialize = true;
       resizeBlockly();
-      fixFlyoutScrollbarVisibility();
-      watchFlyoutPosition();
-    }, 200);
+      setTimeout(() => {
+        relocateToolbox();
+        resizeBlockly();
+        fixFlyoutScrollbarVisibility();
+        watchFlyoutPosition();
+      }, 200);
 
-    unsubscribes.push(
-      currentFrameStore.subscribe((frame) => {
-        if (!frame) return;
-        getAllBlocks().forEach((b) => b.unselect());
-        const selectedBlock = getBlockById(frame.blockId);
-        if (selectedBlock) { selectedBlock.select(); }
-      })
-    );
+      unsubscribes.push(
+        currentFrameStore.subscribe((frame) => {
+          if (!frame) return;
+          getAllBlocks().forEach((b) => b.unselect());
+          const selectedBlock = getBlockById(frame.blockId);
+          if (selectedBlock) { selectedBlock.select(); }
+        })
+      );
 
-    unsubscribes.push(
-      updateLoopblockStore.subscribe(() => {
-        if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
-          arduinoLoopBlockShowNumberOfTimesThroughLoop();
-        } else if (workspaceInitialize) {
-          arduinoLoopBlockShowLoopForeverText();
-        }
-      })
-    );
+      unsubscribes.push(
+        updateLoopblockStore.subscribe(() => {
+          if (showLoopExecutionTimesArduinoStartBlock && workspaceInitialize) {
+            arduinoLoopBlockShowNumberOfTimesThroughLoop();
+          } else if (workspaceInitialize) {
+            arduinoLoopBlockShowLoopForeverText();
+          }
+        })
+      );
 
-    unsubscribes.push(
-      resizeStore.subscribe((event) => {
-        if (event.type == WindowType.MAIN) {
-          resizeBlockly();
-        }
-      })
-    );
+      unsubscribes.push(
+        resizeStore.subscribe((event) => {
+          if (event.type == WindowType.MAIN) {
+            resizeBlockly();
+          }
+        })
+      );
 
-    unsubscribes.push(
-      arduinoStore.subscribe(() => {})
-    );
+      unsubscribes.push(
+        arduinoStore.subscribe(() => {})
+      );
 
-    unsubscribes.push(
-      arduinoMessageStore.subscribe((m) => {
-        if (!m || m.type === 'Computer' || m.message.indexOf('DEBUG_BLOCK_') === -1) return;
-        const blockId = m.message.replace('DEBUG_BLOCK_', '').trim();
-        getAllBlocks().forEach((b) => b.unselect());
-        const selectedBlock = getBlockById(blockId);
-        if (selectedBlock) { selectedBlock.select(); }
-      })
-    );
+      unsubscribes.push(
+        arduinoMessageStore.subscribe((m) => {
+          if (!m || m.type === 'Computer' || m.message.indexOf('DEBUG_BLOCK_') === -1) return;
+          const blockId = m.message.replace('DEBUG_BLOCK_', '').trim();
+          getAllBlocks().forEach((b) => b.unselect());
+          const selectedBlock = getBlockById(blockId);
+          if (selectedBlock) { selectedBlock.select(); }
+        })
+      );
+    })();
   });
 
   function resizeBlockly() {

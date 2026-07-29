@@ -104,7 +104,7 @@ Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   // }
 
   const doubleVariables = workspace.getVariablesOfType("Number");
-  let variableCode;
+  let variableCode = "";
   for (let i = 0; i < doubleVariables.length; i += 1) {
     variableCode +=
       "double " +
@@ -113,7 +113,7 @@ Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   }
 
   const stringVariables = workspace.getVariablesOfType("String");
-  for (i = 0; i < stringVariables.length; i += 1) {
+  for (let i = 0; i < stringVariables.length; i += 1) {
     variableCode +=
       "String " +
       Blockly["Arduino"].getVariableName(stringVariables[i].getId()) +
@@ -121,7 +121,7 @@ Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   }
 
   const booleanVariables = workspace.getVariablesOfType("Boolean");
-  for (i = 0; i < booleanVariables.length; i += 1) {
+  for (let i = 0; i < booleanVariables.length; i += 1) {
     variableCode +=
       "boolean " +
       Blockly["Arduino"].getVariableName(booleanVariables[i].getId()) +
@@ -129,7 +129,7 @@ Blockly["Arduino"].init = function (workspace: Blockly.Workspace) {
   }
 
   const colourVariables = workspace.getVariablesOfType("Colour");
-  for (i = 0; i < colourVariables.length; i += 1) {
+  for (let i = 0; i < colourVariables.length; i += 1) {
     variableCode +=
       "struct RGB " +
       Blockly["Arduino"].getVariableName(colourVariables[i].getId()) +

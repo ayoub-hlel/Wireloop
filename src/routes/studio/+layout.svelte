@@ -41,6 +41,7 @@
 
   const resize = debounce((e: MouseEvent) => {
     if (!isResizingRight) return;
+    if (typeof window === 'undefined') return;
     const windowWidth = window.innerWidth;
     if (e.clientX < 20 || windowWidth - e.clientX < 20) return;
 
@@ -50,6 +51,7 @@
   }, 2);
 
   function resizeHeight() {
+    if (typeof window === 'undefined') return;
     height = window.innerHeight + 'px';
     setTimeout(() => {
       resizeStore.mainWindow();
@@ -148,7 +150,9 @@
 
   onDestroy(() => {
     unsubAuth?.();
-    window.removeEventListener('error', onEmulatorError);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('error', onEmulatorError);
+    }
   });
 </script>
 
