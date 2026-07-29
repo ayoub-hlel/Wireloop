@@ -17,6 +17,7 @@
   } from '../../core/blockly/helpers/block.helper';
   import updateLoopblockStore from '../../stores/update-loopblock.store';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
+  import { mark } from '$lib/telemetry/boot';
 
   let { showLoopExecutionTimesArduinoStartBlock = true }: { showLoopExecutionTimesArduinoStartBlock: boolean } = $props();
   let blocklyElement: HTMLElement;
@@ -105,9 +106,11 @@
   }
 
   onMount(() => {
+    mark('blockly:mount');
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).Blockly = Blockly;
     startBlocly(blocklyElement);
+    mark('blockly:workspace-created');
     workspaceInitialize = true;
     resizeBlockly();
     setTimeout(() => {
@@ -166,6 +169,7 @@
   }
 
   onDestroy(() => {
+    mark('blockly:destroy');
     unsubscribes.forEach((unSubFunc) => unSubFunc());
     if (!workspaceInitialize) return;
     const recentBlocks = workspaceToXML() ?? '';

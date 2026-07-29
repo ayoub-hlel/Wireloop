@@ -10,6 +10,7 @@
   import update from '../../../core/virtual-circuit/update';
   import { onMount, onDestroy, tick } from 'svelte';
   import { onErrorMessage } from '../../../help/alerts';
+  import { mark, fail } from '$lib/telemetry/boot';
   import { wait } from '../../../helpers/wait';
   import { arduinoComponentStateToId } from '../../../core/frames/arduino-component-id';
   import { centerCircuit } from '../../../core/virtual-circuit/centerCircuit';
@@ -21,11 +22,14 @@
   let currentFrame: ArduinoFrame | undefined = undefined;
   let draw: Svg;
   let unsubscribes: (() => void)[] = [];
+  let firstPaint = false;
   onMount(async () => {
     try {
       await import('@svgdotjs/svg.draggable.js');
       await import('@svgdotjs/svg.panzoom.js');
+      mark('sim:imports-ok');
     } catch (e) {
+      fail('sim:imports', e);
       onErrorMessage('Please refresh your browser and try again.', e);
     }
 
@@ -38,6 +42,7 @@
       await wait(5);
       count += 1;
       if (count > 1000) {
+        fail('sim:no-container-size', { width, height });
         onErrorMessage('There is not enough room to render the Arduino', {});
         return;
       }
@@ -48,9 +53,14 @@
       .size(container.clientWidth - 10, container.clientHeight - 10)
       .viewbox(0, 0, container.clientWidth - 10, container.clientWidth - 10)
       .panZoom();
+    mark('sim:svg-created', { width: container.clientWidth - 10, height: container.clientHeight - 10 });
 
     unsubscribes.push(
       frameStore.subscribe((frameContainer) => {
+        if (!firstPaint) {
+          firstPaint = true;
+          mark('sim:first-paint', { frameCount: frameContainer.frames.length });
+        }
         let oldLastFrame = frames.length > 0 ? frames[frames.length - 1] : undefined;
         frames = frameContainer.frames;
         const firstFrame = frames ? frames[0] : undefined;

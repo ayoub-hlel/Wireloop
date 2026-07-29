@@ -1,5 +1,6 @@
 import { handleErrorWithSentry, replayIntegration } from "@sentry/sveltekit";
 import * as Sentry from '@sentry/sveltekit';
+import { mark } from '$lib/telemetry/boot';
 
 Sentry.init({
   dsn: 'https://f55ef0a612641830775820f46e4d45a0@o4511743013879808.ingest.de.sentry.io/4511743022530640',
@@ -46,5 +47,7 @@ Sentry.init({
     return event;
   },
 });
+
+mark('hooks.client:sentry-ready');
 
 export const handleError = handleErrorWithSentry();

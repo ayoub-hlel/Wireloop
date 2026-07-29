@@ -2,6 +2,7 @@ import type { WorkspaceSvg } from "blockly";
 import Blockly from "blockly";
 import { getAllBlocks } from "./block.helper";
 import { deleteVariable, getAllVariables } from "./variable.helper";
+import { mark, fail } from "$lib/telemetry/boot";
 
 export const getWorkspace = () => {
   return Blockly.getMainWorkspace() as WorkspaceSvg;
@@ -36,9 +37,11 @@ export const loadProjectFromUrl = async (url: string) => {
 };
 
 export const loadProject = (xmlString: string) => {
+  mark('loadProject:start', { xmlLength: xmlString.length });
   try {
     const workspace = getWorkspace();
     if (!workspace) {
+      fail('loadProject:no-workspace', new Error('Blockly workspace not ready, deferring project load'));
       console.warn("Blockly workspace not ready, deferring project load");
       return;
     }
@@ -58,6 +61,7 @@ export const loadProject = (xmlString: string) => {
     }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Blockly.Xml.domToWorkspace(xml.documentElement as any, workspace); // load new blocks
+    mark('loadProject:loaded');
     localStorage.removeItem("no_alert");
 
     // Scroll to the center

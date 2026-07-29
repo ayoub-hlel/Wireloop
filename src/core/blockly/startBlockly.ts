@@ -24,6 +24,7 @@ import { LED_COMMENT } from "../../blocks/led/toolbox";
 import { registerVariableMenu } from "../../blocks/variables/menu";
 import { registerFunctionMenu } from "../../blocks/functions/menu";
 import { getWorkspace, loadProject } from "./helpers/workspace.helper";
+import { mark } from "$lib/telemetry/boot";
 
 /**
  * This will start up blockly and will add all the event listeners and styles
@@ -45,6 +46,7 @@ const startBlockly = (blocklyElement: HTMLElement) => {
 
   // Setups all the listeners for the blockly events
   addListener(workspace);
+  mark('blockly:listener-registered');
 
   // Registers the code menu
   registerCodeMenu(workspace);

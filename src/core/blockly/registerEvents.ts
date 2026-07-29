@@ -36,6 +36,7 @@ import type { Settings as FirebaseSettings } from "../../types/arduino-sim";
 import { defaultSetting as defaultSettingValue } from "../../types/arduino-sim";
 import type { Settings as AppSettings } from "../../types/models";
 import settingStore from "../../stores/settings.store";
+import { mark, fail } from "$lib/telemetry/boot";
 import UpdateLCDScreenPrintBlock from "./actions/updateLcdScreenPrintBlock";
 import updateLedBlockColorField from "./actions/updateLedBlockColorField";
 import { updateWhichComponent } from "./actions/updateWhichComponent";
@@ -63,7 +64,22 @@ settingStore.subscribe((newSettings) => {
   });
 });
 
+let firstFrameEmitted = false;
+
 export const createFrames = async (blocklyEvent: Blockly.Events.Abstract) => {
+  try {
+    await _createFrames(blocklyEvent);
+    if (!firstFrameEmitted) {
+      firstFrameEmitted = true;
+      mark('frames:first-emitted', { type: blocklyEvent.type });
+    }
+  } catch (error) {
+    fail('frames:create', error);
+    throw error;
+  }
+};
+
+const _createFrames = async (blocklyEvent: Blockly.Events.Abstract) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((Blockly.getMainWorkspace() as any).isDragging()) {
     return; // Don't update while changes are happening.

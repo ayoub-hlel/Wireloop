@@ -12,6 +12,8 @@
   const initAuth = () => { authStore.init(); };
 
   import { initializeApiClient, getApiClient } from '../../stores/api.client';
+  import { mark, fail } from '$lib/telemetry/boot';
+  import * as Sentry from '@sentry/sveltekit';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
@@ -24,6 +26,10 @@
   let rightFlex = $state(39.5);
   let isResizingRight = false;
   let unsubAuth: (() => void) | undefined;
+
+  function onEmulatorError(error: unknown) {
+    Sentry.captureException(error, { tags: { area: 'emulator', route: 'studio' } });
+  }
 
   function startResize() {
     isResizingRight = true;
@@ -51,9 +57,11 @@
   }
 
   onMount(async () => {
+    mark('studio:layout-mount');
     console.log('🚀 Wireloop: Initializing application services...');
     initAuth();
     initializeApiClient();
+    mark('studio:services-init');
     localStorage.removeItem('no_alert');
     
     page.subscribe(() => { resizeHeight(); });
@@ -74,6 +82,7 @@
 
     unsubAuth = authStore.subscribe(async (auth) => {
       if (auth.loading) return;
+      mark('studio:auth-state', { isLoggedIn: auth.isLoggedIn, uid: !!auth.uid });
 
       if (!auth.isLoggedIn || !auth.uid) {
         return;
@@ -107,12 +116,14 @@
         });
         
         if (project && projectFile) {
+          mark('studio:project-loaded', { projectId });
           loadProject(projectFile.content || projectFile.workspace || '<xml></xml>');
           projectStore.set({ project, projectId });
         } else {
           throw new Error('Project not found or access denied');
         }
       } catch (error) {
+        fail('studio:project-load', error);
         console.error('Error loading project:', error);
         swal({
           title: 'Error',
@@ -131,10 +142,13 @@
       } else {
         arduinoLoopBlockShowLoopForeverText();
       }
+
+    window.addEventListener('error', onEmulatorError);
   });
 
   onDestroy(() => {
     unsubAuth?.();
+    window.removeEventListener('error', onEmulatorError);
   });
 </script>
 

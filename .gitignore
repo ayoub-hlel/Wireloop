@@ -99,7 +99,7 @@ gha-creds-*.json
 
 # Pi AI agent directory
 .pi/
-
+docs/
 .wrangler
 .env
 
