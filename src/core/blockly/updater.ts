@@ -35,12 +35,14 @@ const updateVariable = (action: VariableAction) => {
 
 const updateForLoop = (action: ForLoopTextChange) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
 
   block.inputList[2].fieldRow[0].setValue(action.changeText);
 };
 
 const updateSetupSensorBlockFields = (action: UpdateSetupSensorBlockFields) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   action.fields
     .filter((field) => block.getField(field.name))
     .forEach((field) => {
@@ -61,11 +63,13 @@ const updateSetupSensorBlockLoopField = (
   action: UpdateSetupSensorBlockLoop
 ) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   block.setFieldValue(action.loop.toString(), "LOOP");
 };
 
 const updateDisableBlock = (action: DisableBlock) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
 
   if (block.isEnabled()) {
     block.setEnabled(false);
@@ -76,6 +80,7 @@ const updateDisableBlock = (action: DisableBlock) => {
 
 const updateEnableBlock = (action: EnableBlock) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
 
   if (!block.isEnabled()) {
     block.setEnabled(true);
@@ -85,12 +90,14 @@ const updateEnableBlock = (action: EnableBlock) => {
 
 const updateSensorBlockData = (action: SaveSetupSensorData) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
 
   block.data = action.data;
 };
 
 const updateLcdScreenPrintBlock = (action: UpdateLCDScreenPrintBlock) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   if (action.numberOfRows == 2) {
     block.getInput("ROW_3")!.setVisible(false);
     block.getInput("ROW_4")!.setVisible(false);
@@ -103,12 +110,14 @@ const updateLcdScreenPrintBlock = (action: UpdateLCDScreenPrintBlock) => {
 
 const updateLedColor = (action: UpdateLedColor) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   block.setFieldValue(action.color, "COLOR");
   block.render();
 };
 
 const updateMotorBlock = (action: UpdateMultipleComponentSetupBlock) => {
   const block = getBlockByType("motor_setup");
+  if (!block) return;
   block.getInput("COMPONENT_2")!.setVisible(action.numberOfComponents == 2);
   block.render();
 
@@ -126,6 +135,7 @@ const updateMotorBlock = (action: UpdateMultipleComponentSetupBlock) => {
 
 const updateRGBLedColorBlocks = (action: UpdateMultipleComponentSetupBlock) => {
   const block = getBlockByType("rgb_led_setup");
+  if (!block) return;
   block.getInput("COMPONENT_2")!.setVisible(action.numberOfComponents == 2);
   block.render();
 
@@ -157,6 +167,7 @@ const updateMultipleSetupBlock = (
 
 const updateFastLedSetAllColorsBlock = (action: UpdateSetAllFastLedBlock) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   console.log("update blocks");
   for (let row = 1; row <= 12; row += 1) {
     const showAllInRow = row <= action.maxRows;
@@ -175,6 +186,7 @@ const updateFastLedSetAllColorsBlock = (action: UpdateSetAllFastLedBlock) => {
 
 const updateButtonIsPressedComments = (action: CommentForButtonBlockAction) => {
   const block = getBlockById(action.blockId);
+  if (!block) return;
   block.setCommentText(action.comment);
   block.render();
 };
