@@ -90,3 +90,39 @@ describe("authStore.signInEmail", () => {
     expect(s.loading).toBe(false); // init() catches and clears loading
   });
 });
+
+// WL-007: root and studio layouts both call init()/set() on mount. init() must
+// be idempotent (one session fetch) while still allowing explicit refresh.
+describe("authStore.init idempotency (WL-007)", () => {
+  beforeEach(() => {
+    mockGetSession.mockReset();
+    authStore.reset();
+  });
+
+  it("fetches the session only once across repeated init() calls", async () => {
+    mockGetSession.mockResolvedValue({ data: null });
+    await authStore.init();
+    await authStore.init();
+    expect(mockGetSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("init(true) forces a refresh even after the store is initialized", async () => {
+    mockGetSession.mockResolvedValue({ data: null });
+    await authStore.init();
+    await authStore.init(true);
+    expect(mockGetSession).toHaveBeenCalledTimes(2);
+  });
+
+  it("init() no-ops after the store is set externally (server-session path)", async () => {
+    mockGetSession.mockResolvedValue({ data: null });
+    authStore.set({
+      isLoggedIn: true,
+      uid: "u1",
+      user: null,
+      session: null,
+      loading: false,
+    });
+    await authStore.init();
+    expect(mockGetSession).not.toHaveBeenCalled();
+  });
+});
