@@ -91,8 +91,8 @@ export const lcdUpdate: SyncComponent = (
     clearInterval(blinkingTimer);
   }
 
-  if (state.blink.blinking) {
-    const { row, column } = state.blink;
+  if (lcdState.blink.blinking) {
+    const { row, column } = lcdState.blink;
     if (blinkPosition.row !== row || blinkPosition.col !== column) {
       clearInterval(blinkingTimer);
       blinkPosition.row = row;
@@ -109,8 +109,8 @@ export const lcdUpdate: SyncComponent = (
     }
   }
 
-  toggleDarkLightScreen(lcdScreenEl, state);
-  centerLetters(lcdScreenEl, state);
+  toggleDarkLightScreen(lcdScreenEl, lcdState);
+  centerLetters(lcdScreenEl, lcdState);
 };
 
 const centerLetters = (lcdScreenEl: Element, lcdState: LCDScreenState) => {
