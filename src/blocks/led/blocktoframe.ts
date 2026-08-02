@@ -4,6 +4,7 @@ import type { BlockToFrameTransformer } from "../../core/frames/transformer/bloc
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { LedState } from "./state";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 
 export const led: BlockToFrameTransformer = (
   blocks,
@@ -12,8 +13,8 @@ export const led: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const pin = findFieldValue(block, "PIN");
-  const color = findFieldValue(block, "COLOR");
+  const pin = findFieldValue(block, "PIN") as ARDUINO_PINS;
+  const color = findFieldValue(block, "COLOR") as string;
   const state = findFieldValue(block, "STATE") === "ON" ? 1 : 0;
   const ledState: LedState = {
     type: ArduinoComponentType.LED,
@@ -44,8 +45,8 @@ export const ledFade: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const pin = findFieldValue(block, "PIN");
-  const color = findFieldValue(block, "COLOR");
+  const pin = findFieldValue(block, "PIN") as ARDUINO_PINS;
+  const color = findFieldValue(block, "COLOR") as string;
 
   const state = +getInputValue(
     blocks,
