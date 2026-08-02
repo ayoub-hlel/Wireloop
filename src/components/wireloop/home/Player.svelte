@@ -9,9 +9,15 @@
   import is_browser from "../../../helpers/is_browser";
   import type { ArduinoFrame } from "../../../core/frames/arduino.frame";
   import { tooltip } from "$lib/tooltip";
+  import {
+    firstLoopFrameIndex,
+    navigateToClosestTimeline,
+  } from "./player-navigation";
 
+  // frameNumber is the 0-based index into `frames` (WL-010: was mixed 0/1-based
+  // across controls, causing off-by-one playback and undefined at boot).
   let frames: ArduinoFrame[] = $state([]);
-  let frameNumber = $state(1);
+  let frameNumber = $state(0);
   let playing = $state(false);
   let speedDivisor = 1;
   let maxTimePerStep = 1000;
@@ -20,7 +26,6 @@
 
   $effect(() => { setCurrentFrame(frameNumber); });
   let disablePlayer = $derived(frames.length === 0);
-  let frameIndex = $derived(frameNumber - 1);
 
   unsubscribes.push(
     currentStepStore.subscribe((currentIndex) => {
@@ -35,17 +40,14 @@
       frames = frameContainer.frames;
 
       if (frames.length === 0 || !currentFrame) {
-        frameNumber = frames.findIndex(
-          (f) => f.timeLine.function == "loop" && f.timeLine.iteration == 1
-        );
-        frameNumber = frameNumber < 0 ? 0 : frameNumber;
+        frameNumber = firstLoopFrameIndex(frames);
         if (frames.length > 0) {
           currentFrameStore.set(frames[frameNumber]);
         }
         return;
       }
 
-      frameNumber = navigateToClosestTimeline(currentFrame.timeLine);
+      frameNumber = navigateToClosestTimeline(frames, currentFrame.timeLine);
       currentFrameStore.set(frames[frameNumber]);
     })
   );
@@ -57,23 +59,10 @@
     })
   );
 
-  function navigateToClosestTimeline(timeLine: { function: string; iteration: number }) {
-    if (timeLine.function !== "loop" || timeLine.iteration <= 1) {
-      frameNumber = frames.findIndex(
-        (f) => f.timeLine.function == "loop" && f.timeLine.iteration == 1
-      );
-      return frameNumber < 0 ? 0 : frameNumber;
-    }
-    const lastFrameTimeLine = frames[frames.length - 1].timeLine;
-    if (timeLine.iteration > lastFrameTimeLine.iteration) {
-      const loopNumber = lastFrameTimeLine.iteration;
-      return frames.findIndex((f) => f.timeLine.iteration === loopNumber);
-    }
-    const loopNumber = timeLine.iteration;
-    return frames.findIndex((f) => f.timeLine.iteration === loopNumber);
-  }
-
+  // Never set the current frame to `undefined` (e.g. boot with empty frames,
+  // or out-of-range index) — WL-010.
   function setCurrentFrame(frameNum: number) {
+    if (!frames[frameNum]) return;
     currentFrameStore.set(frames[frameNum]);
     currentStepStore.set(frameNum);
   }
@@ -106,7 +95,7 @@
     try {
       frameNumber = 0;
       playing = false;
-      currentFrameStore.set(frames[frameIndex]);
+      setCurrentFrame(frameNumber);
       getAllBlocks().forEach((b) => b.unselect());
     } catch (e) {
       onErrorMessage("Please refresh your browser and try again.", e);
@@ -114,7 +103,7 @@
   }
 
   function moveSlider() {
-    currentFrameStore.set(frames[frameIndex]);
+    setCurrentFrame(frameNumber);
     playing = false;
   }
 
@@ -122,14 +111,14 @@
     playing = false;
     if (frameNumber <= 0) return;
     frameNumber -= 1;
-    currentFrameStore.set(frames[frameIndex]);
+    setCurrentFrame(frameNumber);
   }
 
   function next() {
     playing = false;
     if (isLastFrame()) return;
     frameNumber += 1;
-    currentFrameStore.set(frames[frameIndex]);
+    setCurrentFrame(frameNumber);
   }
 
   function isLastFrame() { return frameNumber >= frames.length - 1; }
@@ -194,7 +183,7 @@
     </div>
 
     <div class="font-mono text-[10px] text-text-muted tracking-wider whitespace-nowrap mr-2">
-      {frameNumber} / {frames.length > 0 ? frames.length - 1 : 0}
+      {frames.length > 0 ? frameNumber + 1 : 0} / {frames.length}
     </div>
   </div>
 </div>
