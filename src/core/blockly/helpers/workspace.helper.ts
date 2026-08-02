@@ -36,14 +36,76 @@ export const loadProjectFromUrl = async (url: string) => {
   loadProject(fileText);
 };
 
+const LOAD_RETRY_INTERVAL = 100;
+const MAX_LOAD_RETRIES = 20;
+
+// Deferred-load queue for when loadProject is called before the Blockly
+// workspace exists (WL-006). Previously the load was dropped silently.
+let _pendingLoad: string | null = null;
+let _loadRetries = 0;
+let _loadRetryTimer: ReturnType<typeof setTimeout> | undefined;
+
+// Workspace-readiness seam so tests can simulate the workspace appearing
+// without a real Blockly main workspace (WL-006).
+let _workspaceOverride: WorkspaceSvg | undefined;
+const getCurrentWorkspace = (): WorkspaceSvg | undefined =>
+  _workspaceOverride ?? getWorkspace();
+
+/** Test-only: simulate workspace readiness. Pass undefined to use the real one. */
+export const _setWorkspaceOverrideForTests = (ws: WorkspaceSvg | undefined) => {
+  _workspaceOverride = ws;
+};
+
+const tryDeferredLoad = () => {
+  _loadRetryTimer = undefined;
+  if (!_pendingLoad) return;
+  if (getCurrentWorkspace()) {
+    const xml = _pendingLoad;
+    _pendingLoad = null;
+    _loadRetries = 0;
+    loadProject(xml);
+    return;
+  }
+  if (_loadRetries >= MAX_LOAD_RETRIES) {
+    _pendingLoad = null;
+    _loadRetries = 0;
+    fail('loadProject:give-up', new Error('Blockly workspace never became ready'));
+    console.error('Failed to load project: Blockly workspace never became ready');
+    return;
+  }
+  _loadRetries += 1;
+  _loadRetryTimer = setTimeout(tryDeferredLoad, LOAD_RETRY_INTERVAL);
+};
+
+/** Test-only: clears the deferred-load queue/timer/override. */
+export const _resetLoadProjectForTests = () => {
+  if (_loadRetryTimer) clearTimeout(_loadRetryTimer);
+  _loadRetryTimer = undefined;
+  _pendingLoad = null;
+  _loadRetries = 0;
+  _workspaceOverride = undefined;
+};
+
 export const loadProject = (xmlString: string) => {
   mark('loadProject:start', { xmlLength: xmlString.length });
   try {
-    const workspace = getWorkspace();
+    const workspace = getCurrentWorkspace();
     if (!workspace) {
-      fail('loadProject:no-workspace', new Error('Blockly workspace not ready, deferring project load'));
-      console.warn("Blockly workspace not ready, deferring project load");
+      // Defer and retry once the workspace exists (WL-006) instead of dropping
+      // the load silently.
+      _pendingLoad = xmlString;
+      if (!_loadRetryTimer) {
+        _loadRetryTimer = setTimeout(tryDeferredLoad, LOAD_RETRY_INTERVAL);
+      }
       return;
+    }
+
+    // A previous call may have been deferred; clear it now that we're loading.
+    _pendingLoad = null;
+    _loadRetries = 0;
+    if (_loadRetryTimer) {
+      clearTimeout(_loadRetryTimer);
+      _loadRetryTimer = undefined;
     }
 
     const parser = new DOMParser();
