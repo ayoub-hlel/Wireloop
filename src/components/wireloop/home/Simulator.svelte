@@ -11,8 +11,8 @@
   import { onMount, onDestroy, tick } from 'svelte';
   import { onErrorMessage } from '../../../help/alerts';
   import { mark, fail } from '$lib/telemetry/boot';
-  import { wait } from '../../../helpers/wait';
   import { arduinoComponentStateToId } from '../../../core/frames/arduino-component-id';
+  import { waitForContainerSize } from './simulator-wait';
   import { centerCircuit } from '../../../core/virtual-circuit/centerCircuit';
   import { page } from '$app/stores';
   import type { ArduinoFrame } from '../../../core/frames/arduino.frame';
@@ -33,27 +33,38 @@
       onErrorMessage('Please refresh your browser and try again.', e);
     }
 
-    let width = container.clientWidth - 10;
-    let height = container.clientHeight - 10;
-    let count = 0;
-    while (width < 0 || height < 0) {
-      width = container.clientWidth - 10;
-      height = container.clientHeight - 10;
-      await wait(5);
-      count += 1;
-      if (count > 1000) {
-        fail('sim:no-container-size', { width, height });
-        onErrorMessage('There is not enough room to render the Arduino', {});
-        return;
-      }
+    // Wait for the container to be laid out. Replaces the old 5s busy-poll that
+    // gave up permanently (dead canvas, no subscriptions) — WL-008.
+    const waitForLayout = (timeoutMs: number) =>
+      waitForContainerSize(container, {
+        observe: (onResize) => {
+          const ro = new ResizeObserver(onResize);
+          ro.observe(container);
+          return () => ro.disconnect();
+        },
+        timeoutMs,
+      });
+
+    let size;
+    try {
+      size = await waitForLayout(5000);
+    } catch {
+      fail('sim:no-container-size', {
+        width: container.clientWidth - 10,
+        height: container.clientHeight - 10,
+      });
+      onErrorMessage('There is not enough room to render the Arduino', {});
+      // Don't dead-end: keep waiting (ResizeObserver, no polling) until the
+      // container is laid out, then initialize so the circuit still draws.
+      size = await waitForLayout(Number.POSITIVE_INFINITY);
     }
 
     draw = SVG()
       .addTo(container)
-      .size(container.clientWidth - 10, container.clientHeight - 10)
-      .viewbox(0, 0, container.clientWidth - 10, container.clientWidth - 10)
+      .size(size.width, size.height)
+      .viewbox(0, 0, size.width, size.width)
       .panZoom();
-    mark('sim:svg-created', { width: container.clientWidth - 10, height: container.clientHeight - 10 });
+    mark('sim:svg-created', { width: size.width, height: size.height });
 
     unsubscribes.push(
       frameStore.subscribe((frameContainer) => {
