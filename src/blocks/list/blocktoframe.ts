@@ -151,16 +151,13 @@ const createVariable = (
   const variableFound = variables.find((v) => v.id === variableId);
   if (!variableFound) return null;
 
-  const defaultValue = type === VariableTypes.LIST_NUMBER ? 0
-    : type === VariableTypes.LIST_STRING ? ""
-    : type === VariableTypes.LIST_BOOLEAN ? false
-    : { r: 0, g: 0, b: 0 };
-
+  // Empty list slots are unset placeholders (null), rendered as "_" in the
+  // debugger until they get a value.
   return {
     id: variableId,
     type,
     name: variableFound.name,
-    value: Array.from({ length: size }, () => defaultValue),
+    value: Array.from({ length: size }, () => null),
   } as Variable;
 };
 
