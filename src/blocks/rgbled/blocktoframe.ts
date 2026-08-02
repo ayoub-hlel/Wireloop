@@ -1,6 +1,7 @@
 import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import { hexToRgb } from "../../core/blockly/helpers/color.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import {
@@ -15,15 +16,17 @@ export const ledColorSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const redPin = findFieldValue(block, "PIN_RED_1");
-  const greenPin = findFieldValue(block, "PIN_GREEN_1");
-  const bluePin = findFieldValue(block, "PIN_BLUE_1");
+  const redPin = findFieldValue(block, "PIN_RED_1") as ARDUINO_PINS;
+  const greenPin = findFieldValue(block, "PIN_GREEN_1") as ARDUINO_PINS;
+  const bluePin = findFieldValue(block, "PIN_BLUE_1") as ARDUINO_PINS;
 
-  const redPin2 = findFieldValue(block, "PIN_RED_2");
-  const greenPin2 = findFieldValue(block, "PIN_GREEN_2");
-  const bluePin2 = findFieldValue(block, "PIN_BLUE_2");
+  const redPin2 = findFieldValue(block, "PIN_RED_2") as ARDUINO_PINS;
+  const greenPin2 = findFieldValue(block, "PIN_GREEN_2") as ARDUINO_PINS;
+  const bluePin2 = findFieldValue(block, "PIN_BLUE_2") as ARDUINO_PINS;
 
-  const numberOfComponents = +findFieldValue(block, "NUMBER_OF_COMPONENTS");
+  const numberOfComponents = Number(
+    findFieldValue(block, "NUMBER_OF_COMPONENTS")
+  );
 
   const ledColorState1: LedColorState = {
     type: ArduinoComponentType.LED_COLOR,
@@ -79,7 +82,7 @@ export const setLedColor: BlockToFrameTransformer = (
           { red: 0, green: 0, blue: 0 },
           previousState
         )
-      : hexToRgb(findFieldValue(block, "COLOR"));
+      : hexToRgb(findFieldValue(block, "COLOR") as string);
   let whichComponent = findFieldValue(block, "WHICH_COMPONENT");
   if (whichComponent == undefined) {
     whichComponent = 1;
