@@ -78,14 +78,14 @@ export const digitalAnalogWritePinSync: SyncComponent = (
     }
   }
 
-  if (state.pinType === WritePinType.ANALOG_OUTPUT) {
+  if (writeState.pinType === WritePinType.ANALOG_OUTPUT) {
     const pinText = pinEl.findOne("#STATE_TEXT") as Text;
-    pinText.node.innerHTML = state.state.toString();
+    pinText.node.innerHTML = writeState.state.toString();
     pinEl.findOne("#RAYS")!.show();
     pinEl.findOne("#LIGHT_BULB")!.show();
 
-    (pinEl.findOne("#RAYS") as Element).opacity(state.state / 255);
-    (pinEl.findOne("#LIGHT_BULB") as Element).opacity(state.state / 255);
+    (pinEl.findOne("#RAYS") as Element).opacity(writeState.state / 255);
+    (pinEl.findOne("#LIGHT_BULB") as Element).opacity(writeState.state / 255);
   }
 
   pinText.cx(16);

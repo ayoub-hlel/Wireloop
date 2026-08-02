@@ -4,6 +4,7 @@ import type { BlockToFrameTransformer } from "../../core/frames/transformer/bloc
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
 import { WritePinState, WritePinType } from "./state";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 
 export const digitalWrite: BlockToFrameTransformer = (
   blocks,
@@ -12,7 +13,7 @@ export const digitalWrite: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const pin = findFieldValue(block, "PIN");
+  const pin = findFieldValue(block, "PIN") as ARDUINO_PINS;
   const wordState = findFieldValue(block, "STATE") === "ON" ? "on" : "off";
   const state = findFieldValue(block, "STATE") === "ON" ? 1 : 0;
   const digitalWriteState: WritePinState = {
@@ -43,7 +44,7 @@ export const analogWrite: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const pin = findFieldValue(block, "PIN");
+  const pin = findFieldValue(block, "PIN") as ARDUINO_PINS;
   const state = getInputValue(
     blocks,
     block,
