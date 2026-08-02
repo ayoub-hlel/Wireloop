@@ -18,7 +18,7 @@ export const fastLEDSetup: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const numberOfLeds = +findFieldValue(block, "NUMBER_LEDS");
+  const numberOfLeds = Number(findFieldValue(block, "NUMBER_LEDS"));
 
   const ledStripState: FastLEDState = {
     pins: block.pins,
@@ -96,7 +96,7 @@ export const setAllColors: BlockToFrameTransformer = (
 
   const leds = [];
   for (let position = 1; position <= fastLED.numberOfLeds; position += 1) {
-    const hexValue = findFieldValue(block, getRowColId(position));
+    const hexValue = findFieldValue(block, getRowColId(position)) as string;
     const color = hexToRgb(hexValue);
     leds.push({ position: position - 1, color });
   }
