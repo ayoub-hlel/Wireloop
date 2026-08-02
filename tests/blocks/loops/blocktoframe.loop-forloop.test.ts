@@ -32,7 +32,7 @@ describe("generate states controls_for block", () => {
 
   it("should loop -3 to 0 substracting by 1", () => {
     // -3, -2, -1, 0
-    testloop(workspace, -3, 0, 1, [-3, -2, -1, 0, 1]);
+    testloop(workspace, -3, 0, 1, [-3, -2, -1, 0]);
   });
 
   it("should loop 1 to 10 by adding by 3", () => {
@@ -103,7 +103,8 @@ const generateFrameForLoop = (
 ) => {
   const forLoopNumber = workspace.newBlock("controls_for") as BlockSvg;
 
-  if (from) {
+  // `!== null` (not truthiness): 0 is a valid FROM/TO/BY value.
+  if (from !== null) {
     const fromNumberBlock = createValueBlock(
       workspace,
       VariableTypes.NUMBER,
@@ -113,14 +114,14 @@ const generateFrameForLoop = (
       .getInput("FROM")!.connection!.connect(fromNumberBlock.outputConnection!);
   }
 
-  if (to) {
+  if (to !== null) {
     const toNumberBlock = createValueBlock(workspace, VariableTypes.NUMBER, to);
 
     forLoopNumber
       .getInput("TO")!.connection!.connect(toNumberBlock.outputConnection!);
   }
 
-  if (by) {
+  if (by !== null) {
     forLoopNumber.setFieldValue(by.toString(), "BY");
   }
 

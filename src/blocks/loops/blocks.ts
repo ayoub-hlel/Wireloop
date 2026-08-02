@@ -52,4 +52,10 @@ const blocks = [
   },
 ];
 
+// The stock `blockly` library ships a built-in `controls_for` block whose BY
+// is an input_value. Our custom block replaces it with a Number-typed variable
+// block whose BY is a field_number. The stock block registers first (via
+// `blockly/browser.js`), so drop it here or the dedup filter below would
+// silently discard our definition (WL-004).
+delete Blockly.Blocks["controls_for"];
 Blockly.defineBlocksWithJsonArray(blocks.filter(b => !Blockly.Blocks[b.type]));

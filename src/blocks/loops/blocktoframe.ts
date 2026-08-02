@@ -82,7 +82,9 @@ export const forLoop: BlockToFrameTransformer = (
   const multiplyBy = from > to ? -1 : 1;
 
   let prevState = previousState;
-  const loopLength = Math.ceil(Math.abs(to - from + 1) / by);
+  // Inclusive of both endpoints; `|to - from| + 1` (not `|to - from + 1|`)
+  // so decreasing ranges (from > to) count correctly.
+  const loopLength = Math.ceil((Math.abs(to - from) + 1) / by);
   return Array.from({ length: loopLength }, (_, i) => from + i * by * multiplyBy)
     .map((i, counter, array) => {
       const variableData = variables.find(
