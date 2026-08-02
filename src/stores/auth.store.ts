@@ -59,6 +59,9 @@ function createAuthStore() {
     async signInEmail(email: string, password: string) {
       const { error } = await authClient.signIn.email({ email, password });
       if (error) throw new Error(error.message ?? error.statusText ?? "Sign in failed");
+      // Refresh the session store so the login-page redirect guard fires
+      // (WL-003). Matches verifyEmail's "refresh after action" pattern.
+      await this.init();
     },
 
     /** Sign up — creates Better Auth user only, caller handles profile */
