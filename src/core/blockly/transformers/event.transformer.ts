@@ -13,14 +13,14 @@ export const transformEvent = (
 ): BlockEvent => {
   const blockDatum = blocks.map(transformBlock);
   return {
-    blockId: get(event, "blockId", undefined),
-    type: event.type,
+    blockId: get(event, "blockId", undefined) as string,
+    type: event.type as string,
     blocks: blockDatum,
     microController: microcontrollerType,
     variables: variables.map(transformVariable),
-    fieldName: get(event, "name", undefined),
-    fieldType: get(event, "element", undefined),
-    newValue: get(event, "newValue", undefined),
-    oldValue: get(event, "oldValue", undefined),
+    fieldName: get(event, "name", undefined) as string | undefined,
+    fieldType: get(event, "element", undefined) as string | undefined,
+    newValue: get(event, "newValue", undefined) as string | undefined,
+    oldValue: get(event, "oldValue", undefined) as string | undefined,
   };
 };
