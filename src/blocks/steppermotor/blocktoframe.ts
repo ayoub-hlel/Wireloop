@@ -7,6 +7,7 @@ import {
   findComponent,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import { StepperMotorState } from "./state";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 
 export const stepperMotorSetup: BlockToFrameTransformer = (
   blocks,
@@ -15,11 +16,11 @@ export const stepperMotorSetup: BlockToFrameTransformer = (
   timeline,
   previousFrame
 ) => {
-  const pin1 = findFieldValue(block, "PIN_1");
-  const pin2 = findFieldValue(block, "PIN_2");
-  const pin3 = findFieldValue(block, "PIN_3");
-  const pin4 = findFieldValue(block, "PIN_4");
-  const totalSteps = findFieldValue(block, "TOTAL_STEPS");
+  const pin1 = findFieldValue(block, "PIN_1") as ARDUINO_PINS;
+  const pin2 = findFieldValue(block, "PIN_2") as ARDUINO_PINS;
+  const pin3 = findFieldValue(block, "PIN_3") as ARDUINO_PINS;
+  const pin4 = findFieldValue(block, "PIN_4") as ARDUINO_PINS;
+  const totalSteps = Number(findFieldValue(block, "TOTAL_STEPS"));
   const stepperMotorState: StepperMotorState = {
     type: ArduinoComponentType.STEPPER_MOTOR,
     pins: [pin1, pin2, pin3, pin4],
