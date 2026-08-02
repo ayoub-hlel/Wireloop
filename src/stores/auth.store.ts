@@ -21,13 +21,20 @@ const initial: AuthState = {
 
 function createAuthStore() {
   const { subscribe, set } = writable<AuthState>(initial);
+  // Guards against double init during boot — the root and studio layouts both
+  // call init() on mount (WL-007). signInEmail/verifyEmail pass force=true to
+  // refresh after an action.
+  let _initialized = false;
 
   return {
     subscribe,
-    set,
+    set: (state: AuthState) => { _initialized = true; set(state); },
 
-    /** Initialize — fetch session from Better Auth */
-    async init() {
+    /** Initialize — fetch session from Better Auth. No-op if already initialized. */
+    async init(force = false) {
+      if (!force && _initialized) return;
+      _initialized = true;
+
       try {
         const { data } = await authClient.getSession();
         if (data) {
@@ -60,8 +67,8 @@ function createAuthStore() {
       const { error } = await authClient.signIn.email({ email, password });
       if (error) throw new Error(error.message ?? error.statusText ?? "Sign in failed");
       // Refresh the session store so the login-page redirect guard fires
-      // (WL-003). Matches verifyEmail's "refresh after action" pattern.
-      await this.init();
+      // (WL-003). force=true because init is idempotent after boot (WL-007).
+      await this.init(true);
     },
 
     /** Sign up — creates Better Auth user only, caller handles profile */
@@ -74,8 +81,8 @@ function createAuthStore() {
     async verifyEmail(token: string) {
       const { error } = await authClient.verifyEmail({ query: { token } });
       if (error) throw new Error(error.message ?? "Verification failed");
-      // Refresh session after verification
-      await this.init();
+      // Refresh session after verification (force — init is idempotent, WL-007)
+      await this.init(true);
     },
 
     /** Request password reset email */
@@ -114,6 +121,7 @@ function createAuthStore() {
     },
 
     reset() {
+      _initialized = false;
       set(initial);
     },
   };

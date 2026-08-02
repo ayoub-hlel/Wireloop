@@ -98,6 +98,8 @@ let client: DBClient | null = null;
 
 export function initializeApiClient(): void {
   if (!browser) return;
+  // Idempotent — root and studio layouts both call this on mount (WL-007).
+  if (client) return;
 
   connectionState.set({ isConnected: true, isLoading: false, error: null, lastUpdated: Date.now() });
   client = new Client();
