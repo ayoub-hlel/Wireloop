@@ -1,8 +1,12 @@
 import { getWorkspace } from "./workspace.helper";
 import type { BlockSvg } from "blockly";
 
+// Guard every workspace read: Blockly.getMainWorkspace() is undefined before
+// the workspace is created (studio boot), and these helpers run during boot
+// (WL-014). Return empty values instead of throwing so callers can no-op.
 export const getAllBlocks = () => {
-  return getWorkspace().getAllBlocks(true) as BlockSvg[];
+  const workspace = getWorkspace();
+  return workspace ? (workspace.getAllBlocks(true) as BlockSvg[]) : [];
 };
 
 /**
@@ -17,11 +21,13 @@ export const getBlocksByName = (name: string) => {
 };
 
 export const getBlockById = (id: string) => {
-  return getWorkspace().getBlockById(id) as BlockSvg;
+  const workspace = getWorkspace();
+  return workspace ? (workspace.getBlockById(id) as BlockSvg) : undefined;
 };
 
 export const getTopBlocks = () => {
-  return getWorkspace().getTopBlocks(true) as BlockSvg[];
+  const workspace = getWorkspace();
+  return workspace ? (workspace.getTopBlocks(true) as BlockSvg[]) : [];
 };
 
 export const connectToArduinoBlock = function (variableBlock: BlockSvg) {

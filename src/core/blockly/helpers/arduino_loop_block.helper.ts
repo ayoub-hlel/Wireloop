@@ -16,6 +16,9 @@ export const arduinoLoopBlockShowNumberOfTimesThroughLoop = () => {
  */
 export const arduinoLoopBlockShowLoopForeverText = () => {
   const block = getBlockByType('arduino_loop');
+  // Guard for boot before the workspace/blocks exist (WL-014). Matches the
+  // sibling arduinoLoopBlockShowNumberOfTimesThroughLoop guard.
+  if (!block) return;
 
   block.inputList[0].setVisible(true);
   block.inputList[1].setVisible(false);
@@ -24,12 +27,14 @@ export const arduinoLoopBlockShowLoopForeverText = () => {
 
 export const getTimesThroughLoop = (): number => {
   // This is for when the blocks are not loaded and we need this to construct the blocks
-  if (!getBlockByType("arduino_loop")) {
+  const block = getBlockByType("arduino_loop");
+  if (!block) {
     return 3;
   }
-  return +getBlockByType("arduino_loop").getFieldValue("LOOP_TIMES");
+  return +block.getFieldValue("LOOP_TIMES");
 };
 
 export const isArduinoLoopBlockId = (id: string) => {
-  return getBlockByType('arduino_loop').id === id;
+  const block = getBlockByType('arduino_loop');
+  return block ? block.id === id : false;
 }
