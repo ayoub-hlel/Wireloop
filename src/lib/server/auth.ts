@@ -9,9 +9,15 @@ let _auth: ReturnType<typeof createAuth> | null = null;
 export function getAuth(baseURL?: string) {
   if (!_auth) {
     const url = env.DATABASE_URL;
-    if (!url) return null;
+    if (!url) {
+      Sentry.captureMessage('Auth factory unavailable: DATABASE_URL missing', { level: 'error', tags: { service: 'auth', action: 'create' } });
+      return null;
+    }
     const secret = env.BETTER_AUTH_SECRET;
-    if (!secret) return null;
+    if (!secret) {
+      Sentry.captureMessage('Auth factory unavailable: BETTER_AUTH_SECRET missing', { level: 'error', tags: { service: 'auth', action: 'create' } });
+      return null;
+    }
 
     const base = baseURL || "http://localhost:5173";
 

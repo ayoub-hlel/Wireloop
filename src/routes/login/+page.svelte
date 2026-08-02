@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import { Button } from "$lib/components/ui/button/index.js";
   import * as Card from "$lib/components/ui/card/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -16,6 +17,12 @@
   let resendCooldown = $state(0);
   let resendLoading = $state(false);
   let resendSent = $state(false);
+
+  // Studio/auth gate signals a server config error via ?reason=auth-unavailable
+  // (WL-002) — show it instead of silently failing.
+  let serverAuthIssue = $derived(
+    $page.url.searchParams.get("reason") === "auth-unavailable"
+  );
 
   // ponytail: reactive guard — no race with authStore.init()
   $effect(() => {
@@ -85,6 +92,13 @@
       {#if error}
         <div class="mb-4 p-3 rounded-md text-sm bg-destructive/10 border border-destructive/30 text-destructive">
           {error}
+        </div>
+      {/if}
+
+      {#if serverAuthIssue}
+        <div class="mb-4 p-3 rounded-md text-sm bg-destructive/10 border border-destructive/30 text-destructive">
+          Sign-in is temporarily unavailable: the server's authentication service isn't configured
+          (missing database or auth secret). Please try again later.
         </div>
       {/if}
 
