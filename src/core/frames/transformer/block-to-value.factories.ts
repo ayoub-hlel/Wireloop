@@ -152,15 +152,15 @@ export const valueList: { [blockName: string]: ValueGenerator } = {
   joystick_engaged: joystickEngaged,
 };
 
-export const getInputValue = (
+export const getInputValue = <T>(
   blocks: BlockData[],
   block: BlockData,
   variables: VariableData[],
   timeline: Timeline,
   inputName: string,
-  defaultValue: unknown,
+  defaultValue: T,
   previousState: ArduinoFrame | undefined
-) => {
+): T => {
   const inputBlock = findBlockInput(blocks, block, inputName);
 
   if (!inputBlock) {
@@ -174,7 +174,10 @@ export const getInputValue = (
     previousState
   );
 
-  return value === undefined ? defaultValue : value;
+  // `defaultValue` types the expected result; a present block value is cast to
+  // that same type. Callers already rely on this (e.g. numeric defaults used in
+  // arithmetic), so this only makes the existing contract explicit.
+  return value === undefined ? defaultValue : (value as T);
 };
 
 export const blockToValue: ValueGenerator = (
