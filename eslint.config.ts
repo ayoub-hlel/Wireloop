@@ -10,7 +10,7 @@ import { defineConfig } from "eslint/config";
 const SVELTE_FILES = ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"];
 
 export default defineConfig(
-  { ignores: [".svelte-kit/**", "graphify-out/**", "static/**", "dist/**", "build/**"] },
+  { ignores: [".svelte-kit/**", "graphify-out/**", "static/**", "dist/**", "build/**", "k6/**"] },
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: {...globals.browser, ...globals.node} } },
   tseslint.configs.recommended,
   { files: ["**/*.{ts,svelte.ts}", ...SVELTE_FILES], rules: { "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }] } },

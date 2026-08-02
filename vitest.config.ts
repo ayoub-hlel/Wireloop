@@ -15,34 +15,28 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    include: [
-      'src/tests/**/*.{test,spec}.{js,ts}',
-      'src/tests/**/*.ts',
-      'tests/**/*.{test,spec}.{js,ts}',
-    ],
+    include: ['tests/**/*.{test,spec}.{js,ts}'],
     exclude: [
       'node_modules/**',
       'dist/**',
       '.svelte-kit/**',
-      'src/tests/mocks/**',
-      'src/tests/fake-block.ts',
-      'src/tests/tests.helper.ts',
-      'tests/setup.ts',
+      'tests/mocks/**',
+      'tests/app/fake-block.ts',
+      'tests/app/tests.helper.ts',
       'vitest.setup.ts',
     ],
     deps: {
       inline: [/svelte/],
     },
     setupFiles: ['./vitest.setup.ts'],
-    globalSetup: ['./tests/setup.ts'],
   },
   resolve: {
     conditions: ['browser', 'import', 'module'],
     alias: {
       '@': resolve(__dirname, 'src'),
       '$lib': resolve(__dirname, 'src/lib'),
-      '$app': resolve(__dirname, 'src/tests/mocks/app'),
-      '$env/dynamic/private': resolve(__dirname, 'src/tests/mocks/env/private.ts'),
+      '$app': resolve(__dirname, 'tests/mocks/app'),
+      '$env/dynamic/private': resolve(__dirname, 'tests/mocks/env/private.ts'),
     },
   },
 });
