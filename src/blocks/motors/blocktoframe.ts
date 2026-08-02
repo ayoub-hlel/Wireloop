@@ -11,6 +11,7 @@ import {
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { MotorShieldState } from "./state";
 import { MOTOR_DIRECTION } from "./state";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 
 export const motorSetup: BlockToFrameTransformer = (
   blocks,
@@ -21,12 +22,12 @@ export const motorSetup: BlockToFrameTransformer = (
 ) => {
   const numberOfMotors =
     findFieldValue(block, "NUMBER_OF_COMPONENTS") == "1" ? 1 : 2;
-  const en1 = findFieldValue(block, "PIN_EN1");
-  const in1 = findFieldValue(block, "PIN_IN1");
-  const in2 = findFieldValue(block, "PIN_IN2");
-  const en2 = findFieldValue(block, "PIN_EN2");
-  const in3 = findFieldValue(block, "PIN_IN3");
-  const in4 = findFieldValue(block, "PIN_IN4");
+  const en1 = findFieldValue(block, "PIN_EN1") as ARDUINO_PINS;
+  const in1 = findFieldValue(block, "PIN_IN1") as ARDUINO_PINS;
+  const in2 = findFieldValue(block, "PIN_IN2") as ARDUINO_PINS;
+  const en2 = findFieldValue(block, "PIN_EN2") as ARDUINO_PINS;
+  const in3 = findFieldValue(block, "PIN_IN3") as ARDUINO_PINS;
+  const in4 = findFieldValue(block, "PIN_IN4") as ARDUINO_PINS;
   const motorShieldState: MotorShieldState = {
     numberOfMotors,
     en1,
@@ -84,7 +85,7 @@ export const stopMotor: BlockToFrameTransformer = (
   const motorShieldStateToUpdate = {
     ...motorComponent,
   };
-  const motorNumber = +findFieldValue(block, "MOTOR");
+  const motorNumber = Number(findFieldValue(block, "MOTOR"));
   let actualMotorNumber = 1;
   if (motorShieldStateToUpdate.numberOfMotors === 1 || motorNumber === 1) {
     motorShieldStateToUpdate.speed1 = 0;
@@ -120,7 +121,7 @@ export const moveMotor: BlockToFrameTransformer = (
   const motorShieldStateToUpdate = {
     ...motorComponent,
   };
-  const motorNumber = +findFieldValue(block, "MOTOR");
+  const motorNumber = Number(findFieldValue(block, "MOTOR"));
 
   const speed = getDefaultIndexValue(
     0,
