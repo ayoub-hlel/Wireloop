@@ -11,6 +11,7 @@ import {
   getDefaultIndexValue,
 } from '../../core/frames/transformer/frame-transformer.helpers';
 import type { LedMatrixState } from './state';
+import type { ARDUINO_PINS } from '../../core/microcontroller/selectBoard';
 
 export const ledMatrixSetup: BlockToFrameTransformer = (
   blocks,
@@ -34,14 +35,14 @@ export const ledMatrixSetup: BlockToFrameTransformer = (
   const ledMatrixState: LedMatrixState = {
     type: ArduinoComponentType.LED_MATRIX,
     pins: [
-      findFieldValue(block, 'PIN_CLK'),
-      findFieldValue(block, 'PIN_CS'),
-      findFieldValue(block, 'PIN_DATA'),
+      findFieldValue(block, 'PIN_CLK') as ARDUINO_PINS,
+      findFieldValue(block, 'PIN_CS') as ARDUINO_PINS,
+      findFieldValue(block, 'PIN_DATA') as ARDUINO_PINS,
     ],
     leds,
-    clkPin: findFieldValue(block, 'PIN_CLK'),
-    csPin: findFieldValue(block, 'PIN_CS'),
-    dataPin: findFieldValue(block, 'PIN_DATA'),
+    clkPin: findFieldValue(block, 'PIN_CLK') as ARDUINO_PINS,
+    csPin: findFieldValue(block, 'PIN_CS') as ARDUINO_PINS,
+    dataPin: findFieldValue(block, 'PIN_DATA') as ARDUINO_PINS,
   };
 
   return [
