@@ -3,7 +3,6 @@
   import type { Snippet } from 'svelte';
   let { children }: { children: Snippet } = $props();
   import debounce from 'lodash/debounce';
-  import { isPathOnHomePage } from '../../helpers/is-path-on-homepage';
   import LeftToolbar from '../../components/wireloop/LeftToolbar.svelte';
   import RightPanelTabs from '../../components/wireloop/RightPanelTabs.svelte';
   import Blockly from '../../components/wireloop/Blockly.svelte';
@@ -17,10 +16,6 @@
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
-  import {
-    arduinoLoopBlockShowLoopForeverText,
-    arduinoLoopBlockShowNumberOfTimesThroughLoop,
-  } from '../../core/blockly/helpers/arduino_loop_block.helper';
   let height = $state('500px');
   let middleFlex = $state(59.5);
   let rightFlex = $state(39.5);
@@ -139,12 +134,6 @@
       }
     });
 
-    if (isPathOnHomePage($page.url.pathname)) {
-        arduinoLoopBlockShowNumberOfTimesThroughLoop();
-      } else {
-        arduinoLoopBlockShowLoopForeverText();
-      }
-
     window.addEventListener('error', onEmulatorError);
   });
 
@@ -165,7 +154,10 @@
   <LeftToolbar />
   
   <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
-    <Blockly />
+    <!-- ponytail: studio layout only renders under /studio, where the old
+         isPathOnHomePage distinction is always false → loop block shows the
+         "loop forever" mode (the (studio) group-layout design intent). -->
+    <Blockly showLoopExecutionTimesArduinoStartBlock={false} />
   </div>
   
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
