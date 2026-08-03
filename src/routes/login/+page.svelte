@@ -137,7 +137,7 @@
       <form onsubmit={(e) => { e.preventDefault(); handleSignIn(); }} class="flex flex-col gap-4">
         <div class="grid gap-2">
           <Label for="email">Email</Label>
-          <Input id="email" type="email" placeholder="you@example.com" bind:value={email} required />
+          <Input id="email" name="email" type="email" placeholder="you@example.com" bind:value={email} required />
         </div>
         <div class="grid gap-2">
           <div class="flex items-center justify-between">
@@ -146,7 +146,7 @@
               Forgot password?
             </a>
           </div>
-          <Input id="password" type="password" placeholder="••••••••" bind:value={password} required />
+          <Input id="password" name="password" type="password" placeholder="••••••••" bind:value={password} required />
         </div>
         <Button type="submit" class="w-full" disabled={submitting}>
           {submitting ? "Signing in…" : "Sign In"}
