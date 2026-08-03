@@ -19,6 +19,17 @@ const querySchemas = {
   'org:getOrgProjects': organization.getOrgProjects,
 };
 
+// RPC args arrive as an untyped envelope; per-action zod schemas validate them.
+// This interface is the union of the schema outputs so switch arms can read
+// fields without `any` (WL-012).
+type QueryArgs = {
+  projectId: string;
+  userId?: string;
+  orgId: string;
+};
+
+type Db = NonNullable<ReturnType<typeof getDb>>;
+
 export async function POST({ request, locals, getClientAddress, platform }) {
   const limited = await checkRateLimit('query', locals, getClientAddress);
   if (limited) return limited;
@@ -28,8 +39,8 @@ export async function POST({ request, locals, getClientAddress, platform }) {
     const db = getDb();
     if (!db) throw error(503, 'Database not available');
 
-    const schema = querySchemas[name];
-    const data: any = schema ? validate(schema, args) : args;
+    const schema = querySchemas[name as keyof typeof querySchemas];
+    const data = (schema ? validate<unknown>(schema, args) : args) as QueryArgs;
 
     switch (name) {
       case 'projects:getProject': {
@@ -231,7 +242,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
   }
 }
 
-async function getOrgRole(db: any, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+async function getOrgRole(db: Db, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
   const org = await db.select().from(organizations).where(eq(organizations.id, orgId)).then(r => r[0]);
   if (!org) return null;
   if (org.ownerId === userId) return 'owner';

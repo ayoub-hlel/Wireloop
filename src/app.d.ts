@@ -12,7 +12,7 @@ declare global {
       env: {
         R2: import('@cloudflare/workers-types').R2Bucket;
       };
-      context: import('@cloudflare/workers-types').ExecutionContext;
+      ctx: import('@cloudflare/workers-types').ExecutionContext;
       caches: import('@cloudflare/workers-types').CacheStorage;
     }
   }

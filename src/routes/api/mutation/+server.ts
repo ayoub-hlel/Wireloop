@@ -34,6 +34,39 @@ const mutationSchemas = {
   'org:removeMember': organization.removeMember,
 };
 
+// RPC args arrive as an untyped envelope; per-action zod schemas validate them.
+// This interface is the union of the schema outputs so switch arms can read
+// fields without `any` (WL-012).
+type MutationArgs = {
+  projectId: string;
+  userId: string;
+  name: string;
+  description: string;
+  workspace: string;
+  boardType: 'uno' | 'nano' | 'mega';
+  isPublic: boolean;
+  tags: string[];
+  content: string;
+  filename: string;
+  step: string;
+  completed: boolean;
+  username: string;
+  profileImage: string;
+  bio: string;
+  location: string;
+  website: string;
+  email: string;
+  slug: string;
+  orgId: string;
+  role: 'admin' | 'member';
+  theme: 'light' | 'dark';
+  language: string;
+  autoSave: boolean;
+  tutorialCompleted: Record<string, boolean>;
+};
+
+type Db = NonNullable<ReturnType<typeof getDb>>;
+
 export async function POST({ request, locals, getClientAddress, platform }) {
   const limited = await checkRateLimit('mutation', locals, getClientAddress);
   if (limited) return limited;
@@ -44,8 +77,8 @@ export async function POST({ request, locals, getClientAddress, platform }) {
     const db = getDb();
     if (!db) throw error(503, 'Database not available');
 
-    const schema = mutationSchemas[name];
-    const data: any = schema ? validate(schema, args) : args;
+    const schema = mutationSchemas[name as keyof typeof mutationSchemas];
+    const data = (schema ? validate<unknown>(schema, args) : args) as MutationArgs;
 
     switch (name) {
       case 'projects:createProject': {
@@ -410,7 +443,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
   }
 }
 
-async function getOrgRole(db: any, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
+async function getOrgRole(db: Db, orgId: string, userId: string): Promise<'owner' | 'admin' | 'member' | null> {
   const org = await db.select().from(organizations).where(eq(organizations.id, orgId)).then(r => r[0]);
   if (!org) return null;
   if (org.ownerId === userId) return 'owner';

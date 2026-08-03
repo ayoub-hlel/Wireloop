@@ -4,6 +4,7 @@ import { getDb } from '$lib/db';
 import * as authSchema from '$lib/db/schema/auth';
 import { getAuth } from '$lib/server/auth';
 import { sql } from 'drizzle-orm';
+import type { AnyPgTable } from 'drizzle-orm/pg-core';
 
 const ENV_VARS = [
   'DATABASE_URL',
@@ -78,14 +79,14 @@ async function checkDatabase() {
     return { status: 'fail', error: 'Database client not available (DATABASE_URL missing?)', tables: null };
   }
 
-  const tables: Record<string, typeof authSchema.user> = {
+  const tables: Record<string, AnyPgTable> = {
     user: authSchema.user,
     session: authSchema.session,
     account: authSchema.account,
     verification: authSchema.verification,
   };
 
-  let latency: string | null = null;
+  let latency: string | null;
   try {
     const start = performance.now();
     await db.execute(sql`SELECT 1 AS ok`);
