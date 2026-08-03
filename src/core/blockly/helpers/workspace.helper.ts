@@ -109,7 +109,6 @@ export const loadProject = (xmlString: string) => {
     }
 
     const parser = new DOMParser();
-    localStorage.setItem("no_alert", "yes");
     // Delete all the old blocks and variables
     const blocksToDelete = getAllBlocks(); // get a list of all the old blocks
     blocksToDelete.forEach((b) => b.dispose(false)); // delete the old blocks
@@ -124,7 +123,6 @@ export const loadProject = (xmlString: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Blockly.Xml.domToWorkspace(xml.documentElement as any, workspace); // load new blocks
     mark('loadProject:loaded');
-    localStorage.removeItem("no_alert");
 
     // Scroll to the center
     workspace.scrollCenter();

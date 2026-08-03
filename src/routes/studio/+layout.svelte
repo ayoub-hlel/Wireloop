@@ -50,12 +50,10 @@
 
   onMount(async () => {
     mark('studio:layout-mount');
-    console.log('🚀 Wireloop: Initializing application services...');
     initAuth();
     initializeApiClient();
     mark('studio:services-init');
-    localStorage.removeItem('no_alert');
-    
+
     page.subscribe(() => { resizeHeight(); });
 
     let loadedProject = false;

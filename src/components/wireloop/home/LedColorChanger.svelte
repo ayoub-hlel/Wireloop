@@ -13,7 +13,6 @@
 
   onMount(() => {
     document.addEventListener("led-color-show", (e: Event) => {
-      console.log("check details", e.detail);
       ledEl = e.detail.componentEl;
       ledColor = ledEl.data("color");
       showLedChanger = true;
