@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { page } from '$app/stores';
   let { children }: { children: Snippet } = $props();
-  let segment = $derived($page.url.pathname.replace(/^\/settings\//, '') || undefined);
+  let segment = $derived($page.url.pathname.replace(/^\/circuit-settings\//, '') || undefined);
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
   let value = $state('');
@@ -12,12 +12,12 @@
 
   onMount(() => {
     // This is to fix the drop down box
-    value = segment ? '/settings/' + segment : '/settings';
+    value = segment ? '/circuit-settings/' + segment : '/circuit-settings';
   });
 
   $effect(() => {
     if (segment) {
-      value = segment ? '/settings/' + segment : '/settings';
+      value = segment ? '/circuit-settings/' + segment : '/circuit-settings';
     }
   });
 </script>
@@ -25,7 +25,7 @@
 <main class="container-fluid">
   <div class="row">
     <div class="col">
-      <h2>Settings</h2>
+      <h2>Circuit Settings</h2>
     </div>
   </div>
   <div class="row">
@@ -39,14 +39,13 @@
           id="exampleSelect"
           class="form-control"
         >
-          <option value="/settings">Circuit</option>
-          <option value="/settings/myprofile">My Profile</option>
-          <option value="/settings/about">About</option>
-          <option value="/settings/support">Support</option>
-          <option value="/settings/feature-request">Feature Requests</option>
-          <option value="/settings/bugs">Report a bug</option>
+          <option value="/circuit-settings">Circuit</option>
+          <option value="/circuit-settings/about">About</option>
+          <option value="/circuit-settings/support">Support</option>
+          <option value="/circuit-settings/feature-request">Feature Requests</option>
+          <option value="/circuit-settings/bugs">Report a bug</option>
 
-          <option value="/settings/privacy-policy">Privacy Policy</option>
+          <option value="/circuit-settings/privacy-policy">Privacy Policy</option>
         </select>
       </div>
     </div>

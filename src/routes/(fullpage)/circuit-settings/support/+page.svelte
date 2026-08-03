@@ -25,7 +25,7 @@
     <h2>Filling Bugs</h2>
     <p>
       If you want to file a bug you can use the built
-      <a href="/settings/bugs">bug form</a>
+      <a href="/circuit-settings/bugs">bug form</a>
       or
       <a href="https://github.com/phptuts/WireloopV3/issues">Github Issues</a>.
     </p>

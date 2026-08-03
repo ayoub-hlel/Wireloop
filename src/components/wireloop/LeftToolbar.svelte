@@ -104,9 +104,9 @@
           <i class="fa fa-wrench"></i>
           <span>Project Settings</span>
         </button>
-        <button class="dropdown-item" onclick={() => handleNavigate('/settings')}>
+        <button class="dropdown-item" onclick={() => handleNavigate('/circuit-settings')}>
           <i class="fa fa-gears"></i>
-          <span>Settings</span>
+          <span>Circuit Settings</span>
         </button>
         <button class="dropdown-item" onclick={() => handleNavigate('/about')}>
           <i class="fa fa-info-circle"></i>
