@@ -15,4 +15,9 @@ export function validateEnv(): void {
   if (missing.length > 0) {
     console.error(`Missing required env vars: ${missing.join(", ")}`);
   }
+  // ponytail: fail fast on redis:// URLs — Upstash REST client needs https:// (WL-017 class);
+  // a bad value otherwise 500s every API route at first request instead of being flagged at boot.
+  if (env.UPSTASH_REDIS_REST_URL && !env.UPSTASH_REDIS_REST_URL.startsWith("https://")) {
+    console.error("UPSTASH_REDIS_REST_URL must start with https:// (Upstash REST URL, not redis://)");
+  }
 }
