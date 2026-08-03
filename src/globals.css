@@ -1,29 +1,107 @@
 /* ═══════════════════════════════════════════════════════════════════
    globals.css — Wireloop / Arduino Workflow Builder
-   
-   Design Philosophy: Dovetail-Inspired — Clean, Professional, Dark
+
+   shadcn/ui theme template — dual theme (light + dark).
    ────────────────────────────────────────────────────────────────
-   This project is a visual Arduino programming environment. The
-   design language is adapted from dovetail.com's customer intelligence
-   platform: minimal, dark-first, with a vibrant blue accent.
-   
-     • Near-black backgrounds (#0A0A0A) with layered dark surfaces
-     • Deep vibrant blue (#0044FF) as the single accent color
-     • Clean generous typography (20px body, JetBrains Mono for code)
-     • Buttons with white bg / dark text for high contrast CTAs
-     • Subtle white-opacity borders (8%, 16%, 24%) for depth
-     • 8px border radius for buttons and cards
+   Every color/font/UI variable is declared here, once, as a CSS
+   custom property. Components never hardcode colors.
+
+     • Light palette in :root, dark palette in [data-theme="dark"]
+     • Theme is applied via data-theme on <html> (zero-glitch inline
+       script in app.html sets it before first paint)
+     • Every CSS variable is an HSL triplet for Tailwind to compose
+       as `hsl(var(--var) / <alpha-value>)`
    ═══════════════════════════════════════════════════════════════════ */
 
-
-/* ═══════════════════════════════════════════════════════════════════
-   shadcn/ui Theme — Inspired by Dovetail.com
-   
-   Every CSS variable is an HSL triplet for Tailwind to compose as
-   `hsl(var(--var) / <alpha-value>)`.
-   ═══════════════════════════════════════════════════════════════════ */
 @layer base {
+  /* ── LIGHT (default) ─────────────────────────────────────────── */
   :root {
+    color-scheme: light;
+
+    /* ── Background & Foreground ──────────────────────────────── */
+    --background: 0 0% 100%;           /* #FFFFFF */
+    --foreground: 0 0% 4%;             /* #0A0A0A */
+
+    /* ── Card & Surface Layers ────────────────────────────────── */
+    --card: 0 0% 98%;                  /* #FAFAFA */
+    --card-foreground: 0 0% 4%;
+
+    --popover: 0 0% 100%;              /* #FFFFFF */
+    --popover-foreground: 0 0% 4%;
+
+    /* ── Primary (dark button on light, inverse of dark theme) ── */
+    --primary: 0 0% 9%;                /* #171717 */
+    --primary-foreground: 0 0% 98%;    /* #FAFAFA */
+
+    /* ── Secondary ────────────────────────────────────────────── */
+    --secondary: 0 0% 94%;             /* #F0F0F0 */
+    --secondary-foreground: 0 0% 9%;
+
+    /* ── Muted / Dimmed ───────────────────────────────────────── */
+    --muted: 0 0% 94%;                 /* #F0F0F0 */
+    --muted-foreground: 0 0% 40%;      /* #666666 */
+
+    /* ── Accent (vibrant blue, shared across themes) ──────────── */
+    --accent: 224 100% 50%;            /* #0044FF */
+    --accent-foreground: 0 0% 98%;
+
+    /* ── Destructive (Error / Danger) ─────────────────────────── */
+    --destructive: 0 84% 60%;          /* #E53E3E */
+    --destructive-foreground: 0 0% 98%;
+
+    /* ── Semantic Colors ──────────────────────────────────────── */
+    --success: 142 76% 36%;            /* darker green for light bg contrast */
+    --warning: 32 95% 44%;             /* darker amber for light bg contrast */
+
+    /* ── Borders, Inputs, Focus Rings ──────────────────────────── */
+    --border: 0 0% 0% / 0.1;           /* black @ 10% opacity */
+    --input: 0 0% 0% / 0.1;
+    --ring: 224 100% 50%;              /* #0044FF */
+
+    /* ── Border Radius ────────────────────────────────────────── */
+    --radius: 0.5rem;                  /* 8px */
+
+    /* ── Sidebar ──────────────────────────────────────────────── */
+    --sidebar-background: 0 0% 98%;    /* #FAFAFA */
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 9%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 92%;        /* #EBEBEB */
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 0% / 0.08;
+    --sidebar-ring: 224 100% 50%;
+
+    /* ════════════════════════════════════════════════════════════
+       SCHEMATIC EXTENSION TOKENS (light)
+       ════════════════════════════════════════════════════════════ */
+
+    /* ── Background Layers ── */
+    --bg-surface: 0 0% 96%;            /* #F5F5F5 */
+    --bg-elevated: 0 0% 94%;           /* #F0F0F0 */
+    --bg-overlay-hsl: 0 0% 100%;
+
+    /* ── Border Variants ── */
+    --border-strong: 0 0% 0% / 0.24;   /* black @ 24% */
+
+    /* ── Text Variants ── */
+    --text-muted: 0 0% 40%;            /* #666666 */
+    --text-subtle: 0 0% 50%;           /* #808080 */
+    --text-code: 0 0% 40%;
+
+    /* ── Primary Accent Variants ── */
+    --primary-dim: 0 0% 85%;           /* #D9D9D9 */
+    --primary-dark: 0 0% 92%;          /* #EBEBEB */
+
+    /* ── Shadow Tokens ── */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-inset-trace: none;
+  }
+
+  /* ── DARK ────────────────────────────────────────────────────── */
+  [data-theme="dark"] {
+    color-scheme: dark;
+
     /* ── Background & Foreground ──────────────────────────────── */
     --background: 0 0% 4%;             /* #0A0A0A — near-black */
     --foreground: 0 0% 98%;            /* #FAFAFA — near-white text */
@@ -35,8 +113,8 @@
     --popover: 0 0% 13%;               /* #212121 */
     --popover-foreground: 0 0% 98%;    /* #FAFAFA */
 
-    /* ── Primary Accent (Vibrant Blue) ────────────────────────── */
-    --primary: 0 0% 98%;              /* #FAFAFA — white emphasis (like Dovetail CTAs) */
+    /* ── Primary (white emphasis, like Dovetail CTAs) ─────────── */
+    --primary: 0 0% 98%;               /* #FAFAFA */
     --primary-foreground: 0 0% 4%;     /* #0A0A0A — dark text on white bg */
 
     /* ── Secondary (Darker Surface) ────────────────────────────── */
@@ -47,8 +125,8 @@
     --muted: 0 0% 13%;                 /* #212121 */
     --muted-foreground: 0 0% 65%;      /* #A7A7A7 */
 
-    /* ── Accent (Same as Primary) ─────────────────────────────── */
-    --accent: 224 100% 50%;            /* #0044FF — blue accent (step numbers, indicators) */
+    /* ── Accent (vibrant blue, shared across themes) ──────────── */
+    --accent: 224 100% 50%;            /* #0044FF */
     --accent-foreground: 0 0% 98%;     /* #FAFAFA */
 
     /* ── Destructive (Error / Danger) ─────────────────────────── */
@@ -61,13 +139,8 @@
 
     /* ── Borders, Inputs, Focus Rings ──────────────────────────── */
     --border: 0 0% 100% / 0.08;        /* white @ 8% opacity */
-    --input: 0 0% 100% / 0.08;         /* white @ 8% opacity */
-
-    /* Focus ring: vibrant blue */
+    --input: 0 0% 100% / 0.08;
     --ring: 224 100% 50%;              /* #0044FF */
-
-    /* ── Border Radius ────────────────────────────────────────── */
-    --radius: 0.5rem;                  /* 8px */
 
     /* ── Sidebar ──────────────────────────────────────────────── */
     --sidebar-background: 0 0% 4%;     /* #0A0A0A */
@@ -80,7 +153,7 @@
     --sidebar-ring: 224 100% 50%;
 
     /* ════════════════════════════════════════════════════════════
-       SCHEMATIC EXTENSION TOKENS
+       SCHEMATIC EXTENSION TOKENS (dark)
        ════════════════════════════════════════════════════════════ */
 
     /* ── Background Layers ── */
@@ -98,12 +171,19 @@
     --text-code: 0 0% 65%;             /* #A7A7A7 — muted, not blue */
 
     /* ── Primary Accent Variants ── */
-    --primary-glow-alpha: 0.1;
     --primary-dim: 0 0% 20%;           /* #333333 */
     --primary-dark: 0 0% 13%;          /* #212121 */
 
+    /* ── Shadow Tokens ── */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-inset-trace: none;
+  }
+
+  /* ── SHARED TOKENS (theme-independent) ───────────────────────── */
+  :root {
     /* ── Glow Shadow Hues ── */
-    --glow-blue: 224 100% 50%;         /* #0044FF — keep blue for LED indicators */
+    --glow-blue: 224 100% 50%;         /* #0044FF — LED indicators */
     --glow-green: 142 76% 45%;         /* #38A169 */
     --glow-amber: 38 92% 50%;          /* #DD6B20 */
     --glow-red: 0 84% 60%;             /* #E53E3E */
@@ -117,14 +197,11 @@
     --font-heading: "Inter", -apple-system, system-ui, sans-serif;
     --font-icon: "FontAwesome", "Font Awesome 4.7.0", sans-serif;
 
-    /* ── Shadow Tokens ── */
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.4);
+    /* ── Glow Shadows (reference shared hues) ── */
     --shadow-glow-blue: 0 0 0 1px hsla(var(--ring) / 0.3);
     --shadow-glow-green: 0 0 0 1px hsla(var(--success) / 0.3);
     --shadow-glow-amber: 0 0 0 1px hsla(var(--warning) / 0.3);
     --shadow-glow-red: 0 0 0 1px hsla(var(--destructive) / 0.3);
-    --shadow-inset-trace: none;
 
     /* ── Font Size Tokens ── */
     --font-size-xs-mono: 0.65rem;

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./globals.css";
 /* eslint-disable-next-line css/no-invalid-at-rules */
 @config "../tailwind.config.ts";
 

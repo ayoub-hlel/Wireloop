@@ -1,16 +1,20 @@
 import { handleErrorWithSentry, replayIntegration } from "@sentry/sveltekit";
 import * as Sentry from '@sentry/sveltekit';
+import { env } from '$env/dynamic/public';
+import { dev } from '$app/environment';
 import { mark } from '$lib/telemetry/boot';
 
+// ponytail: sample 100% outside production, 10% in prod — errors always keep full replay
+const isProd = env.PUBLIC_APP_URL?.startsWith('https://wire-loop.tech') ?? false;
+
 Sentry.init({
-  dsn: 'https://f55ef0a612641830775820f46e4d45a0@o4511743013879808.ingest.de.sentry.io/4511743022530640',
+  dsn: env.PUBLIC_SENTRY_DSN,
 
-  tracesSampleRate: 1.0,
-  environment: 'preview',
-  debug: true,
+  tracesSampleRate: isProd ? 0.1 : 1.0,
+  environment: isProd ? 'production' : 'preview',
+  debug: dev,
 
-  // Preview: capture 100% of everything
-  replaysSessionSampleRate: 1.0,
+  replaysSessionSampleRate: isProd ? 0.1 : 1.0,
   replaysOnErrorSampleRate: 1.0,
 
   enableLogs: true,
@@ -20,7 +24,6 @@ Sentry.init({
       maskAllText: false,
       blockAllMedia: false,
     }),
-    // Every console.log/warn/error → Sentry event
     Sentry.captureConsoleIntegration({
       levels: ['error'],
     }),
@@ -33,10 +36,6 @@ Sentry.init({
       colorScheme: 'system',
     }),
   ],
-
-  dataCollection: {
-    // Preview: capture everything
-  },
 
   beforeSend(event) {
     // Drop Sentry's own internal requests

@@ -4,14 +4,15 @@
   import { lessons } from '../../../lessons/lessons';
   import type { LessonContainer, Lesson } from '../../../lessons/lessons';
 
-  import { onConfirm, onErrorMessage } from '../../../help/alerts';
-  import projectStore from '../../../stores/project.store';
   import chunk from 'lodash/chunk';
 
   import Sidebar from './Sidebar.svelte';
   import GridToolbar from './GridToolbar.svelte';
   import ProjectGrid from './ProjectGrid.svelte';
   import ProjectList from './ProjectList.svelte';
+  import UserSettingsDialog from '$lib/components/app/UserSettingsDialog.svelte';
+  import ImportDialog from '$lib/components/app/ImportDialog.svelte';
+  import CreateProjectDialog from '$lib/components/app/CreateProjectDialog.svelte';
   import orgStore, { type OrgInfo } from '../../../stores/org.store';
   import authStore from '../../../stores/auth.store';
   import { createDashboard } from './dashboard.svelte.ts';
@@ -39,30 +40,9 @@
   let trash = $derived(dashboard.trashed.map(p => ({ id: p.id, name: p.name })));
   let starred = $derived(dashboard.starred.map(p => ({ id: p.id, name: p.name })));
 
-  async function changeProject(e: Event) {
-    const target = e.target as HTMLInputElement;
-    const file = target.files?.[0];
-    if (!file) return;
-
-    if (
-      !(await onConfirm(
-        `Do you want to load ${file.name}, this will erase everything that you have done.`
-      ))
-    ) return;
-
-    const reader = new FileReader();
-    reader.onload = async function (evt) {
-      if (evt.target!.readyState != 2) return;
-      if (evt.target!.error) {
-        onErrorMessage('Please upload a valid arduino workflow builder file.', e);
-        return;
-      }
-      projectStore.set({ project: null, projectId: null });
-      localStorage.setItem('reload_once_workspace', evt.target!.result as string);
-      await goto('/studio');
-    };
-    reader.readAsText(file);
-  }
+  let settingsOpen = $state(false);
+  let importOpen = $state(false);
+  let createOpen = $state(false);
 
   let unSubAuth: (() => void) | null = null;
   let unSubOrg: (() => void) | null = null;
@@ -126,7 +106,13 @@
   {starred}
   onSignOut={handleSignOut}
   onRestore={(id) => dashboard.restore(id)}
+  onOpenSettings={() => (settingsOpen = true)}
+  onNewProject={() => (createOpen = true)}
 />
+
+<UserSettingsDialog bind:open={settingsOpen} />
+<ImportDialog bind:open={importOpen} />
+<CreateProjectDialog bind:open={createOpen} />
 
 <div class="main-area">
   <header class="main-header">
@@ -135,11 +121,10 @@
     </div>
 
     <div class="header-right">
-      <label for="file-upload" class="upload-btn">
+      <button class="upload-btn" onclick={() => (importOpen = true)}>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Import
-      </label>
-      <input onchange={changeProject} id="file-upload" type="file" class="hidden-input" />
+      </button>
     </div>
   </header>
 
@@ -255,6 +240,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
+    border: none;
     border-radius: 0.375rem;
     background-color: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
@@ -266,10 +252,6 @@
 
   .upload-btn:hover {
     opacity: 0.9;
-  }
-
-  .hidden-input {
-    display: none;
   }
 
   .main-content {
@@ -347,6 +329,11 @@
 
   .demo-card:hover {
     box-shadow: 0 4px 12px hsl(var(--shadow) / 0.1);
+  }
+
+  .demo-card:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 
   .demo-card-body {

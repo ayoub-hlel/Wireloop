@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import OrgSwitcher from "./OrgSwitcher.svelte";
   import Undo2 from '@lucide/svelte/icons/undo-2';
+  import Sun from '@lucide/svelte/icons/sun';
+  import Moon from '@lucide/svelte/icons/moon';
+  import { toggleTheme, setTheme, getTheme } from "$lib/theme";
   import type { OrgInfo } from "../../../stores/org.store";
 
   type SidebarItem = { id: string; name: string };
@@ -24,6 +26,8 @@
     onSelectOrg?: (orgId: string | null) => void;
     onSignOut?: () => Promise<void>;
     onRestore?: (id: string) => void;
+    onOpenSettings?: () => void;
+    onNewProject?: () => void;
   };
 
   let {
@@ -40,7 +44,14 @@
     onSelectOrg = (orgId: string | null) => {},
     onSignOut = async () => {},
     onRestore = () => {},
+    onOpenSettings = () => {},
+    onNewProject = () => {},
   }: Props = $props();
+
+  let theme = $state<"light" | "dark">("light");
+  $effect(() => {
+    theme = getTheme();
+  });
 
   function getInitials(name: string): string {
     return name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
@@ -65,22 +76,54 @@
           <svg width="16" height="16" fill="none" viewBox="0 0 16 16" class="sidebar-chevron"><path fill="currentColor" d="M9.768 6.768a.5.5 0 0 1 .707.707l-2.12 2.121a.5.5 0 0 1-.708 0L5.525 7.475a.5.5 0 0 1 .708-.707l1.768 1.767z"/></svg>
         </DropdownMenu.DropdownMenuTrigger>
         <DropdownMenu.DropdownMenuContent class="w-56" side="bottom" align="start">
-          <DropdownMenu.DropdownMenuLabel class="font-normal">
-            <div class="flex flex-col gap-1">
-              <p class="text-sm font-medium">{userName}</p>
-              <p class="text-xs text-muted-foreground">{userEmail}</p>
+          <DropdownMenu.DropdownMenuGroup>
+            <div class="menu-user-header">
+              <Avatar.Root class="menu-user-avatar">
+                {#if userImage}
+                  <Avatar.Image src={userImage} alt={userName} />
+                {/if}
+                <Avatar.Fallback>{getInitials(userName || '?')}</Avatar.Fallback>
+              </Avatar.Root>
+              <div class="menu-user-info">
+                <div class="menu-user-name">{userName || "User"}</div>
+                <div class="menu-user-email">{userEmail}</div>
+              </div>
             </div>
-          </DropdownMenu.DropdownMenuLabel>
+          </DropdownMenu.DropdownMenuGroup>
           <DropdownMenu.DropdownMenuSeparator />
-          <DropdownMenu.DropdownMenuItem onclick={() => goto('/settings')}>
-            Settings
-          </DropdownMenu.DropdownMenuItem>
+          <DropdownMenu.DropdownMenuGroup>
+            <DropdownMenu.DropdownMenuSub>
+              <DropdownMenu.DropdownMenuSubTrigger>
+                <Sun size={16} class="menu-lead-icon theme-icon-sun" />
+                <Moon size={16} class="menu-lead-icon theme-icon-moon" />
+                <span>Change theme</span>
+              </DropdownMenu.DropdownMenuSubTrigger>
+              <DropdownMenu.DropdownMenuSubContent>
+                <DropdownMenu.DropdownMenuRadioGroup bind:value={theme} onValueChange={(v) => setTheme(v as "light" | "dark")}>
+                  <DropdownMenu.DropdownMenuRadioItem value="dark">Dark</DropdownMenu.DropdownMenuRadioItem>
+                  <DropdownMenu.DropdownMenuRadioItem value="light">Light</DropdownMenu.DropdownMenuRadioItem>
+                </DropdownMenu.DropdownMenuRadioGroup>
+              </DropdownMenu.DropdownMenuSubContent>
+            </DropdownMenu.DropdownMenuSub>
+            <DropdownMenu.DropdownMenuItem onclick={onOpenSettings}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" class="menu-lead-icon"><path fill="currentColor" d="M8.5 18a.5.5 0 0 0 .5-.5v-1.55a2.5 2.5 0 0 0 0-4.9V6.5a.5.5 0 0 0-1 0v4.55a2.501 2.501 0 0 0 0 4.9v1.55a.5.5 0 0 0 .5.5m7 0a.5.5 0 0 0 .5-.5v-4.55a2.501 2.501 0 0 0 0-4.9V6.5a.5.5 0 0 0-1 0v1.55a2.5 2.5 0 0 0 0 4.9v4.55a.5.5 0 0 0 .5.5m0-6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m-7 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
+              <span>Settings</span>
+            </DropdownMenu.DropdownMenuItem>
+          </DropdownMenu.DropdownMenuGroup>
           <DropdownMenu.DropdownMenuSeparator />
-          <DropdownMenu.DropdownMenuItem onclick={onSignOut}>
-            Sign out
-          </DropdownMenu.DropdownMenuItem>
+          <DropdownMenu.DropdownMenuGroup>
+            <DropdownMenu.DropdownMenuItem onclick={onSignOut}>
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" class="menu-lead-icon"><path fill="currentColor" fill-rule="evenodd" d="M7.5 6A1.5 1.5 0 0 0 6 7.5v1a.5.5 0 0 0 1 0v-1a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 0-1 0v1A1.5 1.5 0 0 0 7.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 16.5 6zm4.146 3.146a.5.5 0 0 1 .708 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 0 1-.708-.708l1.647-1.646H9.5a.5.5 0 0 1 0-1h3.793l-1.647-1.646a.5.5 0 0 1 0-.708" clip-rule="evenodd"/></svg>
+              <span>Log out</span>
+            </DropdownMenu.DropdownMenuItem>
+          </DropdownMenu.DropdownMenuGroup>
         </DropdownMenu.DropdownMenuContent>
       </DropdownMenu.DropdownMenu>
+
+      <button class="sidebar-icon-btn" aria-label="Toggle theme" onclick={toggleTheme}>
+        <Sun size={18} class="theme-icon-sun" />
+        <Moon size={18} class="theme-icon-moon" />
+      </button>
 
       <button class="sidebar-icon-btn" aria-label="Notifications">
         <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12.992 6.124Q13 6.064 13 6a1 1 0 1 0-1.992.124A4 4 0 0 0 8 10v1.172a5.83 5.83 0 0 1-1.707 4.12A1 1 0 0 0 7 17h3a2 2 0 0 0 4 0h3a1 1 0 0 0 .707-1.707A5.83 5.83 0 0 1 16 11.172V10a4 4 0 0 0-3.008-3.876M12 18a1 1 0 0 1-1-1h2a1 1 0 0 1-1 1m5-2a6.82 6.82 0 0 1-2-4.828V10a3 3 0 1 0-6 0v1.172A6.83 6.83 0 0 1 7 16z" clip-rule="evenodd"/></svg>
@@ -116,20 +159,15 @@
       </div>
     </div>
 
-    <div class="sidebar-row" role="button" tabindex="0" aria-label="Drafts">
+    <div class="sidebar-row" role="button" tabindex="0" aria-label="Projects">
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" class="sidebar-row-icon"><path fill="currentColor" d="M12.598 5.01a.5.5 0 0 1 .255.136l4 4A.5.5 0 0 1 16.5 10h-4a.5.5 0 0 1-.5-.5V6H8.5a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-6a.5.5 0 0 1 1 0v6a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 17.5v-11A1.5 1.5 0 0 1 8.5 5h4zM13 9h2.293L13 6.707z"/></svg>
-      <span>Drafts</span>
+      <span>Projects</span>
       <div class="sidebar-row-end">
-        <button class="sidebar-icon-btn sidebar-icon-btn-small" aria-label="New file">
+        <button class="sidebar-icon-btn sidebar-icon-btn-small" aria-label="New project" onclick={onNewProject}>
           <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M11.5 6a.5.5 0 0 1 .5.5V11h4.5a.5.5 0 0 1 0 1H12v4.5a.5.5 0 0 1-1 0V12H6.5a.5.5 0 0 1 0-1H11V6.5a.5.5 0 0 1 .5-.5" clip-rule="evenodd"/></svg>
         </button>
       </div>
     </div>
-
-    <button class="sidebar-row" aria-label="All projects">
-      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" class="sidebar-row-icon"><path fill="currentColor" d="M9.653 13.008A1.5 1.5 0 0 1 11 14.5v2l-.008.153a1.5 1.5 0 0 1-1.339 1.34L9.5 18h-2a1.5 1.5 0 0 1-1.492-1.347L6 16.5v-2A1.5 1.5 0 0 1 7.5 13h2zm7 0A1.5 1.5 0 0 1 18 14.5v2l-.008.153a1.5 1.5 0 0 1-1.339 1.34L16.5 18h-2a1.5 1.5 0 0 1-1.492-1.347L13 16.5v-2a1.5 1.5 0 0 1 1.5-1.5h2zM7.5 14a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5zm7 0a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5zM9.653 6.008A1.5 1.5 0 0 1 11 7.5v2l-.008.153a1.5 1.5 0 0 1-1.339 1.34L9.5 11h-2a1.5 1.5 0 0 1-1.492-1.347L6 9.5v-2A1.5 1.5 0 0 1 7.5 6h2zm7 0A1.5 1.5 0 0 1 18 7.5v2l-.008.153a1.5 1.5 0 0 1-1.339 1.34L16.5 11h-2a1.5 1.5 0 0 1-1.492-1.347L13 9.5v-2A1.5 1.5 0 0 1 14.5 6h2zM7.5 7a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5zm7 0a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5z"/></svg>
-      <span>All projects</span>
-    </button>
 
     <button class="sidebar-row" aria-label="Resources">
       <svg width="24" height="24" fill="none" viewBox="0 0 24 24" class="sidebar-row-icon"><path fill="currentColor" fill-rule="evenodd" d="M7 7h10a1 1 0 0 1 1 1v2H6V8a1 1 0 0 1 1-1m-1 4v5a1 1 0 0 0 1 1h2v-6zm4 6h7a1 1 0 0 0 1-1v-5h-8zM5 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" clip-rule="evenodd"/></svg>
@@ -286,6 +324,11 @@
     height: 16px;
   }
 
+  /* theme icons: show the one for the theme you'd switch TO */
+  .theme-icon-sun { display: none; }
+  :global([data-theme="dark"]) .theme-icon-sun { display: block; }
+  :global([data-theme="dark"]) .theme-icon-moon { display: none; }
+
   .sidebar-search {
     padding: 0.125rem 0;
     margin-bottom: 0.125rem;
@@ -418,7 +461,7 @@
     padding: 0.25rem 0.5rem;
     padding-left: 2.75rem;
     font-size: 0.8125rem;
-    color: hsl(var(--sidebar-foreground) / 0.4);
+    color: hsl(var(--muted-foreground));
     font-style: italic;
   }
 
@@ -456,5 +499,49 @@
     width: 24px !important;
     height: 24px !important;
     font-size: 10px !important;
+  }
+
+  /* Figma-style user menu */
+  .menu-user-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem;
+  }
+
+  :global(.menu-user-avatar) {
+    width: 40px !important;
+    height: 40px !important;
+    flex-shrink: 0;
+  }
+
+  .menu-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .menu-user-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menu-user-email {
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .menu-lead-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    color: hsl(var(--muted-foreground));
   }
 </style>

@@ -100,10 +100,6 @@
     </Command.Root>
   </Popover.Content>
   </Popover.Root>
-
-  <button class="sidebar-free-badge" aria-label="Change plan. Personal currently on Free plan">
-    <span class="free-badge">Free</span>
-  </button>
 </div>
 
 <style>
@@ -131,28 +127,6 @@
 
   :global(.org-trigger:hover) {
     background-color: hsl(var(--sidebar-accent));
-  }
-
-  .sidebar-free-badge {
-    display: flex;
-    align-items: center;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0;
-    flex-shrink: 0;
-  }
-
-  .free-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    background-color: hsl(var(--muted));
-    color: hsl(var(--muted-foreground));
-    line-height: 1.2;
   }
 
   .org-icon {
@@ -192,6 +166,7 @@
   }
 
   :global(.selected-org) {
-    background-color: var(--accent);
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
   }
 </style>

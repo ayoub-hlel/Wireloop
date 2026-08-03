@@ -2,8 +2,6 @@
   import type { DashboardProject } from './dashboard.svelte.ts';
   import Star from '@lucide/svelte/icons/star';
   import Trash2 from '@lucide/svelte/icons/trash-2';
-  import ArrowUp from '@lucide/svelte/icons/arrow-up';
-  import ArrowDown from '@lucide/svelte/icons/arrow-down';
 
   type Props = {
     projects: DashboardProject[];
@@ -139,7 +137,7 @@
   }
 
   .project-table tbody tr:hover {
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary));
   }
 
   .sort-btn {
@@ -206,7 +204,7 @@
   }
 
   .star-btn:hover {
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary));
     color: hsl(var(--foreground));
   }
 

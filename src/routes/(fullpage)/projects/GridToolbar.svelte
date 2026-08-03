@@ -109,7 +109,7 @@
   }
 
   .sort-trigger:hover {
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary));
   }
 
   .sort-trigger-icon {
@@ -139,6 +139,11 @@
 
   .sort-option:hover,
   .sort-option.active {
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary));
+  }
+
+  .sort-option.active {
+    color: hsl(var(--foreground));
+    font-weight: 600;
   }
 </style>

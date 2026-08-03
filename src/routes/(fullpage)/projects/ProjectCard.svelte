@@ -94,6 +94,11 @@
     box-shadow: 0 4px 12px hsl(var(--shadow) / 0.1);
   }
 
+  .project-card:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
   .card-thumbnail {
     width: 100%;
     height: 140px;
@@ -161,7 +166,7 @@
   }
 
   .card-action-btn:hover {
-    background-color: hsl(var(--accent));
+    background-color: hsl(var(--secondary));
     color: hsl(var(--foreground));
   }
 
