@@ -3,7 +3,6 @@
   import { onMount, onDestroy } from 'svelte';
   import { WindowType, resizeStore } from '../../stores/resize.store';
   import currentFrameStore from '../../stores/currentFrame.store';
-  import arduinoStore from '../../stores/arduino.store';
   import arduinoMessageStore from '../../stores/arduino-message.store';
   import updateLoopblockStore from '../../stores/update-loopblock.store';
   import { mark } from '$lib/telemetry/boot';
@@ -159,10 +158,6 @@
             resizeBlockly();
           }
         })
-      );
-
-      unsubscribes.push(
-        arduinoStore.subscribe(() => {})
       );
 
       unsubscribes.push(
