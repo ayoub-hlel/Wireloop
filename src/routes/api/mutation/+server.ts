@@ -6,6 +6,8 @@ import { generateId } from 'better-auth';
 import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
 import { actionEnvelope, project, user, organization } from '$lib/server/validation';
+import { checkRateLimit } from '$lib/server/ratelimit';
+import { logServerError } from '$lib/server/log';
 import * as Sentry from '@sentry/sveltekit';
 
 const mutationSchemas = {
@@ -32,7 +34,9 @@ const mutationSchemas = {
   'org:removeMember': organization.removeMember,
 };
 
-export async function POST({ request, locals }) {
+export async function POST({ request, locals, getClientAddress, platform }) {
+  const limited = await checkRateLimit('mutation', locals, getClientAddress);
+  if (limited) return limited;
   try {
     const body = await request.json().catch(() => ({}));
     const { name, args } = validate(actionEnvelope, body);
@@ -401,6 +405,7 @@ export async function POST({ request, locals }) {
       return json({ error: 'Validation failed', issues: e.issues }, { status: 400 });
     }
     Sentry.captureException(e, { tags: { route: 'mutation' } });
+    logServerError('api/mutation failed', { error: String(e), user: locals.user?.id }, platform?.ctx?.waitUntil);
     throw e;
   }
 }

@@ -1,12 +1,15 @@
 import { json, error } from '@sveltejs/kit';
 import { putFile } from '$lib/server/r2';
+import { checkRateLimit } from '$lib/server/ratelimit';
 import type { RequestHandler } from './$types';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024;
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
   if (!locals.user) error(401, 'Unauthorized');
+  const limited = await checkRateLimit('upload', locals, getClientAddress);
+  if (limited) return limited;
 
   const data = await request.formData();
   const file = data.get('avatar') as File | null;
