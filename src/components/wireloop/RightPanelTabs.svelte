@@ -9,7 +9,6 @@
   import { get } from 'svelte/store';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
   import { tooltip } from '$lib/tooltip';
-  import { captureEmulatorError } from '$lib/telemetry/sentry';
 
   type TabId = 'emulator' | 'code' | 'upload';
 
@@ -51,15 +50,7 @@
       <VerticalComponentContainer>
         {#snippet top()}
           <div class="slot-wrapper">
-            <!-- WL-011: scoped boundary so emulator failures are tagged area:emulator
-                 instead of flooding the generic error stream (was a window listener
-                 that tagged every error as emulator). -->
-            <svelte:boundary onerror={captureEmulatorError}>
-              <Simulator />
-              {#snippet fallback()}
-                <div class="emulator-crash">Simulator crashed. Reload to retry.</div>
-              {/snippet}
-            </svelte:boundary>
+            <Simulator />
           </div>
         {/snippet}
         {#snippet bottom()}

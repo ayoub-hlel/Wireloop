@@ -11,6 +11,7 @@
   import { onMount, onDestroy, tick } from 'svelte';
   import { onErrorMessage } from '../../../help/alerts';
   import { mark, fail } from '$lib/telemetry/boot';
+  import { captureEmulatorError } from '$lib/telemetry/sentry';
   import { arduinoComponentStateToId } from '../../../core/frames/arduino-component-id';
   import { waitForContainerSize } from './simulator-wait';
   import { centerCircuit } from '../../../core/virtual-circuit/centerCircuit';
@@ -77,8 +78,14 @@
         const firstFrame = frames ? frames[0] : undefined;
         const lastFrame = frames ? frames[frames.length - 1] : undefined;
         currentFrame = firstFrame;
-        paint(draw, frameContainer);
-        update(draw, firstFrame);
+        // WL-011: capture at the render hot path — a svelte:boundary never caught
+        // errors thrown in this store subscription (outside the render cycle).
+        try {
+          paint(draw, frameContainer);
+          update(draw, firstFrame);
+        } catch (error) {
+          captureEmulatorError(error);
+        }
 
         const oldListOfComponentIds = oldLastFrame
           ? oldLastFrame.components.map((f) => { try { return arduinoComponentStateToId(f); } catch { return ''; } }).join('')
@@ -97,7 +104,11 @@
     unsubscribes.push(
       currentFrameStore.subscribe((frame) => {
         currentFrame = frame;
-        update(draw, currentFrame);
+        try {
+          update(draw, currentFrame);
+        } catch (error) {
+          captureEmulatorError(error);
+        }
       })
     );
 
