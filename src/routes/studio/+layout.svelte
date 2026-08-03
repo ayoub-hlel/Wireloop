@@ -20,6 +20,7 @@
   let rightFlex = $state(39.5);
   let isResizingRight = false;
   let unsubAuth: (() => void) | undefined;
+  let unsubPage: (() => void) | undefined;
 
   function startResize() {
     isResizingRight = true;
@@ -54,7 +55,7 @@
     initializeApiClient();
     mark('studio:services-init');
 
-    page.subscribe(() => { resizeHeight(); });
+    unsubPage = page.subscribe(() => { resizeHeight(); });
 
     let loadedProject = false;
 
@@ -130,6 +131,7 @@
 
   onDestroy(() => {
     unsubAuth?.();
+    unsubPage?.();
   });
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import type { Element } from "@svgdotjs/svg.js";
 
   import {
@@ -11,12 +11,20 @@
   let ledEl: Element | null = null;
   let ledColor: string = "";
 
+  function onLedColorShow(e: Event) {
+    ledEl = e.detail.componentEl;
+    ledColor = ledEl.data("color");
+    showLedChanger = true;
+  }
+
   onMount(() => {
-    document.addEventListener("led-color-show", (e: Event) => {
-      ledEl = e.detail.componentEl;
-      ledColor = ledEl.data("color");
-      showLedChanger = true;
-    });
+    document.addEventListener("led-color-show", onLedColorShow);
+  });
+
+  // WL-013: remove the document listener on teardown — this component's global
+  // listener was a leak on every /studio mount/unmount cycle.
+  onDestroy(() => {
+    document.removeEventListener("led-color-show", onLedColorShow);
   });
 
   function changeColor(e: Event) {
