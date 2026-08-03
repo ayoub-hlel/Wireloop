@@ -132,7 +132,9 @@ export async function updateSettings(newSettings: Partial<Settings>): Promise<vo
   const authState = getCurrentAuthState();
   if (authState.isLoggedIn && authState.uid) {
     try {
-      await updateUserSettings(newSettings);
+      // ponytail: strip server-owned keys before mutation; caller sends full Settings object
+      const { boardType, theme, language, autoSave, tutorialCompleted } = newSettings;
+      await updateUserSettings({ boardType, theme, language, autoSave, tutorialCompleted });
       
       settingsStore.update(state => ({
         ...state,
