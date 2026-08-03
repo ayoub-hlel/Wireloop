@@ -5,6 +5,7 @@ import { defaultSetting } from "../types/models";
 import authStore from "./auth.store";
 import { MicroControllerType } from "../core/microcontroller/microcontroller";
 import { getApiClient, createMutation } from "./api.client";
+import { settingsSyncPayload } from "./settings-sync";
 import * as Sentry from "@sentry/sveltekit";
 /**
  * Settings state interface
@@ -132,9 +133,8 @@ export async function updateSettings(newSettings: Partial<Settings>): Promise<vo
   const authState = getCurrentAuthState();
   if (authState.isLoggedIn && authState.uid) {
     try {
-      // ponytail: strip server-owned keys before mutation; caller sends full Settings object
-      const { boardType, theme, language, autoSave, tutorialCompleted } = newSettings;
-      await updateUserSettings({ boardType, theme, language, autoSave, tutorialCompleted });
+      // Send only the 5 keys the strict updateUserSettings schema accepts.
+      await updateUserSettings(settingsSyncPayload(newSettings));
       
       settingsStore.update(state => ({
         ...state,

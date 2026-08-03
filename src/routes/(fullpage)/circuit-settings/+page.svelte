@@ -1,7 +1,9 @@
 <script lang="ts">
   import { defaultSetting } from "../../../types/arduino-sim";
   import type { Settings } from "../../../types/arduino-sim";
+  import type { Settings as UserSettings } from "../../../types/models";
   import { getApiClient } from "../../../stores/api.client";
+  import { settingsSyncPayload } from "../../../stores/settings-sync";
   import authStore from "../../../stores/auth.store";
   import settingsStore from "../../../stores/settings.store";
   import FlashMessage from "../../../components/wireloop/ui/FlashMessage.svelte";
@@ -37,7 +39,13 @@
 
     if (uid) {
       try {
-        await getApiClient().mutation('users:updateUserSettings', { ...settings });
+        // ponytail: settings is typed as arduino-sim visual Settings, but the
+        // subscription below reassigns it from the user-preference store (the
+        // route conflates the two types). users:updateUserSettings is a
+        // .strict() schema — only the 5 keys from settingsSyncPayload are
+        // accepted; codeFont + visual fields would 400. See stores/settings-sync.ts.
+        await getApiClient().mutation('users:updateUserSettings',
+          settingsSyncPayload(settings as unknown as Partial<UserSettings>));
         console.log("saved settings", settings);
       } catch (e: unknown) {
         onErrorMessage("Please try again in 5 minutes.", e);
