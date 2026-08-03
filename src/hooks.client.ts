@@ -3,12 +3,14 @@ import * as Sentry from '@sentry/sveltekit';
 import { env } from '$env/dynamic/public';
 import { dev } from '$app/environment';
 import { mark } from '$lib/telemetry/boot';
+import { SENTRY_RELEASE } from '$lib/telemetry/sentry';
 
 // ponytail: sample 100% outside production, 10% in prod — errors always keep full replay
 const isProd = env.PUBLIC_APP_URL?.startsWith('https://wire-loop.tech') ?? false;
 
 Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN,
+  release: SENTRY_RELEASE,
 
   tracesSampleRate: isProd ? 0.1 : 1.0,
   environment: isProd ? 'production' : 'preview',

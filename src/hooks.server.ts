@@ -9,6 +9,7 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building, dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import * as Sentry from '@sentry/sveltekit';
+import { SENTRY_RELEASE } from '$lib/telemetry/sentry';
 
 if (!building) {
   validateEnv();
@@ -35,6 +36,7 @@ export const handleError: HandleServerError = handleErrorWithSentry(async ({ err
 export const handle: Handle = sequence(
   initCloudflareSentryHandle({
     dsn: env.PUBLIC_SENTRY_DSN,
+    release: SENTRY_RELEASE,
     tracesSampleRate: isProd ? 0.1 : 1.0,
     enableLogs: true,
     environment: isProd ? 'production' : 'preview',

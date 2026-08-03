@@ -12,7 +12,6 @@
 
   import { initializeApiClient, getApiClient } from '../../stores/api.client';
   import { mark, fail } from '$lib/telemetry/boot';
-  import * as Sentry from '@sentry/sveltekit';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
@@ -21,10 +20,6 @@
   let rightFlex = $state(39.5);
   let isResizingRight = false;
   let unsubAuth: (() => void) | undefined;
-
-  function onEmulatorError(error: unknown) {
-    Sentry.captureException(error, { tags: { area: 'emulator', route: 'studio' } });
-  }
 
   function startResize() {
     isResizingRight = true;
@@ -133,15 +128,10 @@
         (swal as any).close?.();
       }
     });
-
-    window.addEventListener('error', onEmulatorError);
   });
 
   onDestroy(() => {
     unsubAuth?.();
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('error', onEmulatorError);
-    }
   });
 </script>
 
