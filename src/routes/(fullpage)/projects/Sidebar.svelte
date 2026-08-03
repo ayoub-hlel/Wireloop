@@ -10,7 +10,6 @@
   import type { OrgInfo } from "../../../stores/org.store";
 
   type SidebarItem = { id: string; name: string };
-  type SidebarResource = { label: string; href: string };
 
   type Props = {
     userName?: string;
@@ -19,8 +18,6 @@
     searchTerm?: string;
     orgs?: OrgInfo[];
     selectedOrgId?: string | null;
-    drafts?: SidebarItem[];
-    resources?: SidebarResource[];
     trash?: SidebarItem[];
     starred?: SidebarItem[];
     onSelectOrg?: (orgId: string | null) => void;
@@ -37,21 +34,16 @@
     searchTerm = $bindable(""),
     orgs = [] as OrgInfo[],
     selectedOrgId = $bindable(null as string | null),
-    drafts = [] as SidebarItem[],
-    resources = [] as SidebarResource[],
     trash = [] as SidebarItem[],
     starred = [] as SidebarItem[],
-    onSelectOrg = (orgId: string | null) => {},
+    onSelectOrg = () => {},
     onSignOut = async () => {},
     onRestore = () => {},
     onOpenSettings = () => {},
     onNewProject = () => {},
   }: Props = $props();
 
-  let theme = $state<"light" | "dark">("light");
-  $effect(() => {
-    theme = getTheme();
-  });
+  let theme = $state<"light" | "dark">(getTheme());
 
   function getInitials(name: string): string {
     return name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();

@@ -10,6 +10,9 @@
    shadcn/ui format. This file layers Tailwind v4 on top.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* View Transitions API: progressive page-transition enhancement. Widely
+   supported in browsers but not yet baseline-wide per css/use-baseline. */
+/* eslint-disable css/use-baseline */
 @view-transition {
   navigation: auto;
 }
@@ -21,6 +24,7 @@
 ::view-transition-new(root) {
   animation: 150ms ease-out both fade-in;
 }
+/* eslint-enable css/use-baseline */
 
 @keyframes fade-out {
   from { opacity: 1; }

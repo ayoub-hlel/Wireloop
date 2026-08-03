@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { WorkspaceSvg } from 'blockly';
+  import type { WorkspaceSvg, BlockSvg } from 'blockly';
   import { onMount, onDestroy } from 'svelte';
   import { WindowType, resizeStore } from '../../stores/resize.store';
   import currentFrameStore from '../../stores/currentFrame.store';
@@ -9,11 +9,11 @@
   import { mark } from '$lib/telemetry/boot';
 
   let { showLoopExecutionTimesArduinoStartBlock = true }: { showLoopExecutionTimesArduinoStartBlock: boolean } = $props();
-  let Blockly: any;
+  let Blockly: typeof import('blockly');
   let startBlocly: (el: HTMLElement) => void;
-  let workspaceToXML: () => string;
-  let getAllBlocks: () => any[];
-  let getBlockById: (id: string) => any;
+  let workspaceToXML: () => string | undefined;
+  let getAllBlocks: () => BlockSvg[];
+  let getBlockById: (id: string) => BlockSvg | undefined;
   let arduinoLoopBlockShowLoopForeverText: () => void;
   let arduinoLoopBlockShowNumberOfTimesThroughLoop: () => void;
   let blocklyElement: HTMLElement;

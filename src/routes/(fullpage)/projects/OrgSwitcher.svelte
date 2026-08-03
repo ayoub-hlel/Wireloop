@@ -12,7 +12,7 @@
   let {
     orgs = [] as OrgInfo[],
     selectedOrgId = $bindable(null as string | null),
-    onSelectOrg = (orgId: string | null) => {},
+    onSelectOrg = () => {},
   }: Props = $props();
 
   let open = $state(false);

@@ -24,7 +24,6 @@
 
   let orgs = $state<OrgInfo[]>([]);
   let selectedOrgId = $state<string | null>(null);
-  let currentUid = $state<string | null>(null);
   let isLoggedIn = $state(false);
   let userName = $state('');
   let userEmail = $state('');
@@ -32,11 +31,6 @@
 
   const dashboard = createDashboard();
   let searchTerm = $state('');
-  let drafts = $derived(dashboard.projects.map(p => ({ id: p.id, name: p.name })));
-  let resources = $state<{ label: string; href: string }[]>([
-    { label: 'Documentation', href: '/docs' },
-    { label: 'Community', href: '/community' },
-  ]);
   let trash = $derived(dashboard.trashed.map(p => ({ id: p.id, name: p.name })));
   let starred = $derived(dashboard.starred.map(p => ({ id: p.id, name: p.name })));
 
@@ -50,7 +44,6 @@
   onMount(() => {
     unSubAuth = authStore.subscribe(async (auth) => {
       isLoggedIn = auth.isLoggedIn;
-      currentUid = auth.uid;
       if (auth.isLoggedIn) {
         userName = auth.user?.name ?? '';
         userEmail = auth.user?.email ?? '';
@@ -100,8 +93,6 @@
   {orgs}
   bind:selectedOrgId
   {onSelectOrg}
-  {drafts}
-  {resources}
   {trash}
   {starred}
   onSignOut={handleSignOut}

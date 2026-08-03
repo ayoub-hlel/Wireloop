@@ -28,6 +28,10 @@ function mapProject(row: unknown): DashboardProject {
   };
 }
 
+function toTime(x: Date | string): number {
+  return typeof x === 'string' ? Date.parse(x) : x.getTime();
+}
+
 function client() {
   return getApiClient();
 }
@@ -48,14 +52,14 @@ export function createDashboard() {
   const applySearch = debounce((v: string) => { _debouncedSearch = v; }, 250);
 
   const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
-  let visible = $derived.by(() => {
+  const visible = $derived.by(() => {
     let list = projects;
     const q = _debouncedSearch.trim().toLowerCase();
     if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
     const dir = _sortDir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
       if (_sort === 'name') return collator.compare(a.name, b.name) * dir;
-      return (new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()) * dir;
+      return (toTime(a.updatedAt) - toTime(b.updatedAt)) * dir;
     });
   });
 
