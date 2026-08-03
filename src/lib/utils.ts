@@ -1,9 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { WithElementRef } from "bits-ui";
+import type { WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild } from "bits-ui";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type { WithElementRef };
+export type { WithElementRef, WithoutChild, WithoutChildren, WithoutChildrenOrChild };
