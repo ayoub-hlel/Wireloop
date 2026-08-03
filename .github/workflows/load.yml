@@ -1,0 +1,23 @@
+name: Load
+
+# ponytail: nightly baseline only, never PR-blocking
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: grafana/setup-k6-action@v1
+      - run: k6 run k6/smoke.js
+        env:
+          BASE_URL: ${{ vars.K6_BASE_URL || 'https://preview.wireloop.pages.dev' }}
+          K6_TEST_EMAIL: ${{ secrets.K6_TEST_EMAIL }}
+          K6_TEST_PASSWORD: ${{ secrets.K6_TEST_PASSWORD }}

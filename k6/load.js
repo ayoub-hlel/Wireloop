@@ -1,0 +1,27 @@
+import { signIn, hitApp } from './common.js';
+
+export const options = {
+  scenarios: {
+    load: {
+      executor: 'ramping-vus',
+      startVUs: 0,
+      stages: [
+        { duration: '30s', target: 50 },
+        { duration: '1m', target: 50 },
+        { duration: '30s', target: 0 },
+      ],
+    },
+  },
+  thresholds: {
+    http_req_duration: ['p(95)<500'],
+    http_req_failed: ['rate<0.01'],
+  },
+};
+
+export function setup() {
+  return signIn();
+}
+
+export default function (data) {
+  hitApp(data);
+}
