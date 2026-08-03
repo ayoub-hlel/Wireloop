@@ -186,20 +186,13 @@ export const blockToValue: ValueGenerator = (
   variables,
   timeline,
   previousState
-) => {
-  try {
-    return valueList[block.blockName](
-      blocks,
-      block,
-      variables,
-      timeline,
-      previousState
-    );
-  } catch (e) {
-    console.trace();
-    console.log(block);
-
-    console.log(e);
-    throw e;
-  }
-};
+) =>
+  // WL-011: removed the debug-spam try/catch — it only rethrew, so errors now
+  // propagate natively to Sentry.
+  valueList[block.blockName](
+    blocks,
+    block,
+    variables,
+    timeline,
+    previousState
+  );

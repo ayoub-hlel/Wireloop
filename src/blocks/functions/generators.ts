@@ -57,7 +57,6 @@ Blockly["Arduino"]["procedures_callnoreturn"] = function (block: Block) {
     block.getFieldValue("NAME")
   );
 
-  console.log(funcName, "funcName");
-
+  // WL-011: removed leftover debug that logged every procedure call in the hot code-gen path.
   return funcName + "();\n";
 };

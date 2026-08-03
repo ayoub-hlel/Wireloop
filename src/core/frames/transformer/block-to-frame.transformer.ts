@@ -193,20 +193,16 @@ export const generateFrame: BlockToFrameTransformer = (
   variables,
   timeline,
   previousState
-) => {
-  try {
-    return blockToFrameTransformerList[block.blockName](
-      blocks,
-      block,
-      variables,
-      timeline,
-      previousState
-    );
-  } catch (e) {
-    console.log(block.blockName, "block name");
-    throw e;
-  }
-};
+) =>
+  // WL-011: removed the debug-spam try/catch — it only rethrew, so errors now
+  // propagate natively to Sentry.
+  blockToFrameTransformerList[block.blockName](
+    blocks,
+    block,
+    variables,
+    timeline,
+    previousState
+  );
 
 export const generateInputFrame = (
   block: BlockData,
