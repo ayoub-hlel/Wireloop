@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import {
@@ -19,8 +19,8 @@ export const digit4DisplaySetup: BlockToFrameTransformer = (
   const component: DigitilDisplayState = {
     type: ArduinoComponentType.DIGITAL_DISPLAY,
     pins: block.pins.sort(),
-    dioPin: findFieldValue(block, "DIO_PIN"),
-    clkPin: findFieldValue(block, "CLK_PIN"),
+    dioPin: findPin(block, "DIO_PIN"),
+    clkPin: findPin(block, "CLK_PIN"),
     chars: "",
     colonOn: false,
   };

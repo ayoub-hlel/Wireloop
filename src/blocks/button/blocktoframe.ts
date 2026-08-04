@@ -6,7 +6,7 @@ import {
   findComponent,
 } from "../../core/frames/transformer/frame-transformer.helpers";
 import type { ButtonSensor, ButtonState } from "./state";
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 
 export const buttonSetup: BlockToFrameTransformer = (
   blocks,
@@ -52,7 +52,7 @@ export const releaseButton: BlockToFrameTransformer = (
   timeline,
   previousState
 ) => {
-  const pin = findFieldValue(block, "PIN");
+  const pin = findPin(block, "PIN");
   const isPressed = findFieldValue(block, "STATE") == "PRESSED";
   let buttonState = findComponent<ButtonState>(
     previousState,

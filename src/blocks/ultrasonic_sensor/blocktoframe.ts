@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
@@ -22,8 +22,8 @@ export const ultraSonicSensor: BlockToFrameTransformer = (
   const ultraSonicState: UltraSonicSensorState = {
     cm: sensorData?.cm ?? 0,
     pins: block.pins.sort(),
-    trigPin: findFieldValue(block, "PIN_TRIG"),
-    echoPin: findFieldValue(block, "PIN_ECHO"),
+    trigPin: findPin(block, "PIN_TRIG"),
+    echoPin: findPin(block, "PIN_ECHO"),
     type: ArduinoComponentType.ULTRASONICE_SENSOR,
   };
 

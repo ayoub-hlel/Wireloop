@@ -1,7 +1,7 @@
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import cloneDeep from "lodash/cloneDeep";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import type { BluetoothSensor, BluetoothState } from "./state";
@@ -25,8 +25,8 @@ export const bluetoothSetup: BlockToFrameTransformer = (
   const bluetoothComponent: BluetoothState = {
     pins: block.pins.sort(),
     type: ArduinoComponentType.BLUE_TOOTH,
-    rxPin: findFieldValue(block, "PIN_RX"),
-    txPin: findFieldValue(block, "PIN_TX"),
+    rxPin: findPin(block, "PIN_RX"),
+    txPin: findPin(block, "PIN_TX"),
     hasMessage: btSensor.receiving_message,
     message: btSensor.message,
     sendMessage: "",

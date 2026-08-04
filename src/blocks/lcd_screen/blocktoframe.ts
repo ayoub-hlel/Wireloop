@@ -1,6 +1,6 @@
 import cloneDeep from "lodash/cloneDeep";
 import range from "lodash/range";
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import type { LCDScreenState } from "./state";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
@@ -20,8 +20,8 @@ export const lcdScreenSetup: BlockToFrameTransformer = (
 ) => {
   const rows = findFieldValue(block, "SIZE") === "20 x 4" ? 4 : 2;
   const columns = findFieldValue(block, "SIZE") === "20 x 4" ? 20 : 16;
-  const sdaPin = findFieldValue(block, "PIN_SDA");
-  const sclPin = findFieldValue(block, "PIN_SCL");
+  const sdaPin = findPin(block, "PIN_SDA");
+  const sclPin = findPin(block, "PIN_SCL");
   const lcdState: LCDScreenState = {
     pins: block.pins.sort(),
     rows,

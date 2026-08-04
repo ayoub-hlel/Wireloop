@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
@@ -24,7 +24,7 @@ export const analogReadSetup: BlockToFrameTransformer = (
   const analogSensor1 = analogSensorInfo.find((d) => d.loop === 1);
   if (!analogSensor1) return [];
 
-  const pin = findFieldValue(block, "PIN");
+  const pin = findPin(block, "PIN");
   const pictureType = findFieldValue(block, "TYPE") as AnalogSensorPicture;
   const sensorType = getSensorText(pictureType);
   const explanation = `Setting up ${sensorType} sensor ${pin}.`;

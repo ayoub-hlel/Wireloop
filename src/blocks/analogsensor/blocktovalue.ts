@@ -2,6 +2,7 @@ import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { ValueGenerator } from "../../core/frames/transformer/block-to-value.factories";
 import { findComponent } from "../../core/frames/transformer/frame-transformer.helpers";
+import type { ARDUINO_PINS } from "../../core/microcontroller/selectBoard";
 import type { AnalogSensorState } from "./state";
 
 export const analogRead: ValueGenerator = (
@@ -14,6 +15,6 @@ export const analogRead: ValueGenerator = (
   return findComponent<AnalogSensorState>(
     previousState,
     ArduinoComponentType.ANALOG_SENSOR,
-    findFieldValue(block, "PIN")
+    findFieldValue(block, "PIN") as ARDUINO_PINS
   )?.state;
 };

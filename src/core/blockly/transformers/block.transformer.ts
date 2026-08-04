@@ -53,7 +53,7 @@ const getFieldValues = (block: BlockSvg): FieldValue[] => {
           }
           return {
             name: field.name ?? '',
-            value: field.getValue(),
+            value: field.getValue() ?? '',
             validOptions,
           };
         });

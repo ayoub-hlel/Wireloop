@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
@@ -20,7 +20,7 @@ export const digitalReadSetup: BlockToFrameTransformer = (
   const digitalSensor1 = digitalSensorInfo.find((d) => d.loop === 1);
   if (!digitalSensor1) return [];
 
-  const pin = findFieldValue(block, "PIN");
+  const pin = findPin(block, "PIN");
   const pictureType = findFieldValue(block, "TYPE") as DigitalPictureType;
   const sensorType =
     pictureType === DigitalPictureType.TOUCH_SENSOR ? "touch" : "digital";

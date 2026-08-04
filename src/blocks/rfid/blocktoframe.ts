@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
@@ -23,8 +23,8 @@ export const rfidSetup: BlockToFrameTransformer = (
   const rfidComponent: RfidState = {
     pins: block.pins,
     type: ArduinoComponentType.RFID,
-    txPin: findFieldValue(block, "PIN_TX"),
-    rxPin: findFieldValue(block, "PIN_RX"),
+    txPin: findPin(block, "PIN_TX"),
+    rxPin: findPin(block, "PIN_RX"),
     scannedCard: rfidSensorLoop1?.scanned_card ?? false,
     tag: rfidSensorLoop1?.tag ?? "",
     cardNumber: rfidSensorLoop1?.card_number ?? "",

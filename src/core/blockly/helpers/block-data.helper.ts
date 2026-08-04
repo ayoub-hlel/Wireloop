@@ -1,9 +1,13 @@
 import type { BlockData } from "../dto/block.type";
+import type { ARDUINO_PINS } from "../../microcontroller/selectBoard";
 
-export const findFieldValue = (block: BlockData, fieldName: string) => {
+export const findFieldValue = (block: BlockData, fieldName: string): string => {
   const field = block.fieldValues.find((f) => f.name === fieldName);
-  return field ? field.value : undefined;
+  return field?.value ?? '';
 };
+
+export const findPin = (block: BlockData, fieldName: string): ARDUINO_PINS =>
+  findFieldValue(block, fieldName) as ARDUINO_PINS;
 
 export const findArduinoLoopBlock = (blocks: BlockData[]) => {
   return blocks.find((block) => block.blockName == 'arduino_loop');
