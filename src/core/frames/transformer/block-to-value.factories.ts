@@ -77,10 +77,10 @@ export interface ValueGenerator {
     | string
     | boolean
     | Color
-    | number[]
-    | string[]
-    | boolean[]
-    | Color[]
+    | (number | null)[]
+    | (string | null)[]
+    | (boolean | null)[]
+    | (Color | null)[]
     | undefined;
 }
 

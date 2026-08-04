@@ -165,8 +165,16 @@ export const getDefaultValue = (type: VariableTypes) => {
       return true;
     case VariableTypes.NUMBER:
       return 0;
-    default:
-      return undefined;
+    // List variables default to an empty list; the previous fallthrough
+    // returned undefined, which is not a valid Variable.value.
+    case VariableTypes.LIST_STRING:
+      return [] as string[];
+    case VariableTypes.LIST_NUMBER:
+      return [] as number[];
+    case VariableTypes.LIST_BOOLEAN:
+      return [] as boolean[];
+    case VariableTypes.LIST_COLOUR:
+      return [] as Color[];
   }
 };
 
@@ -180,17 +188,34 @@ export const getDefaultValueList = (type: VariableTypes) => {
       return false;
     case VariableTypes.NUMBER:
       return 0;
-    default:
-      return undefined;
+    // Only scalar types reach this switch at runtime (setItemInList callers
+    // pass NUMBER/STRING/BOOLEAN/COLOUR). The list branches are unreachable;
+    // `as never` keeps them out of the return union so list-item defaults
+    // stay scalar-typed.
+    case VariableTypes.LIST_STRING:
+    case VariableTypes.LIST_NUMBER:
+    case VariableTypes.LIST_BOOLEAN:
+    case VariableTypes.LIST_COLOUR:
+      return undefined as never;
   }
 };
 
 export const valueToString = (
-  value: Color | string | boolean | number,
+  value:
+    | Color
+    | string
+    | boolean
+    | number
+    | (string | null)[]
+    | (number | null)[]
+    | (boolean | null)[]
+    | (Color | null)[],
   type: VariableTypes
 ) => {
   if (type === VariableTypes.COLOUR) {
-    const color = value as Color;
+    // value is the scalar Colour when type is COLOUR; the list-typed members
+    // of Variable["value"] have no overlap with Color, hence `unknown`.
+    const color = value as unknown as Color;
     return value
       ? `(red=${color.red},green=${color.green},blue=${color.blue})`
       : "(red=0,green=0,blue=0)";
