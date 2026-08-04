@@ -93,7 +93,7 @@ Blockly.Blocks["passive_buzzer_tone"] = {
       );
     this.appendValueInput("TONE")
       .setCheck("Number")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField(" Tone");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

@@ -15,7 +15,7 @@ Blockly.Blocks["analog_write"] = {
       );
     this.appendValueInput("WRITE_VALUE")
       .setCheck("Number")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Power");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

@@ -42,13 +42,13 @@ Blockly.Blocks["digital_display_set"] = {
       )
       .appendField("Set Digital Display");
     this.appendDummyInput()
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Colon: ")
       .appendField(new Blockly.FieldCheckbox("TRUE"), "COLON");
 
     this.appendValueInput("TEXT")
       .setCheck(null)
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Text");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

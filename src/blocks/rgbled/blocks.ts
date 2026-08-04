@@ -66,7 +66,7 @@ const set_color_led: BlocklyBlockDef = {
       .appendField("Set RGB LED's Color ");
 
     this.appendDummyInput("WHICH_COMPONENT")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Which Led: ")
       .appendField(
         new Blockly.FieldDropdown([
@@ -77,7 +77,7 @@ const set_color_led: BlocklyBlockDef = {
       );
 
     this.appendValueInput("COLOR")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Set Color: ");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -94,7 +94,7 @@ const set_simple_color_led: BlocklyBlockDef = {
       .appendField("Simple RGB Led's Color ");
 
     this.appendDummyInput("WHICH_COMPONENT")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Which Led: ")
       .appendField(
         new Blockly.FieldDropdown([
@@ -105,7 +105,7 @@ const set_simple_color_led: BlocklyBlockDef = {
       );
     this.appendDummyInput("COLOR")
       .appendField("Set Color: ")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField(
         new Blockly.FieldColour("red", undefined, {
           colourOptions: ["#ff0000", "#00ff00", "#0000ff", "#000000"],

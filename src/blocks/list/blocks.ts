@@ -52,7 +52,7 @@ import { COLOR_THEME } from "../../core/blockly/constants/colors";
 
       this.appendValueInput("VALUE")
         .setCheck(variable_type.replace("List ", ""))
-        .setAlign(Blockly.ALIGN_RIGHT)
+        .setAlign(Blockly.inputs.Align.RIGHT)
         .appendField(`Store ${humanType}`);
       this.appendValueInput("POSITION")
         .setCheck("Number")

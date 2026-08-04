@@ -8,7 +8,7 @@ Blockly.Blocks["rotate_servo"] = {
       .appendField(new Blockly.FieldImage("./blocks/servo/servo.png", 15, 15))
       .appendField("Rotate Servo");
     this.appendDummyInput()
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Pin# ")
       .appendField(
         new Blockly.FieldDropdown(() => {
@@ -18,7 +18,7 @@ Blockly.Blocks["rotate_servo"] = {
       );
     this.appendValueInput("DEGREE")
       .setCheck("Number")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Degrees");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);

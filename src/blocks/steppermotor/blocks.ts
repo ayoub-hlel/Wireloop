@@ -10,7 +10,7 @@ Blockly.Blocks["stepper_motor_setup"] = {
       )
       .appendField("Stepper Motor Setup");
     this.appendDummyInput()
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("PIN 1")
       .appendField(
         new Blockly.FieldDropdown(() => selectBoardBlockly().digitalPins),
@@ -32,12 +32,12 @@ Blockly.Blocks["stepper_motor_setup"] = {
         "PIN_4"
       );
     this.appendDummyInput()
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Speed")
       .appendField(new Blockly.FieldNumber(30, 0, 1000), "SPEED");
 
     this.appendDummyInput()
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField("Total Steps")
       .appendField(new Blockly.FieldNumber(200, 0, 500), "TOTAL_STEPS");
 
@@ -51,7 +51,7 @@ Blockly.Blocks["stepper_motor_move"] = {
   init: function () {
     this.appendValueInput("STEPS")
       .setCheck("Number")
-      .setAlign(Blockly.ALIGN_RIGHT)
+      .setAlign(Blockly.inputs.Align.RIGHT)
       .appendField(
         new Blockly.FieldImage("./blocks/steppermotor/steppermotor.png", 15, 15)
       )
