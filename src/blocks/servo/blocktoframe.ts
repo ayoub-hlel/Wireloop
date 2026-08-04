@@ -1,4 +1,4 @@
-import { findFieldValue } from "../../core/blockly/helpers/block-data.helper";
+import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
 import {
   ArduinoComponentType,
   ArduinoFrame,
@@ -36,7 +36,7 @@ export const servoRotate: BlockToFrameTransformer = (
 
   const newComponent = getServo(
     degree,
-    findFieldValue(block, "PIN"),
+    findPin(block, "PIN"),
     previousState
   );
 

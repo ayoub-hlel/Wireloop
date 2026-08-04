@@ -1,7 +1,7 @@
 import cloneDeep from "lodash/cloneDeep";
 import range from "lodash/range";
 import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
-import type { LCDScreenState } from "./state";
+import type { LCDScreenState, LCD_SCREEN_MEMORY_TYPE } from "./state";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
@@ -27,7 +27,7 @@ export const lcdScreenSetup: BlockToFrameTransformer = (
     rows,
     columns,
     type: ArduinoComponentType.LCD_SCREEN,
-    memoryType: findFieldValue(block, "MEMORY_TYPE"),
+    memoryType: findFieldValue(block, "MEMORY_TYPE") as LCD_SCREEN_MEMORY_TYPE,
     blink: { row: 0, column: 0, blinking: false },
     backLightOn: true,
     rowsOfText: [

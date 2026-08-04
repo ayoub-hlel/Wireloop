@@ -281,7 +281,6 @@ Blockly["Arduino"].scrub_ = function (block: Blockly.Block, code: string) {
       ].includes(block.type) == false
         ? block.getCommentText()
         : null;
-    // @ts-expect-error - Blockly.utils.string.wrap not in type definitions
     comment = comment
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? (Blockly.utils as any).string.wrap(

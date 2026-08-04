@@ -1,6 +1,5 @@
 import Blockly from "blockly";
 
-// @ts-expect-error - overriding Blockly internal methods
 Blockly.FieldVariable.prototype.initModel = function () {
   // @ts-expect-error - accessing private member
   if (this.variable) {
@@ -24,7 +23,6 @@ Blockly.FieldVariable.prototype.initModel = function () {
     // @ts-expect-error - accessing protected members
     this.workspace_,
     variableId,
-    // @ts-expect-error - accessing private member
     this.defaultVariableName,
     // @ts-expect-error - accessing private member
     this.defaultType

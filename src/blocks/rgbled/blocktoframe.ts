@@ -83,12 +83,9 @@ export const setLedColor: BlockToFrameTransformer = (
           previousState
         )
       : hexToRgb(findFieldValue(block, "COLOR") as string);
-  let whichComponent = findFieldValue(block, "WHICH_COMPONENT");
-  if (whichComponent == undefined) {
-    whichComponent = 1;
-  } else {
-    whichComponent = +whichComponent;
-  }
+  // WHICH_COMPONENT defaults to 1; findFieldValue returns "" for a missing
+  // field, so coerce to number and fall back to 1.
+  const whichComponent = +findFieldValue(block, "WHICH_COMPONENT") || 1;
 
   const ledColorStates = previousState.components.filter(
     (x) => x.type == ArduinoComponentType.LED_COLOR

@@ -33,9 +33,10 @@ export const findInputStatementStartBlock = (
 };
 
 export const getLoopTimeFromBlockData = (blocks: BlockData[]): number => {
-  return +findArduinoLoopBlock(blocks)!.fieldValues.find(
+  const loopField = findArduinoLoopBlock(blocks)?.fieldValues.find(
     (field) => field.name === "LOOP_TIMES"
-  )?.value;
+  );
+  return loopField ? +loopField.value : 0;
 };
 
 export const findRootBlock = (block: BlockData, blocks: BlockData[]) => {

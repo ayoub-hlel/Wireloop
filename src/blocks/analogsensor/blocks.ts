@@ -1,5 +1,6 @@
 import { selectBoardBlockly } from "../../core/microcontroller/selectBoard";
 import Blockly from "blockly";
+import type { BlocklyBlockDef } from "../../types/blockly";
 
 import { COLOR_THEME } from "../../core/blockly/constants/colors";
 import loopTimes from "../../core/blockly/helpers/looptimes";
