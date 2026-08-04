@@ -135,12 +135,11 @@ export const numberToText: ValueGenerator = (
     variables,
     timeline,
     "NUMBER",
-    "",
+    0,
     previousState
-  );
-  if (numberAttached === "" || !numberAttached) {
-    const number = 0;
-    return number.toFixed(precision);
+  ) as number;
+  if (!numberAttached) {
+    return (0).toFixed(precision);
   }
 
   return numberAttached.toFixed(precision);

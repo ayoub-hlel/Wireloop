@@ -49,7 +49,8 @@ Blockly["Arduino"]["text_join"] = function (block: Block) {
 
   const parts = [];
 
-  for (let i = 0; i < block.itemCount_; i += 1) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Blockly dynamic property
+  for (let i = 0; i < (block as any).itemCount_; i += 1) {
     const part = Blockly["Arduino"].valueToCode(
       block,
       "ADD" + i,
