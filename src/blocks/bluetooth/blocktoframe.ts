@@ -1,7 +1,7 @@
 import type { BlockToFrameTransformer } from "../../core/frames/transformer/block-to-frame.transformer";
 import cloneDeep from "lodash/cloneDeep";
 import { ArduinoComponentType } from "../../core/frames/arduino.frame";
-import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
+import { findPin } from "../../core/blockly/helpers/block-data.helper";
 import { arduinoFrameByComponent } from "../../core/frames/transformer/frame-transformer.helpers";
 import { getInputValue } from "../../core/frames/transformer/block-to-value.factories";
 import type { BluetoothSensor, BluetoothState } from "./state";

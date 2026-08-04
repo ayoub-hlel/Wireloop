@@ -117,7 +117,7 @@ export const isConnected: Readable<boolean> = derived(connectionState, ($s) => $
 export const isLoading: Readable<boolean> = derived(connectionState, ($s) => $s.isLoading);
 export const error: Readable<string | null> = derived(connectionState, ($s) => $s.error);
 
-export function createMutation<TArgs, TResult>(mutationName: string) {
+export function createMutation<TArgs extends Record<string, unknown>, TResult>(mutationName: string) {
   return async (args: TArgs): Promise<TResult> => {
     if (!client) throw new Error('DB client not initialized');
     const result = await client.mutation(mutationName, args);

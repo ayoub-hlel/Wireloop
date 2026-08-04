@@ -38,6 +38,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: cp env/env.staging.ts src/config.ts
       - run: pnpm check
 
   test:

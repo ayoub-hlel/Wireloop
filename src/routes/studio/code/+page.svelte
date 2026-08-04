@@ -16,7 +16,6 @@
     hljs.registerLanguage('arduino', arduinoLang);
     codeStore.subscribe(async (codeInfo) => {
       try {
-        // @ts-expect-error highlight.js v11 types incomplete
         code = hljs.highlight(codeInfo.code, { language: 'arduino' }).value;
       } catch(e) {
         console.log(e);

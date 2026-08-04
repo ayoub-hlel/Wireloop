@@ -13,7 +13,6 @@ export const load: LayoutServerLoad = async (event) => {
       });
       redirect(302, `/login?reason=${encodeURIComponent(event.locals.authError)}`);
     }
-    // eslint-disable-next-line no-console
     console.warn('[wl] studio:redirect-to-login', {
       reason: 'no-session',
       url: event.url.pathname,

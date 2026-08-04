@@ -1,4 +1,4 @@
-import { findFieldValue, findPin } from "../../core/blockly/helpers/block-data.helper";
+import { findPin } from "../../core/blockly/helpers/block-data.helper";
 import {
   ArduinoComponentType,
   ArduinoFrame,

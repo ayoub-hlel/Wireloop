@@ -14,6 +14,7 @@
   import { mark, fail } from '$lib/telemetry/boot';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
+  import type { Project } from '../../types/models';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
   let height = $state('500px');
   let middleFlex = $state(59.5);
@@ -100,11 +101,11 @@
       try {
         const projectId = $page.url.searchParams.get('projectid');
         const client = getApiClient();
-        const project = await client.query('projects:getProject', { projectId });
-        const projectFile = await client.query('projects:getProjectFile', { 
-          projectId, 
+        const project = (await client.query('projects:getProject', { projectId })) as Project | null;
+        const projectFile = (await client.query('projects:getProjectFile', {
+          projectId,
           userId: auth.uid
-        });
+        })) as { content?: string; workspace?: string } | null;
         
         if (project && projectFile) {
           mark('studio:project-loaded', { projectId });

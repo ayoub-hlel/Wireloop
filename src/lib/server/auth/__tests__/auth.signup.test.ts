@@ -176,7 +176,8 @@ describe("Sign-Up", () => {
         body: {
           email,
           password: "Test1234!",
-        },
+          // ponytail: deliberately invalid payload — testing server-side rejection
+        } as any,
         headers: new Headers(),
       });
       expect.fail("Expected error");
@@ -193,7 +194,8 @@ describe("Sign-Up", () => {
         body: {
           password: "Test1234!",
           name: "No Email",
-        },
+          // ponytail: deliberately invalid payload — testing server-side rejection
+        } as any,
         headers: new Headers(),
       });
       expect.fail("Expected error");

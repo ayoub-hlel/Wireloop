@@ -24,7 +24,7 @@ describe('Blockly.inputs.Align (deprecation migration)', () => {
   it('old Blockly.ALIGN_RIGHT constant resolves to the same value', () => {
     // In Blockly 10 the old constants still exist but are removed in v11.
     // Verify the new path produces the same numeric result.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const legacy = (Blockly as any).ALIGN_RIGHT;
     expect(legacy).toBe(Blockly.inputs.Align.RIGHT);
   });

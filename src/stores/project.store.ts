@@ -57,7 +57,7 @@ export async function loadProject(projectId: string): Promise<void> {
 
   try {
     const client = getApiClient();
-    const project = await client.query('projects:getProject', { projectId });
+    const project = (await client.query('projects:getProject', { projectId })) as Project | null;
 
     if (project) {
       projectStore.set({

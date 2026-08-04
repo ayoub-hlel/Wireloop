@@ -72,7 +72,7 @@ authStore.subscribe(async (auth) => {
 
     try {
       const client = getApiClient();
-      cloudSettings = await client.query('users:getUserSettings', { userId: auth.uid });
+      cloudSettings = (await client.query('users:getUserSettings', { userId: auth.uid })) as Settings | null;
     } catch {
       console.log('Settings not found, using defaults');
     }

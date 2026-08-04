@@ -14,6 +14,9 @@ export default defineConfig(
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], plugins: { js }, extends: ["js/recommended"], languageOptions: { globals: {...globals.browser, ...globals.node} } },
   tseslint.configs.recommended,
   { files: ["**/*.{ts,svelte.ts}", ...SVELTE_FILES], rules: { "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }] } },
+  // ponytail: test mocks are duck-typed partials cast across interfaces — any is the
+  // honest type. Upgrade path: typed mock factories per component if drift bites.
+  { files: ["tests/**", "**/__tests__/**"], rules: { "@typescript-eslint/no-explicit-any": "off" } },
   ...svelte.configs.recommended.map((config) => ({ ...config, files: SVELTE_FILES })),
   { files: SVELTE_FILES, rules: { "svelte/no-navigation-without-resolve": "off" } },
   {

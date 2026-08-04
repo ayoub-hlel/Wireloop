@@ -37,11 +37,11 @@
     try {
       if (!$projectStore.projectId) {
         const xml = workspaceToXML() || '';
-        const { projectId, project } = await getApiClient().mutation('projects:createProject', {
+        const { projectId, project } = (await getApiClient().mutation('projects:createProject', {
           name: projectName,
           description: projectDescription,
           workspace: xml,
-        });
+        })) as { projectId: string; project: unknown };
         await getApiClient().mutation('projects:saveProjectFile', {
           projectId, userId: $authStore.uid, content: xml, filename: `${projectId}.xml`,
         });

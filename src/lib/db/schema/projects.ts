@@ -1,7 +1,7 @@
 /**
  * App data tables — mirrors the Convex schema but in Postgres.
  */
-import { pgTable, text, timestamp, integer, boolean, jsonb, index, pgEnum, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, boolean, jsonb, index, pgEnum, primaryKey, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 import { user } from './auth';
 
@@ -43,7 +43,8 @@ export const projects = pgTable('projects', {
   thumbnailUrl: text('thumbnail_url'),
   lastOpenedAt: timestamp('last_opened_at'),
   deletedAt: timestamp('deleted_at'),
-  forkedFrom: text('forked_from').references(() => projects.id, { onDelete: 'set null' }),
+  // ponytail: AnyPgColumn annotation is drizzle's idiom for self-referencing FKs (breaks the circular type inference)
+  forkedFrom: text('forked_from').references((): AnyPgColumn => projects.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 }, (t) => ({

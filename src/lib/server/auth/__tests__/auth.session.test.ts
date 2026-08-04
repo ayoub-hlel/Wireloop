@@ -28,7 +28,7 @@ describe("Session Management", () => {
     });
 
     expect(sessionRes).toBeDefined();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
     const data = sessionRes as any;
     expect(data.user).toBeDefined();
     expect(data.user.email).toBe(email);
@@ -100,7 +100,7 @@ describe("Session Management", () => {
       }),
     });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
     const data = sessionRes as any;
     expect(data.user.id).toBeDefined();
     expect(data.user.email).toBe(email);

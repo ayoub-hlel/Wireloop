@@ -36,7 +36,7 @@
 		{@render children?.()}
 		{#if showCloseButton}
 			<DialogPrimitive.Close data-slot="dialog-close">
-				{#snippet child({ props })}
+				{#snippet child({ props }: { props: Record<string, unknown> })}
 					<Button variant="ghost" class="absolute top-2 right-2" size="icon-sm" {...props}>
 						<XIcon  />
 						<span class="sr-only">Close</span>
