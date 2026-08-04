@@ -49,7 +49,7 @@ export const updateIrRemote: SyncComponent = (
 
   irRemoteEl.findOne("#remote")!.show();
   irRemoteEl.findOne("#code")!.show();
-  irRemoteEl.findOne("#code")!.node.innerHTML = state.code;
+  irRemoteEl.findOne("#code")!.node.innerHTML = irState.code;
   (irRemoteEl.findOne("#code") as Element).cx(55);
 };
 

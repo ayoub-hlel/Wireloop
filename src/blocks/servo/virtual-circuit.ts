@@ -44,10 +44,10 @@ export const servoCreate: AfterComponentCreateHook<ServoState> = (
 export const servoPosition: PositionComponent<ServoState> = (
   state,
   servoEl,
-  _arduinoEl,
-  _draw,
-  _board,
-  _area
+  arduinoEl,
+  draw,
+  board,
+  area
 ) => {
   const { holes, isDown } = area!;
   positionComponent(servoEl, arduinoEl, draw, holes[2], isDown, "PIN_POWER");

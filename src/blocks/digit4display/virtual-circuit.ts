@@ -87,10 +87,10 @@ export const digitalDisplayUpdate: SyncComponent = (
   const redColor = "#E81818";
   const topDotEL = digitalDisplayEl.findOne("#DOT_TOP") as Element;
   const bottomDotEL = digitalDisplayEl.findOne("#DOT_BOTTOM") as Element;
-  topDotEL.fill(state.colonOn ? redColor : "#FFF");
-  bottomDotEL.fill(state.colonOn ? redColor : "#FFF");
-  topDotEL.stroke(state.colonOn ? redColor : "#FFF");
-  bottomDotEL.stroke(state.colonOn ? redColor : "#FFF");
+  topDotEL.fill(displayState.colonOn ? redColor : "#FFF");
+  bottomDotEL.fill(displayState.colonOn ? redColor : "#FFF");
+  topDotEL.stroke(displayState.colonOn ? redColor : "#FFF");
+  bottomDotEL.stroke(displayState.colonOn ? redColor : "#FFF");
 };
 
 export const createWiresDigitalDisplay: CreateWire<DigitilDisplayState> = (

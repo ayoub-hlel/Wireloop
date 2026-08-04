@@ -92,11 +92,11 @@
     if (arduinoStatus !== PortState.CLOSE) return;
     arduinoStore.set(PortState.UPLOADING);
     try {
-      const avrgirl = new AvrgirlArduino({ board: boardType, debug: true });
+      const avrgirl = new AvrgirlArduino({ board: boardType, debug: true }) as Parameters<typeof upload>[1];
       await upload(code, avrgirl, boardType);
       onSuccess("Your code is uploaded!! :)");
     } catch (e: unknown) {
-      if (e.message.toLowerCase() === "no port selected by the user.") {
+      if (e instanceof Error && e.message.toLowerCase() === "no port selected by the user.") {
         arduinoStore.set(PortState.CLOSE);
         return;
       }

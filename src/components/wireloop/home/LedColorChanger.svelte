@@ -12,7 +12,8 @@
   let ledColor: string = "";
 
   function onLedColorShow(e: Event) {
-    ledEl = e.detail.componentEl;
+    const detail = (e as CustomEvent<{ componentEl: Element }>).detail;
+    ledEl = detail.componentEl;
     ledColor = ledEl.data("color");
     showLedChanger = true;
   }
@@ -28,6 +29,7 @@
   });
 
   function changeColor(e: Event) {
+    if (!ledEl) return;
     ledColor = (e.target as HTMLElement).getAttribute("data-color") || "";
     let ledLightColor = lightColorsShades[ledColor];
 

@@ -5,7 +5,8 @@
   import frameStore from "../../../stores/frame.store";
   import { onDestroy } from "svelte";
   import { VariableTypes } from "../../../core/blockly/dto/variable.type";
-import type { VariableData } from "../../../core/blockly/dto/event.type";
+  import type { VariableData } from "../../../core/blockly/dto/variable.type";
+  import type { Color } from "../../../core/frames/arduino.frame";
   let variables: VariableData[] = [];
 
   const unsubscribes: (() => void)[] = [];
@@ -17,7 +18,7 @@ import type { VariableData } from "../../../core/blockly/dto/event.type";
         return;
       }
       variables = keys(frame.variables).map((varName) => {
-        return frame.variables[varName];
+        return frame.variables[varName] as VariableData;
       });
     })
   );
@@ -34,19 +35,14 @@ import type { VariableData } from "../../../core/blockly/dto/event.type";
 
   function mapArrayValues(values: unknown[], type: string) {
     const innerString = values
-      .map((v: unknown) => (v === null ? "_" : v))
-      .map((v) => {
-        if (v === "_" || type !== VariableTypes.LIST_STRING) {
-          return v;
-        }
-
-        return `"${v}"`;
+      .map((v: unknown) => {
+        if (v === null) return "_";
+        if (type === VariableTypes.LIST_STRING) return `"${v}"`;
+        return String(v);
       })
-      .reduce((acc, next) => {
-        return acc + next + ", ";
-      }, "");
+      .join(", ");
 
-    return `[ ${innerString.substring(0, innerString.length - 2)} ]`;
+    return `[ ${innerString} ]`;
   }
 
   onDestroy(() => {
@@ -67,24 +63,24 @@ import type { VariableData } from "../../../core/blockly/dto/event.type";
         <li>
           {variable.name}
           =
-          {mapArrayValues(variable.value, variable.type)}
+          {mapArrayValues(variable.value as unknown[], variable.type)}
         </li>
       {/if}
       {#if 'Colour' === variable.type}
         <li>
           <span
             class="color"
-            style="border-bottom: {rgbToHex(variable.value)} solid 2px;"
+            style="border-bottom: {rgbToHex(variable.value as Color)} solid 2px;"
           >
             {variable.name}
-            = (r={variable.value.red},g={variable.value.green},b={variable.value.blue})
+            = (r={(variable.value as Color).red},g={(variable.value as Color).green},b={(variable.value as Color).blue})
           </span>
         </li>
       {/if}
       {#if 'List Colour' === variable.type}
         <li>
           <span class="color-list-name-equal">{variable.name} =</span>
-          {#each variable.value as color, i (i)}
+          {#each (variable.value as (Color | null)[]) as color, i (i)}
             {#if color}
               <span
                 class="color-item"

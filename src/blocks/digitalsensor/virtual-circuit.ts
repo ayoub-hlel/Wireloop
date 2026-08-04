@@ -76,8 +76,8 @@ export const updateDigitalSensor: SyncComponent = (
     return;
   }
 
-  if (state.pictureType === DigitalPictureType.TOUCH_SENSOR) {
-    if (state.isOn) {
+  if (sensorState.pictureType === DigitalPictureType.TOUCH_SENSOR) {
+    if (sensorState.isOn) {
       analogSensorEl.findOne("#finger")!.show();
     } else {
       analogSensorEl.findOne("#finger")!.hide();
