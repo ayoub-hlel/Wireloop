@@ -28,8 +28,6 @@ jobs:
       - run: pnpm lint
 
   check:
-    # ponytail: informational until type debt clears (306 pre-existing errors); unblocks downstream jobs.
-    continue-on-error: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
