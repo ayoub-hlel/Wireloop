@@ -42,10 +42,12 @@ export const handle: Handle = sequence(
     environment: isProd ? 'production' : 'preview',
     debug: dev,
     beforeSend(event) {
-      // Drop health check noise
       const url = event.request?.url ?? event.tags?.['url'] ?? '';
-      if (typeof url === 'string' && (url.includes('/api/health') || url.includes('/api/diagnostics'))) {
-        return null;
+      if (typeof url === 'string') {
+        // Drop health check + diagnostics noise
+        if (url.includes('/api/health') || url.includes('/api/diagnostics')) return null;
+        // Drop static-asset 404 noise (favicon, robots.txt)
+        if (url.endsWith('/favicon.ico') || url.endsWith('/robots.txt')) return null;
       }
       return event;
     },

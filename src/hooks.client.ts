@@ -40,10 +40,14 @@ Sentry.init({
   ],
 
   beforeSend(event) {
-    // Drop Sentry's own internal requests
     const url = event.request?.url ?? '';
-    if (typeof url === 'string' && url.includes('sentry.io')) {
-      return null;
+    if (typeof url === 'string') {
+      // Drop Sentry's own internal requests
+      if (url.includes('sentry.io')) return null;
+      // Drop browser-extension noise (Chrome, Firefox, etc.)
+      if (url.includes('extension://')) return null;
+      // Drop common static-asset 404 noise in dev
+      if (url.endsWith('/favicon.ico') || url.endsWith('/robots.txt')) return null;
     }
     return event;
   },
