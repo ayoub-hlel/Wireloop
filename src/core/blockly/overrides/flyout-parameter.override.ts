@@ -30,7 +30,7 @@ Blockly.Procedures.flyoutCategory = (workspace) => {
     xmlList[xmlList.length - 1].setAttribute("gap", "24");
   }
 
-  function populateProcedures(procedureList: string[][], templateName: string) {
+  function populateProcedures(procedureList: [string, string[], boolean][], templateName: string) {
     for (let i = 0; i < procedureList.length; i++) {
       const name = procedureList[i][0];
       // <block type="procedures_callnoreturn" gap="16">
