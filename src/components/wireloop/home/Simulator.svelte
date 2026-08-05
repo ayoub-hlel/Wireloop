@@ -54,7 +54,8 @@
         width: container.clientWidth - 10,
         height: container.clientHeight - 10,
       });
-      onErrorMessage('There is not enough room to render the Arduino', {});
+      // ponytail: toast deleted — the Infinity wait below recovers silently,
+      // so the error message only scared users about a transient layout race
       // Don't dead-end: keep waiting (ResizeObserver, no polling) until the
       // container is laid out, then initialize so the circuit still draws.
       size = await waitForLayout(Number.POSITIVE_INFINITY);

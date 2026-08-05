@@ -126,6 +126,11 @@
       mark('blockly:workspace-created');
       workspaceInitialize = true;
       resizeBlockly();
+      // ponytail: window resizeStore misses container-only resizes (sidebar
+      // toggle, flex relayout) which left the canvas cramped — RO covers both
+      const ro = new ResizeObserver(() => resizeBlockly());
+      ro.observe(blocklyElement);
+      unsubscribes.push(() => ro.disconnect());
       setTimeout(() => {
         relocateToolbox();
         resizeBlockly();
