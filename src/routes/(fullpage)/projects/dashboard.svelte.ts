@@ -1,7 +1,6 @@
 import { goto } from '$app/navigation';
 import type { Project } from '../../../types/models';
 import { onErrorMessage } from '../../../help/alerts';
-import { loadProject } from '../../../core/blockly/helpers/workspace.helper';
 import { getApiClient } from '../../../stores/api.client';
 import orgStore from '../../../stores/org.store';
 import projectStore from '../../../stores/project.store';
@@ -211,6 +210,10 @@ export function createDashboard() {
     const workspace = file?.content ?? '';
 
     if (workspace) {
+      // ponytail: lazy-load Blockly only when opening a project; importing it
+      // at the top level breaks SSR of /projects now that logged-in users hit
+      // this page server-side via the root redirect.
+      const { loadProject } = await import('../../../core/blockly/helpers/workspace.helper');
       loadProject(workspace);
     }
 

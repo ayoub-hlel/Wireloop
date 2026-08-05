@@ -7,6 +7,7 @@
   import Sun from '@lucide/svelte/icons/sun';
   import Moon from '@lucide/svelte/icons/moon';
   import { toggleTheme, setTheme, getTheme } from "$lib/theme";
+  import { browser } from "$app/environment";
   import type { OrgInfo } from "../../../stores/org.store";
 
   type SidebarItem = { id: string; name: string };
@@ -43,7 +44,8 @@
     onNewProject = () => {},
   }: Props = $props();
 
-  let theme = $state<"light" | "dark">(getTheme());
+  // ponytail: getTheme() touches document; SSR has none — default light, hydrate on mount
+  let theme = $state<"light" | "dark">(browser ? getTheme() : "light");
 
   function getInitials(name: string): string {
     return name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
