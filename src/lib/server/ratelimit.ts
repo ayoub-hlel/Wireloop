@@ -36,7 +36,17 @@ export async function checkRateLimit(
   if (!limiter) return null;
 
   const key = locals.user?.id ?? getClientAddress();
-  const { success, reset } = await limiter.limit(key);
+
+  // ponytail: Upstash REST can take ~2s cross-region from CF Functions —
+  // race against a 300ms budget and fail-open so the gate never chokes UX.
+  // When Upstash is healthy (<300ms) the window still applies; when it's
+  // slow, per-isolate fixed-window (Map) would be the next rung.
+  const { success, reset } = await Promise.race([
+    limiter.limit(key),
+    new Promise<{ success: boolean; reset: number }>(r =>
+      setTimeout(() => r({ success: true, reset: 0 }), 300),
+    ),
+  ]);
   if (success) return null;
 
   const retryAfter = Math.max(1, Math.ceil((reset - Date.now()) / 1000));

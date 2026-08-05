@@ -71,4 +71,15 @@ describe('checkRateLimit', () => {
     expect(res).toBeNull();
     expect(limitMock).not.toHaveBeenCalled();
   });
+
+  it('fails open when Upstash takes longer than the 300ms budget', async () => {
+    // never-resolving promise: simulates a stalled Upstash REST call
+    limitMock.mockReturnValue(new Promise(() => {}));
+    const { checkRateLimit } = await loadModule();
+    const t0 = Date.now();
+    const res = await checkRateLimit('query', { user: { id: 'u1' } }, () => '127.0.0.1');
+    const elapsed = Date.now() - t0;
+    expect(res).toBeNull();
+    expect(elapsed).toBeLessThan(600); // generous margin; the timeout is 300ms
+  });
 });

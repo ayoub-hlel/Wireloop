@@ -30,7 +30,6 @@
   let userImage = $state<string | null>(null);
 
   const dashboard = createDashboard();
-  let searchTerm = $state('');
   let trash = $derived(dashboard.trashed.map(p => ({ id: p.id, name: p.name })));
   let starred = $derived(dashboard.starred.map(p => ({ id: p.id, name: p.name })));
 
@@ -89,7 +88,6 @@
   {userName}
   {userEmail}
   {userImage}
-  bind:searchTerm
   {orgs}
   bind:selectedOrgId
   {onSelectOrg}
@@ -159,11 +157,6 @@
     <section class="demo-section">
       <div class="demo-header">
         <h2>Demo Projects</h2>
-        <div class="demo-legend">
-          <span class="legend-item"><img src="/example-projects/easy.png" alt="" class="legend-icon" /> Easy</span>
-          <span class="legend-item"><img src="/example-projects/medium.png" alt="" class="legend-icon" /> Medium</span>
-          <span class="legend-item"><img src="/example-projects/hard.png" alt="" class="legend-icon" /> Hard</span>
-        </div>
       </div>
 
       {#each chunk(lessonList, 3) as lessonRow, ri (ri)}
@@ -177,10 +170,9 @@
               tabindex="0"
             >
               <div class="demo-card-body">
-                <img loading="lazy" src={lesson.levelImage} alt="difficulty" class="demo-level" />
+                <span class="demo-level demo-level-{lesson.level}">{lesson.level}</span>
                 <h5>{lesson.title}</h5>
               </div>
-              <img src={lesson.image} class="demo-card-img" alt={lesson.title} />
             </div>
           {/each}
         </div>
@@ -283,25 +275,6 @@
     font-weight: 600;
   }
 
-  .demo-legend {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.8rem;
-    color: hsl(var(--muted-foreground));
-  }
-
-  .legend-icon {
-    width: 20px;
-    height: 20px;
-  }
-
   .demo-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -336,21 +309,23 @@
     position: absolute;
     right: 0.75rem;
     top: 0.75rem;
-    width: 24px;
-    height: 24px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--muted-foreground));
   }
+
+  .demo-level-easy { color: hsl(142 70% 40%); border-color: hsl(142 70% 40% / 0.4); }
+  .demo-level-medium { color: hsl(38 92% 44%); border-color: hsl(38 92% 44% / 0.4); }
+  .demo-level-hard { color: hsl(0 72% 51%); border-color: hsl(0 72% 51% / 0.4); }
 
   .demo-card-body h5 {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    padding-right: 2rem;
-  }
-
-  .demo-card-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    display: block;
+    padding-right: 4.5rem;
   }
 </style>

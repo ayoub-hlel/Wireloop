@@ -1,7 +1,6 @@
 <script lang="ts">
   import * as Avatar from "$lib/components/ui/avatar/index.js";
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-  import { Input } from "$lib/components/ui/input/index.js";
   import OrgSwitcher from "./OrgSwitcher.svelte";
   import Undo2 from '@lucide/svelte/icons/undo-2';
   import Sun from '@lucide/svelte/icons/sun';
@@ -16,7 +15,6 @@
     userName?: string;
     userEmail?: string;
     userImage?: string | null;
-    searchTerm?: string;
     orgs?: OrgInfo[];
     selectedOrgId?: string | null;
     trash?: SidebarItem[];
@@ -32,7 +30,6 @@
     userName = "",
     userEmail = "",
     userImage = null as string | null,
-    searchTerm = $bindable(""),
     orgs = [] as OrgInfo[],
     selectedOrgId = $bindable(null as string | null),
     trash = [] as SidebarItem[],
@@ -122,17 +119,6 @@
       <button class="sidebar-icon-btn" aria-label="Notifications">
         <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12.992 6.124Q13 6.064 13 6a1 1 0 1 0-1.992.124A4 4 0 0 0 8 10v1.172a5.83 5.83 0 0 1-1.707 4.12A1 1 0 0 0 7 17h3a2 2 0 0 0 4 0h3a1 1 0 0 0 .707-1.707A5.83 5.83 0 0 1 16 11.172V10a4 4 0 0 0-3.008-3.876M12 18a1 1 0 0 1-1-1h2a1 1 0 0 1-1 1m5-2a6.82 6.82 0 0 1-2-4.828V10a3 3 0 1 0-6 0v1.172A6.83 6.83 0 0 1 7 16z" clip-rule="evenodd"/></svg>
       </button>
-    </div>
-
-    <div class="sidebar-search">
-      <div class="sidebar-search-inner">
-        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" class="sidebar-search-icon" aria-hidden="true"><path fill="currentColor" d="M11.5 6a5.5 5.5 0 0 1 4.226 9.019l2.127 2.127a.5.5 0 1 1-.707.707l-2.127-2.127A5.5 5.5 0 1 1 11.5 6m0 1a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9"/></svg>
-        <Input
-          bind:value={searchTerm}
-          placeholder="Search"
-          class="sidebar-search-input"
-        />
-      </div>
     </div>
 
     <button class="sidebar-row" aria-label="Recents">
@@ -322,33 +308,6 @@
   .theme-icon-sun { display: none; }
   :global([data-theme="dark"]) .theme-icon-sun { display: block; }
   :global([data-theme="dark"]) .theme-icon-moon { display: none; }
-
-  .sidebar-search {
-    padding: 0.125rem 0;
-    margin-bottom: 0.125rem;
-  }
-
-  .sidebar-search-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .sidebar-search-icon {
-    position: absolute;
-    left: 0.375rem;
-    width: 16px;
-    height: 16px;
-    color: hsl(var(--sidebar-foreground) / 0.4);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .sidebar-search-input {
-    padding-left: 1.75rem !important;
-    height: 32px;
-    font-size: 0.8125rem;
-  }
 
   .sidebar-row {
     display: flex;
