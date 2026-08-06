@@ -8,6 +8,7 @@ import { validate, ValidationError } from '$lib/server/validate';
 import { actionEnvelope, project, user, organization } from '$lib/server/validation';
 import { checkRateLimit } from '$lib/server/ratelimit';
 import { logServerError } from '$lib/server/log';
+import { userProjectNames, uniqueCopyName } from '$lib/server/project-names';
 import * as Sentry from '@sentry/sveltekit';
 
 const mutationSchemas = {
@@ -66,26 +67,6 @@ type MutationArgs = {
 };
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
-
-// ponytail: case-insensitive duplicate avoidance. "x" -> "x copy" -> "x copy 1" -> "x copy 2".
-// Copying "x copy 1" yields "x copy 1 copy" (the base is always the source's own name).
-export async function userProjectNames(db: Db, userId: string): Promise<Set<string>> {
-  const rows = await db
-    .select({ name: projects.name })
-    .from(projects)
-    .where(and(eq(projects.userId, userId), isNull(projects.deletedAt)));
-  return new Set(rows.map(r => r.name.toLowerCase()));
-}
-
-export function uniqueCopyName(base: string, taken: Set<string>): string {
-  const lower = (s: string) => s.toLowerCase();
-  if (!taken.has(lower(base))) return base;
-  let candidate = `${base} copy`;
-  if (!taken.has(lower(candidate))) return candidate;
-  let n = 1;
-  while (taken.has(lower(`${base} copy ${n}`))) n += 1;
-  return `${base} copy ${n}`;
-}
 
 export async function POST({ request, locals, getClientAddress, platform }) {
   const limited = await checkRateLimit('mutation', locals, getClientAddress);

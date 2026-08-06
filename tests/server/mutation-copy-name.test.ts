@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { uniqueCopyName } from '@/routes/api/mutation/+server';
+import { uniqueCopyName } from '@/lib/server/project-names';
 
 // Regression lock for the bucket-15 duplicate-name avoidance.
 // Chain: "x" -> "x copy" -> "x copy 1" -> "x copy 2".
