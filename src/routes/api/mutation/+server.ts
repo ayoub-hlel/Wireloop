@@ -69,7 +69,7 @@ type Db = NonNullable<ReturnType<typeof getDb>>;
 
 // ponytail: case-insensitive duplicate avoidance. "x" -> "x copy" -> "x copy 1" -> "x copy 2".
 // Copying "x copy 1" yields "x copy 1 copy" (the base is always the source's own name).
-async function userProjectNames(db: Db, userId: string): Promise<Set<string>> {
+export async function userProjectNames(db: Db, userId: string): Promise<Set<string>> {
   const rows = await db
     .select({ name: projects.name })
     .from(projects)
@@ -77,7 +77,7 @@ async function userProjectNames(db: Db, userId: string): Promise<Set<string>> {
   return new Set(rows.map(r => r.name.toLowerCase()));
 }
 
-function uniqueCopyName(base: string, taken: Set<string>): string {
+export function uniqueCopyName(base: string, taken: Set<string>): string {
   const lower = (s: string) => s.toLowerCase();
   if (!taken.has(lower(base))) return base;
   let candidate = `${base} copy`;

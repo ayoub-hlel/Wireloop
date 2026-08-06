@@ -54,4 +54,11 @@ describe('server validation schemas (strict mutation contract)', () => {
     expect(actionEnvelope.safeParse({}).success).toBe(false);
     expect(actionEnvelope.safeParse({ name: 'projects:createProject' }).success).toBe(true);
   });
+
+  // ponytail: bucket 15 added project.getPublic (community filter query). Strict
+  // object, no args — lock that extras 400 (mirrors the existing create/get locks).
+  it('project.getPublic accepts {} and is strict', () => {
+    expect(project.getPublic.safeParse({}).success).toBe(true);
+    expect(project.getPublic.safeParse({ extra: 1 }).success).toBe(false);
+  });
 });
