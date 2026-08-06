@@ -1,6 +1,6 @@
 import { getDb } from '$lib/db';
 import { projects } from '$lib/db/schema/projects';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
 
@@ -10,7 +10,7 @@ export async function userProjectNames(db: Db, userId: string): Promise<Set<stri
   const rows = await db
     .select({ name: projects.name })
     .from(projects)
-    .where(and(eq(projects.userId, userId), isNull(projects.deletedAt)));
+    .where(eq(projects.userId, userId));
   return new Set(rows.map(r => r.name.toLowerCase()));
 }
 

@@ -180,7 +180,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
           .select()
           .from(recentProjects)
           .innerJoin(projects, eq(recentProjects.projectId, projects.id))
-          .where(eq(recentProjects.userId, locals.user.id))
+          .where(and(eq(recentProjects.userId, locals.user.id), isNull(projects.deletedAt)))
           .orderBy(desc(recentProjects.lastAccessedAt))
           .limit(20);
         return json(recentRows.map(r => r.projects));
