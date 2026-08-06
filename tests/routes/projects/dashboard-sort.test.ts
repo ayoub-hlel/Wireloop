@@ -29,6 +29,7 @@ describe('createDashboard visible sort (updatedAt Date|string)', () => {
   function seed(rows: Array<Record<string, unknown>>) {
     mockQuery.mockImplementation(async (name: string) => {
       if (name === 'projects:getDrafts') return rows;
+      if (name === 'projects:getRecentProjects') return rows;
       if (name === 'projects:getStarredProjects') return [];
       if (name === 'projects:getTrashedProjects') return [];
       return [];

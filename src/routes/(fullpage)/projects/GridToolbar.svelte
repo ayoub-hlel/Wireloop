@@ -9,6 +9,7 @@
   type Props = {
     view?: 'grid' | 'list';
     sort?: 'updatedAt' | 'name';
+    search?: string;
     onViewChange?: (v: 'grid' | 'list') => void;
     onSortChange?: (s: 'updatedAt' | 'name') => void;
     onSearch?: (q: string) => void;
@@ -17,6 +18,7 @@
   let {
     view = 'grid',
     sort = 'updatedAt',
+    search = $bindable(''),
     onViewChange = () => {},
     onSortChange = () => {},
     onSearch = () => {},
@@ -62,10 +64,8 @@
     <Input
       placeholder="Search projects…"
       class="search-input"
-      oninput={(e) => {
-        const el = e.currentTarget as HTMLInputElement;
-        onSearch(el.value);
-      }}
+      bind:value={search}
+      oninput={() => onSearch(search)}
     />
   </div>
 </div>
@@ -90,11 +90,13 @@
     align-items: center;
   }
 
-  .search-input {
+  /* ponytail: :global because these classes land on bits-ui/lucide children,
+     which never carry this component's scope hash. */
+  :global(.search-input) {
     width: 220px;
   }
 
-  .sort-trigger {
+  :global(.sort-trigger) {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
@@ -108,11 +110,11 @@
     margin-left: 0.5rem;
   }
 
-  .sort-trigger:hover {
+  :global(.sort-trigger:hover) {
     background-color: hsl(var(--secondary));
   }
 
-  .sort-trigger-icon {
+  :global(.sort-trigger-icon) {
     width: 16px;
     height: 16px;
   }

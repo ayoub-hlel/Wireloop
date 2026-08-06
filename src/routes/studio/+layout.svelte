@@ -14,11 +14,13 @@
   import { mark, fail } from '$lib/telemetry/boot';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
+  import { onErrorMessage } from '../../help/alerts';
   import type { Project } from '../../types/models';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
   let height = $state('500px');
   let middleFlex = $state(59.5);
   let rightFlex = $state(39.5);
+  let loadingProject = $state(false);
   let isResizingRight = false;
   let unsubAuth: (() => void) | undefined;
   let unsubPage: (() => void) | undefined;
@@ -72,6 +74,8 @@
       loadedProject = true;
     }
 
+    let loadingProjectId: string | null = null;
+
     unsubAuth = authStore.subscribe(async (auth) => {
       if (auth.loading) return;
       mark('studio:auth-state', { isLoggedIn: auth.isLoggedIn, uid: !!auth.uid });
@@ -80,23 +84,16 @@
         return;
       }
 
-      if (
-        $projectStore.projectId === $page.url.searchParams.get('projectid') ||
-        !$page.url.searchParams.get('projectid') ||
-        loadedProject
-      ) {
+      const projectId = $page.url.searchParams.get('projectid');
+      if (!projectId || loadedProject) return;
+      // ponytail: skip if already loaded OR already loading this projectid
+      // (auth subscription can fire multiple times during startup).
+      if ($projectStore.projectId === projectId || loadingProjectId === projectId) {
         return;
       }
 
-      const swal = (await import('sweetalert')).default;
-      swal({
-        title: 'Loading your project',
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onOpen: () => { (swal as any).showLoading(); },
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      loadingProjectId = projectId;
+      loadingProject = true;
 
       try {
         const projectId = $page.url.searchParams.get('projectid');
@@ -117,15 +114,10 @@
       } catch (error) {
         fail('studio:project-load', error);
         console.error('Error loading project:', error);
-        swal({
-          title: 'Error',
-          text: 'Failed to load project. Please try again.',
-          icon: 'error'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any);
+        onErrorMessage('Failed to load project. Please try again.');
       } finally {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (swal as any).close?.();
+        loadingProject = false;
+        loadingProjectId = null;
       }
     });
   });
@@ -172,6 +164,13 @@
   </div>
 </main>
 
+{#if loadingProject}
+  <div class="studio-loading-overlay" role="status" aria-label="Loading project">
+    <div class="studio-loading-spinner"></div>
+    <span class="studio-loading-text">Loading your project…</span>
+  </div>
+{/if}
+
 {@render children()}
 
 <svelte:window on:resize={resizeHeight} />
@@ -189,5 +188,36 @@
   }
   #right_panel::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground));
+  }
+
+  .studio-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: hsl(var(--background) / 0.7);
+    backdrop-filter: blur(2px);
+  }
+
+  .studio-loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    border: 3px solid hsl(var(--border));
+    border-top-color: hsl(var(--primary));
+    animation: studio-spin 0.7s linear infinite;
+  }
+
+  .studio-loading-text {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  @keyframes studio-spin {
+    to { transform: rotate(360deg); }
   }
 </style>

@@ -6,20 +6,24 @@
     projects: DashboardProject[];
     starredIds?: string[];
     emptyText?: string;
+    trashed?: boolean;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onFork?: (id: string) => void;
     onTrash?: (id: string) => void;
+    onRestore?: (id: string) => void;
   };
 
   let {
     projects,
     starredIds = [],
     emptyText = 'No projects yet.',
+    trashed = false,
     onOpen = () => {},
     onStar = () => {},
     onFork = () => {},
     onTrash = () => {},
+    onRestore = () => {},
   }: Props = $props();
 </script>
 
@@ -29,10 +33,12 @@
       <ProjectCard
         {project}
         starred={starredIds.includes(project.id)}
+        {trashed}
         {onOpen}
         {onStar}
         {onFork}
         {onTrash}
+        {onRestore}
       />
     {/each}
   </div>

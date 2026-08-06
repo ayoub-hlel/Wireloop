@@ -10,7 +10,7 @@
   import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
   import ContextMenu from "./ContextMenu.svelte";
 
-  let container: HTMLElement;
+  let container: HTMLElement | undefined = $state();
   let editorView: EditorView | undefined = $state();
   let _loaded = $state(false);
   let fontSize = $state(14);

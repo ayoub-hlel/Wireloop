@@ -15,6 +15,8 @@ export interface DashboardProject {
   forkedFrom?: string | null;
 }
 
+export type DashboardFilter = 'recents' | 'projects' | 'community' | 'resources' | 'trash' | 'starred';
+
 function mapProject(row: unknown): DashboardProject {
   const p = row as Record<string, unknown>;
   return {
@@ -35,13 +37,16 @@ function client() {
   return getApiClient();
 }
 
+// ponytail: one-shot fetch per filter; no pagination, no prefetching.
+// Add when you have 1000+ projects. YAGNI.
+
 export function createDashboard() {
   let projects = $state<DashboardProject[]>([]);
-  let starred = $state<DashboardProject[]>([]);
-  let trashed = $state<DashboardProject[]>([]);
+  let starredIds = $state<Set<string>>(new Set());
   let orgId = $state<string | null>(null);
   let loading = $state(false);
   let initialized = $state(false);
+  let _filter = $state<DashboardFilter>('recents');
   let _search = $state('');
   let _view = $state<'grid' | 'list'>('grid');
   let _sort = $state<'updatedAt' | 'name'>('updatedAt');
@@ -51,7 +56,7 @@ export function createDashboard() {
   const applySearch = debounce((v: string) => { _debouncedSearch = v; }, 250);
 
   const collator = new Intl.Collator(undefined, { sensitivity: 'base' });
-  const visible = $derived.by(() => {
+  const visible: DashboardProject[] = $derived.by(() => {
     let list = projects;
     const q = _debouncedSearch.trim().toLowerCase();
     if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
@@ -71,21 +76,80 @@ export function createDashboard() {
     }
   }
 
-  async function fetchSidebarData(): Promise<void> {
-    const [draftsRes, starredRes, trashedRes] = await Promise.allSettled([
-      client().query('projects:getDrafts', {}),
-      client().query('projects:getStarredProjects', {}),
-      client().query('projects:getTrashedProjects', {}),
-    ]);
+  async function fetchList(filter: DashboardFilter): Promise<void> {
+    loading = true;
+    seq += 1;
+    const mySeq = seq;
+    try {
+      let rows: unknown[];
+      switch (filter) {
+        case 'recents':
+          rows = (await client().query('projects:getRecentProjects', {})) as unknown[];
+          break;
+        case 'projects':
+          rows = (await client().query('projects:getDrafts', {})) as unknown[];
+          break;
+        case 'community':
+          rows = (await client().query('projects:getPublicProjects', {})) as unknown[];
+          break;
+        case 'resources':
+          if (!orgId) { rows = []; break; }
+          rows = (await client().query('org:getOrgProjects', { orgId })) as unknown[];
+          break;
+        case 'trash':
+          rows = (await client().query('projects:getTrashedProjects', {})) as unknown[];
+          break;
+        case 'starred':
+          rows = (await client().query('projects:getStarredProjects', {})) as unknown[];
+          break;
+        default:
+          rows = [];
+      }
+      if (mySeq !== seq) return;
+      projects = (rows ?? []).map(mapProject);
+    } catch (e) {
+      onErrorMessage('Failed to load projects', e);
+    } finally {
+      if (mySeq === seq) loading = false;
+    }
+  }
 
-    if (draftsRes.status === 'fulfilled') {
-      projects = ((draftsRes.value as unknown[]) ?? []).map(mapProject);
+  async function setFilter(filter: DashboardFilter): Promise<void> {
+    if (_filter === filter) return;
+    _filter = filter;
+    // ponytail: unset org when switching away from resources;
+    // re-select org from store when coming back.
+    if (filter !== 'resources' && orgId !== null) {
+      orgId = null;
+      orgStore.setSelectedOrg(null);
     }
-    if (starredRes.status === 'fulfilled') {
-      starred = ((starredRes.value as unknown[]) ?? []).map(mapProject);
-    }
-    if (trashedRes.status === 'fulfilled') {
-      trashed = ((trashedRes.value as unknown[]) ?? []).map(mapProject);
+    _debouncedSearch = '';
+    _search = '';
+    await fetchList(filter);
+  }
+
+  async function setOrg(nextOrgId: string | null): Promise<void> {
+    if (orgId === nextOrgId) return;
+    orgId = nextOrgId;
+    orgStore.setSelectedOrg(nextOrgId);
+
+    if (_filter !== 'resources') return;
+    loading = true;
+    seq += 1;
+    const mySeq = seq;
+    try {
+      let result: unknown[];
+      if (nextOrgId) {
+        result = (await client().query('org:getOrgProjects', { orgId: nextOrgId })) as unknown[];
+      } else {
+        result = [];
+      }
+      if (mySeq !== seq) return;
+      projects = (result ?? []).map(mapProject);
+    } catch (e) {
+      onErrorMessage('Failed to load projects', e);
+    } finally {
+      if (mySeq === seq) loading = false;
     }
   }
 
@@ -100,11 +164,18 @@ export function createDashboard() {
     try {
       await orgStore.fetchOrgs();
     } catch {
-      // org fetch failure is non-fatal; projects may still work for personal scope
+      // org fetch failure is non-fatal
     }
 
     try {
-      await fetchSidebarData();
+      const starredRows = (await client().query('projects:getStarredProjects', {})) as unknown[];
+      starredIds = new Set(((starredRows ?? []) as DashboardProject[]).map(r => r.id));
+    } catch {
+      // non-fatal
+    }
+
+    try {
+      await fetchList('recents');
     } catch (e) {
       onErrorMessage('Failed to load dashboard', e);
     } finally {
@@ -116,37 +187,17 @@ export function createDashboard() {
     }
   }
 
-  async function setOrg(nextOrgId: string | null): Promise<void> {
-    if (orgId === nextOrgId) return;
-    orgId = nextOrgId;
-    orgStore.setSelectedOrg(nextOrgId);
-
-    loading = true;
-    seq += 1;
-    const mySeq = seq;
-
-    try {
-      let result: unknown[];
-      if (nextOrgId) {
-        result = (await client().query('org:getOrgProjects', { orgId: nextOrgId })) as unknown[];
-      } else {
-        result = (await client().query('projects:getDrafts', {})) as unknown[];
-      }
-      if (mySeq !== seq) return;
-      projects = (result ?? []).map(mapProject);
-    } catch (e) {
-      onErrorMessage('Failed to load projects', e);
-    } finally {
-      if (mySeq === seq) loading = false;
-    }
-  }
-
   async function toggleStar(projectId: string): Promise<void> {
-    const isStarred = starred.some(p => p.id === projectId);
+    const isStarred = starredIds.has(projectId);
     try {
       await client().mutation(isStarred ? 'projects:unstarProject' : 'projects:starProject', { projectId });
-      const refreshed = (await client().query('projects:getStarredProjects', {})) as unknown[];
-      starred = (refreshed ?? []).map(mapProject);
+      if (isStarred) {
+        starredIds = new Set([...starredIds].filter(id => id !== projectId));
+      } else {
+        const next = new Set(starredIds);
+        next.add(projectId);
+        starredIds = next;
+      }
     } catch (e) {
       onErrorMessage(isStarred ? 'Failed to unstar project' : 'Failed to star project', e);
     }
@@ -155,12 +206,11 @@ export function createDashboard() {
   async function trash(projectId: string): Promise<void> {
     try {
       await client().mutation('projects:trashProject', { projectId });
-      const moved = projects.find(p => p.id === projectId) ?? starred.find(p => p.id === projectId);
-      if (moved) {
-        trashed = [moved, ...trashed];
+      if (_filter === 'trash') {
+        await fetchList('trash');
+      } else {
+        projects = projects.filter(p => p.id !== projectId);
       }
-      projects = projects.filter(p => p.id !== projectId);
-      starred = starred.filter(p => p.id !== projectId);
     } catch (e) {
       onErrorMessage('Failed to trash project', e);
     }
@@ -169,13 +219,9 @@ export function createDashboard() {
   async function restore(projectId: string): Promise<void> {
     try {
       await client().mutation('projects:restoreProject', { projectId });
-      const moved = trashed.find(p => p.id === projectId);
-      if (moved) {
-        projects = [moved, ...projects];
+      if (_filter === 'trash') {
+        await fetchList('trash');
       }
-      trashed = trashed.filter(p => p.id !== projectId);
-      const refreshed = (await client().query('projects:getStarredProjects', {})) as unknown[];
-      starred = (refreshed ?? []).map(mapProject);
     } catch (e) {
       onErrorMessage('Failed to restore project', e);
     }
@@ -184,9 +230,12 @@ export function createDashboard() {
   async function fork(projectId: string): Promise<void> {
     try {
       await client().mutation('projects:forkProject', { projectId });
-      if (orgId === null) {
-        const data = (await client().query('projects:getDrafts', {})) as unknown[];
-        projects = (data ?? []).map(mapProject);
+      if (_filter === 'projects') {
+        await fetchList('projects');
+      } else if (_filter === 'recents') {
+        await fetchList('recents');
+      } else if (_filter === 'community') {
+        await fetchList('community');
       }
     } catch (e) {
       onErrorMessage('Failed to fork project', e);
@@ -210,9 +259,6 @@ export function createDashboard() {
     const workspace = file?.content ?? '';
 
     if (workspace) {
-      // ponytail: lazy-load Blockly only when opening a project; importing it
-      // at the top level breaks SSR of /projects now that logged-in users hit
-      // this page server-side via the root redirect.
       const { loadProject } = await import('../../../core/blockly/helpers/workspace.helper');
       loadProject(workspace);
     }
@@ -223,9 +269,9 @@ export function createDashboard() {
 
   return {
     get projects() { return projects; },
-    get starred() { return starred; },
-    get trashed() { return trashed; },
+    get starredIds() { return starredIds; },
     get orgId() { return orgId; },
+    get filter() { return _filter; },
     get loading() { return loading; },
     get search() { return _search; },
     set search(v) { _search = v; applySearch(v); },
@@ -235,6 +281,7 @@ export function createDashboard() {
     get sortDir() { return _sortDir; },
     get visible() { return visible; },
     init,
+    setFilter,
     setOrg,
     setSort,
     toggleStar,

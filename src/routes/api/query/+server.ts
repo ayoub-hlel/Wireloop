@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
 import { projects, settings, profiles, projectFiles, starredProjects, recentProjects, organizations, orgMembers } from '$lib/db/schema/projects';
-import { eq, and, desc, isNotNull, isNull } from 'drizzle-orm';
+import { eq, and, desc, isNotNull, isNull, not } from 'drizzle-orm';
 import { getFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
 import { actionEnvelope, project, user, organization } from '$lib/server/validation';
@@ -13,6 +13,7 @@ const querySchemas = {
   'projects:getProject': project.get,
   'projects:getProjectFile': project.getFile,
   'projects:getDrafts': project.getDrafts,
+  'projects:getPublicProjects': project.getPublic,
   'users:getUserProfile': user.getProfile,
   'org:getUserOrgs': organization.getUserOrgs,
   'org:getMembers': organization.getMembers,
@@ -183,6 +184,22 @@ export async function POST({ request, locals, getClientAddress, platform }) {
           .orderBy(desc(recentProjects.lastAccessedAt))
           .limit(20);
         return json(recentRows.map(r => r.projects));
+      }
+
+      case 'projects:getPublicProjects': {
+        if (!locals.user) throw error(401, 'Unauthorized');
+        const publicRows = await db
+          .select()
+          .from(projects)
+          .where(
+            and(
+              eq(projects.isPublic, true),
+              isNull(projects.deletedAt),
+              not(eq(projects.userId, locals.user.id)),
+            ),
+          )
+          .orderBy(desc(projects.updatedAt));
+        return json(publicRows);
       }
 
       case 'org:getUserOrgs': {

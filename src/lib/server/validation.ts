@@ -57,6 +57,8 @@ export const project = {
   trackRecent: z.object({ projectId: uuid }).strict(),
 
   getDrafts: z.object({}).strict(),
+
+  getPublic: z.object({}).strict(),
 };
 
 export const user = {

@@ -26,7 +26,7 @@ export async function captureEmulatorThumbnail(): Promise<Blob | null> {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, w, h);
 
-  const { width: sw, height: sh } = svg.viewBox.baseVal || svg.getBoundingClientRect();
+  const { width: sw, height: sh } = (svg as SVGSVGElement).viewBox.baseVal || svg.getBoundingClientRect();
   const scale = Math.min(w / sw, h / sh);
   const sx = (w - sw * scale) / 2;
   const sy = (h - sh * scale) / 2;

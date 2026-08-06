@@ -1,10 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
-  import { lessons } from '../../../lessons/lessons';
-  import type { LessonContainer, Lesson } from '../../../lessons/lessons';
-
-  import chunk from 'lodash/chunk';
 
   import Sidebar from './Sidebar.svelte';
   import GridToolbar from './GridToolbar.svelte';
@@ -18,9 +14,6 @@
   import { createDashboard } from './dashboard.svelte.ts';
 
   const unSubList: (() => void)[] = [];
-  let lessonList: Lesson[] = lessons.reduce((acc: Lesson[], lessonContainer: LessonContainer) => {
-    return [...acc, ...lessonContainer.lessons];
-  }, []);
 
   let orgs = $state<OrgInfo[]>([]);
   let selectedOrgId = $state<string | null>(null);
@@ -30,8 +23,6 @@
   let userImage = $state<string | null>(null);
 
   const dashboard = createDashboard();
-  let trash = $derived(dashboard.trashed.map(p => ({ id: p.id, name: p.name })));
-  let starred = $derived(dashboard.starred.map(p => ({ id: p.id, name: p.name })));
 
   let settingsOpen = $state(false);
   let importOpen = $state(false);
@@ -39,6 +30,15 @@
 
   let unSubAuth: (() => void) | null = null;
   let unSubOrg: (() => void) | null = null;
+
+  const filterTitles: Record<string, string> = {
+    recents: 'Recents',
+    projects: 'Projects',
+    community: 'Community',
+    resources: 'Resources',
+    trash: 'Trash',
+    starred: 'Starred',
+  };
 
   onMount(() => {
     unSubAuth = authStore.subscribe(async (auth) => {
@@ -90,11 +90,10 @@
   {userImage}
   {orgs}
   bind:selectedOrgId
+  filter={dashboard.filter}
   {onSelectOrg}
-  {trash}
-  {starred}
+  onFilterChange={(f) => dashboard.setFilter(f)}
   onSignOut={handleSignOut}
-  onRestore={(id) => dashboard.restore(id)}
   onOpenSettings={() => (settingsOpen = true)}
   onNewProject={() => (createOpen = true)}
 />
@@ -106,7 +105,7 @@
 <div class="main-area">
   <header class="main-header">
     <div class="header-left">
-      <h1 class="page-title">Projects</h1>
+      <h1 class="page-title">{filterTitles[dashboard.filter]}</h1>
     </div>
 
     <div class="header-right">
@@ -118,66 +117,60 @@
   </header>
 
   <main class="main-content">
-    {#if dashboard.visible.length > 0}
-      <GridToolbar
-        view={dashboard.view}
-        sort={dashboard.sort}
-        onViewChange={(v) => dashboard.view = v}
-        onSortChange={(s) => dashboard.setSort(s)}
-        onSearch={(q) => dashboard.search = q}
-      />
+    <!-- ponytail: toolbar lives outside the results conditional so search/sort/view
+         never vanish while a filter loads or returns zero rows. -->
+    <GridToolbar
+      view={dashboard.view}
+      sort={dashboard.sort}
+      search={dashboard.search}
+      onViewChange={(v) => dashboard.view = v}
+      onSortChange={(s) => dashboard.setSort(s)}
+      onSearch={(q) => dashboard.search = q}
+    />
 
+    {#if dashboard.loading}
+      <div class="grid-loading">
+        <div class="loading-spinner"></div>
+      </div>
+    {:else if dashboard.visible.length > 0}
       {#if dashboard.view === 'grid'}
         <ProjectGrid
           projects={dashboard.visible}
-          starredIds={dashboard.starred.map(p => p.id)}
+          starredIds={[...dashboard.starredIds]}
+          trashed={dashboard.filter === 'trash'}
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
           onFork={(id) => dashboard.fork(id)}
           onTrash={(id) => dashboard.trash(id)}
+          onRestore={(id) => dashboard.restore(id)}
         />
       {:else}
         <ProjectList
           projects={dashboard.visible}
-          starredIds={dashboard.starred.map(p => p.id)}
+          starredIds={[...dashboard.starredIds]}
           sort={dashboard.sort}
           sortDir={dashboard.sortDir}
+          trashed={dashboard.filter === 'trash'}
           onSortChange={(s) => dashboard.setSort(s)}
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
           onTrash={(id) => dashboard.trash(id)}
+          onRestore={(id) => dashboard.restore(id)}
         />
       {/if}
     {:else if isLoggedIn}
       <section class="empty-state">
-        <p>No projects yet. Import one above or start with a demo project below.</p>
+        <p>
+          {#if dashboard.filter === 'trash'}
+            Trash is empty.
+          {:else if dashboard.filter === 'community'}
+            No public projects yet.
+          {:else}
+            No projects here yet.
+          {/if}
+        </p>
       </section>
     {/if}
-
-    <section class="demo-section">
-      <div class="demo-header">
-        <h2>Demo Projects</h2>
-      </div>
-
-      {#each chunk(lessonList, 3) as lessonRow, ri (ri)}
-        <div class="demo-row">
-          {#each lessonRow as lesson, li (li)}
-            <div
-              class="demo-card"
-              onclick={() => goto(`/studio?example_project=${lesson.file}`)}
-              onkeydown={(e) => e.key === 'Enter' && goto(`/studio?example_project=${lesson.file}`)}
-              role="button"
-              tabindex="0"
-            >
-              <div class="demo-card-body">
-                <span class="demo-level demo-level-{lesson.level}">{lesson.level}</span>
-                <h5>{lesson.title}</h5>
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/each}
-    </section>
   </main>
 </div>
 
@@ -243,6 +236,26 @@
     overflow-y: auto;
   }
 
+  .grid-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .loading-spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--border));
+    border-top-color: hsl(var(--primary));
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
   .empty-state {
     display: flex;
     align-items: center;
@@ -254,78 +267,5 @@
 
   .empty-state p {
     max-width: 24rem;
-  }
-
-  .demo-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid hsl(var(--border));
-  }
-
-  .demo-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-  }
-
-  .demo-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  .demo-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .demo-card {
-    border: 1px solid hsl(var(--border));
-    border-radius: 0.5rem;
-    overflow: hidden;
-    cursor: pointer;
-    transition: box-shadow 0.15s;
-    background-color: hsl(var(--card));
-  }
-
-  .demo-card:hover {
-    box-shadow: 0 4px 12px hsl(var(--shadow) / 0.1);
-  }
-
-  .demo-card:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-  }
-
-  .demo-card-body {
-    position: relative;
-    padding: 1rem;
-  }
-
-  .demo-level {
-    position: absolute;
-    right: 0.75rem;
-    top: 0.75rem;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--muted-foreground));
-  }
-
-  .demo-level-easy { color: hsl(142 70% 40%); border-color: hsl(142 70% 40% / 0.4); }
-  .demo-level-medium { color: hsl(38 92% 44%); border-color: hsl(38 92% 44% / 0.4); }
-  .demo-level-hard { color: hsl(0 72% 51%); border-color: hsl(0 72% 51% / 0.4); }
-
-  .demo-card-body h5 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    padding-right: 4.5rem;
   }
 </style>

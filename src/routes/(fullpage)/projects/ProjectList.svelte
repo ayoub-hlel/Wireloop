@@ -2,16 +2,19 @@
   import type { DashboardProject } from './dashboard.svelte.ts';
   import Star from '@lucide/svelte/icons/star';
   import Trash2 from '@lucide/svelte/icons/trash-2';
+  import Undo2 from '@lucide/svelte/icons/undo-2';
 
   type Props = {
     projects: DashboardProject[];
     starredIds?: string[];
     sort?: 'updatedAt' | 'name';
     sortDir?: 'asc' | 'desc';
+    trashed?: boolean;
     onSortChange?: (col: 'updatedAt' | 'name') => void;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onTrash?: (id: string) => void;
+    onRestore?: (id: string) => void;
   };
 
   let {
@@ -19,10 +22,12 @@
     starredIds = [],
     sort = 'updatedAt',
     sortDir = 'desc',
+    trashed = false,
     onSortChange = () => {},
     onOpen = () => {},
     onStar = () => {},
     onTrash = () => {},
+    onRestore = () => {},
   }: Props = $props();
 
   function dateStr(d: Date | string | null): string {
@@ -89,21 +94,32 @@
               aria-pressed={starredIds.includes(project.id)}
               aria-label={starredIds.includes(project.id) ? 'Unstar project' : 'Star project'}
               onclick={() => onStar(project.id)}
+              disabled={trashed}
             >
               <Star
-                class="star-icon"
+                size={16}
                 fill={starredIds.includes(project.id) ? 'currentColor' : 'none'}
               />
             </button>
           </td>
           <td class="td-star">
-            <button
-              class="star-btn"
-              aria-label="Trash project"
-              onclick={() => onTrash(project.id)}
-            >
-              <Trash2 class="star-icon" />
-            </button>
+            {#if trashed}
+              <button
+                class="star-btn"
+                aria-label="Restore project"
+                onclick={() => onRestore(project.id)}
+              >
+                <Undo2 size={16} />
+              </button>
+            {:else}
+              <button
+                class="star-btn"
+                aria-label="Trash project"
+                onclick={() => onTrash(project.id)}
+              >
+                <Trash2 size={16} />
+              </button>
+            {/if}
           </td>
         </tr>
       {/each}
@@ -206,10 +222,5 @@
   .star-btn:hover {
     background-color: hsl(var(--secondary));
     color: hsl(var(--foreground));
-  }
-
-  .star-icon {
-    width: 16px;
-    height: 16px;
   }
 </style>

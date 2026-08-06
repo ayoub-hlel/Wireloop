@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
 import { projects, settings, profiles, projectFiles, starredProjects, recentProjects, organizations, orgMembers } from '$lib/db/schema/projects';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, isNull } from 'drizzle-orm';
 import { generateId } from 'better-auth';
 import { putFile, deleteFile, isR2Configured } from '$lib/server/r2';
 import { validate, ValidationError } from '$lib/server/validate';
@@ -67,6 +67,26 @@ type MutationArgs = {
 
 type Db = NonNullable<ReturnType<typeof getDb>>;
 
+// ponytail: case-insensitive duplicate avoidance. "x" -> "x copy" -> "x copy 1" -> "x copy 2".
+// Copying "x copy 1" yields "x copy 1 copy" (the base is always the source's own name).
+async function userProjectNames(db: Db, userId: string): Promise<Set<string>> {
+  const rows = await db
+    .select({ name: projects.name })
+    .from(projects)
+    .where(and(eq(projects.userId, userId), isNull(projects.deletedAt)));
+  return new Set(rows.map(r => r.name.toLowerCase()));
+}
+
+function uniqueCopyName(base: string, taken: Set<string>): string {
+  const lower = (s: string) => s.toLowerCase();
+  if (!taken.has(lower(base))) return base;
+  let candidate = `${base} copy`;
+  if (!taken.has(lower(candidate))) return candidate;
+  let n = 1;
+  while (taken.has(lower(`${base} copy ${n}`))) n += 1;
+  return `${base} copy ${n}`;
+}
+
 export async function POST({ request, locals, getClientAddress, platform }) {
   const limited = await checkRateLimit('mutation', locals, getClientAddress);
   if (limited) return limited;
@@ -82,6 +102,10 @@ export async function POST({ request, locals, getClientAddress, platform }) {
 
     switch (name) {
       case 'projects:createProject': {
+        const taken = await userProjectNames(db, locals.user.id);
+        if (taken.has(data.name.toLowerCase())) {
+          throw error(409, 'A project with this name already exists');
+        }
         const id = generateId();
         const now = new Date();
         await db.insert(projects).values({
@@ -299,12 +323,14 @@ export async function POST({ request, locals, getClientAddress, platform }) {
       case 'projects:forkProject': {
         const source = await db.select().from(projects).where(eq(projects.id, data.projectId)).then(r => r[0]);
         if (!source) throw error(404, 'Not found');
+        const taken = await userProjectNames(db, locals.user.id);
+        const forkName = uniqueCopyName(source.name, taken);
         const id = generateId();
         const now = new Date();
         await db.insert(projects).values({
           id,
           userId: locals.user.id,
-          name: source.name,
+          name: forkName,
           description: source.description,
           workspace: source.workspace,
           boardType: source.boardType,
@@ -312,7 +338,9 @@ export async function POST({ request, locals, getClientAddress, platform }) {
           tags: source.tags,
           likes: 0,
           views: 0,
-          orgId: source.orgId,
+          // ponytail: forks are always personal; inheriting source.orgId would drop
+          // the fork into an org the forker may not belong to (invisible project).
+          orgId: null,
           thumbnailUrl: source.thumbnailUrl,
           forkedFrom: source.id,
           createdAt: now,

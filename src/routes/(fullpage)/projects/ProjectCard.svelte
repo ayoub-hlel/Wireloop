@@ -3,23 +3,28 @@
   import Star from '@lucide/svelte/icons/star';
   import GitFork from '@lucide/svelte/icons/git-fork';
   import Trash2 from '@lucide/svelte/icons/trash-2';
+  import Undo2 from '@lucide/svelte/icons/undo-2';
 
   type Props = {
     project: DashboardProject;
     starred?: boolean;
+    trashed?: boolean;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onFork?: (id: string) => void;
     onTrash?: (id: string) => void;
+    onRestore?: (id: string) => void;
   };
 
   let {
     project,
     starred = false,
+    trashed = false,
     onOpen = () => {},
     onStar = () => {},
     onFork = () => {},
     onTrash = () => {},
+    onRestore = () => {},
   }: Props = $props();
 
   function dateStr(d: Date | string | null): string {
@@ -53,28 +58,38 @@
   </div>
 
   <div class="card-actions">
-    <button
-      class="card-action-btn"
-      aria-pressed={starred}
-      aria-label={starred ? 'Unstar project' : 'Star project'}
-      onclick={(e) => { e.stopPropagation(); onStar(project.id); }}
-    >
-      <Star class="card-action-icon" fill={starred ? 'currentColor' : 'none'} />
-    </button>
-    <button
-      class="card-action-btn"
-      aria-label="Fork project"
-      onclick={(e) => { e.stopPropagation(); onFork(project.id); }}
-    >
-      <GitFork class="card-action-icon" />
-    </button>
-    <button
-      class="card-action-btn"
-      aria-label="Trash project"
-      onclick={(e) => { e.stopPropagation(); onTrash(project.id); }}
-    >
-      <Trash2 class="card-action-icon" />
-    </button>
+    {#if trashed}
+      <button
+        class="card-action-btn"
+        aria-label="Restore project"
+        onclick={(e) => { e.stopPropagation(); onRestore(project.id); }}
+      >
+        <Undo2 size={16} />
+      </button>
+    {:else}
+      <button
+        class="card-action-btn"
+        aria-pressed={starred}
+        aria-label={starred ? 'Unstar project' : 'Star project'}
+        onclick={(e) => { e.stopPropagation(); onStar(project.id); }}
+      >
+        <Star size={16} fill={starred ? 'currentColor' : 'none'} />
+      </button>
+      <button
+        class="card-action-btn"
+        aria-label="Fork project"
+        onclick={(e) => { e.stopPropagation(); onFork(project.id); }}
+      >
+        <GitFork size={16} />
+      </button>
+      <button
+        class="card-action-btn"
+        aria-label="Trash project"
+        onclick={(e) => { e.stopPropagation(); onTrash(project.id); }}
+      >
+        <Trash2 size={16} />
+      </button>
+    {/if}
   </div>
 </div>
 
@@ -168,10 +183,5 @@
   .card-action-btn:hover {
     background-color: hsl(var(--secondary));
     color: hsl(var(--foreground));
-  }
-
-  .card-action-icon {
-    width: 16px;
-    height: 16px;
   }
 </style>
