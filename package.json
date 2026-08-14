@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "deploy": "wrangler pages deploy",
-    "deploy:prod": "pnpm build:prod && wrangler pages deploy --branch main",
+    "deploy:prod": "pnpm db:migrate && pnpm build:prod && wrangler pages deploy --branch main",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
@@ -104,6 +104,7 @@
     "drizzle-orm": "^0.45.2",
     "lodash-es": "^4.18.1",
     "resend": "^6.17.1",
+    "ws": "^8.21.3",
     "zod": "^4.4.3"
   }
 }

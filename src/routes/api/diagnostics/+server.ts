@@ -17,6 +17,7 @@ const ENV_VARS = [
 ] as const;
 
 export async function GET() {
+  console.warn('[DIAG] GET entry');
   const checks: Record<string, unknown> = {};
 
   checks.env = checkEnv();
@@ -41,6 +42,7 @@ export async function GET() {
   const warnings = allChecks.filter(c => c.status === 'degraded' || c.status === 'untested').length;
 
   const overallStatus = failed > 0 ? 'down' : warnings > 0 ? 'degraded' : 'ok';
+  console.warn('[DIAG] overall status', { status: overallStatus, total, passed, failed, warnings });
 
   return json({
     status: overallStatus,

@@ -14,18 +14,17 @@ export default defineConfig({
       },
     },
   }), tailwindcss(), sveltekit()],
-  
+
   define: {
     // Prevent process references in client code
     global: 'globalThis',
   },
-  
+
   server: {
+    host: true, // listen on all interfaces so Tailscale can reach it
     allowedHosts: true,
-    fs: {
-      // Allow serving files from the project root
-      strict: false
-    }
+    fs: { strict: false }
+
   },
   optimizeDeps: {
     include: []
@@ -36,6 +35,7 @@ export default defineConfig({
     },
     extensions: ['.js', '.ts', '.svelte']
   },
+
   build: {
     target: 'esnext',
     sourcemap: true

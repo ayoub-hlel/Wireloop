@@ -47,15 +47,28 @@ class Client implements DBClient {
       if (!res.ok) {
         const body = await res.json().catch(() => ({ message: res.statusText })) as { message?: string };
         const err = new Error(body.message || `Query failed: ${name}`);
-        Sentry.captureException(err, {
-          tags: { api: 'query', name, status: String(res.status) },
-          extra: { args, duration: performance.now() - start },
-        });
+        err.name = `QueryError:${name}`;
+        // Don't report infrastructure pass-through errors (e.g. "Illegal invocation"
+        // from Neon/fetch polyfill) to Sentry — they're server-side issues already
+        // captured by the server's error handler.
+        const isInfra = /illegal invocation|fetch failed|network/i.test(err.message);
+        if (!isInfra) {
+          Sentry.captureException(err, {
+            tags: { api: 'query', name, status: String(res.status) },
+            extra: { args, duration: performance.now() - start },
+          });
+        }
         throw err;
       }
       return res.json();
     } catch (err) {
-      if (!(err instanceof Error && err.message.startsWith('Query failed'))) {
+      // Skip Sentry for server-originated infra errors (already captured server-side)
+      // and for QueryErrors we already captured above.
+      const skip = (err instanceof Error && (
+        err.name.startsWith('QueryError:') ||
+        /illegal invocation|fetch failed|network/i.test(err.message)
+      ));
+      if (!skip) {
         Sentry.captureException(err, { tags: { api: 'query', name }, extra: { args } });
       }
       throw err;
@@ -74,15 +87,23 @@ class Client implements DBClient {
       if (!res.ok) {
         const body = await res.json().catch(() => ({ message: res.statusText })) as { message?: string };
         const err = new Error(body.message || `Mutation failed: ${name}`);
-        Sentry.captureException(err, {
-          tags: { api: 'mutation', name, status: String(res.status) },
-          extra: { args, duration: performance.now() - start },
-        });
+        err.name = `MutationError:${name}`;
+        const isInfra = /illegal invocation|fetch failed|network/i.test(err.message);
+        if (!isInfra) {
+          Sentry.captureException(err, {
+            tags: { api: 'mutation', name, status: String(res.status) },
+            extra: { args, duration: performance.now() - start },
+          });
+        }
         throw err;
       }
       return res.json();
     } catch (err) {
-      if (!(err instanceof Error && err.message.startsWith('Mutation failed'))) {
+      const skip = (err instanceof Error && (
+        err.name.startsWith('MutationError:') ||
+        /illegal invocation|fetch failed|network/i.test(err.message)
+      ));
+      if (!skip) {
         Sentry.captureException(err, { tags: { api: 'mutation', name }, extra: { args } });
       }
       throw err;

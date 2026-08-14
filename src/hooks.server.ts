@@ -54,9 +54,11 @@ export const handle: Handle = sequence(
   }),
   sentryHandle(),
   async ({ event, resolve }) => {
+  console.warn('[HOOKS] handle entry', { pathname: event.url.pathname, method: event.request.method });
   // Wire Cloudflare R2 binding (avoids exposing access keys)
   if (!building && event.platform?.env?.R2) {
     setR2Binding(event.platform.env.R2);
+    console.warn('[HOOKS] R2 binding wired');
   }
 
   // Populate session for all routes — auth is lazy, doesn't connect at import
@@ -70,6 +72,7 @@ export const handle: Handle = sequence(
         if (session) {
           event.locals.session = session.session;
           event.locals.user = session.user;
+          console.warn('[HOOKS] session resolved', { userId: session.user.id, email: session.user.email });
           // Attach user to Sentry for error correlation
           Sentry.setUser({
             id: session.user.id,
@@ -79,21 +82,26 @@ export const handle: Handle = sequence(
         }
       } catch (e) {
         Sentry.captureException(e, { tags: { hook: 'session-check' } });
+        console.warn('[HOOKS] session-check error', { error: String(e) });
       }
       return svelteKitHandler({ event, resolve, auth, building });
     } else {
+      console.warn('[HOOKS] no session found');
       // Auth factory unavailable (missing DATABASE_URL/BETTER_AUTH_SECRET or
       // init failure — captured in getAuth). Mark locals so route gates can
       // signal a config error instead of silently treating the user as logged
       // out (WL-002).
       event.locals.authError = 'auth-unavailable';
       logServerError('auth factory unavailable', { url: event.url.pathname });
+      console.warn('[HOOKS] auth factory unavailable — marked authError', { url: event.url.pathname });
     }
   } catch (e) {
     Sentry.captureException(e, { tags: { hook: 'auth-init' } });
+    console.warn('[HOOKS] auth-init error', { error: String(e) });
   }
 
   event.locals.session ??= null;
   event.locals.user ??= null;
+  console.warn('[HOOKS] resolving without auth');
   return resolve(event);
 });

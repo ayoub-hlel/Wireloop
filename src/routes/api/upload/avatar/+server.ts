@@ -7,6 +7,7 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * 1024 * 1024;
 
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
+  console.warn('[UPLOAD] avatar POST entry', { user: locals.user?.id });
   if (!locals.user) error(401, 'Unauthorized');
   const limited = await checkRateLimit('upload', locals, getClientAddress);
   if (limited) return limited;
@@ -22,6 +23,7 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
   const key = `avatars/${locals.user.id}.${ext}`;
 
   await putFile(key, new Uint8Array(buffer), file.type);
+  console.warn('[UPLOAD] avatar uploaded', { key, size: file.size, type: file.type });
 
   return json({ url: `/api/avatars/${locals.user.id}` });
 };
