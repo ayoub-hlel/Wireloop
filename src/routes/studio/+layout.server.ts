@@ -3,6 +3,7 @@ import type { LayoutServerLoad } from './$types';
 import { logServerError } from '$lib/server/log';
 
 export const load: LayoutServerLoad = async (event) => {
+  console.warn('[STUDIO] layout entry', { pathname: event.url.pathname, hasSession: !!event.locals.session });
   if (!event.locals.session) {
     if (event.locals.authError) {
       // Distinguish "auth factory unavailable" (config/env error) from a plain
@@ -11,12 +12,10 @@ export const load: LayoutServerLoad = async (event) => {
         reason: event.locals.authError,
         url: event.url.pathname,
       });
+      console.warn('[STUDIO] auth unavailable — redirecting to login', { reason: event.locals.authError });
       redirect(302, `/login?reason=${encodeURIComponent(event.locals.authError)}`);
     }
-    console.warn('[wl] studio:redirect-to-login', {
-      reason: 'no-session',
-      url: event.url.pathname,
-    });
+    console.warn('[STUDIO] no session — redirecting to login', { pathname: event.url.pathname });
     redirect(302, '/login');
   }
 };

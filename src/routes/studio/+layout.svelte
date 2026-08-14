@@ -25,6 +25,7 @@
   let unsubAuth: (() => void) | undefined;
   let unsubPage: (() => void) | undefined;
 
+
   function startResize() {
     isResizingRight = true;
   }
@@ -62,12 +63,16 @@
 
     let loadedProject = false;
 
-    if ($page.url.searchParams.get('example_project') !== null) {
+    const projectIdFromUrl = $page.url.searchParams.get('projectid');
+
+    // A URL project is authoritative. The Blockly destroy hook stores the
+    // previous workspace locally, but that must not override the requested DB project.
+    if (!projectIdFromUrl && $page.url.searchParams.get('example_project') !== null) {
         const localFileResponse = await fetch(`/example-projects/${$page.url.searchParams.get('example_project')}`);
         const xmlFile = await localFileResponse.text();
         loadProject(xmlFile);
         loadedProject = true;
-    } else if (localStorage.getItem('reload_once_workspace')) {
+    } else if (!projectIdFromUrl && localStorage.getItem('reload_once_workspace')) {
       const xmlText = localStorage.getItem('reload_once_workspace');
       localStorage.removeItem('reload_once_workspace');
       if (xmlText) loadProject(xmlText);
@@ -85,7 +90,14 @@
       }
 
       const projectId = $page.url.searchParams.get('projectid');
-      if (!projectId || loadedProject) return;
+      // No projectid means a new unsaved project. Keep the workspace open until
+      // the first save gives it a name and persists it.
+      if (!projectId && !loadedProject) {
+        projectStore.set({ project: null, projectId: null });
+        loadedProject = true;
+        return;
+      }
+      if (!projectId) return;
       // ponytail: skip if already loaded OR already loading this projectid
       // (auth subscription can fire multiple times during startup).
       if ($projectStore.projectId === projectId || loadingProjectId === projectId) {
@@ -106,7 +118,7 @@
         
         if (project && projectFile) {
           mark('studio:project-loaded', { projectId });
-          loadProject(projectFile.content || projectFile.workspace || '<xml></xml>');
+           loadProject(projectFile.content || projectFile.workspace || project.workspace || '<xml></xml>');
           projectStore.set({ project, projectId });
         } else {
           throw new Error('Project not found or access denied');
@@ -220,4 +232,5 @@
   @keyframes studio-spin {
     to { transform: rotate(360deg); }
   }
+
 </style>

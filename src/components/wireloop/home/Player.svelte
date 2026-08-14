@@ -37,7 +37,8 @@
     frameStore.subscribe((frameContainer) => {
       playing = false;
       const currentFrame = frames[frameNumber];
-      frames = frameContainer.frames;
+      // Keep Svelte's reactive proxy out of identity-sensitive frame helpers.
+      frames = [...frameContainer.frames];
 
       if (frames.length === 0 || !currentFrame) {
         frameNumber = firstLoopFrameIndex(frames);

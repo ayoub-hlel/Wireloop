@@ -37,7 +37,7 @@ export const loadProjectFromUrl = async (url: string) => {
 };
 
 const LOAD_RETRY_INTERVAL = 100;
-const MAX_LOAD_RETRIES = 20;
+const MAX_LOAD_RETRIES = 100;
 
 // Deferred-load queue for when loadProject is called before the Blockly
 // workspace exists (WL-006). Previously the load was dropped silently.
@@ -109,19 +109,25 @@ export const loadProject = (xmlString: string) => {
     }
 
     const parser = new DOMParser();
-    // Delete all the old blocks and variables
-    const blocksToDelete = getAllBlocks(); // get a list of all the old blocks
-    blocksToDelete.forEach((b) => b.dispose(false)); // delete the old blocks
-    getAllVariables().forEach((v) => deleteVariable(v.getId()));
-    // Load the new blocks
     const xml = parser.parseFromString(xmlString, "application/xml");
     if (xml.querySelector("parsererror")) {
       console.warn("Malformed workspace XML, loading default workspace instead");
       localStorage.removeItem("reload_once_workspace");
       return;
     }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+    // Validate before clearing the current workspace so a bad saved file does
+    // not also take the player down with it.
+    getAllBlocks().forEach((b) => b.dispose(false));
+    getAllVariables().forEach((v) => deleteVariable(v.getId()));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Blockly.Xml.domToWorkspace(xml.documentElement as any, workspace); // load new blocks
+    const firstBlock = getAllBlocks()[0];
+    if (firstBlock) {
+      // XML deserialization can happen after Blockly startup and may not emit
+      // a usable change event. Force the normal generation pipeline once.
+      workspace.fireChangeListener(new Blockly.Events.BlockMove(firstBlock));
+    }
     mark('loadProject:loaded');
 
     // Scroll to the center
