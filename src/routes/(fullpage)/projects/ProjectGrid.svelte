@@ -1,12 +1,14 @@
 <script lang="ts">
   import ProjectCard from './ProjectCard.svelte';
   import type { DashboardProject } from './dashboard.svelte.ts';
+  import type { DashboardFilter } from './dashboard.svelte.ts';
 
   type Props = {
     projects: DashboardProject[];
     starredIds?: string[];
     emptyText?: string;
     trashed?: boolean;
+    context?: DashboardFilter;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onFork?: (id: string) => void;
@@ -19,6 +21,7 @@
     starredIds = [],
     emptyText = 'No projects yet.',
     trashed = false,
+    context = 'projects',
     onOpen = () => {},
     onStar = () => {},
     onFork = () => {},
@@ -34,6 +37,7 @@
         {project}
         starred={starredIds.includes(project.id)}
         {trashed}
+        {context}
         {onOpen}
         {onStar}
         {onFork}
@@ -49,8 +53,15 @@
 <style>
   .project-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, var(--project-card-width));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .project-grid {
+      grid-template-columns: var(--project-card-width);
+      gap: 1rem;
+    }
   }
 
   .empty-state {

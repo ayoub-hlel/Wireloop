@@ -3,6 +3,7 @@ import type { Project } from '../../../types/models';
 import { onErrorMessage } from '../../../help/alerts';
 import { getApiClient } from '../../../stores/api.client';
 import orgStore from '../../../stores/org.store';
+import { SvelteSet } from 'svelte/reactivity';
 import projectStore from '../../../stores/project.store';
 import debounce from 'lodash/debounce';
 
@@ -10,12 +11,19 @@ export interface DashboardProject {
   id: string;
   name: string;
   updatedAt: Date | string;
+  lastOpenedAt?: Date | string | null;
   boardType?: string;
   thumbnailUrl?: string | null;
   forkedFrom?: string | null;
+  isForked?: boolean;
+  deletedByName?: string | null;
+  creatorName?: string | null;
+  originalName?: string | null;
 }
 
-export type DashboardFilter = 'recents' | 'projects' | 'community' | 'resources' | 'trash' | 'starred';
+// ponytail: Recents/Resources removed. Filters = starred, community, projects, trash.
+// projects/trash are scoped to personal (orgId=null) or the selected org (orgId set).
+export type DashboardFilter = 'starred' | 'community' | 'projects' | 'trash';
 
 function mapProject(row: unknown): DashboardProject {
   const p = row as Record<string, unknown>;
@@ -23,9 +31,14 @@ function mapProject(row: unknown): DashboardProject {
     id: String(p.id),
     name: String(p.name),
     updatedAt: p.updatedAt as string,
+    lastOpenedAt: p.lastOpenedAt as string | null | undefined,
     boardType: p.boardType as string | undefined,
     thumbnailUrl: p.thumbnailUrl as string | null | undefined,
     forkedFrom: p.forkedFrom as string | null | undefined,
+    isForked: p.isForked as boolean | undefined,
+    deletedByName: p.deletedByName as string | null | undefined,
+    creatorName: p.creatorName as string | null | undefined,
+    originalName: p.originalName as string | null | undefined,
   };
 }
 
@@ -37,19 +50,23 @@ function client() {
   return getApiClient();
 }
 
-// ponytail: one-shot fetch per filter; no pagination, no prefetching.
-// Add when you have 1000+ projects. YAGNI.
+// ponytail: pure throttle for focus/visibility refetches — focus and
+// visibilitychange fire together on tab return; one refetch per window is enough.
+export function shouldRefetch(lastRefetch: number, now: number, cooldownMs = 2000): boolean {
+  return now - lastRefetch >= cooldownMs;
+}
 
 export function createDashboard() {
   let projects = $state<DashboardProject[]>([]);
-  let starredIds = $state<Set<string>>(new Set());
+  // SvelteSet is already reactive — mutate it in place, never reassign.
+  const starredIds = new SvelteSet<string>();
   let orgId = $state<string | null>(null);
   let loading = $state(false);
   let initialized = $state(false);
-  let _filter = $state<DashboardFilter>('recents');
+  let _filter = $state<DashboardFilter>('projects');
   let _search = $state('');
   let _view = $state<'grid' | 'list'>('grid');
-  let _sort = $state<'updatedAt' | 'name'>('updatedAt');
+  let _sort = $state<'updatedAt' | 'lastOpenedAt' | 'name'>('updatedAt');
   let seq = 0;
   let _debouncedSearch = $state('');
   let _sortDir = $state<'asc' | 'desc'>('desc');
@@ -63,48 +80,31 @@ export function createDashboard() {
     const dir = _sortDir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
       if (_sort === 'name') return collator.compare(a.name, b.name) * dir;
+      if (_sort === 'lastOpenedAt') {
+        const ta = a.lastOpenedAt ? toTime(a.lastOpenedAt) : 0;
+        const tb = b.lastOpenedAt ? toTime(b.lastOpenedAt) : 0;
+        return (ta - tb) * dir;
+      }
       return (toTime(a.updatedAt) - toTime(b.updatedAt)) * dir;
     });
   });
 
-  function setSort(col: 'updatedAt' | 'name'): void {
+  function setSort(col: 'updatedAt' | 'lastOpenedAt' | 'name'): void {
     if (_sort === col) {
-      _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+      _sortDir = _sortDir === 'asc' ? 'desc' : 'desc';
     } else {
       _sort = col;
       _sortDir = col === 'name' ? 'asc' : 'desc';
     }
   }
 
-  async function fetchList(filter: DashboardFilter): Promise<void> {
+  // ponytail: one API call, filter + orgId drive everything. No per-filter endpoints.
+  async function fetchList(): Promise<void> {
     loading = true;
     seq += 1;
     const mySeq = seq;
     try {
-      let rows: unknown[];
-      switch (filter) {
-        case 'recents':
-          rows = (await client().query('projects:getRecentProjects', {})) as unknown[];
-          break;
-        case 'projects':
-          rows = (await client().query('projects:getDrafts', {})) as unknown[];
-          break;
-        case 'community':
-          rows = (await client().query('projects:getPublicProjects', {})) as unknown[];
-          break;
-        case 'resources':
-          if (!orgId) { rows = []; break; }
-          rows = (await client().query('org:getOrgProjects', { orgId })) as unknown[];
-          break;
-        case 'trash':
-          rows = (await client().query('projects:getTrashedProjects', {})) as unknown[];
-          break;
-        case 'starred':
-          rows = (await client().query('projects:getStarredProjects', {})) as unknown[];
-          break;
-        default:
-          rows = [];
-      }
+      const rows = (await client().query('projects:list', { filter: _filter, orgId })) as unknown[];
       if (mySeq !== seq) return;
       projects = (rows ?? []).map(mapProject);
     } catch (e) {
@@ -117,87 +117,60 @@ export function createDashboard() {
   async function setFilter(filter: DashboardFilter): Promise<void> {
     if (_filter === filter) return;
     _filter = filter;
-    // ponytail: unset org when switching away from resources;
-    // re-select org from store when coming back.
-    if (filter !== 'resources' && orgId !== null) {
+    // ponytail: switching to a personal-scoped filter clears org; org filters keep it.
+    if (filter === 'starred' || filter === 'community') {
       orgId = null;
       orgStore.setSelectedOrg(null);
     }
     _debouncedSearch = '';
     _search = '';
-    await fetchList(filter);
+    await fetchList();
   }
 
   async function setOrg(nextOrgId: string | null): Promise<void> {
     if (orgId === nextOrgId) return;
     orgId = nextOrgId;
     orgStore.setSelectedOrg(nextOrgId);
-
-    if (_filter !== 'resources') return;
-    loading = true;
-    seq += 1;
-    const mySeq = seq;
-    try {
-      let result: unknown[];
-      if (nextOrgId) {
-        result = (await client().query('org:getOrgProjects', { orgId: nextOrgId })) as unknown[];
-      } else {
-        result = [];
-      }
-      if (mySeq !== seq) return;
-      projects = (result ?? []).map(mapProject);
-    } catch (e) {
-      onErrorMessage('Failed to load projects', e);
-    } finally {
-      if (mySeq === seq) loading = false;
+    // ponytail: picking an org means "show me that org's projects". Switch from
+    // global filters (starred/community) to projects so content follows the org.
+    if (_filter === 'starred' || _filter === 'community') {
+      _filter = 'projects';
     }
+    await fetchList();
   }
 
-  async function init(initOrgId?: string): Promise<void> {
+  async function init(): Promise<void> {
     if (initialized) return;
     initialized = true;
-
     loading = true;
     seq += 1;
     const mySeq = seq;
-
-    try {
-      await orgStore.fetchOrgs();
-    } catch {
-      // org fetch failure is non-fatal
+    // ponytail: orgs, starred ids, and the active list are independent — fire
+    // them in parallel instead of serially awaiting each one.
+    const [starredRes, , listRes] = await Promise.allSettled([
+      client().query('projects:list', { filter: 'starred' }) as Promise<unknown>,
+      orgStore.fetchOrgs(),
+      client().query('projects:list', { filter: _filter, orgId }) as Promise<unknown>,
+    ]);
+    if (mySeq !== seq) return;
+    if (starredRes.status === 'fulfilled' && starredRes.value) {
+      starredIds.clear();
+      for (const r of starredRes.value as DashboardProject[]) starredIds.add(r.id);
     }
-
-    try {
-      const starredRows = (await client().query('projects:getStarredProjects', {})) as unknown[];
-      starredIds = new Set(((starredRows ?? []) as DashboardProject[]).map(r => r.id));
-    } catch {
-      // non-fatal
+    if (listRes.status === 'fulfilled') {
+      projects = ((listRes.value ?? []) as unknown[]).map(mapProject);
+    } else {
+      onErrorMessage('Failed to load dashboard', listRes.reason);
     }
-
-    try {
-      await fetchList('recents');
-    } catch (e) {
-      onErrorMessage('Failed to load dashboard', e);
-    } finally {
-      if (mySeq === seq) loading = false;
-    }
-
-    if (initOrgId !== undefined) {
-      await setOrg(initOrgId);
-    }
+    loading = false;
   }
 
   async function toggleStar(projectId: string): Promise<void> {
     const isStarred = starredIds.has(projectId);
     try {
       await client().mutation(isStarred ? 'projects:unstarProject' : 'projects:starProject', { projectId });
-      if (isStarred) {
-        starredIds = new Set([...starredIds].filter(id => id !== projectId));
-      } else {
-        const next = new Set(starredIds);
-        next.add(projectId);
-        starredIds = next;
-      }
+      if (isStarred) starredIds.delete(projectId);
+      else starredIds.add(projectId);
     } catch (e) {
       onErrorMessage(isStarred ? 'Failed to unstar project' : 'Failed to star project', e);
     }
@@ -207,7 +180,7 @@ export function createDashboard() {
     try {
       await client().mutation('projects:trashProject', { projectId });
       if (_filter === 'trash') {
-        await fetchList('trash');
+        await fetchList();
       } else {
         projects = projects.filter(p => p.id !== projectId);
       }
@@ -220,7 +193,7 @@ export function createDashboard() {
     try {
       await client().mutation('projects:restoreProject', { projectId });
       if (_filter === 'trash') {
-        await fetchList('trash');
+        await fetchList();
       }
     } catch (e) {
       onErrorMessage('Failed to restore project', e);
@@ -230,30 +203,48 @@ export function createDashboard() {
   async function fork(projectId: string): Promise<void> {
     try {
       await client().mutation('projects:forkProject', { projectId });
-      if (_filter === 'projects') {
-        await fetchList('projects');
-      } else if (_filter === 'recents') {
-        await fetchList('recents');
-      } else if (_filter === 'community') {
-        await fetchList('community');
+      if (_filter === 'projects' || _filter === 'community') {
+        await fetchList();
       }
     } catch (e) {
       onErrorMessage('Failed to fork project', e);
     }
   }
 
-  async function open(projectId: string): Promise<void> {
-    try {
-      await client().mutation('projects:trackRecentProject', { projectId });
-    } catch {
-      // tracking failure should not block navigation
-    }
+  // ── Staleness tolerance: trigger-based re-fetch ──────────────────
+  // No polling, no WebSocket. Re-read on tab-visible + window-focus,
+  // throttled to one refetch per cooldown window (the two events fire
+  // together on tab return) and never stacked on an in-flight fetch.
+  let _visHandler: (() => void) | null = null;
+  let _focusHandler: (() => void) | null = null;
+  let _lastRefetch = 0;
 
+  async function refetchIfStale(): Promise<void> {
+    const now = Date.now();
+    if (!shouldRefetch(_lastRefetch, now)) return;
+    _lastRefetch = now;
+    if (loading) return;
+    await fetchList();
+  }
+
+  function startInvalidation() {
+    if (typeof document === 'undefined') return;
+    _visHandler = () => { if (document.visibilityState === 'visible') void refetchIfStale(); };
+    document.addEventListener('visibilitychange', _visHandler);
+    _focusHandler = () => void refetchIfStale();
+    window.addEventListener('focus', _focusHandler);
+  }
+
+  function stopInvalidation() {
+    if (_visHandler) document.removeEventListener('visibilitychange', _visHandler);
+    if (_focusHandler) window.removeEventListener('focus', _focusHandler);
+    _visHandler = null;
+    _focusHandler = null;
+  }
+
+  async function open(projectId: string): Promise<void> {
     const project = (await client().query('projects:getProject', { projectId })) as Project | null;
-    if (!project) {
-      onErrorMessage('Project not found');
-      return;
-    }
+    if (!project) { onErrorMessage('Project not found'); return; }
 
     const file = (await client().query('projects:getProjectFile', { projectId })) as { content?: string } | null;
     const workspace = file?.content ?? '';
@@ -281,6 +272,8 @@ export function createDashboard() {
     get sortDir() { return _sortDir; },
     get visible() { return visible; },
     init,
+    startInvalidation,
+    stopInvalidation,
     setFilter,
     setOrg,
     setSort,

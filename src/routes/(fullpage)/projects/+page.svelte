@@ -7,11 +7,14 @@
   import ProjectGrid from './ProjectGrid.svelte';
   import ProjectList from './ProjectList.svelte';
   import UserSettingsDialog from '$lib/components/app/UserSettingsDialog.svelte';
-  import ImportDialog from '$lib/components/app/ImportDialog.svelte';
-  import CreateProjectDialog from '$lib/components/app/CreateProjectDialog.svelte';
+  import CreateOrganizationDialog from '$lib/components/orgs/CreateOrganizationDialog.svelte';
+  import SkeletonCard from './SkeletonCard.svelte';
+  import * as Dialog from '$lib/components/ui/dialog/index.js';
+  import { Button } from '$lib/components/ui/button/index.js';
   import orgStore, { type OrgInfo } from '../../../stores/org.store';
   import authStore from '../../../stores/auth.store';
   import { createDashboard } from './dashboard.svelte.ts';
+  import { getApiClient } from '../../../stores/api.client';
 
   const unSubList: (() => void)[] = [];
 
@@ -25,20 +28,48 @@
   const dashboard = createDashboard();
 
   let settingsOpen = $state(false);
-  let importOpen = $state(false);
-  let createOpen = $state(false);
+  let createOrgOpen = $state(false);
+  let trashConfirmId = $state<string | null>(null);
+
+  // ponytail: canCreate = personal (always) OR org where role >= admin.
+  // viewers and users can't create; button is hidden.
+  let orgRole = $state<string | null>(null);
+  let canCreate = $derived(!selectedOrgId || orgRole === 'admin' || orgRole === 'owner');
 
   let unSubAuth: (() => void) | null = null;
   let unSubOrg: (() => void) | null = null;
+  let meId: string | null = null;
 
-  const filterTitles: Record<string, string> = {
-    recents: 'Recents',
-    projects: 'Projects',
-    community: 'Community',
-    resources: 'Resources',
-    trash: 'Trash',
-    starred: 'Starred',
-  };
+  // ponytail: role per org is stable for the page lifetime — cache it so
+  // revisiting an org (or the orgStore emit + onSelectOrg double-fire) doesn't
+  // re-run org:getMembers (a full member list with profile joins) per selection.
+  const roleCache = new Map<string, string | null>();
+
+  async function fetchOrgRole(orgId: string | null) {
+    if (!orgId) { orgRole = null; return; }
+    if (roleCache.has(orgId)) { orgRole = roleCache.get(orgId) ?? null; return; }
+    try {
+      // ponytail: getMembers returns [] if not a member; otherwise infer role from membership.
+      const members = (await getApiClient().query('org:getMembers', { orgId })) as Array<{ userId: string; role: string }>;
+      const mine = members.find(m => m.userId === meId);
+      const role = mine?.role ?? null;
+      roleCache.set(orgId, role);
+      orgRole = role;
+    } catch { orgRole = null; }
+  }
+
+  let currentOrgName = $derived(
+    selectedOrgId ? orgs.find(o => o.id === selectedOrgId)?.name ?? null : null
+  );
+
+  let pageTitle = $derived.by(() => {
+    if (dashboard.filter === 'starred') return 'Starred';
+    if (dashboard.filter === 'community') return 'Community';
+    const scope = currentOrgName ?? 'Personal';
+    const kind = dashboard.filter === 'trash' ? 'Trash' : 'Projects';
+    return `${scope} ${kind}`;
+  });
+
 
   onMount(() => {
     unSubAuth = authStore.subscribe(async (auth) => {
@@ -47,6 +78,7 @@
         userName = auth.user?.name ?? '';
         userEmail = auth.user?.email ?? '';
         userImage = auth.user?.image ?? null;
+        meId = auth.user?.id ?? null;
         await dashboard.init();
       }
     });
@@ -54,13 +86,19 @@
     unSubOrg = orgStore.subscribe(state => {
       orgs = state.orgs;
       selectedOrgId = state.selectedOrgId;
+      fetchOrgRole(state.selectedOrgId);
     });
 
     unSubList.push(unSubAuth);
     unSubList.push(unSubOrg);
   });
 
+  onMount(() => {
+    dashboard.startInvalidation();
+  });
+
   onDestroy(() => {
+    dashboard.stopInvalidation();
     unSubList.forEach((s) => s());
   });
 
@@ -71,7 +109,14 @@
 
   async function onSelectOrg(orgId: string | null) {
     selectedOrgId = orgId;
+    // orgStore emit drives fetchOrgRole via the subscription — no second call here.
     await dashboard.setOrg(orgId);
+  }
+
+  // ponytail: creation happens in the studio, which needs the org scope —
+  // carry the selected org in the URL so the save flow can assign it.
+  function goCreate() {
+    goto(selectedOrgId ? `/studio?orgId=${encodeURIComponent(selectedOrgId)}` : '/studio');
   }
 
   async function handleSignOut() {
@@ -91,28 +136,43 @@
   {orgs}
   bind:selectedOrgId
   filter={dashboard.filter}
+  {canCreate}
   {onSelectOrg}
   onFilterChange={(f) => dashboard.setFilter(f)}
   onSignOut={handleSignOut}
   onOpenSettings={() => (settingsOpen = true)}
-  onNewProject={() => (createOpen = true)}
+   onNewProject={goCreate}
+  onCreateOrg={() => (createOrgOpen = true)}
 />
 
 <UserSettingsDialog bind:open={settingsOpen} />
-<ImportDialog bind:open={importOpen} />
-<CreateProjectDialog bind:open={createOpen} />
+<CreateOrganizationDialog bind:open={createOrgOpen} onSuccess={(orgId) => dashboard.setOrg(orgId)} />
+
+<!-- Trash confirmation -->
+<Dialog.Root open={trashConfirmId !== null} onOpenChange={(o) => { if (!o) trashConfirmId = null; }}>
+  <Dialog.Portal>
+    <Dialog.Overlay />
+    <Dialog.Content class="sm:max-w-md">
+      <Dialog.Header>
+        <Dialog.Title>Delete project?</Dialog.Title>
+        <Dialog.Description>
+          This project will be moved to trash. You can restore it from the Trash section.
+        </Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Footer>
+        <Button variant="outline" onclick={() => trashConfirmId = null}>Cancel</Button>
+        <Button variant="destructive" onclick={() => { if (trashConfirmId) dashboard.trash(trashConfirmId); trashConfirmId = null; }}>
+          Delete
+        </Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
 
 <div class="main-area">
   <header class="main-header">
     <div class="header-left">
-      <h1 class="page-title">{filterTitles[dashboard.filter]}</h1>
-    </div>
-
-    <div class="header-right">
-      <button class="upload-btn" onclick={() => (importOpen = true)}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Import
-      </button>
+      <h1 class="page-title">{pageTitle}</h1>
     </div>
   </header>
 
@@ -129,8 +189,10 @@
     />
 
     {#if dashboard.loading}
-      <div class="grid-loading">
-        <div class="loading-spinner"></div>
+      <div class="skeleton-grid">
+        {#each Array(6) as _, i (i)}
+          <SkeletonCard />
+        {/each}
       </div>
     {:else if dashboard.visible.length > 0}
       {#if dashboard.view === 'grid'}
@@ -138,10 +200,11 @@
           projects={dashboard.visible}
           starredIds={[...dashboard.starredIds]}
           trashed={dashboard.filter === 'trash'}
+          context={dashboard.filter}
           onOpen={(id) => openProject(id)}
           onStar={(id) => dashboard.toggleStar(id)}
           onFork={(id) => dashboard.fork(id)}
-          onTrash={(id) => dashboard.trash(id)}
+          onTrash={(id) => trashConfirmId = id}
           onRestore={(id) => dashboard.restore(id)}
         />
       {:else}
@@ -160,112 +223,97 @@
       {/if}
     {:else if isLoggedIn}
       <section class="empty-state">
-        <p>
-          {#if dashboard.filter === 'trash'}
-            Trash is empty.
-          {:else if dashboard.filter === 'community'}
-            No public projects yet.
-          {:else}
-            No projects here yet.
+        {#if dashboard.filter === 'trash'}
+          <div class="empty-illustration">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </div>
+          <p class="empty-title">Trash is empty</p>
+          <p class="empty-subtitle">Deleted projects will appear here.</p>
+        {:else if dashboard.filter === 'community'}
+          <div class="empty-illustration">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <p class="empty-title">No community projects yet</p>
+          <p class="empty-subtitle">Projects shared by others will appear here.</p>
+        {:else}
+          <div class="empty-illustration">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <p class="empty-title">No projects yet</p>
+          <p class="empty-subtitle">Create your first project to get started.</p>
+          {#if canCreate}
+            <Button class="empty-cta" onclick={goCreate}>
+              Create Project
+            </Button>
           {/if}
-        </p>
+        {/if}
       </section>
     {/if}
   </main>
 </div>
 
 <style>
-  .main-area {
-    margin-left: 16rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: hsl(var(--background));
+  .main-area { margin-left: 200px; display: flex; flex-direction: column; min-height: 100vh; background-color: hsl(var(--background)); transition: margin-left 200ms ease; }
+  .main-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid hsl(var(--border)); background-color: hsl(var(--background)); }
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .page-title { font-size: 1.5rem; font-weight: 600; margin: 0; color: hsl(var(--foreground)); letter-spacing: -0.02em; }
+  .main-content { flex: 1; padding: 2rem; overflow-y: auto; padding-bottom: 5rem; }
+
+  .skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--project-card-width));
+    gap: 1.5rem;
   }
 
-  .main-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid hsl(var(--border));
-    background-color: hsl(var(--background));
-  }
-
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .page-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    color: hsl(var(--foreground));
-  }
-
-  .upload-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .upload-btn:hover {
-    opacity: 0.9;
-  }
-
-  .main-content {
-    flex: 1;
-    padding: 1.5rem;
-    overflow-y: auto;
-  }
-
-  .grid-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-  }
-
-  .loading-spinner {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 9999px;
-    border: 2px solid hsl(var(--border));
-    border-top-color: hsl(var(--primary));
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  @media (max-width: 768px) {
+    .skeleton-grid {
+      grid-template-columns: var(--project-card-width);
+      gap: 1rem;
+    }
   }
 
   .empty-state {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1rem;
-    color: hsl(var(--muted-foreground));
+    padding: 4rem 1rem;
     text-align: center;
   }
 
-  .empty-state p {
-    max-width: 24rem;
+  .empty-illustration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 1rem;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1.25rem;
+  }
+
+  .empty-title {
+    margin: 0 0 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .empty-subtitle {
+    margin: 0;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    max-width: 20rem;
+  }
+
+  :global(.empty-cta) {
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .main-area { margin-left: 0; }
+    .main-header { padding: 1rem; }
+    .main-content { padding: 1rem; padding-bottom: 5rem; }
   }
 </style>

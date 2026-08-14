@@ -9,19 +9,36 @@ const httpUrl = z.string().url().refine(
   { message: 'Only HTTP(S) URLs allowed' }
 );
 
+// ponytail: shared sanitization for names — no {}/;:<>|\\`"'$ or control chars.
+// Prevents injection in project names, org names, usernames. One regex, applied everywhere.
+const safeName = z.string().trim().min(1).max(80)
+  // The \u0000-\u001f range is the point: rejecting control characters (null bytes,
+  // etc.) in names is a security control, not an accidental literal. Removing it
+  // would weaken input validation, so the rule is suppressed rather than obeyed.
+  // eslint-disable-next-line no-control-regex
+  .regex(/^[^\u0000-\u001f{}<>/;:"'`|$#\\]+$/, 'Contains disallowed characters');
+const usernameSchema = z.string().min(2).max(30)
+  .regex(/^[a-zA-Z0-9_-]+$/, 'Letters, numbers, dash, underscore only');
+const slugSchema = z.string().min(2).max(50)
+  .regex(/^[a-z0-9-]+$/, 'Lowercase letters, numbers, dash only');
+const orgRoleSchema = z.enum(['admin', 'user', 'viewer']);
+const shareRoleSchema = z.enum(['view', 'edit']);
+
 export const project = {
   create: z.object({
-    name: z.string().min(1).max(200),
+    name: safeName,
     description: z.string().max(2000).optional().default(''),
     workspace: z.string().optional().default(''),
     boardType: boardType.optional().default('uno'),
     isPublic: z.boolean().optional().default(false),
     tags: z.array(z.string().max(50)).max(20).optional().default([]),
+    // ponytail: org-scoped creation — nullish accepts undefined OR null (personal sends null).
+    orgId: uuid.nullish(),
   }).strict(),
 
   update: z.object({
     projectId: uuid,
-    name: z.string().min(1).max(200).optional(),
+    name: safeName.optional(),
     description: z.string().max(2000).optional(),
     workspace: z.string().optional(),
     boardType: boardType.optional(),
@@ -54,11 +71,12 @@ export const project = {
   fork: z.object({ projectId: uuid }).strict(),
   trash: z.object({ projectId: uuid }).strict(),
   restore: z.object({ projectId: uuid }).strict(),
-  trackRecent: z.object({ projectId: uuid }).strict(),
 
   getDrafts: z.object({}).strict(),
 
   getPublic: z.object({}).strict(),
+
+  getSharedMembers: z.object({ projectId: uuid }).strict(),
 };
 
 export const user = {
@@ -76,7 +94,7 @@ export const user = {
   }).strict(),
 
   updateProfile: z.object({
-    username: z.string().min(2).max(30).regex(/^[a-zA-Z0-9_-]+$/).optional(),
+    username: usernameSchema.optional(),
     profileImage: httpUrl.optional(),
     bio: z.string().max(500).optional(),
     location: z.string().max(100).optional(),
@@ -92,28 +110,52 @@ export const user = {
   }).strict(),
 
   getProfile: z.object({ userId: uuid.optional() }).strict(),
+
+  // Accepted for wire compatibility with the existing client call; the handler
+  // always scopes to the session user, so it can't be used to read another row.
+  getSettings: z.object({ userId: uuid.optional() }).strict(),
+
+  // ponytail: email-prefix search for the org creator invite tokenizer.
+  // Returns matching users so the client can show name + email in the dropdown.
+  search: z.object({
+    q: z.string().trim().min(1).max(120),
+    limit: z.number().int().min(1).max(20).optional().default(8),
+  }).strict(),
 };
 
 export const organization = {
   create: z.object({
-    name: z.string().min(1).max(200),
-    slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+    name: safeName,
+    slug: slugSchema.optional(),
     description: z.string().max(2000).optional().default(''),
+    invitees: z.array(z.string().email()).max(50).optional().default([]),
   }).strict(),
 
   update: z.object({
     orgId: uuid,
-    name: z.string().min(1).max(200).optional(),
-    slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/).optional(),
+    name: safeName.optional(),
+    slug: slugSchema.optional(),
     description: z.string().max(2000).optional(),
   }).strict(),
 
   delete: z.object({ orgId: uuid }).strict(),
 
-  addMember: z.object({
+  // ponytail: invite by email (not username) — covers unregistered users.
+  invite: z.object({
+    orgId: uuid,
+    email: z.string().email(),
+    role: orgRoleSchema.optional().default('user'),
+  }).strict(),
+
+  changeRole: z.object({
     orgId: uuid,
     userId: uuid,
-    role: z.enum(['admin', 'member']).optional().default('member'),
+    role: orgRoleSchema,
+  }).strict(),
+
+  transferOwnership: z.object({
+    orgId: uuid,
+    newOwnerId: uuid,
   }).strict(),
 
   removeMember: z.object({
@@ -121,11 +163,49 @@ export const organization = {
     userId: uuid,
   }).strict(),
 
+  leave: z.object({ orgId: uuid }).strict(),
+
   getUserOrgs: z.object({}).strict(),
 
   getMembers: z.object({ orgId: uuid }).strict(),
 
   getOrgProjects: z.object({ orgId: uuid }).strict(),
+};
+
+export const projectShare = {
+  share: z.object({
+    projectId: uuid,
+    email: z.string().email(),
+    role: shareRoleSchema.optional().default('view'),
+  }).strict(),
+
+  unshare: z.object({
+    projectId: uuid,
+    userId: uuid,
+  }).strict(),
+
+  changeRole: z.object({
+    projectId: uuid,
+    userId: uuid,
+    role: shareRoleSchema,
+  }).strict(),
+
+  transferOwnership: z.object({
+    projectId: uuid,
+    newOwnerId: uuid,
+  }).strict(),
+};
+
+export const invite = {
+  accept: z.object({ inviteId: uuid }).strict(),
+  decline: z.object({ inviteId: uuid }).strict(),
+  list: z.object({}).strict(),
+};
+
+export const notification = {
+  list: z.object({}).strict(),
+  markRead: z.object({ notificationId: uuid }).strict(),
+  markAllRead: z.object({}).strict(),
 };
 
 export const actionEnvelope = z.object({

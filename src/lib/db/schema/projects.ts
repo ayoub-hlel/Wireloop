@@ -6,8 +6,12 @@ import { relations, sql } from 'drizzle-orm';
 import { user } from './auth';
 
 // ─── Custom Enums ───
-export const orgMemberRole = pgEnum('org_member_role', ['owner', 'admin', 'member']);
+// ponytail: 'member' renamed → 'user'; 'viewer' added. Migration maps existing 'member' rows to 'user'.
+export const orgMemberRole = pgEnum('org_member_role', ['owner', 'admin', 'user', 'viewer']);
 export const sharePermission = pgEnum('share_permission', ['view', 'edit']);
+export const inviteStatus = pgEnum('invite_status', ['pending', 'accepted', 'declined', 'revoked']);
+export const inviteKind = pgEnum('invite_kind', ['org', 'project']);
+export const notificationType = pgEnum('notification_type', ['org_project_created', 'org_project_deleted', 'invite_received', 'ownership_transferred']);
 
 // ─── User Profiles ───
 export const profiles = pgTable('profiles', {
@@ -43,6 +47,8 @@ export const projects = pgTable('projects', {
   thumbnailUrl: text('thumbnail_url'),
   lastOpenedAt: timestamp('last_opened_at'),
   deletedAt: timestamp('deleted_at'),
+  deletedBy: text('deleted_by').references(() => user.id, { onDelete: 'set null' }),
+  isForked: boolean('is_forked').notNull().default(false),
   // ponytail: AnyPgColumn annotation is drizzle's idiom for self-referencing FKs (breaks the circular type inference)
   forkedFrom: text('forked_from').references((): AnyPgColumn => projects.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -92,17 +98,6 @@ export const starredProjects = pgTable('starred_projects', {
   userIdIdx: index().on(t.userId),
 }));
 
-// ─── Recent Projects ───
-export const recentProjects = pgTable('recent_projects', {
-  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  projectId: text('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
-  lastAccessedAt: timestamp('last_accessed_at').notNull().defaultNow(),
-}, (t) => ({
-  pk: primaryKey({ columns: [t.userId, t.projectId] }),
-  userIdIdx: index().on(t.userId),
-  accessedIdx: index().on(t.lastAccessedAt),
-}));
-
 // ─── Shared Projects ───
 export const sharedProjects = pgTable('shared_projects', {
   projectId: text('project_id').notNull().references(() => projects.id, { onDelete: 'cascade' }),
@@ -113,6 +108,40 @@ export const sharedProjects = pgTable('shared_projects', {
 }, (t) => ({
   pk: primaryKey({ columns: [t.projectId, t.sharedWithUserId] }),
   sharedWithIdx: index().on(t.sharedWithUserId),
+}));
+
+// ─── Invites (org membership + personal-project collab) ───
+// ponytail: polymorphic single table — kind distinguishes org vs project, invitee_email
+// lets you invite unregistered users (backfilled on signup via email match, no tokens).
+export const invites = pgTable('invites', {
+  id: text('id').primaryKey(),
+  kind: inviteKind('kind').notNull(),
+  orgId: text('org_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  projectId: text('project_id').references(() => projects.id, { onDelete: 'cascade' }),
+  inviteeEmail: text('invitee_email').notNull(),
+  inviteeId: text('invitee_id').references(() => user.id, { onDelete: 'set null' }),
+  inviterId: text('inviter_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(), // org: admin|user|viewer · project: view|edit
+  status: inviteStatus('status').notNull().default('pending'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.id] }),
+  inviteeIdx: index().on(t.inviteeEmail),
+  pendingIdx: index('invites_pending_idx').on(t.status).where(sql`${t.status} = 'pending'`),
+}));
+
+// ─── Notifications ───
+export const notifications = pgTable('notifications', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  type: notificationType('type').notNull(),
+  payload: jsonb('payload').notNull().default('{}'), // { projectName, orgName, actorName, inviteId? }
+  readAt: timestamp('read_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.id] }),
+  userUnreadIdx: index('notif_user_unread_idx').on(t.userId, t.readAt).where(sql`${t.readAt} IS NULL`),
+  createdIdx: index().on(t.createdAt),
 }));
 
 // ─── Organizations ───
@@ -132,7 +161,7 @@ export const organizations = pgTable('organizations', {
 export const orgMembers = pgTable('org_members', {
   orgId: text('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-  role: orgMemberRole('role').notNull().default('member'),
+  role: orgMemberRole('role').notNull().default('user'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (t) => ({
   pk: primaryKey({ columns: [t.orgId, t.userId] }),
@@ -145,32 +174,29 @@ export const userRelations = relations(user, ({ many }) => ({
   settings: many(settings),
   files: many(projectFiles),
   starredProjects: many(starredProjects),
-  recentProjects: many(recentProjects),
   sharedWithMe: many(sharedProjects, { relationName: 'sharedWithUser' }),
   sharedByMe: many(sharedProjects, { relationName: 'sharedByUser' }),
   ownedOrgs: many(organizations),
   orgMemberships: many(orgMembers),
+  notifications: many(notifications),
+  receivedInvites: many(invites, { relationName: 'invitee' }),
+  sentInvites: many(invites, { relationName: 'inviter' }),
 }));
 
 export const projectRelations = relations(projects, ({ one, many }) => ({
   owner: one(user, { fields: [projects.userId], references: [user.id] }),
   files: many(projectFiles),
   starredBy: many(starredProjects),
-  recentFor: many(recentProjects),
   sharedWith: many(sharedProjects),
   org: one(organizations, { fields: [projects.orgId], references: [organizations.id] }),
   forkedFromProject: one(projects, { fields: [projects.forkedFrom], references: [projects.id], relationName: 'forkedFrom' }),
   forks: many(projects, { relationName: 'forkedFrom' }),
+  invites: many(invites),
 }));
 
 export const starredProjectsRelations = relations(starredProjects, ({ one }) => ({
   user: one(user, { fields: [starredProjects.userId], references: [user.id] }),
   project: one(projects, { fields: [starredProjects.projectId], references: [projects.id] }),
-}));
-
-export const recentProjectsRelations = relations(recentProjects, ({ one }) => ({
-  user: one(user, { fields: [recentProjects.userId], references: [user.id] }),
-  project: one(projects, { fields: [recentProjects.projectId], references: [projects.id] }),
 }));
 
 export const sharedProjectsRelations = relations(sharedProjects, ({ one }) => ({
@@ -188,4 +214,15 @@ export const organizationsRelations = relations(organizations, ({ one, many }) =
 export const orgMembersRelations = relations(orgMembers, ({ one }) => ({
   organization: one(organizations, { fields: [orgMembers.orgId], references: [organizations.id] }),
   user: one(user, { fields: [orgMembers.userId], references: [user.id] }),
+}));
+
+export const invitesRelations = relations(invites, ({ one }) => ({
+  org: one(organizations, { fields: [invites.orgId], references: [organizations.id], relationName: 'org' }),
+  project: one(projects, { fields: [invites.projectId], references: [projects.id], relationName: 'project' }),
+  inviteeUser: one(user, { fields: [invites.inviteeId], references: [user.id], relationName: 'invitee' }),
+  inviter: one(user, { fields: [invites.inviterId], references: [user.id], relationName: 'inviter' }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(user, { fields: [notifications.userId], references: [user.id] }),
 }));

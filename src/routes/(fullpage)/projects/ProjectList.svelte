@@ -7,10 +7,10 @@
   type Props = {
     projects: DashboardProject[];
     starredIds?: string[];
-    sort?: 'updatedAt' | 'name';
+    sort?: 'updatedAt' | 'lastOpenedAt' | 'name';
     sortDir?: 'asc' | 'desc';
     trashed?: boolean;
-    onSortChange?: (col: 'updatedAt' | 'name') => void;
+    onSortChange?: (col: 'updatedAt' | 'lastOpenedAt' | 'name') => void;
     onOpen?: (id: string) => void;
     onStar?: (id: string) => void;
     onTrash?: (id: string) => void;

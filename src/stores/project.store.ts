@@ -1,9 +1,11 @@
 import { writable } from "svelte/store";
+import { get } from "svelte/store";
 import type { Project } from "../types/models";
 import authStore from "./auth.store";
 import { getApiClient, createMutation } from "./api.client";
 import * as Sentry from "@sentry/sveltekit";
-import { captureEmulatorThumbnail } from '../core/virtual-circuit/thumbnail';
+import { captureOrGenerateThumbnail } from '../core/virtual-circuit/thumbnail';
+import settingsStore from './settings.store';
 
 interface ProjectState {
   project: Project | null;
@@ -30,9 +32,11 @@ authStore.subscribe((auth) => {
 export const createProject = createMutation<{
   name: string;
   workspace: string;
+  boardType?: 'uno' | 'nano' | 'mega';
   tags?: string[];
   isPublic?: boolean;
-}, Project>('projects:createProject');
+  orgId?: string | null;
+}, { projectId: string; project: Project }>('projects:createProject');
 
 export const updateProject = createMutation<{
   projectId: string;
@@ -108,13 +112,21 @@ export async function saveCurrentProject(workspace: string): Promise<void> {
     });
 
     // ponytail: thumbnails are best-effort — never fail a save if the
-    // capture or upload flakes out. This runs on the emulator tab only
-    // (no svg → no-op). A stale thumbnail is better than a failed save.
-    captureAndUploadThumbnail(currentState.projectId).catch(() => {});
+    // capture or upload flakes out. Tries emulator SVG first, falls back to
+    // generating from workspace XML + board type so every save gets a preview.
+    // ponytail: model uses 'ARDUINO_UNO' format, thumbnail generator expects 'uno'.
+    const bt = currentState.project?.boardType?.replace('ARDUINO_', '').toLowerCase() ?? 'uno';
+    captureAndUploadThumbnail(currentState.projectId, workspace, bt).catch(() => {});
   } catch (error) {
     Sentry.captureException(error, { tags: { store: 'project', action: 'save' }, extra: { projectId: currentState.projectId } });
     throw error;
   }
+}
+
+export async function createCurrentProject(name: string, workspace: string, orgId?: string | null): Promise<void> {
+  const boardType = get(settingsStore).boardType.replace('ARDUINO_', '').toLowerCase() as 'uno' | 'nano' | 'mega';
+  const result = await createProject({ name, workspace, boardType, orgId: orgId ?? undefined });
+  projectStore.set({ project: result.project, projectId: result.projectId, isLoading: false, error: null });
 }
 
 function getCurrentProjectState(): ProjectState {
@@ -124,8 +136,8 @@ function getCurrentProjectState(): ProjectState {
   return currentState;
 }
 
-async function captureAndUploadThumbnail(projectId: string): Promise<void> {
-  const blob = await captureEmulatorThumbnail();
+async function captureAndUploadThumbnail(projectId: string, workspaceXml?: string, boardType?: string): Promise<void> {
+  const blob = await captureOrGenerateThumbnail(workspaceXml ?? '', boardType ?? 'uno');
   if (!blob) return;
 
   const form = new FormData();
@@ -146,6 +158,7 @@ const enhancedProjectStore = {
   },
   loadProject,
   saveCurrentProject,
+  createCurrentProject,
   createProject,
   updateProject,
   deleteProject,

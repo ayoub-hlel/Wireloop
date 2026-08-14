@@ -26,13 +26,13 @@ describe('createDashboard visible sort (updatedAt Date|string)', () => {
     mockMutation.mockReset();
   });
 
+  // One endpoint drives every filter: projects:list with { filter, orgId }.
+  // init() calls it twice — once with filter 'starred' (to seed starredIds),
+  // then once for the active filter ('projects'). Only the latter feeds `visible`.
   function seed(rows: Array<Record<string, unknown>>) {
-    mockQuery.mockImplementation(async (name: string) => {
-      if (name === 'projects:getDrafts') return rows;
-      if (name === 'projects:getRecentProjects') return rows;
-      if (name === 'projects:getStarredProjects') return [];
-      if (name === 'projects:getTrashedProjects') return [];
-      return [];
+    mockQuery.mockImplementation(async (name: string, args: { filter?: string } = {}) => {
+      if (name !== 'projects:list') return [];
+      return args.filter === 'projects' ? rows : [];
     });
   }
 

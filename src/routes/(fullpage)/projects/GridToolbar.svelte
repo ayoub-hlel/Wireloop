@@ -8,10 +8,10 @@
 
   type Props = {
     view?: 'grid' | 'list';
-    sort?: 'updatedAt' | 'name';
+    sort?: 'updatedAt' | 'lastOpenedAt' | 'name';
     search?: string;
     onViewChange?: (v: 'grid' | 'list') => void;
-    onSortChange?: (s: 'updatedAt' | 'name') => void;
+    onSortChange?: (s: 'updatedAt' | 'lastOpenedAt' | 'name') => void;
     onSearch?: (q: string) => void;
   };
 
@@ -37,7 +37,7 @@
     <Popover.Root>
       <Popover.Trigger type="button" class="sort-trigger" aria-label="Sort options">
         <ArrowUpDown class="sort-trigger-icon" />
-        <span>{sort === 'updatedAt' ? 'Last modified' : 'Name'}</span>
+        <span>{sort === 'updatedAt' ? 'Last modified' : sort === 'lastOpenedAt' ? 'Last used' : 'Name'}</span>
       </Popover.Trigger>
       <Popover.Content class="w-44" side="bottom" align="start">
         <div class="sort-options">
@@ -47,6 +47,13 @@
             onclick={() => onSortChange('updatedAt')}
           >
             Last modified
+          </button>
+          <button
+            class="sort-option"
+            class:active={sort === 'lastOpenedAt'}
+            onclick={() => onSortChange('lastOpenedAt')}
+          >
+            Last used
           </button>
           <button
             class="sort-option"
@@ -76,7 +83,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.75rem 0;
+    padding: 1rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+    .toolbar-left {
+      justify-content: space-between;
+    }
   }
 
   .toolbar-left {

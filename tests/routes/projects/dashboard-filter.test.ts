@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createDashboard } from '@/routes/(fullpage)/projects/dashboard.svelte';
+import { createDashboard, shouldRefetch } from '@/routes/(fullpage)/projects/dashboard.svelte';
 
-// Regression lock for the bucket-15 sidebar filter architecture.
-// Each filter dispatches a specific query name through fetchList; the default is
-// 'recents'; restore re-fetches the trash list when in trash filter; switching
-// filter clears stale search. Same mock harness as dashboard-sort.test.ts.
+// Regression lock for the sidebar filter architecture.
+//
+// Retargeted from the old 6-filter / per-filter-endpoint design
+// ('recents' | 'resources' | ... each with its own projects:getXProjects query)
+// to the current 4-filter design: one endpoint, projects:list, with the filter
+// and org scope passed as arguments. Coverage is preserved and tightened —
+// each case now asserts the ARGS dispatched, not just the query name, because
+// with a single endpoint the args are the only thing distinguishing filters.
 
 const { mockQuery, mockMutation } = vi.hoisted(() => ({
   mockQuery: vi.fn(),
@@ -40,167 +44,179 @@ vi.mock('@/stores/org.store', async (importOriginal) => {
   };
 });
 
-describe('createDashboard filter dispatch (bucket-15 architecture)', () => {
+type ListArgs = { filter?: string; orgId?: string | null };
+
+/** Rows returned per filter; anything unlisted resolves to []. */
+function seedByFilter(byFilter: Record<string, unknown[]>) {
+  const calls: ListArgs[] = [];
+  mockQuery.mockImplementation(async (name: string, args: ListArgs = {}) => {
+    if (name !== 'projects:list') return [];
+    calls.push(args);
+    return byFilter[args.filter ?? ''] ?? [];
+  });
+  return calls;
+}
+
+const row = (id: string, name = id, updatedAt = '2024-01-01T00:00:00Z') => ({ id, name, updatedAt });
+
+describe('createDashboard filter dispatch (single projects:list endpoint)', () => {
   beforeEach(() => {
     vi.resetModules();
     mockQuery.mockReset();
     mockMutation.mockReset();
-    // Default: every query returns [] unless overridden in the test.
     mockQuery.mockResolvedValue([]);
   });
 
-  function queriesMock(): { [name: string]: unknown[] } {
-    return {
-      'projects:getStarredProjects': [],
-      'projects:getRecentProjects': [],
-      'projects:getDrafts': [],
-      'projects:getPublicProjects': [],
-      'projects:getTrashedProjects': [],
-      'org:getOrgProjects': [],
-    };
-  }
-
-  it('defaults to the recents filter on init', async () => {
-    const seen: string[] = [];
-    mockQuery.mockImplementation(async (name: string) => {
-      seen.push(name);
-      return [];
-    });
+  it('defaults to the projects filter and dispatches projects:list on init', async () => {
+    const calls = seedByFilter({});
     const dash = createDashboard();
     await dash.init();
-    expect(dash.filter).toBe('recents');
-    // init() fan-out: getStarredProjects (for starredIds), getRecentProjects (the default filter).
-    expect(seen).toContain('projects:getStarredProjects');
-    expect(seen).toContain('projects:getRecentProjects');
+
+    expect(dash.filter).toBe('projects');
+    // init() fan-out: one call to seed starredIds, one for the active filter.
+    expect(calls.map(c => c.filter)).toContain('starred');
+    expect(calls.map(c => c.filter)).toContain('projects');
+    // Every dispatch goes through the one endpoint — no per-filter endpoints.
+    expect(mockQuery.mock.calls.every(([name]) => name === 'projects:list')).toBe(true);
   });
 
-  it('setFilter("community") dispatches getPublicProjects', async () => {
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getPublicProjects') return [{ id: 'p1', name: 'pub', updatedAt: '2024-01-01T00:00:00Z' }];
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+  it('setFilter("community") dispatches projects:list with filter=community', async () => {
+    const calls = seedByFilter({ community: [row('p1', 'pub')] });
     const dash = createDashboard();
     await dash.init();
     await dash.setFilter('community');
+
     expect(dash.filter).toBe('community');
+    expect(calls.some(c => c.filter === 'community')).toBe(true);
     expect(dash.visible.map(p => p.id)).toEqual(['p1']);
   });
 
-  it('setFilter("trash") dispatches getTrashedProjects', async () => {
-    let trashCalled = 0;
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getTrashedProjects') { trashCalled += 1; return [{ id: 't1', name: 'trashed', updatedAt: '2024-01-01T00:00:00Z' }]; }
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+  it('setFilter("trash") dispatches filter=trash exactly once', async () => {
+    const calls = seedByFilter({ trash: [row('t1', 'trashed')] });
     const dash = createDashboard();
     await dash.init();
     await dash.setFilter('trash');
+
     expect(dash.filter).toBe('trash');
-    expect(trashCalled).toBe(1);
+    expect(calls.filter(c => c.filter === 'trash')).toHaveLength(1);
     expect(dash.visible.map(p => p.id)).toEqual(['t1']);
   });
 
-  it('setFilter("starred") dispatches getStarredProjects', async () => {
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getStarredProjects') return [{ id: 's1', name: 'star', updatedAt: '2024-01-01T00:00:00Z' }];
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+  it('setFilter("starred") dispatches filter=starred', async () => {
+    seedByFilter({ starred: [row('s1', 'star')] });
     const dash = createDashboard();
     await dash.init();
     await dash.setFilter('starred');
+
     expect(dash.filter).toBe('starred');
-    // visible is the post-filter list; starred filter returns the starredRows from query.
     expect(dash.visible.map(p => p.id)).toEqual(['s1']);
   });
 
-  it('setFilter("resources") with no selected org issues no org query', async () => {
-    let orgQueryCalls = 0;
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'org:getOrgProjects') { orgQueryCalls += 1; return []; }
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+  it('personal-scoped filters clear orgId so no org rows leak in', async () => {
+    const calls = seedByFilter({});
     const dash = createDashboard();
     await dash.init();
-    await dash.setFilter('resources');
-    expect(dash.filter).toBe('resources');
-    // ponytail: no orgId set → short-circuits to rows=[] without hitting the API.
-    expect(orgQueryCalls).toBe(0);
-    expect(dash.visible).toEqual([]);
+    await dash.setFilter('starred');
+
+    // ponytail: starred/community are personal-scoped — orgId must be null.
+    const starredCall = calls.find(c => c.filter === 'starred' && c.orgId !== undefined);
+    expect(starredCall?.orgId ?? null).toBeNull();
   });
 
   it('clears stale search when switching filter', async () => {
-    const log: string[] = [];
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getRecentProjects') return [{ id: 'r1', name: 'recent project', updatedAt: '2024-01-01T00:00:00Z' }];
-      if (name === 'projects:getPublicProjects') return [{ id: 'p1', name: 'pub', updatedAt: '2024-01-01T00:00:00Z' }];
-      log.push(name);
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
+    seedByFilter({
+      projects: [row('r1', 'recent project')],
+      community: [row('p1', 'pub')],
     });
     const dash = createDashboard();
     await dash.init();
-    dash.search = 'recent'; // user typed in the toolbar while on recents
-    // visible filters by the search term (live filter)
-    expect(dash.visible.map(p => p.id)).toEqual(['r1']); // 'recent project' contains 'recent'
+
+    dash.search = 'recent'; // user typed in the toolbar
+    expect(dash.visible.map(p => p.id)).toEqual(['r1']);
 
     await dash.setFilter('community');
-    // ponytail: switching filter clears the search box; community list is unaffected
-    // by the previous 'recent' term (no live-filter leakage across filters).
+    // Switching filter clears the search box — no live-filter leakage across filters.
     expect(dash.search).toBe('');
-    // The community row 'pub' is the only one and survives the cleared filter.
     expect(dash.visible.map(p => p.id)).toEqual(['p1']);
   });
 
   it('setFilter is a no-op when the filter is already active', async () => {
-    let calls = 0;
-    mockQuery.mockImplementation(async (name: string) => {
-      calls += 1;
-      const m = queriesMock();
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+    seedByFilter({});
     const dash = createDashboard();
     await dash.init();
-    const before = calls;
-    await dash.setFilter('recents'); // already the default
-    expect(calls).toBe(before); // no extra fetch
-    expect(dash.filter).toBe('recents');
+
+    const before = mockQuery.mock.calls.length;
+    await dash.setFilter('projects'); // already the default
+    expect(mockQuery.mock.calls.length).toBe(before); // no extra fetch
+    expect(dash.filter).toBe('projects');
   });
 
-  it('restore() refetches getTrashedProjects while on the trash filter', async () => {
-    let trashCalls = 0;
-    const mockQueries = queriesMock();
-    mockQuery.mockImplementation(async (name: string) => {
-      if (name === 'projects:getTrashedProjects') {
-        trashCalls += 1;
-        return [{ id: 't1', name: 'trashed', updatedAt: '2024-01-01T00:00:00Z' }];
-      }
-      return mockQueries[name as keyof typeof mockQueries] ?? [];
-    });
+  it('init dispatches the starred + active list requests in parallel', async () => {
+    // seedByFilter resolves immediately, but the two requests must be ISSUED
+    // before init's first await resolves — sequential awaits would defer the
+    // second call until after the first resolves.
+    const calls = seedByFilter({});
+    const dash = createDashboard();
+    void dash.init();
+    expect(mockQuery.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect(calls.map(c => c.filter)).toEqual(expect.arrayContaining(['starred', 'projects']));
+  });
+
+  it('setOrg dispatches org-scoped projects:list exactly once per org', async () => {
+    const calls = seedByFilter({ projects: [row('r1', 'org proj')] });
+    const dash = createDashboard();
+    await dash.init();
+    await dash.setOrg('org1');
+
+    expect(dash.filter).toBe('projects');
+    expect(calls.filter(c => c.filter === 'projects' && c.orgId === 'org1')).toHaveLength(1);
+    expect(dash.visible.map(p => p.id)).toEqual(['r1']);
+
+    // same org again — no refetch.
+    const before = mockQuery.mock.calls.length;
+    await dash.setOrg('org1');
+    expect(mockQuery.mock.calls.length).toBe(before);
+  });
+
+  it('setOrg switches starred to org-scoped projects', async () => {
+    const calls = seedByFilter({ starred: [row('s1', 'star')] });
+    const dash = createDashboard();
+    await dash.init();
+    await dash.setFilter('starred');
+    await dash.setOrg('org1');
+
+    expect(dash.filter).toBe('projects');
+    expect(calls.filter(c => c.filter === 'projects' && c.orgId === 'org1')).toHaveLength(1);
+  });
+
+  it('shouldRefetch throttles refetches to one per cooldown window', () => {
+    expect(shouldRefetch(0, 5000)).toBe(true); // far past the cooldown — allowed
+    expect(shouldRefetch(5000, 6000)).toBe(false); // inside the 2s window
+    expect(shouldRefetch(5000, 7000)).toBe(true); // window elapsed
+    expect(shouldRefetch(7000, 7000, 5000)).toBe(false); // custom cooldown
+  });
+
+  it('restore() refetches the trash list while on the trash filter', async () => {
+    const calls = seedByFilter({ trash: [row('t1', 'trashed')] });
     const dash = createDashboard();
     await dash.init();
     await dash.setFilter('trash');
-    const trashCallsBeforeRestore = trashCalls;
+
+    const before = calls.filter(c => c.filter === 'trash').length;
     await dash.restore('t1');
+
     expect(mockMutation).toHaveBeenCalledWith('projects:restoreProject', { projectId: 't1' });
-    expect(trashCalls).toBeGreaterThan(trashCallsBeforeRestore); // refetched trash list
+    expect(calls.filter(c => c.filter === 'trash').length).toBeGreaterThan(before);
   });
 
   it('trash() removes the project from the list when NOT in trash filter', async () => {
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getRecentProjects') return [
-        { id: 'r1', name: 'one', updatedAt: '2024-01-01T00:00:00Z' },
-        { id: 'r2', name: 'two', updatedAt: '2024-01-02T00:00:00Z' },
-      ];
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
+    seedByFilter({
+      projects: [row('r1', 'one', '2024-01-01T00:00:00Z'), row('r2', 'two', '2024-01-02T00:00:00Z')],
     });
     const dash = createDashboard();
     await dash.init();
     expect(dash.visible.map(p => p.id)).toEqual(['r2', 'r1']); // desc by updatedAt
+
     await dash.trash('r1');
     expect(mockMutation).toHaveBeenCalledWith('projects:trashProject', { projectId: 'r1' });
     // ponytail: non-trash filter removes from the local list instead of refetching.
@@ -208,24 +224,18 @@ describe('createDashboard filter dispatch (bucket-15 architecture)', () => {
   });
 
   it('fork() refetches the current filter (community)', async () => {
-    let communityCalls = 0;
-    mockQuery.mockImplementation(async (name: string) => {
-      const m = queriesMock();
-      if (name === 'projects:getPublicProjects') {
-        communityCalls += 1;
-        return [{ id: 'p1', name: 'pub', updatedAt: '2024-01-01T00:00:00Z' }];
-      }
-      return m[name as keyof ReturnType<typeof queriesMock>] ?? [];
-    });
+    const calls = seedByFilter({ community: [row('p1', 'pub')] });
     const dash = createDashboard();
     await dash.init();
     await dash.setFilter('community');
-    const before = communityCalls;
+
+    const before = calls.filter(c => c.filter === 'community').length;
     await dash.fork('p1');
+
     expect(mockMutation).toHaveBeenCalledWith('projects:forkProject', { projectId: 'p1' });
-    expect(communityCalls).toBeGreaterThan(before); // refetched current filter
+    expect(calls.filter(c => c.filter === 'community').length).toBeGreaterThan(before);
   });
 });
 
-// ponytail: the Sort suite (already in dashboard-sort.test.ts) owns sort behavior;
+// ponytail: the Sort suite (dashboard-sort.test.ts) owns sort behavior;
 // this file owns filter dispatch + restore/fork/trash side-effects.

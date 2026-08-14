@@ -36,6 +36,13 @@
       "when": 1784227058545,
       "tag": "0004_milky_cassandra_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785000000000,
+      "tag": "0005_project_page_api",
+      "breakpoints": true
     }
   ]
 }
