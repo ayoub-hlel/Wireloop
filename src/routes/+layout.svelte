@@ -4,6 +4,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import authStore from '../stores/auth.store';
+  import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
   import { initializeApiClient } from '../stores/api.client';
 
@@ -29,5 +30,7 @@
 </script>
 
 <main>
-  {@render children()}
+  <Tooltip.Provider>
+    {@render children()}
+  </Tooltip.Provider>
 </main>

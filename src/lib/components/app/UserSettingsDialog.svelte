@@ -169,7 +169,7 @@
 <style>
   .settings-body {
     display: flex;
-    gap: 1.5rem;
+    gap: 2rem;
     min-height: 280px;
   }
 
@@ -177,14 +177,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
     flex-shrink: 0;
   }
 
   :global(.settings-avatar) {
-    width: 120px !important;
-    height: 120px !important;
-    font-size: 2rem !important;
+    width: 96px !important;
+    height: 96px !important;
+    font-size: 1.75rem !important;
+  }
+
+  .avatar-edit-label {
+    margin-top: 0.25rem;
   }
 
   .avatar-file-input {
@@ -199,7 +203,7 @@
   }
 
   .settings-section {
-    padding: 0.75rem 0;
+    padding: 1rem 0;
     border-bottom: 1px solid hsl(var(--border));
   }
 
@@ -208,10 +212,11 @@
   }
 
   .settings-heading {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 600;
-    margin: 0.5rem 0 0.25rem;
+    margin: 0 0 0.5rem;
     color: hsl(var(--foreground));
+    letter-spacing: 0.01em;
   }
 
   .settings-heading:first-child {
@@ -219,8 +224,8 @@
   }
 
   .settings-value {
-    font-size: 0.8125rem;
-    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
   }
 
   .settings-link {
@@ -228,13 +233,20 @@
     border: none;
     padding: 0;
     font-size: 0.8125rem;
-    color: hsl(var(--primary));
+    color: hsl(var(--muted-foreground));
     cursor: pointer;
     text-align: left;
+    transition: color 150ms;
   }
 
   .settings-link:hover {
-    text-decoration: underline;
+    color: hsl(var(--foreground));
+  }
+
+  .settings-link:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .settings-inline-edit {
@@ -246,11 +258,23 @@
   .settings-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
   }
 
   .theme-options {
     display: flex;
     gap: 0.375rem;
+  }
+
+  @media (max-width: 640px) {
+    .settings-body {
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .settings-rows {
+      width: 100%;
+    }
   }
 </style>

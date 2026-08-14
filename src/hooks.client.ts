@@ -8,7 +8,7 @@ import { SENTRY_RELEASE } from '$lib/telemetry/sentry';
 // ponytail: sample 100% outside production, 10% in prod — errors always keep full replay
 const isProd = env.PUBLIC_APP_URL?.startsWith('https://wire-loop.tech') ?? false;
 
-Sentry.init({
+if (!dev) Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN,
   release: SENTRY_RELEASE,
 

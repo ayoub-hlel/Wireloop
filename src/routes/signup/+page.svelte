@@ -23,20 +23,25 @@
   let sentEmail = $state("");
   let resendCooldown = $state(0);
   let resendLoading = $state(false);
-  let showPassword = $state(false);
+   let showPassword = $state(false);
+   let agreePrivacy = $state(false);
 
-  async function handleSignUp() {
-    error = "";
-    submitting = true;
-    try {
-      await authStore.signUp(email, password, username);
-      sentEmail = email;
-    } catch (e: unknown) {
-      error = e instanceof Error ? e.message : "Sign up failed";
-    } finally {
-      submitting = false;
-    }
-  }
+   async function handleSignUp() {
+     error = "";
+     if (!agreePrivacy) {
+       error = "You must agree to the Privacy Policy to create an account.";
+       return;
+     }
+     submitting = true;
+     try {
+       await authStore.signUp(email, password, username);
+       sentEmail = email;
+     } catch (e: unknown) {
+       error = e instanceof Error ? e.message : "Sign up failed";
+     } finally {
+       submitting = false;
+     }
+   }
 
   async function handleResend() {
     resendLoading = true;
@@ -144,10 +149,14 @@
               </button>
             </div>
           </div>
-          <Button type="submit" class="w-full" disabled={submitting}>
-            {submitting ? "Creating account…" : "Create Account"}
-          </Button>
-        </form>
+           <label class="privacy-check">
+             <input type="checkbox" bind:checked={agreePrivacy} />
+             <span>I agree to the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a></span>
+           </label>
+           <Button type="submit" class="w-full" disabled={submitting || !agreePrivacy}>
+             {submitting ? "Creating account…" : "Create Account"}
+           </Button>
+         </form>
       {/if}
     </Card.Content>
     <Card.Footer class="flex justify-center">
@@ -183,5 +192,17 @@
   }
   .password-toggle:hover {
     color: hsl(var(--foreground));
+  }
+  .privacy-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: -0.25rem;
+  }
+  .privacy-check a {
+    color: hsl(var(--accent));
+    text-decoration: underline;
   }
 </style>

@@ -28,7 +28,7 @@ export const onConfirm = async (message: string): Promise<boolean> => {
     });
   } catch (e) {
     console.error(e);
-    return confirm(message);
+    return false;
   }
 };
 
