@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
   import { goto } from '$app/navigation';
 
   import Sidebar from './Sidebar.svelte';
@@ -43,7 +44,7 @@
   // ponytail: role per org is stable for the page lifetime — cache it so
   // revisiting an org (or the orgStore emit + onSelectOrg double-fire) doesn't
   // re-run org:getMembers (a full member list with profile joins) per selection.
-  const roleCache = new Map<string, string | null>();
+  const roleCache = new SvelteMap<string, string | null>();
 
   async function fetchOrgRole(orgId: string | null) {
     if (!orgId) { orgRole = null; return; }

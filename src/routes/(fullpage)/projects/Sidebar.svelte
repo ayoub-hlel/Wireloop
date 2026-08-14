@@ -14,8 +14,7 @@
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
   import Settings from '@lucide/svelte/icons/settings';
   import LogOut from '@lucide/svelte/icons/log-out';
-  import { toggleTheme, setTheme, getTheme } from "$lib/theme";
-  import { browser } from "$app/environment";
+  import { toggleTheme } from "$lib/theme";
   import type { OrgInfo } from "../../../stores/org.store";
   import type { DashboardFilter } from './dashboard.svelte.ts';
 
@@ -51,7 +50,6 @@
     onCreateOrg = () => {},
   }: Props = $props();
 
-  let theme = $state<"light" | "dark">(browser ? getTheme() : "light");
   let collapsed = $state(false);
 
   function getInitials(name: string): string {

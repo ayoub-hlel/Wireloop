@@ -50,7 +50,7 @@ describe("loadProject deferred load (WL-006)", () => {
 
   it("gives up with a diagnostic when the workspace never appears", async () => {
     workspaceHelper.loadProject("<xml></xml>");
-    await vi.advanceTimersByTimeAsync(2500); // past MAX_RETRIES × 100ms
+    await vi.advanceTimersByTimeAsync(10100); // past MAX_LOAD_RETRIES × 100ms
 
     expect(loaded()).toBe(false);
     expect(mockFail).toHaveBeenCalledWith("loadProject:give-up", expect.anything());
