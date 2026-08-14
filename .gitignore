@@ -16,6 +16,7 @@ pnpm-debug.log*
 /__sapper__/
 /functions/__sapper__
 build*
+.fix_loop/
 
 # Application specific
 /src/config.ts
