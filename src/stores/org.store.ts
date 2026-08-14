@@ -31,7 +31,10 @@ function createOrgStore() {
       update(s => ({ ...s, loading: true }));
       try {
         const orgs = await getApiClient().query('org:getUserOrgs', {}) as OrgInfo[];
-        update(s => ({ ...s, orgs: orgs || [], loading: false }));
+        const sorted = (orgs || []).slice().sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+        );
+        update(s => ({ ...s, orgs: sorted, loading: false }));
       } catch {
         update(s => ({ ...s, loading: false }));
       }

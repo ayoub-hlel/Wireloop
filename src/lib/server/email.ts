@@ -20,6 +20,7 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
+  console.warn('[EMAIL] sendEmail entry', { to, subject });
   try {
     await getResend().emails.send({
       from: 'Wireloop <noreply@wire-loop.tech>',
@@ -27,8 +28,10 @@ export async function sendEmail({
       subject,
       html,
     });
+    console.warn('[EMAIL] sendEmail done', { to, subject });
   } catch (e) {
     Sentry.captureException(e, { tags: { service: 'email', action: 'send' }, extra: { to, subject } });
+    console.warn('[EMAIL] sendEmail error', { to, subject, error: String(e) });
   }
 }
 
@@ -56,6 +59,37 @@ export async function sendVerificationEmail({
         </a>
         <p style="margin-top: 24px; color: #888; font-size: 13px;">
           If you didn't create this account, you can safely ignore this email.
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendInviteEmail(
+  email: string,
+  kind: 'org' | 'project',
+  targetName: string,
+  inviterName: string,
+) {
+  const what = kind === 'org' ? 'organization' : 'project';
+  await sendEmail({
+    to: email,
+    subject: `${inviterName} invited you to a Wireloop ${what}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 0;">
+        <h2 style="margin-bottom: 16px;">You've been invited</h2>
+        <p style="margin-bottom: 24px; color: #555;">
+          <strong>${inviterName}</strong> invited you to collaborate on
+          "<strong>${targetName}</strong>" in Wireloop.
+        </p>
+        <a
+          href="https://wire-loop.tech/signup"
+          style="display: inline-block; padding: 12px 24px; background: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500;"
+        >
+          Join Wireloop
+        </a>
+        <p style="margin-top: 24px; color: #888; font-size: 13px;">
+          If you didn't expect this invitation, you can safely ignore this email.
         </p>
       </div>
     `,

@@ -50,6 +50,12 @@ describe('server validation schemas (strict mutation contract)', () => {
     expect(project.create.safeParse({ name: 'x', bogus: 1 }).success).toBe(false);
   });
 
+  it('project.create accepts an orgId scope (org-created projects)', () => {
+    expect(project.create.safeParse({ name: 'Blink', orgId: 'org123' }).success).toBe(true);
+    // personal creation sends null explicitly — must not be rejected.
+    expect(project.create.safeParse({ name: 'Blink', orgId: null }).success).toBe(true);
+  });
+
   it('actionEnvelope requires a name', () => {
     expect(actionEnvelope.safeParse({}).success).toBe(false);
     expect(actionEnvelope.safeParse({ name: 'projects:createProject' }).success).toBe(true);

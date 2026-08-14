@@ -13,12 +13,14 @@ import * as schema from "../db/schema/auth";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
 export function validatePassword(pw: string): string[] {
+  console.warn('[AUTH-FACTORY] validatePassword entry', { length: pw.length });
   const errors: string[] = [];
   if (pw.length < 8) errors.push("Password must be at least 8 characters");
   if (!/[a-z]/.test(pw)) errors.push("Password must contain a lowercase letter");
   if (!/[A-Z]/.test(pw)) errors.push("Password must contain an uppercase letter");
   if (!/\d/.test(pw)) errors.push("Password must contain a number");
   if (!/[^A-Za-z0-9]/.test(pw)) errors.push("Password must contain a special character");
+  console.warn('[AUTH-FACTORY] validatePassword result', { valid: errors.length === 0, errorCount: errors.length });
   return errors;
 }
 
@@ -45,7 +47,9 @@ export type AuthFactoryDeps = {
 };
 
 export function createAuth(deps: AuthFactoryDeps) {
-  const db = drizzle(neon(deps.databaseUrl), { schema });
+  console.warn('[AUTH-FACTORY] createAuth entry', { baseURL: deps.baseURL, hasSecret: !!deps.secret, hasDatabaseUrl: !!deps.databaseUrl });
+  const sql = neon(deps.databaseUrl);
+  const db = drizzle(sql, { schema });
 
   return betterAuth({
     database: drizzleAdapter(db, { provider: "pg", schema }),
@@ -100,6 +104,8 @@ export function createAuth(deps: AuthFactoryDeps) {
           }
         }
       }),
+      // ponytail: invite backfill happens lazily in the query layer (invites:list) —
+      // not in the signup hot path. Keeps auth simple, avoids hook-context fragility.
     },
 
     // ── Plugins ──────────────────────────────────────────────────
