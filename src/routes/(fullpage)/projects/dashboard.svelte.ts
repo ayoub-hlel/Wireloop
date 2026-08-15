@@ -11,7 +11,6 @@ export interface DashboardProject {
   id: string;
   name: string;
   updatedAt: Date | string;
-  lastOpenedAt?: Date | string | null;
   boardType?: string;
   thumbnailUrl?: string | null;
   forkedFrom?: string | null;
@@ -31,7 +30,6 @@ function mapProject(row: unknown): DashboardProject {
     id: String(p.id),
     name: String(p.name),
     updatedAt: p.updatedAt as string,
-    lastOpenedAt: p.lastOpenedAt as string | null | undefined,
     boardType: p.boardType as string | undefined,
     thumbnailUrl: p.thumbnailUrl as string | null | undefined,
     forkedFrom: p.forkedFrom as string | null | undefined,
@@ -66,7 +64,7 @@ export function createDashboard() {
   let _filter = $state<DashboardFilter>('projects');
   let _search = $state('');
   let _view = $state<'grid' | 'list'>('grid');
-  let _sort = $state<'updatedAt' | 'lastOpenedAt' | 'name'>('updatedAt');
+  let _sort = $state<'updatedAt' | 'name'>('updatedAt');
   let seq = 0;
   let _debouncedSearch = $state('');
   let _sortDir = $state<'asc' | 'desc'>('desc');
@@ -80,16 +78,11 @@ export function createDashboard() {
     const dir = _sortDir === 'asc' ? 1 : -1;
     return [...list].sort((a, b) => {
       if (_sort === 'name') return collator.compare(a.name, b.name) * dir;
-      if (_sort === 'lastOpenedAt') {
-        const ta = a.lastOpenedAt ? toTime(a.lastOpenedAt) : 0;
-        const tb = b.lastOpenedAt ? toTime(b.lastOpenedAt) : 0;
-        return (ta - tb) * dir;
-      }
       return (toTime(a.updatedAt) - toTime(b.updatedAt)) * dir;
     });
   });
 
-  function setSort(col: 'updatedAt' | 'lastOpenedAt' | 'name'): void {
+  function setSort(col: 'updatedAt' | 'name'): void {
     if (_sort === col) {
       _sortDir = _sortDir === 'asc' ? 'desc' : 'desc';
     } else {

@@ -8,10 +8,10 @@
 
   type Props = {
     view?: 'grid' | 'list';
-    sort?: 'updatedAt' | 'lastOpenedAt' | 'name';
+    sort?: 'updatedAt' | 'name';
     search?: string;
     onViewChange?: (v: 'grid' | 'list') => void;
-    onSortChange?: (s: 'updatedAt' | 'lastOpenedAt' | 'name') => void;
+    onSortChange?: (s: 'updatedAt' | 'name') => void;
     onSearch?: (q: string) => void;
   };
 
@@ -37,7 +37,7 @@
     <Popover.Root>
       <Popover.Trigger type="button" class="sort-trigger" aria-label="Sort options">
         <ArrowUpDown class="sort-trigger-icon" />
-        <span>{sort === 'updatedAt' ? 'Last modified' : sort === 'lastOpenedAt' ? 'Last used' : 'Name'}</span>
+        <span>{sort === 'updatedAt' ? 'Last modified' : 'Name'}</span>
       </Popover.Trigger>
       <Popover.Content class="w-44" side="bottom" align="start">
         <div class="sort-options">
@@ -47,13 +47,6 @@
             onclick={() => onSortChange('updatedAt')}
           >
             Last modified
-          </button>
-          <button
-            class="sort-option"
-            class:active={sort === 'lastOpenedAt'}
-            onclick={() => onSortChange('lastOpenedAt')}
-          >
-            Last used
           </button>
           <button
             class="sort-option"
