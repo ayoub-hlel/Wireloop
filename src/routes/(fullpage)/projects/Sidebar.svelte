@@ -14,6 +14,7 @@
   import PanelLeftOpen from '@lucide/svelte/icons/panel-left-open';
   import Settings from '@lucide/svelte/icons/settings';
   import LogOut from '@lucide/svelte/icons/log-out';
+  import { goto } from '$app/navigation';
   import { toggleTheme } from "$lib/theme";
   import type { OrgInfo } from "../../../stores/org.store";
   import type { DashboardFilter } from './dashboard.svelte.ts';
@@ -243,14 +244,12 @@
       <item.icon size={22} />
     </button>
   {/each}
-  {#if canCreate}
-    <button class="mobile-nav-item mobile-nav-add" onclick={onNewProject} aria-label="New project">
-      <Plus size={22} />
-    </button>
-  {/if}
-  <button class="mobile-nav-item" onclick={toggleTheme} aria-label="Toggle theme">
-    <Sun size={22} class="theme-icon-sun" />
-    <Moon size={22} class="theme-icon-moon" />
+  <button class="mobile-nav-item" onclick={() => goto('/settings')} aria-label="Settings">
+    {#if userImage}
+      <img src={userImage} alt="" class="mobile-nav-avatar" />
+    {:else}
+      <span class="mobile-nav-avatar mobile-nav-avatar-fallback">{getInitials(userName || '?')}</span>
+    {/if}
   </button>
 </nav>
 
@@ -545,8 +544,19 @@
       background-color: hsl(var(--secondary));
     }
 
-    .mobile-nav-add {
-      color: hsl(var(--accent));
+    .mobile-nav-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: hsl(var(--secondary));
+      color: hsl(var(--foreground));
+      font-size: 0.6875rem;
+      font-weight: 600;
+      border: 1px solid hsl(var(--border));
     }
   }
 </style>
