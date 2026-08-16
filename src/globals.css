@@ -23,7 +23,7 @@
     --foreground: 0 0% 4%;             /* #0A0A0A */
 
     /* ── Card & Surface Layers ────────────────────────────────── */
-    --card: 0 0% 98%;                  /* #FAFAFA */
+    --card: 0 0% 100%;                 /* #FFFFFF */
     --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;              /* #FFFFFF */
@@ -34,12 +34,12 @@
     --primary-foreground: 0 0% 98%;    /* #FAFAFA */
 
     /* ── Secondary ────────────────────────────────────────────── */
-    --secondary: 0 0% 94%;             /* #F0F0F0 */
+    --secondary: 0 0% 91%;             /* #E8E8E8 */
     --secondary-foreground: 0 0% 9%;
 
     /* ── Muted / Dimmed ───────────────────────────────────────── */
-    --muted: 0 0% 94%;                 /* #F0F0F0 */
-    --muted-foreground: 0 0% 40%;      /* #666666 */
+    --muted: 0 0% 91%;                 /* #E8E8E8 */
+    --muted-foreground: 0 0% 30%;      /* #4D4D4D */
 
     /* ── Accent (vibrant blue, shared across themes) ──────────── */
     --accent: 224 100% 50%;            /* #0044FF */
@@ -54,21 +54,21 @@
     --warning: 32 95% 44%;             /* darker amber for light bg contrast */
 
     /* ── Borders, Inputs, Focus Rings ──────────────────────────── */
-    --border: 0 0% 0% / 0.1;           /* black @ 10% opacity */
-    --input: 0 0% 0% / 0.1;
+    --border: 0 0% 0% / 0.16;          /* black @ 16% opacity */
+    --input: 0 0% 0% / 0.16;
     --ring: 224 100% 50%;              /* #0044FF */
 
     /* ── Border Radius ────────────────────────────────────────── */
     --radius: 0.5rem;                  /* 8px */
 
     /* ── Sidebar ──────────────────────────────────────────────── */
-    --sidebar-background: 0 0% 98%;    /* #FAFAFA */
+    --sidebar-background: 0 0% 96%;    /* #F5F5F5 */
     --sidebar-foreground: 0 0% 4%;
     --sidebar-primary: 0 0% 9%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 92%;        /* #EBEBEB */
+    --sidebar-accent: 0 0% 88%;        /* #E0E0E0 */
     --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 0 0% 0% / 0.08;
+    --sidebar-border: 0 0% 0% / 0.14;
     --sidebar-ring: 224 100% 50%;
 
     /* ════════════════════════════════════════════════════════════
@@ -81,11 +81,11 @@
     --bg-overlay-hsl: 0 0% 100%;
 
     /* ── Border Variants ── */
-    --border-strong: 0 0% 0% / 0.24;   /* black @ 24% */
+    --border-strong: 0 0% 0% / 0.32;   /* black @ 32% */
 
     /* ── Text Variants ── */
-    --text-muted: 0 0% 40%;            /* #666666 */
-    --text-subtle: 0 0% 50%;           /* #808080 */
+    --text-muted: 0 0% 30%;            /* #4D4D4D */
+    --text-subtle: 0 0% 42%;           /* #6B6B6B */
     --text-code: 0 0% 40%;
 
     /* ── Primary Accent Variants ── */
@@ -111,7 +111,7 @@
     --foreground: 0 0% 98%;            /* #FAFAFA — near-white text */
 
     /* ── Card & Surface Layers ────────────────────────────────── */
-    --card: 0 0% 13%;                  /* #212121 — dark surface */
+    --card: 0 0% 15%;                  /* #262626 — dark surface */
     --card-foreground: 0 0% 98%;       /* #FAFAFA */
 
     --popover: 0 0% 13%;               /* #212121 */
@@ -122,12 +122,12 @@
     --primary-foreground: 0 0% 4%;     /* #0A0A0A — dark text on white bg */
 
     /* ── Secondary (Darker Surface) ────────────────────────────── */
-    --secondary: 0 0% 11%;             /* #1D1D1D */
+    --secondary: 0 0% 12%;             /* #1F1F1F */
     --secondary-foreground: 0 0% 98%;  /* #FAFAFA */
 
     /* ── Muted / Dimmed ───────────────────────────────────────── */
-    --muted: 0 0% 13%;                 /* #212121 */
-    --muted-foreground: 0 0% 65%;      /* #A7A7A7 */
+    --muted: 0 0% 15%;                 /* #262626 */
+    --muted-foreground: 0 0% 74%;      /* #BCBCBC */
 
     /* ── Accent (vibrant blue, shared across themes) ──────────── */
     --accent: 224 100% 50%;            /* #0044FF */
@@ -142,8 +142,8 @@
     --warning: 38 92% 50%;             /* #DD6B20 — amber */
 
     /* ── Borders, Inputs, Focus Rings ──────────────────────────── */
-    --border: 0 0% 100% / 0.08;        /* white @ 8% opacity */
-    --input: 0 0% 100% / 0.08;
+    --border: 0 0% 100% / 0.14;        /* white @ 14% opacity */
+    --input: 0 0% 100% / 0.14;
     --ring: 224 100% 50%;              /* #0044FF */
 
     /* ── Sidebar ──────────────────────────────────────────────── */
@@ -151,9 +151,9 @@
     --sidebar-foreground: 0 0% 98%;    /* #FAFAFA */
     --sidebar-primary: 0 0% 98%;       /* #FAFAFA */
     --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 13%;        /* #212121 */
+    --sidebar-accent: 0 0% 15%;        /* #262626 */
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 100% / 0.08;
+    --sidebar-border: 0 0% 100% / 0.14;
     --sidebar-ring: 224 100% 50%;
 
     /* ════════════════════════════════════════════════════════════
@@ -161,18 +161,18 @@
        ════════════════════════════════════════════════════════════ */
 
     /* ── Background Layers ── */
-    --bg-surface: 0 0% 11%;            /* #1D1D1D */
-    --bg-elevated: 0 0% 13%;           /* #212121 */
+    --bg-surface: 0 0% 12%;            /* #1F1F1F */
+    --bg-elevated: 0 0% 15%;           /* #262626 */
     --bg-overlay-hsl: 0 0% 4%;         /* #0A0A0A */
     /* Usage: hsla(var(--bg-overlay-hsl) / 0.8) */
 
     /* ── Border Variants ── */
-    --border-strong: 0 0% 100% / 0.24; /* white @ 24% */
+    --border-strong: 0 0% 100% / 0.32; /* white @ 32% */
 
     /* ── Text Variants ── */
-    --text-muted: 0 0% 65%;            /* #A7A7A7 */
-    --text-subtle: 0 0% 50%;           /* #808080 */
-    --text-code: 0 0% 65%;             /* #A7A7A7 — muted, not blue */
+    --text-muted: 0 0% 74%;            /* #BCBCBC */
+    --text-subtle: 0 0% 60%;           /* #999999 */
+    --text-code: 0 0% 74%;             /* #BCBCBC — muted, not blue */
 
     /* ── Primary Accent Variants ── */
     --primary-dim: 0 0% 20%;           /* #333333 */
