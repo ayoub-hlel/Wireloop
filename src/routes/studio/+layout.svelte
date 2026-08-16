@@ -14,6 +14,7 @@
   import { mark, fail } from '$lib/telemetry/boot';
   import authStore from '../../stores/auth.store';
   import projectStore from '../../stores/project.store';
+  import orgStore from '../../stores/org.store';
   import { onErrorMessage } from '../../help/alerts';
   import type { Project } from '../../types/models';
   import { loadProject } from '../../core/blockly/helpers/workspace.helper';
@@ -88,6 +89,7 @@
       if (!auth.isLoggedIn || !auth.uid) {
         return;
       }
+      orgStore.fetchOrgs();
 
       const projectId = $page.url.searchParams.get('projectid');
       // No projectid means a new unsaved project. Keep the workspace open until

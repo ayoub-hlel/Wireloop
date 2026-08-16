@@ -19,6 +19,7 @@ export interface Project {
   workspace: string; // Blockly XML workspace
   boardType: 'ARDUINO_UNO' | 'ARDUINO_NANO' | 'ARDUINO_MEGA';
   userId: string;
+  orgId?: string | null;
   created: number;
   updated: number;
   isPublic: boolean;
@@ -46,4 +47,3 @@ export const defaultSetting: Settings = {
   theme: 'light',
   language: 'en'
 };
-

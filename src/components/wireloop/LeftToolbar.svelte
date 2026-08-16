@@ -5,6 +5,7 @@
   import { resetWorkspace, workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
   import { createCurrentProject, saveCurrentProject } from '../../stores/project.store';
   import projectStore from '../../stores/project.store';
+  import orgStore from '../../stores/org.store';
   import { getApiClient } from '../../stores/api.client';
   import { onErrorMessage } from '../../help/alerts';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
@@ -15,11 +16,19 @@
   let isDropdownOpen = $state(false);
   let saveStatus = $state<'idle' | 'saving' | 'saved' | 'error'>('idle');
   let nameDialogOpen = $state(false);
-  let projectName = $state('');
+  let projectNameInput = $state('');
   let resolveProjectName: ((name: string | null) => void) | null = null;
   let confirmDialogOpen = $state(false);
   let confirmMessage = $state('');
   let resolveConfirm: ((confirmed: boolean) => void) | null = null;
+
+  let projectName = $derived($projectStore.project?.name ?? 'Untitled');
+  let projectOrgId = $derived($projectStore.project?.orgId ?? $page.url.searchParams.get('orgId'));
+  let projectScope = $derived(
+    projectOrgId
+      ? `Org project · ${$orgStore.orgs.find((org) => org.id === projectOrgId)?.name ?? 'Organization'}`
+      : 'Personal project'
+  );
 
   function toggleDropdown() { isDropdownOpen = !isDropdownOpen; }
   function closeDropdown() { isDropdownOpen = false; }
@@ -27,7 +36,7 @@
   function requestProjectName(): Promise<string | null> {
     return new Promise((resolve) => {
       resolveProjectName = resolve;
-      projectName = '';
+      projectNameInput = '';
       nameDialogOpen = true;
     });
   }
@@ -130,13 +139,29 @@
 
 <div class="left-toolbar">
   <div class="toolbar-header">
-    <button onclick={toggleDropdown} class="logo-btn" title="Menu">
+    <div class="identity-row">
       <img src="/LOGO%20-%20Inversed.svg" alt="Wireloop" class="logo-img" />
-      <span class="logo-label">Wireloop</span>
-      <span class="chevron {isDropdownOpen ? 'open' : ''}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      <span class="logo-label">{projectName}</span>
+      <button onclick={toggleDropdown} class="menu-btn" title="Project menu" aria-label="Open project menu" aria-expanded={isDropdownOpen}>
+        <span class="chevron {isDropdownOpen ? 'open' : ''}">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </span>
+      </button>
+    </div>
+
+    <div class="project-meta" aria-live="polite">
+      <span class="project-scope">{projectScope}</span>
+      <span class="status-line status-{saveStatus}">
+        <span class="status-dot" aria-hidden="true"></span>
+        {saveStatus === 'saving'
+          ? 'Saving…'
+          : saveStatus === 'error'
+            ? 'Save failed'
+            : $projectStore.projectId
+              ? 'Saved'
+              : 'Not saved'}
       </span>
-    </button>
+    </div>
 
     {#if isDropdownOpen}
       <div class="dropdown-menu" onmouseleave={closeDropdown} transition:fly={{ y: -8, duration: 120 }} role="menu" tabindex="-1">
@@ -164,23 +189,6 @@
       </div>
     {/if}
 
-    <div class="project-status" aria-live="polite">
-      <span class="project-name">{$projectStore.project?.name ?? 'Untitled project'}</span>
-      <span class="status-line status-{saveStatus}">
-        <span class="status-dot" aria-hidden="true"></span>
-        {saveStatus === 'saving'
-          ? 'Saving…'
-          : saveStatus === 'error'
-            ? 'Save failed'
-            : $projectStore.projectId
-              ? 'Saved'
-              : 'Not saved'}
-      </span>
-    </div>
-    <button class="save-button" onclick={handleSave} disabled={saveStatus === 'saving'}>
-      <i class="fa fa-floppy-o" aria-hidden="true"></i>
-      <span>{saveStatus === 'saving' ? 'Saving…' : 'Save'}</span>
-    </button>
   </div>
 
   <div class="toolbar-divider"></div>
@@ -196,14 +204,14 @@
         <Dialog.Title>Name your project</Dialog.Title>
         <Dialog.Description>Give this workspace a name before saving it.</Dialog.Description>
       </Dialog.Header>
-      <form onsubmit={(event) => { event.preventDefault(); finishProjectName(projectName); }}>
+      <form onsubmit={(event) => { event.preventDefault(); finishProjectName(projectNameInput); }}>
         <div class="grid gap-2 py-4">
           <Label for="project-name">Project name</Label>
-          <Input id="project-name" bind:value={projectName} placeholder="Untitled project" autofocus />
+          <Input id="project-name" bind:value={projectNameInput} placeholder="Untitled" autofocus />
         </div>
         <Dialog.Footer>
           <Button type="button" variant="outline" onclick={() => finishProjectName(null)}>Cancel</Button>
-          <Button type="submit" disabled={!projectName.trim()}>Save project</Button>
+          <Button type="submit" disabled={!projectNameInput.trim()}>Save project</Button>
         </Dialog.Footer>
       </form>
     </Dialog.Content>
@@ -227,23 +235,24 @@
 </Dialog.Root>
 
 <style>
-  .left-toolbar { width: 180px; height: 100vh; background: hsl(var(--background)); border-right: 1px solid hsl(var(--border)); display: flex; flex-direction: column; align-items: stretch; position: relative; flex-shrink: 0; z-index: 60; }
-  .toolbar-header { position: relative; padding: 4px 8px; display: flex; flex-direction: column; align-items: stretch; width: 100%; }
-  .logo-btn { display: flex; flex-direction: row; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; cursor: pointer; color: hsl(var(--primary)); width: 100%; transition: background 0.15s; border-radius: 6px; }
-  .logo-btn:hover { background: hsl(var(--accent) / 0.08); }
-  .logo-btn:focus-visible, .save-button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
-  .logo-img { width: 24px; height: auto; filter: brightness(1.1); flex-shrink: 0; }
-  .logo-label { flex: 1; font-size: 13px; font-weight: 600; color: hsl(var(--foreground)); text-align: left; letter-spacing: 0.01em; }
+  .left-toolbar { width: 180px; height: 100vh; background: hsl(var(--bg-surface)); border-right: 1px solid hsl(var(--border)); display: flex; flex-direction: column; align-items: stretch; position: relative; flex-shrink: 0; z-index: 60; }
+  .toolbar-header { position: relative; padding: 10px 10px 8px; display: flex; flex-direction: column; align-items: stretch; width: 100%; background: hsl(var(--bg-surface)); }
+  .identity-row { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 9px; min-width: 0; padding: 0 2px; }
+  .logo-img { width: 27px; height: auto; filter: brightness(1.1); flex-shrink: 0; }
+  .logo-label { flex: 0 1 auto; max-width: 112px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; color: hsl(var(--foreground)); text-align: left; letter-spacing: 0.01em; }
+  .menu-btn { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; background: none; border: 0; border-radius: 5px; cursor: pointer; color: hsl(var(--muted-foreground)); }
+  .menu-btn:hover { background: hsl(var(--foreground) / 0.08); color: hsl(var(--foreground)); }
+  .menu-btn:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
   .chevron { display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground)); transition: transform 0.2s; flex-shrink: 0; }
   .chevron.open { transform: rotate(180deg); }
   .dropdown-menu { position: absolute; left: 8px; top: 42px; min-width: 200px; background: hsl(var(--popover)); border: 1px solid hsl(var(--border)); border-radius: 8px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); padding: 6px; z-index: 100; display: flex; flex-direction: column; gap: 2px; }
   .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: none; border: none; color: hsl(var(--popover-foreground)); font-size: 13px; cursor: pointer; border-radius: 4px; width: 100%; text-align: left; transition: background 0.1s; }
-  .dropdown-item:hover { background: hsl(var(--accent) / 0.1); }
+  .dropdown-item:hover { background: hsl(var(--foreground) / 0.1); }
   .dropdown-item i { width: 18px; text-align: center; font-size: 14px; color: hsl(var(--muted-foreground)); }
   .dropdown-divider { height: 1px; background: hsl(var(--border)); margin: 4px 8px; }
-  .project-status { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 6px; border-top: 1px solid hsl(var(--border)); margin-top: 4px; }
-  .project-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: hsl(var(--foreground)); font-size: 12px; font-weight: 600; }
-  .status-line { display: inline-flex; align-items: center; gap: 6px; color: hsl(var(--muted-foreground)); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .project-meta { display: flex; align-self: flex-start; align-items: center; justify-content: flex-start; gap: 6px; width: calc(100% - 4px); min-width: 0; padding: 2px 2px 0; }
+  .project-scope { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: hsl(var(--muted-foreground)); font-size: 11px; font-weight: 500; text-align: left; letter-spacing: 0.02em; }
+  .status-line { display: inline-flex; align-items: center; gap: 4px; flex: 0 0 auto; padding: 3px 6px; border: 1px solid hsl(var(--border)); border-radius: 999px; color: hsl(var(--muted-foreground)); background: hsl(var(--muted) / 0.35); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.03em; text-transform: uppercase; }
   .status-dot { width: 6px; height: 6px; border-radius: 999px; background: hsl(var(--muted-foreground)); }
   .status-saved { color: hsl(var(--success)); }
   .status-saved .status-dot { background: hsl(var(--success)); }
@@ -251,12 +260,9 @@
   .status-saving .status-dot { background: hsl(var(--accent)); animation: status-pulse 1s ease-in-out infinite; }
   .status-error { color: hsl(var(--destructive)); }
   .status-error .status-dot { background: hsl(var(--destructive)); }
-  .save-button { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 2px 8px 6px; padding: 7px 10px; border: 1px solid hsl(var(--border-strong)); border-radius: 6px; background: hsl(var(--foreground)); color: hsl(var(--background)); cursor: pointer; font-size: 12px; font-weight: 600; transition: opacity 150ms, transform 150ms; }
-  .save-button:hover:not(:disabled) { opacity: 0.88; }
-  .save-button:active:not(:disabled) { transform: scale(0.98); }
-  .save-button:disabled { cursor: wait; opacity: 0.55; }
   .toolbar-divider { width: 100%; height: 1px; background: hsl(var(--border)); margin: 4px 0; padding: 0 8px; box-sizing: border-box; }
   .toolbox-host { flex: 1; width: 100%; padding: 4px 0; overflow-y: auto; overflow-x: hidden; }
+  .toolbox-host :global(.blocklyToolboxDiv) { background: hsl(var(--bg-surface)); }
   .toolbox-host::-webkit-scrollbar { width: 3px; }
   .toolbox-host::-webkit-scrollbar-track { background: transparent; }
   .toolbox-host::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
@@ -264,11 +270,9 @@
 
   @media (max-width: 760px) {
     .left-toolbar { width: 100%; height: auto; min-height: 116px; border-right: 0; border-bottom: 1px solid hsl(var(--border)); }
-    .toolbar-header { flex-direction: row; align-items: center; padding: 8px 12px; gap: 8px; }
-    .logo-btn { width: auto; padding: 8px; }
-    .logo-label { display: none; }
-    .project-status { flex: 1; border-top: 0; border-left: 1px solid hsl(var(--border)); margin-top: 0; padding: 4px 12px; min-width: 0; }
-    .save-button { margin: 0; padding: 8px 12px; width: auto; }
+    .toolbar-header { padding: 10px 12px 8px; }
+    .identity-row { padding: 0; }
+    .logo-label { max-width: min(48vw, 220px); }
     .toolbar-divider { display: none; }
     .toolbox-host { height: 64px; flex: none; padding: 4px 12px; }
   }
