@@ -144,11 +144,11 @@
 <main
   style="height: {height}"
   onmousemove={resize}
-  class="bg-bg text-text w-full flex box-border overflow-hidden"
+  class="bg-background text-foreground w-full flex box-border overflow-hidden studio-shell"
 >
   <LeftToolbar />
   
-  <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border">
+  <div style="flex: {middleFlex}" id="middle_panel" class="relative overflow-hidden border-r border-border studio-canvas">
     <!-- ponytail: studio layout only renders under /studio, where the old
          isPathOnHomePage distinction is always false → loop block shows the
          "loop forever" mode (the (studio) group-layout design intent). -->
@@ -167,7 +167,7 @@
 
   <div
     style="flex: {rightFlex}"
-    class="bg-bg-surface overflow-hidden relative"
+    class="bg-card overflow-hidden relative studio-inspector"
     class:opacity-0={rightFlex < 5}
     class:pointer-events-none={rightFlex < 5}
     id="right_panel"
@@ -231,6 +231,36 @@
 
   @keyframes studio-spin {
     to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 760px) {
+    .studio-shell {
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .studio-canvas,
+    .studio-inspector {
+      flex: none !important;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .studio-canvas {
+      height: 62vh;
+      min-height: 420px;
+      border-right: 0;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+
+    .studio-inspector {
+      height: 64vh;
+      min-height: 420px;
+    }
+
+    .studio-shell > [role="separator"] {
+      display: none;
+    }
   }
 
 </style>

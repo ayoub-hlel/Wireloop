@@ -8,28 +8,16 @@
   import { keymap } from "@codemirror/view";
   import { defaultKeymap, historyKeymap } from "@codemirror/commands";
   import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
-  import ContextMenu from "./ContextMenu.svelte";
 
   let container: HTMLElement | undefined = $state();
   let editorView: EditorView | undefined = $state();
   let fontSize = $state(14);
   let cursorLine = $state(1);
   let cursorCol = $state(1);
-  let userEdited = $state(false);
-  let hasCopied = $state(false);
-
-  // Context menu state
-  let ctxShow = $state(false);
-  let ctxX = $state(0);
-  let ctxY = $state(0);
+  let copyState = $state<'idle' | 'copied' | 'error'>('idle');
 
   function makeEditor(doc: string) {
     const updateListener = EditorView.updateListener.of((update) => {
-      if (update.docChanged) {
-        userEdited = true;
-        const val = update.state.doc.toString();
-        codeStore.set({ code: val, boardType: codeStore.currentBoard });
-      }
       if (update.selectionSet) {
         const pos = update.state.selection.main.head;
         const line = update.state.doc.lineAt(pos);
@@ -41,8 +29,10 @@
     const state = EditorState.create({
       doc,
       extensions: [
-        basicSetup,
-        cpp(),
+          basicSetup,
+          cpp(),
+          EditorState.readOnly.of(true),
+          EditorView.editable.of(false),
         keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
         highlightSelectionMatches(),
         EditorView.theme({
@@ -79,7 +69,7 @@
     makeEditor(info.code);
 
     const unsub = codeStore.subscribe((info) => {
-      if (!userEdited && editorView) {
+      if (editorView) {
         const current = editorView.state.doc.toString();
         if (current !== info.code) {
           editorView.dispatch({
@@ -98,106 +88,33 @@
   function zoomIn() { fontSize += 2; rebuildEditor(); }
   function zoomOut() { if (fontSize <= 6) return; fontSize -= 2; rebuildEditor(); }
 
-  function copyCode() {
-    navigator.clipboard.writeText(get(codeStore).code);
-    hasCopied = true;
-  }
-
-  function syncFromBlocks() {
-    userEdited = false;
-    if (!editorView) return;
-    const info = get(codeStore);
-    const current = editorView.state.doc.toString();
-    if (current !== info.code) {
-      editorView.dispatch({
-        changes: { from: 0, to: current.length, insert: info.code },
-      });
+  async function copyCode() {
+    try {
+      await navigator.clipboard.writeText(get(codeStore).code);
+      copyState = 'copied';
+    } catch {
+      copyState = 'error';
     }
-  }
-
-  function onCtxAction(cmd: string) {
-    ctxShow = false;
-    if (cmd === "__close__") return;
-    if (!editorView) return;
-    const v = editorView;
-
-    switch (cmd) {
-      case "cut": document.execCommand("cut"); break;
-      case "copy": document.execCommand("copy"); break;
-      case "paste":
-        navigator.clipboard.readText().then(t => v.dispatch(v.state.replaceSelection(t)));
-        break;
-      case "selectAll":
-        v.dispatch({ selection: { anchor: 0, head: v.state.doc.length } });
-        break;
-      case "duplicateLine": {
-        const pos = v.state.selection.main;
-        const line = v.state.doc.lineAt(pos.head);
-        v.dispatch({ changes: { from: line.to, insert: line.text + "\n" } });
-        break;
-      }
-      case "toggleComment": {
-        const pos = v.state.selection.main;
-        const line = v.state.doc.lineAt(pos.head);
-        const trimmed = line.text.trim();
-        if (trimmed.startsWith("//")) {
-          const indent = line.text.match(/^\s*/)?.[0] || "";
-          v.dispatch({ changes: { from: line.from, to: line.to, insert: indent + trimmed.slice(2) } });
-        } else {
-          v.dispatch({ changes: { from: line.from, insert: "// " } });
-        }
-        break;
-      }
-      case "find":
-        v.focus();
-        break;
-      case "gotoLine": {
-        const lineStr = prompt("Go to line:");
-        if (lineStr) {
-          const ln = parseInt(lineStr, 10);
-          if (!isNaN(ln) && ln > 0 && ln <= v.state.doc.lines) {
-            const line = v.state.doc.line(ln);
-            v.dispatch({ selection: { anchor: line.from }, scrollIntoView: true });
-          }
-        }
-        break;
-      }
-    }
-  }
-
-  function onContextMenu(e: MouseEvent) {
-    e.preventDefault();
-    ctxX = e.clientX;
-    ctxY = e.clientY;
-    ctxShow = true;
   }
 </script>
 
-<div class="flex flex-col flex-1 min-h-0 bg-bg" oncontextmenu={onContextMenu} role="region" aria-label="Code Editor">
+<div class="code-editor-shell flex flex-col flex-1 min-h-0" role="region" aria-label="Generated Arduino code">
   <!-- Toolbar -->
-  <div class="flex items-center justify-between px-2 py-1 border-b border-border bg-bg-surface shrink-0">
+  <div class="editor-toolbar flex items-center justify-between px-3 py-2 shrink-0">
     <div class="flex items-center gap-1.5 min-w-0">
-      <div class="pin-label text-[9px] leading-none shrink-0">SRC_GEN_V3</div>
-      <h2 class="text-[9px] font-mono font-bold text-primary tracking-widest uppercase truncate leading-none">Arduino Code</h2>
-      {#if userEdited}
-        <span class="text-[8px] text-warning font-mono">● mod</span>
-      {/if}
+      <span class="editor-file-dot" aria-hidden="true"></span>
+      <h2 class="!text-base !m-0 font-sans font-semibold text-slate-200 truncate leading-none">arduino.ino</h2>
+      <span class="text-[10px] font-sans text-slate-500">Generated from blocks</span>
     </div>
     <div class="flex items-center gap-0.5 shrink-0">
-      <button onclick={syncFromBlocks} class="btn-schematic flex items-center gap-1 text-[9px] px-1.5 py-0.5" title="Sync from blocks">
-        <i class="fa fa-refresh text-[9px]"></i>
-        <span class="hidden sm:inline">SYNC</span>
-      </button>
-      <div class="w-3 h-3 border-r border-border mx-0.5 rotate-90 shrink-0"></div>
-      <button onclick={copyCode} class="btn-schematic flex items-center gap-1 text-[9px] px-1.5 py-0.5" title={hasCopied ? "Copied!" : "Copy"}>
+      <button onclick={copyCode} class="editor-action flex items-center gap-1.5" title="Copy generated code" aria-label="Copy generated code">
         <i class="fa fa-clipboard text-[9px]"></i>
-        <span class="hidden sm:inline">{hasCopied ? 'OK' : 'COPY'}</span>
+        <span class="hidden sm:inline">{copyState === 'copied' ? 'Copied' : 'Copy'}</span>
       </button>
-      <div class="w-3 h-3 border-r border-border mx-0.5 rotate-90 shrink-0"></div>
-      <button onclick={zoomOut} class="btn-schematic p-1 w-5 h-5 flex items-center justify-center shrink-0" title="Decrease Font">
+      <button onclick={zoomOut} class="editor-icon-action" title="Decrease font size" aria-label="Decrease font size">
         <i class="fa fa-search-minus text-[8px]"></i>
       </button>
-      <button onclick={zoomIn} class="btn-schematic p-1 w-5 h-5 flex items-center justify-center shrink-0" title="Increase Font">
+      <button onclick={zoomIn} class="editor-icon-action" title="Increase font size" aria-label="Increase font size">
         <i class="fa fa-search-plus text-[8px]"></i>
       </button>
     </div>
@@ -210,14 +127,11 @@
   </div>
 
   <!-- Status bar -->
-  <div class="flex items-center justify-between px-3 py-1 border-t border-border bg-bg-surface text-[10px] text-text-muted font-mono shrink-0">
+  <div class="editor-status flex items-center justify-between px-3 py-1.5 text-[10px] font-mono shrink-0" role="status" aria-live="polite">
     <div class="flex items-center gap-3">
       <span>Ln {cursorLine}, Col {cursorCol}</span>
-      {#if userEdited}
-        <span class="text-warning">● modified</span>
-      {:else}
-        <span class="text-success">● synced</span>
-      {/if}
+      <span class="text-emerald-400">● generated</span>
+      {#if copyState === 'error'}<span class="text-rose-400">Copy failed</span>{/if}
     </div>
     <div class="flex items-center gap-2">
       <span>UTF-8</span>
@@ -226,9 +140,28 @@
   </div>
 </div>
 
-<ContextMenu show={ctxShow} x={ctxX} y={ctxY} onAction={onCtxAction} />
-
 <style>
+  .code-editor-shell {
+    --editor-bg: #1e1e1e;
+    --editor-surface: #252526;
+    --editor-border: #3c3c3c;
+    --editor-text: #d4d4d4;
+    background: var(--editor-bg);
+    color: var(--editor-text);
+  }
+  .editor-toolbar { background: var(--editor-surface); border-bottom: 1px solid var(--editor-border); }
+  .editor-file-dot { width: 7px; height: 7px; border-radius: 999px; background: #4ec9b0; flex-shrink: 0; }
+  .editor-action, .editor-icon-action { color: #c5c5c5; background: transparent; border: 0; border-radius: 5px; cursor: pointer; }
+  .editor-action { padding: 5px 8px; font: 500 10px/1.2 var(--font-sans); }
+  .editor-icon-action { width: 26px; height: 26px; }
+  .editor-action:hover, .editor-icon-action:hover { background: #37373d; color: #fff; }
+  .editor-action:focus-visible, .editor-icon-action:focus-visible { outline: 2px solid #3794ff; outline-offset: 1px; }
+  .editor-status { background: #007acc; color: #fff; }
   :global(.cm-editor) { height: 100%; }
+  :global(.cm-editor) { background: var(--editor-bg); color: var(--editor-text); }
   :global(.cm-editor .cm-scroller) { font-family: "JetBrains Mono", monospace; line-height: 1.6; }
+  :global(.cm-editor .cm-gutters) { background: #1e1e1e; border-right: 1px solid var(--editor-border); color: #858585; }
+  :global(.cm-editor .cm-activeLineGutter) { background: #2a2d2e; color: #c6c6c6; }
+  :global(.cm-editor .cm-activeLine) { background: rgb(255 255 255 / 0.035); }
+  :global(.cm-editor .cm-cursor) { display: none; }
 </style>

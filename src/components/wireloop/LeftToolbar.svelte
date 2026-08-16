@@ -261,4 +261,15 @@
   .toolbox-host::-webkit-scrollbar-track { background: transparent; }
   .toolbox-host::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
   @keyframes status-pulse { 50% { opacity: 0.35; } }
+
+  @media (max-width: 760px) {
+    .left-toolbar { width: 100%; height: auto; min-height: 116px; border-right: 0; border-bottom: 1px solid hsl(var(--border)); }
+    .toolbar-header { flex-direction: row; align-items: center; padding: 8px 12px; gap: 8px; }
+    .logo-btn { width: auto; padding: 8px; }
+    .logo-label { display: none; }
+    .project-status { flex: 1; border-top: 0; border-left: 1px solid hsl(var(--border)); margin-top: 0; padding: 4px 12px; min-width: 0; }
+    .save-button { margin: 0; padding: 8px 12px; width: auto; }
+    .toolbar-divider { display: none; }
+    .toolbox-host { height: 64px; flex: none; padding: 4px 12px; }
+  }
 </style>

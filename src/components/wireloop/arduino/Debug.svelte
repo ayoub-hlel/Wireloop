@@ -73,7 +73,7 @@
   <div class="p-3 border-b border-border bg-bg flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="pin-label">DBG_CH_1</div>
-      <h2 class="text-xs font-mono font-bold text-primary uppercase tracking-widest">Logic Analyzer</h2>
+      <h2 class="!text-base !m-0 font-mono font-bold text-primary uppercase tracking-widest leading-none">Logic Analyzer</h2>
     </div>
     
     <div class="flex items-center space-x-2">

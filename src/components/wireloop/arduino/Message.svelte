@@ -128,7 +128,7 @@
   <div class="p-3 border-b border-border bg-bg-surface flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="pin-label">UART_0</div>
-      <h2 class="text-xs font-mono font-bold text-primary uppercase tracking-widest">Serial Console</h2>
+      <h2 class="!text-base !m-0 font-mono font-bold text-primary uppercase tracking-widest leading-none">Serial Console</h2>
     </div>
 
     <div class="flex items-center space-x-4">

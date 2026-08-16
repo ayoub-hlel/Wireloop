@@ -7,12 +7,14 @@
   import CodeEditor from './home/CodeEditor.svelte';
   import codeStore from '../../stores/code.store';
   import { get } from 'svelte/store';
+  import { page } from '$app/stores';
   import { workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
   import { tooltip } from '$lib/tooltip';
 
   type TabId = 'emulator' | 'code' | 'upload';
 
-  let activeTab = $state<TabId>('emulator');
+  const initialView = get(page).url.searchParams.get('view');
+  let activeTab = $state<TabId>(initialView === 'code' ? 'code' : 'emulator');
 
   // --- Download logic (ported from download/+page.svelte) ---
   function downloadIno() {
@@ -121,6 +123,7 @@
     height: 100%;
     position: relative;
     min-width: 0;
+    background: hsl(var(--card));
   }
 
   .tab-content {
@@ -131,6 +134,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background: hsl(var(--background));
   }
 
   .slot-wrapper {
@@ -142,13 +146,14 @@
   .tab-bar {
     flex-shrink: 0;
     border-top: 1px solid hsl(var(--border));
-    background: hsl(var(--background));
-    padding: 0;
+    background: hsl(var(--card));
+    padding: 8px;
   }
 
   .tab-nav {
     display: flex;
     width: 100%;
+    gap: 4px;
   }
 
   .tab-btn {
@@ -156,23 +161,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 10px 8px;
+    gap: 7px;
+    padding: 9px 8px;
     background: none;
     border: none;
-    border-top: 2px solid transparent;
+    border-radius: 8px;
     color: hsl(var(--muted-foreground));
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
     letter-spacing: 0.02em;
-    text-transform: uppercase;
+    text-transform: none;
   }
 
   .tab-btn:hover {
     color: hsl(var(--foreground));
-    background: hsl(var(--accent) / 0.05);
+    background: hsl(var(--foreground) / 0.06);
   }
 
   .tab-btn:focus-visible {
@@ -183,9 +188,9 @@
   }
 
   .tab-btn.active {
-    color: hsl(var(--primary));
-    border-top-color: hsl(var(--primary));
-    background: hsl(var(--primary) / 0.05);
+    color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
   }
 
   .tab-btn i {
@@ -205,7 +210,7 @@
   .download-fab {
     width: 38px;
     height: 38px;
-    border-radius: 50%;
+    border-radius: 10px;
     border: 1px solid hsl(var(--border));
     background: hsl(var(--background));
     color: hsl(var(--primary));

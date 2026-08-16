@@ -199,6 +199,6 @@
     background-color: transparent !important;
   }
   :global(.blocklyMainBackground) {
-    fill: #0A0E14 !important;
+    fill: hsl(var(--background)) !important;
   }
 </style>
