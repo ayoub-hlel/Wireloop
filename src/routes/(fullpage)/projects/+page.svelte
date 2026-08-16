@@ -7,6 +7,7 @@
   import GridToolbar from './GridToolbar.svelte';
   import ProjectGrid from './ProjectGrid.svelte';
   import ProjectList from './ProjectList.svelte';
+  import OrgSwitcher from './OrgSwitcher.svelte';
   import UserSettingsDialog from '$lib/components/app/UserSettingsDialog.svelte';
   import CreateOrganizationDialog from '$lib/components/orgs/CreateOrganizationDialog.svelte';
   import SkeletonCard from './SkeletonCard.svelte';
@@ -31,6 +32,7 @@
   let settingsOpen = $state(false);
   let createOrgOpen = $state(false);
   let trashConfirmId = $state<string | null>(null);
+  let mobileStudioOpen = $state(false);
 
   // ponytail: canCreate = personal (always) OR org where role >= admin.
   // viewers and users can't create; button is hidden.
@@ -105,6 +107,12 @@
 
   async function openProject(projectId: string) {
     if (!projectId) return;
+    // ponytail: no mobile Studio yet — intercept on mobile instead of
+    // attempting the desktop editor (which doesn't fit touch screens).
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches) {
+      mobileStudioOpen = true;
+      return;
+    }
     await dashboard.open(projectId);
   }
 
@@ -149,6 +157,24 @@
 <UserSettingsDialog bind:open={settingsOpen} />
 <CreateOrganizationDialog bind:open={createOrgOpen} onSuccess={(orgId) => dashboard.setOrg(orgId)} />
 
+<!-- Mobile Studio unavailable -->
+<Dialog.Root open={mobileStudioOpen} onOpenChange={(o) => { if (!o) mobileStudioOpen = false; }}>
+  <Dialog.Portal>
+    <Dialog.Overlay />
+    <Dialog.Content class="sm:max-w-sm">
+      <Dialog.Header>
+        <Dialog.Title>Mobile Studio is coming soon</Dialog.Title>
+        <Dialog.Description>
+          We don't have a mobile version of the Studio yet — we'll let you know as soon as we add one.
+        </Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Footer>
+        <Button onclick={() => (mobileStudioOpen = false)}>Got it</Button>
+      </Dialog.Footer>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+
 <!-- Trash confirmation -->
 <Dialog.Root open={trashConfirmId !== null} onOpenChange={(o) => { if (!o) trashConfirmId = null; }}>
   <Dialog.Portal>
@@ -173,7 +199,19 @@
 <div class="main-area">
   <header class="main-header">
     <div class="header-left">
-      <h1 class="page-title">{pageTitle}</h1>
+      <h1 class="page-title desktop-page-title">{pageTitle}</h1>
+      <div class="mobile-scope-switcher">
+        <OrgSwitcher
+          {orgs}
+          bind:selectedOrgId
+          {onSelectOrg}
+          onCreateOrg={() => (createOrgOpen = true)}
+          mobile
+        />
+      </div>
+    </div>
+    <div class="header-org-switcher">
+      <OrgSwitcher {orgs} bind:selectedOrgId {onSelectOrg} onCreateOrg={() => (createOrgOpen = true)} />
     </div>
   </header>
 
@@ -254,22 +292,24 @@
 </div>
 
 <style>
-  .main-area { margin-left: 200px; display: flex; flex-direction: column; min-height: 100vh; background-color: hsl(var(--background)); transition: margin-left 200ms ease; }
+  .main-area { margin-left: 200px; display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; overflow: hidden; background-color: hsl(var(--background)); transition: margin-left 200ms ease; }
   .main-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid hsl(var(--border)); background-color: hsl(var(--background)); }
   .header-left { display: flex; align-items: center; gap: 0.75rem; }
   .page-title { font-size: 1.5rem; font-weight: 600; margin: 0; color: hsl(var(--foreground)); letter-spacing: -0.02em; }
-  .main-content { flex: 1; padding: 2rem; overflow-y: auto; padding-bottom: 5rem; }
+  .main-content { flex: 1; min-height: 0; padding: 2rem; overflow-y: auto; padding-bottom: 5rem; }
 
   .skeleton-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, var(--project-card-width));
     gap: 1.5rem;
+    justify-content: start;
   }
 
   @media (max-width: 768px) {
     .skeleton-grid {
-      grid-template-columns: var(--project-card-width);
+      grid-template-columns: minmax(0, 100%);
       gap: 1rem;
+      justify-content: center;
     }
   }
 
@@ -312,9 +352,21 @@
     margin-top: 1.5rem;
   }
 
+  .header-org-switcher {
+    display: none;
+  }
+
+  .mobile-scope-switcher {
+    display: none;
+  }
+
   @media (max-width: 768px) {
     .main-area { margin-left: 0; }
-    .main-header { padding: 1rem; }
-    .main-content { padding: 1rem; padding-bottom: 5rem; }
+    .main-header { padding: 0.5rem 0.75rem; gap: 0.5rem; }
+    .desktop-page-title,
+    .header-org-switcher { display: none; }
+    .header-left,
+    .mobile-scope-switcher { display: flex; min-width: 0; flex: 1; }
+    .main-content { padding: 0 1rem; padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
   }
 </style>

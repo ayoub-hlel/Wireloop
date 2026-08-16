@@ -143,13 +143,15 @@
   .project-card {
     display: flex;
     flex-direction: column;
-    width: var(--project-card-width);
+    width: min(var(--project-card-width), 100%);
+    max-width: 100%;
     height: var(--project-card-height);
     border-radius: 0.75rem;
     overflow: hidden;
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     cursor: pointer;
+    justify-self: center;
     transition: border-color 150ms, box-shadow 150ms;
   }
 

@@ -10,10 +10,12 @@
   .skeleton-card {
     display: flex;
     flex-direction: column;
-    width: var(--project-card-width);
+    width: min(var(--project-card-width), 100%);
+    max-width: 100%;
     height: var(--project-card-height);
     border-radius: 0.75rem;
     overflow: hidden;
+    justify-self: center;
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));
   }
@@ -51,5 +53,11 @@
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+
+  @media (max-width: 768px) {
+    .skeleton-card:nth-child(n + 3) {
+      display: none;
+    }
   }
 </style>

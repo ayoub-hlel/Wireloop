@@ -84,7 +84,7 @@ export function createDashboard() {
 
   function setSort(col: 'updatedAt' | 'name'): void {
     if (_sort === col) {
-      _sortDir = _sortDir === 'asc' ? 'desc' : 'desc';
+      _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
     } else {
       _sort = col;
       _sortDir = col === 'name' ? 'asc' : 'desc';

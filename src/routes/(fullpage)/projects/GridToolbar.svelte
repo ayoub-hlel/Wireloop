@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Toggle from '$lib/components/ui/toggle/toggle.svelte';
   import * as Popover from '$lib/components/ui/popover/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import LayoutGrid from '@lucide/svelte/icons/layout-grid';
@@ -25,19 +24,12 @@
   }: Props = $props();
 </script>
 
-<div class="toolbar">
+  <div class="toolbar">
   <div class="toolbar-left">
-    <Toggle pressed={view === 'grid'} onclick={() => onViewChange('grid')} aria-label="Grid view">
-      <LayoutGrid />
-    </Toggle>
-    <Toggle pressed={view === 'list'} onclick={() => onViewChange('list')} aria-label="List view">
-      <List />
-    </Toggle>
-
     <Popover.Root>
       <Popover.Trigger type="button" class="sort-trigger" aria-label="Sort options">
         <ArrowUpDown class="sort-trigger-icon" />
-        <span>{sort === 'updatedAt' ? 'Last modified' : 'Name'}</span>
+        <span class="sort-label">{sort === 'updatedAt' ? 'Last modified' : 'Name'}</span>
       </Popover.Trigger>
       <Popover.Content class="w-44" side="bottom" align="start">
         <div class="sort-options">
@@ -58,6 +50,22 @@
         </div>
       </Popover.Content>
     </Popover.Root>
+
+    <button
+      type="button"
+      class="view-toggle"
+      onclick={() => onViewChange(view === 'grid' ? 'list' : 'grid')}
+      aria-label={`Switch to ${view === 'grid' ? 'list' : 'grid'} view`}
+      title={`Switch to ${view === 'grid' ? 'list' : 'grid'} view`}
+    >
+      {#if view === 'grid'}
+        <LayoutGrid />
+        <span>Grid</span>
+      {:else}
+        <List />
+        <span>List</span>
+      {/if}
+    </button>
   </div>
 
   <div class="toolbar-right">
@@ -79,21 +87,11 @@
     padding: 1rem 0;
   }
 
-  @media (max-width: 640px) {
-    .toolbar {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
-    }
-    .toolbar-left {
-      justify-content: space-between;
-    }
-  }
-
   .toolbar-left {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex-shrink: 0;
   }
 
   .toolbar-right {
@@ -105,6 +103,7 @@
      which never carry this component's scope hash. */
   :global(.search-input) {
     width: 220px;
+    min-width: 0;
   }
 
   :global(.sort-trigger) {
@@ -118,7 +117,7 @@
     color: hsl(var(--foreground));
     font-size: 0.8125rem;
     cursor: pointer;
-    margin-left: 0.5rem;
+    margin-left: 0.25rem;
   }
 
   :global(.sort-trigger:hover) {
@@ -126,6 +125,31 @@
   }
 
   :global(.sort-trigger-icon) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .view-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.375rem;
+    background: hsl(var(--secondary));
+    color: hsl(var(--foreground));
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
+  .view-toggle:hover {
+    border-color: hsl(var(--border-strong));
+    background: hsl(var(--muted));
+  }
+
+  .view-toggle :global(svg) {
     width: 16px;
     height: 16px;
   }
@@ -158,5 +182,41 @@
   .sort-option.active {
     color: hsl(var(--foreground));
     font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .toolbar {
+      gap: 0.375rem;
+      padding: 0.75rem 0;
+    }
+
+    .toolbar-left {
+      gap: 0.375rem;
+    }
+
+    .toolbar-right {
+      flex: 1;
+      min-width: 0;
+    }
+
+    :global(.search-input) {
+      width: 100%;
+    }
+
+    :global(.sort-trigger) {
+      min-height: 2.25rem;
+      padding: 0.375rem 0.5rem;
+      margin-left: 0;
+    }
+
+    .sort-label,
+    .view-toggle span {
+      display: none;
+    }
+
+    .view-toggle {
+      width: 2.25rem;
+      padding: 0.375rem;
+    }
   }
 </style>
