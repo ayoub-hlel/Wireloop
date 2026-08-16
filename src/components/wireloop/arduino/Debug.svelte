@@ -69,7 +69,7 @@
   }
 </script>
 
-<div class="h-full flex flex-col bg-bg-surface overflow-hidden">
+<div class="flex flex-col bg-bg-surface">
   <div class="p-3 border-b border-border bg-bg flex items-center justify-between">
     <div class="flex items-center space-x-3">
       <div class="pin-label">DBG_CH_1</div>
@@ -80,6 +80,7 @@
       <button 
         onclick={continueDebug} 
         disabled={disableDebugBtn}
+        aria-label="Continue execution"
         class="btn-schematic !w-9 !h-9 p-0 flex items-center justify-center group"
         title="Continue Execution"
       >
@@ -88,6 +89,7 @@
       <button 
         onclick={stopDebug} 
         disabled={disableDebugBtn}
+        aria-label="Halt execution"
         class="btn-schematic !w-9 !h-9 p-0 flex items-center justify-center !border-danger !text-danger group"
         title="Halt Execution"
       >
@@ -101,7 +103,7 @@
     </div>
   </div>
 
-  <div class="flex-grow overflow-auto p-4 bg-grid-schematic-dense" style="background-size: 12px 12px;">
+  <div class="p-4 bg-grid-schematic-dense" style="background-size: 12px 12px;">
     <div class="card-schematic overflow-hidden">
       <table class="w-full text-left font-mono text-xs border-collapse">
         <thead>
@@ -146,13 +148,3 @@
     </div>
   </div>
 </div>
-
-<style>
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: var(--radius);
-  }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
-</style>

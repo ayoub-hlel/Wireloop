@@ -45,7 +45,7 @@
 
 <div class="panel-layout">
   <!-- Tab Content Area -->
-  <div class="tab-content">
+  <div class="tab-content" role="tabpanel" id="studio-panel-{activeTab}" aria-labelledby="studio-tab-{activeTab}" tabindex="0">
     {#if activeTab === 'emulator'}
       <VerticalComponentContainer>
         {#snippet top()}
@@ -64,33 +64,25 @@
       <CodeEditor />
 
     {:else if activeTab === 'upload'}
-      <VerticalComponentContainer>
-        {#snippet top()}
-          <div class="slot-wrapper">
-            <Message />
-          </div>
-        {/snippet}
-        {#snippet bottom()}
-          <div class="slot-wrapper">
-            <Debug />
-          </div>
-        {/snippet}
-      </VerticalComponentContainer>
+      <div class="h-full overflow-y-auto flex flex-col">
+        <Message />
+        <Debug />
+      </div>
     {/if}
   </div>
 
   <!-- Tab Bar -->
   <div class="tab-bar">
-    <div class="tab-nav">
-      <button class={tabClass('emulator')} onclick={() => activeTab = 'emulator'}>
+    <div class="tab-nav" role="tablist" aria-label="Studio views">
+      <button id="studio-tab-emulator" role="tab" aria-selected={activeTab === 'emulator'} aria-controls="studio-panel-emulator" class={tabClass('emulator')} onclick={() => activeTab = 'emulator'}>
         <i class="fa fa-microchip"></i>
         <span>Emulator</span>
       </button>
-      <button class={tabClass('code')} onclick={() => activeTab = 'code'}>
+      <button id="studio-tab-code" role="tab" aria-selected={activeTab === 'code'} aria-controls="studio-panel-code" class={tabClass('code')} onclick={() => activeTab = 'code'}>
         <i class="fa fa-code"></i>
         <span>Code</span>
       </button>
-      <button class={tabClass('upload')} onclick={() => activeTab = 'upload'}>
+      <button id="studio-tab-upload" role="tab" aria-selected={activeTab === 'upload'} aria-controls="studio-panel-upload" class={tabClass('upload')} onclick={() => activeTab = 'upload'}>
         <i class="fa fa-upload"></i>
         <span>Upload</span>
       </button>
@@ -103,6 +95,7 @@
       <button
         use:tooltip={{position: "left", theme: "nav-tooltip"}}
         title="Download .ino code"
+        aria-label="Download Arduino code"
         onclick={downloadIno}
         class="download-fab"
       >
@@ -111,6 +104,7 @@
       <button
         use:tooltip={{position: "left", theme: "nav-tooltip"}}
         title="Download project file"
+        aria-label="Download project file"
         onclick={downloadProject}
         class="download-fab download-fab-sm"
       >
@@ -181,6 +175,13 @@
     background: hsl(var(--accent) / 0.05);
   }
 
+  .tab-btn:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -2px;
+  }
+
   .tab-btn.active {
     color: hsl(var(--primary));
     border-top-color: hsl(var(--primary));
@@ -222,6 +223,11 @@
     color: hsl(var(--primary-foreground));
     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     transform: translateY(-1px);
+  }
+
+  .download-fab:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 
   .download-fab-sm {

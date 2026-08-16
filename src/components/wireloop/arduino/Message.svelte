@@ -134,7 +134,7 @@
     <div class="flex items-center space-x-4">
       <div class="flex items-center space-x-2">
         <span class="led" class:led-green={arduinoStatus === PortState.OPEN} class:led-off={arduinoStatus === PortState.CLOSE} class:led-blue={arduinoStatus === PortState.UPLOADING}></span>
-        <span class="font-mono text-[10px] uppercase opacity-60">
+        <span class="font-mono text-[10px] uppercase opacity-60" role="status" aria-live="polite">
           {#if arduinoStatus === PortState.OPEN}LINK_ESTABLISHED{:else if arduinoStatus === PortState.UPLOADING}SYNC_IN_PROGRESS{:else}NO_LINK{/if}
         </span>
       </div>
@@ -144,6 +144,10 @@
   <section
     bind:this={messagesEl}
     id="messages"
+    role="log"
+    aria-label="Serial messages"
+    aria-live="polite"
+    aria-busy={arduinoStatus === PortState.UPLOADING}
     class="flex-grow p-4 overflow-y-auto font-mono text-xs space-y-1 bg-grid-schematic-dense"
     style="background-size: 12px 12px;"
   >
@@ -168,6 +172,9 @@
       <div class="flex-grow relative">
         <form onsubmit={(e) => { e.preventDefault(); sendMessage(); }}>
           <input
+            id="serial-message"
+            name="serialMessage"
+            aria-label="Serial message"
             readonly={!(arduinoStatus === PortState.OPEN)}
             type="text"
             bind:value={messageToSend}
@@ -189,6 +196,7 @@
         <button
           use:tooltip={tooltipStyle}
           title={arduinoStatus === PortState.OPEN ? "Disconnect" : "Connect"}
+          aria-label={arduinoStatus === PortState.OPEN ? "Disconnect from Arduino" : "Connect to Arduino"}
           onclick={connectOrDisconnectArduino}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
           class:!border-danger={arduinoStatus === PortState.OPEN}
@@ -200,6 +208,7 @@
         <button
           use:tooltip={tooltipStyle}
           title="Upload to Hardware"
+          aria-label="Upload code to Arduino"
           disabled={!(arduinoStatus === PortState.CLOSE)}
           onclick={uploadCode}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
@@ -210,6 +219,7 @@
         <button
           use:tooltip={tooltipStyle}
           title="Clear Buffer"
+          aria-label="Clear serial messages"
           onclick={clearMessages}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center"
         >
@@ -219,6 +229,8 @@
         <button
           use:tooltip={tooltipStyle}
           title="Toggle Auto-Scroll"
+          aria-label="Toggle serial auto-scroll"
+          aria-pressed={autoScroll}
           onclick={() => autoScroll = !autoScroll}
           class="btn-schematic !w-10 !h-10 p-0 flex items-center justify-center transition-all"
           class:!bg-primary={autoScroll}
@@ -240,4 +252,9 @@
     border-radius: var(--radius);
   }
   #messages::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
 </style>

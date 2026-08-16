@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-  import { fade, fly } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import { resetWorkspace, workspaceToXML } from '../../core/blockly/helpers/workspace.helper';
   import { createCurrentProject, saveCurrentProject } from '../../stores/project.store';
   import projectStore from '../../stores/project.store';
@@ -11,11 +11,9 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import { Input } from '$lib/components/ui/input/index.js';
   import { Label } from '$lib/components/ui/label/index.js';
-  import { wait } from '../../helpers/wait';
 
   let isDropdownOpen = $state(false);
-  let showSaveSuccess = $state(false);
-  let canSave = $state(true);
+  let saveStatus = $state<'idle' | 'saving' | 'saved' | 'error'>('idle');
   let nameDialogOpen = $state(false);
   let projectName = $state('');
   let resolveProjectName: ((name: string | null) => void) | null = null;
@@ -97,18 +95,22 @@
 
   async function handleSave() {
     closeDropdown();
-    if (!canSave) return;
+    saveStatus = 'saving';
     try {
       const xml = workspaceToXML() ?? '';
       if (!$projectStore.projectId) {
-        if (!(await saveNewProject(xml))) return;
+        if (!(await saveNewProject(xml))) {
+          saveStatus = 'idle';
+          return;
+        }
       } else {
         await saveCurrentProject(xml);
       }
-      showSaveSuccess = true;
-      await wait(1500);
-      showSaveSuccess = false;
-    } catch (e) { onErrorMessage("Error saving project", e); }
+      saveStatus = 'saved';
+    } catch (e) {
+      saveStatus = 'error';
+      onErrorMessage("Error saving project", e);
+    }
   }
 
   async function handleFork() {
@@ -161,6 +163,24 @@
         </button>
       </div>
     {/if}
+
+    <div class="project-status" aria-live="polite">
+      <span class="project-name">{$projectStore.project?.name ?? 'Untitled project'}</span>
+      <span class="status-line status-{saveStatus}">
+        <span class="status-dot" aria-hidden="true"></span>
+        {saveStatus === 'saving'
+          ? 'Saving…'
+          : saveStatus === 'error'
+            ? 'Save failed'
+            : $projectStore.projectId
+              ? 'Saved'
+              : 'Not saved'}
+      </span>
+    </div>
+    <button class="save-button" onclick={handleSave} disabled={saveStatus === 'saving'}>
+      <i class="fa fa-floppy-o" aria-hidden="true"></i>
+      <span>{saveStatus === 'saving' ? 'Saving…' : 'Save'}</span>
+    </button>
   </div>
 
   <div class="toolbar-divider"></div>
@@ -206,15 +226,12 @@
   </Dialog.Portal>
 </Dialog.Root>
 
-{#if showSaveSuccess}
-  <p transition:fade class="save-toast">project saved</p>
-{/if}
-
 <style>
   .left-toolbar { width: 180px; height: 100vh; background: hsl(var(--background)); border-right: 1px solid hsl(var(--border)); display: flex; flex-direction: column; align-items: stretch; position: relative; flex-shrink: 0; z-index: 60; }
   .toolbar-header { position: relative; padding: 4px 8px; display: flex; flex-direction: column; align-items: stretch; width: 100%; }
   .logo-btn { display: flex; flex-direction: row; align-items: center; gap: 8px; padding: 6px 10px; background: none; border: none; cursor: pointer; color: hsl(var(--primary)); width: 100%; transition: background 0.15s; border-radius: 6px; }
   .logo-btn:hover { background: hsl(var(--accent) / 0.08); }
+  .logo-btn:focus-visible, .save-button:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 2px; }
   .logo-img { width: 24px; height: auto; filter: brightness(1.1); flex-shrink: 0; }
   .logo-label { flex: 1; font-size: 13px; font-weight: 600; color: hsl(var(--foreground)); text-align: left; letter-spacing: 0.01em; }
   .chevron { display: flex; align-items: center; justify-content: center; color: hsl(var(--muted-foreground)); transition: transform 0.2s; flex-shrink: 0; }
@@ -224,10 +241,24 @@
   .dropdown-item:hover { background: hsl(var(--accent) / 0.1); }
   .dropdown-item i { width: 18px; text-align: center; font-size: 14px; color: hsl(var(--muted-foreground)); }
   .dropdown-divider { height: 1px; background: hsl(var(--border)); margin: 4px 8px; }
+  .project-status { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px 6px; border-top: 1px solid hsl(var(--border)); margin-top: 4px; }
+  .project-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: hsl(var(--foreground)); font-size: 12px; font-weight: 600; }
+  .status-line { display: inline-flex; align-items: center; gap: 6px; color: hsl(var(--muted-foreground)); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .status-dot { width: 6px; height: 6px; border-radius: 999px; background: hsl(var(--muted-foreground)); }
+  .status-saved { color: hsl(var(--success)); }
+  .status-saved .status-dot { background: hsl(var(--success)); }
+  .status-saving { color: hsl(var(--accent)); }
+  .status-saving .status-dot { background: hsl(var(--accent)); animation: status-pulse 1s ease-in-out infinite; }
+  .status-error { color: hsl(var(--destructive)); }
+  .status-error .status-dot { background: hsl(var(--destructive)); }
+  .save-button { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 2px 8px 6px; padding: 7px 10px; border: 1px solid hsl(var(--border-strong)); border-radius: 6px; background: hsl(var(--foreground)); color: hsl(var(--background)); cursor: pointer; font-size: 12px; font-weight: 600; transition: opacity 150ms, transform 150ms; }
+  .save-button:hover:not(:disabled) { opacity: 0.88; }
+  .save-button:active:not(:disabled) { transform: scale(0.98); }
+  .save-button:disabled { cursor: wait; opacity: 0.55; }
   .toolbar-divider { width: 100%; height: 1px; background: hsl(var(--border)); margin: 4px 0; padding: 0 8px; box-sizing: border-box; }
   .toolbox-host { flex: 1; width: 100%; padding: 4px 0; overflow-y: auto; overflow-x: hidden; }
   .toolbox-host::-webkit-scrollbar { width: 3px; }
   .toolbox-host::-webkit-scrollbar-track { background: transparent; }
   .toolbox-host::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
-  .save-toast { position: fixed; left: 50%; top: 24px; transform: translateX(-50%); background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: 8px 20px; border-radius: 6px; font-size: 13px; font-weight: 500; z-index: 200; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
+  @keyframes status-pulse { 50% { opacity: 0.35; } }
 </style>
