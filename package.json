@@ -25,14 +25,14 @@
     "test:load:full": "k6 run k6/load.js"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260623.1",
+    "@cloudflare/workers-types": "^5.20260722.1",
     "@eslint/css": "^1.4.0",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.1",
     "@internationalized/date": "^3.12.2",
     "@lucide/svelte": "^1.24.0",
     "@sveltejs/adapter-cloudflare": "^7.2.9",
-    "@sveltejs/kit": "^2.56.1",
+    "@sveltejs/kit": "^2.70.2",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@sveltestrap/sveltestrap": "^6.2.7",
     "@svgdotjs/svg.draggable.js": "^3.0.2",
@@ -76,13 +76,7 @@
       "sharp",
       "svelte-preprocess",
       "workerd"
-    ],
-    "overrides": {
-      "brace-expansion": "5.0.8",
-      "js-yaml": "4.3.0",
-      "postcss": "8.5.23",
-      "sharp": "0.35.3"
-    }
+    ]
   },
   "type": "module",
   "dependencies": {
