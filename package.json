@@ -56,7 +56,7 @@
     "mode-watcher": "^1.1.0",
     "shadcn-svelte": "^1.2.7",
     "svelte": "^5.55.1",
-    "svelte-check": "^3.6.0",
+    "svelte-check": "^4.7.6",
     "svelte-sonner": "^1.1.0",
     "sweetalert": "^2.1.2",
     "tailwind-merge": "^3.5.0",
