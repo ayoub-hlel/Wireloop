@@ -22,7 +22,11 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "test:load": "k6 run k6/smoke.js",
-    "test:load:full": "k6 run k6/load.js"
+    "test:load:full": "k6 run k6/load.js",
+    "test:load:mutations": "k6 run k6/mutations.js",
+    "test:load:uploads": "k6 run k6/uploads.js",
+    "test:load:stress": "k6 run k6/stress.js",
+    "test:load:mixed": "k6 run k6/mixed.js"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260722.1",
