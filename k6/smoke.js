@@ -1,4 +1,6 @@
-import { signIn, hitApp } from './common.js';
+import { signIn, hitApp, BASE } from './common.js';
+import http from 'k6/http';
+import { check } from 'k6';
 
 export const options = {
   vus: 1,
@@ -10,6 +12,8 @@ export const options = {
 };
 
 export function setup() {
+  const diag = http.get(`${BASE}/api/diagnostics`);
+  check(diag, { 'diagnostics 200': (r) => r.status === 200 });
   return signIn();
 }
 

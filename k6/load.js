@@ -1,4 +1,5 @@
-import { signIn, hitApp } from './common.js';
+import { signIn, hitApp, mutate } from './common.js';
+import { check, sleep } from 'k6';
 
 export const options = {
   scenarios: {
@@ -24,4 +25,12 @@ export function setup() {
 
 export default function (data) {
   hitApp(data);
+
+  // ponytail: mix in a write — createProject exercises the mutation path.
+  const res = mutate('projects:createProject', {
+    name: `load-${__VU}-${__ITER}`,
+    boardType: 'uno',
+  }, data.token);
+  check(res, { 'create 200': (r) => r.status === 200 });
+  sleep(1);
 }
