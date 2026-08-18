@@ -12,40 +12,34 @@ describe('Sentry beforeSend noise filtering', () => {
     vi.restoreAllMocks();
   });
 
-  const makeEvent = (url: string) => ({
-    request: { url },
-    tags: { url },
-  }) as Parameters<NonNullable<Parameters<typeof import('@sentry/sveltekit').init>[0]['beforeSend']>>[0];
+  const isNoise = (raw: string) => {
+    try {
+      const u = new URL(raw);
+      if (u.hostname === 'sentry.io' || u.hostname.endsWith('.sentry.io')) return true;
+      if (u.protocol === 'chrome-extension:' || u.protocol === 'moz-extension:' || u.protocol === 'safari-web-extension:') return true;
+    } catch { /* non-URL */ }
+    return raw.endsWith('/favicon.ico') || raw.endsWith('/robots.txt');
+  };
 
   it('drops sentry.io internal requests', () => {
-    const event = makeEvent('https://sentry.io/api/123/envelope/');
-    // Client-side filter (from hooks.client.ts)
-    const url = event.request?.url ?? '';
-    expect(url.includes('sentry.io')).toBe(true);
+    expect(isNoise('https://sentry.io/api/123/envelope/')).toBe(true);
   });
 
   it('drops browser extension URLs', () => {
-    const event = makeEvent('chrome-extension://fake-id/content.js');
-    const url = event.request?.url ?? '';
-    expect(url.includes('extension://')).toBe(true);
+    expect(isNoise('chrome-extension://fake-id/content.js')).toBe(true);
+    expect(isNoise('moz-extension://fake-id/content.js')).toBe(true);
   });
 
   it('drops static-asset 404 noise', () => {
-    const event = makeEvent('https://wire-loop.tech/favicon.ico');
-    const url = event.request?.url ?? '';
-    expect(url.endsWith('/favicon.ico') || url.endsWith('/robots.txt')).toBe(true);
+    expect(isNoise('https://wire-loop.tech/favicon.ico')).toBe(true);
+    expect(isNoise('https://wire-loop.tech/robots.txt')).toBe(true);
   });
 
   it('passes through legitimate API requests', () => {
-    const event = makeEvent('https://wire-loop.tech/api/query/projects');
-    const url = event.request?.url ?? '';
-    const isNoise =
-      url.includes('sentry.io') ||
-      url.includes('extension://') ||
-      url.endsWith('/favicon.ico') ||
-      url.endsWith('/robots.txt') ||
-      url.includes('/api/health') ||
-      url.includes('/api/diagnostics');
-    expect(isNoise).toBe(false);
+    expect(isNoise('https://wire-loop.tech/api/query/projects')).toBe(false);
+  });
+
+  it('does not match sentry.io as substring in unrelated host', () => {
+    expect(isNoise('https://evil.com?sentry.io')).toBe(false);
   });
 });

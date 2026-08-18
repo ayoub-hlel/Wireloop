@@ -6,7 +6,10 @@ import { mark } from '$lib/telemetry/boot';
 import { SENTRY_RELEASE } from '$lib/telemetry/sentry';
 
 // ponytail: sample 100% outside production, 10% in prod — errors always keep full replay
-const isProd = env.PUBLIC_APP_URL?.startsWith('https://wire-loop.tech') ?? false;
+const isProd = (() => {
+  try { return new URL(env.PUBLIC_APP_URL ?? '').hostname === 'wire-loop.tech'; }
+  catch { return false; }
+})();
 
 if (!dev) Sentry.init({
   dsn: env.PUBLIC_SENTRY_DSN,
@@ -40,14 +43,14 @@ if (!dev) Sentry.init({
   ],
 
   beforeSend(event) {
-    const url = event.request?.url ?? '';
-    if (typeof url === 'string') {
-      // Drop Sentry's own internal requests
-      if (url.includes('sentry.io')) return null;
-      // Drop browser-extension noise (Chrome, Firefox, etc.)
-      if (url.includes('extension://')) return null;
-      // Drop common static-asset 404 noise in dev
-      if (url.endsWith('/favicon.ico') || url.endsWith('/robots.txt')) return null;
+    const raw = event.request?.url ?? '';
+    if (typeof raw === 'string') {
+      try {
+        const u = new URL(raw);
+        if (u.hostname === 'sentry.io' || u.hostname.endsWith('.sentry.io')) return null;
+        if (u.protocol === 'chrome-extension:' || u.protocol === 'moz-extension:' || u.protocol === 'safari-web-extension:') return null;
+      } catch { /* non-URL, pass through */ }
+      if (raw.endsWith('/favicon.ico') || raw.endsWith('/robots.txt')) return null;
     }
     return event;
   },
