@@ -32,9 +32,9 @@ if (!dev) Sentry.init({
     Sentry.captureConsoleIntegration({
       levels: ['error'],
     }),
-    // Capture HTTP failures (4xx, 5xx on API routes)
+    // Capture HTTP failures (5xx only — 4xx like 401/403/404/422 for auth validation are expected, not bugs)
     Sentry.httpClientIntegration({
-      failedRequestStatusCodes: [[400, 599]],
+      failedRequestStatusCodes: [[500, 599]],
       failedRequestTargets: [/\/api\//],
     }),
     Sentry.feedbackIntegration({

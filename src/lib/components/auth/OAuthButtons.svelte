@@ -12,7 +12,13 @@
     try {
       await authStore.signInSocial(provider);
     } catch (e: unknown) {
-      error = e instanceof Error ? e.message : `Sign in with ${provider} failed`;
+      const msg = e instanceof Error ? e.message : `Sign in with ${provider} failed`;
+      // ponytail: 404 PROVIDER_NOT_FOUND when OAuth env vars missing on Pages preview
+      if (/provider not found/i.test(msg)) {
+        error = `${provider} login is not configured on this deployment — use email & password.`;
+      } else {
+        error = msg;
+      }
       loading = null;
     }
   }

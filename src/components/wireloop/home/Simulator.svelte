@@ -61,11 +61,17 @@
       size = await waitForLayout(Number.POSITIVE_INFINITY);
     }
 
-    draw = SVG()
+    const root = SVG()
       .addTo(container)
       .size(size.width, size.height)
-      .viewbox(0, 0, size.width, size.width)
-      .panZoom();
+      .viewbox(0, 0, size.width, size.width);
+    // ponytail: panZoom plugin may not be attached if dynamic import races — guard to avoid TypeError Qm(...).panZoom is not a function (Sentry 1Z)
+    if (typeof (root as unknown as { panZoom?: () => unknown }).panZoom === 'function') {
+      (root as unknown as { panZoom: () => unknown }).panZoom();
+    } else {
+      fail('sim:panZoom-missing', new Error('panZoom plugin not attached — emulator will lack pan/zoom'));
+    }
+    draw = root;
     mark('sim:svg-created', { width: size.width, height: size.height });
 
     unsubscribes.push(
