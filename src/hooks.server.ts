@@ -4,7 +4,7 @@ import { getAuth } from '$lib/server/auth';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { setR2Binding } from '$lib/server/r2';
 import { validateEnv } from '$lib/server/env';
-import { logServerError } from '$lib/server/log';
+import { logServerError, logRequest } from '$lib/server/log';
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building, dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
@@ -84,7 +84,23 @@ export const handle: Handle = sequence(
         Sentry.captureException(e, { tags: { hook: 'session-check' } });
         console.warn('[HOOKS] session-check error', { error: String(e) });
       }
-      return svelteKitHandler({ event, resolve, auth, building });
+      const start2 = Date.now();
+      const res = await svelteKitHandler({ event, resolve, auth, building });
+      const path2 = event.url.pathname;
+      const isNoise2 = path2 === '/api/health' || path2 === '/api/diagnostics' || path2.endsWith('/favicon.ico') || path2.endsWith('/robots.txt');
+      if (!isNoise2) {
+        logRequest(
+          {
+            method: event.request.method,
+            url: path2,
+            status: res.status,
+            duration_ms: Date.now() - start2,
+            user: event.locals.user?.id ?? null,
+          },
+          event.platform?.ctx?.waitUntil?.bind(event.platform.ctx),
+        );
+      }
+      return res;
     } else {
       console.warn('[HOOKS] no session found');
       // Auth factory unavailable (missing DATABASE_URL/BETTER_AUTH_SECRET or
@@ -92,7 +108,7 @@ export const handle: Handle = sequence(
       // signal a config error instead of silently treating the user as logged
       // out (WL-002).
       event.locals.authError = 'auth-unavailable';
-      logServerError('auth factory unavailable', { url: event.url.pathname });
+      logServerError('auth factory unavailable', { url: event.url.pathname }, event.platform?.ctx?.waitUntil?.bind(event.platform.ctx));
       console.warn('[HOOKS] auth factory unavailable — marked authError', { url: event.url.pathname });
     }
   } catch (e) {
@@ -102,6 +118,24 @@ export const handle: Handle = sequence(
 
   event.locals.session ??= null;
   event.locals.user ??= null;
-  console.warn('[HOOKS] resolving without auth');
-  return resolve(event);
+  // constant monitoring: log every request with timing
+  const start = Date.now();
+  const response = await resolve(event);
+  const duration = Date.now() - start;
+  // ponytail: skip health/static noise already filtered in Sentry beforeSend, keep same filter here to save ingest
+  const path = event.url.pathname;
+  const isNoise = path === '/api/health' || path === '/api/diagnostics' || path.endsWith('/favicon.ico') || path.endsWith('/robots.txt');
+  if (!isNoise) {
+    logRequest(
+      {
+        method: event.request.method,
+        url: path,
+        status: response.status,
+        duration_ms: duration,
+        user: event.locals.user?.id ?? null,
+      },
+      event.platform?.ctx?.waitUntil?.bind(event.platform.ctx),
+    );
+  }
+  return response;
 });
