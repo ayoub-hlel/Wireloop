@@ -10,7 +10,7 @@ import { actionEnvelope, project, user, organization, projectShare, invite as in
 import { checkRateLimit } from '$lib/server/ratelimit';
 import { logServerError } from '$lib/server/log';
 import { containerProjectNames, uniqueCopyName } from '$lib/server/project-names';
-import { requireOrgRole, requireNotOwner, type OrgRole } from '$lib/server/authz';
+import { requireOrgRole, requireNotOwner, getOrgRole, type OrgRole } from '$lib/server/authz';
 import { sendInviteEmail } from '$lib/server/email';
 import * as Sentry from '@sentry/sveltekit';
 

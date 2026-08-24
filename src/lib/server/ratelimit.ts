@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
 import { Ratelimit } from '@upstash/ratelimit';
-import { env } from '$env/dynamic/private';
 import * as Sentry from '@sentry/sveltekit';
 import { getUpstashRedis } from './upstash';
 
