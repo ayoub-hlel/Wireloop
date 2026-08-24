@@ -61,11 +61,29 @@
       size = await waitForLayout(Number.POSITIVE_INFINITY);
     }
 
-    draw = SVG()
-      .addTo(container)
-      .size(size.width, size.height)
-      .viewbox(0, 0, size.width, size.width)
-      .panZoom();
+    // Root cause of the blank emulator (see pnpm override in package.json):
+    // duplicate @svgdotjs/svg.js copies made .panZoom() undefined. The SVG
+    // canvas and pan/zoom are now failure-isolated — a plugin problem can
+    // never again skip the store subscriptions below (they do the painting).
+    try {
+      draw = SVG()
+        .addTo(container)
+        .size(size.width, size.height)
+        .viewbox(0, 0, size.width, size.width);
+    } catch (e) {
+      fail('sim:svg-init', e);
+      onErrorMessage('Simulator failed to start. Please refresh your browser.', e);
+      return;
+    }
+    try {
+      if (typeof (draw as unknown as { panZoom?: () => unknown }).panZoom === 'function') {
+        draw.panZoom();
+      } else {
+        fail('sim:panZoom-missing', new Error('panZoom plugin not attached — emulator will lack pan/zoom'));
+      }
+    } catch (e) {
+      fail('sim:panZoom', e);
+    }
     mark('sim:svg-created', { width: size.width, height: size.height });
 
     unsubscribes.push(

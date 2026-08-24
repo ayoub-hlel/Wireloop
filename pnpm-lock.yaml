@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@svgdotjs/svg.js': 3.2.8
   brace-expansion: 5.0.9
   cookie: 0.7.2
   esbuild: 0.25.12
@@ -110,13 +111,13 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0(svelte@5.56.9(@typescript-eslint/types@8.67.0))
       '@svgdotjs/svg.draggable.js':
-        specifier: ^3.0.2
+        specifier: ^3.0.6
         version: 3.0.6(@svgdotjs/svg.js@3.2.8)
       '@svgdotjs/svg.js':
-        specifier: ^3.2.8
+        specifier: 3.2.8
         version: 3.2.8
       '@svgdotjs/svg.panzoom.js':
-        specifier: ^2.1.1
+        specifier: ^2.1.2
         version: 2.1.2
       '@tailwindcss/vite':
         specifier: ^4.2.2
@@ -1497,10 +1498,7 @@ packages:
   '@svgdotjs/svg.draggable.js@3.0.6':
     resolution: {integrity: sha512-7iJFm9lL3C40HQcqzEfezK2l+dW2CpoVY3b77KQGqc8GXWa6LhhmX5Ckv7alQfUXBuZbjpICZ+Dvq1czlGx7gA==}
     peerDependencies:
-      '@svgdotjs/svg.js': ^3.2.4
-
-  '@svgdotjs/svg.js@3.2.7':
-    resolution: {integrity: sha512-pxpRccS8zrBl97JkkTzQNqohJ4c3L+xuWH6ulMW9E6yknZ5lp4z+n6MprHNsykFvFj6O8TQJfpsXaTUAJfcUfw==}
+      '@svgdotjs/svg.js': 3.2.8
 
   '@svgdotjs/svg.js@3.2.8':
     resolution: {integrity: sha512-NUdbI/7FDdqGpzKmqr09IQoy9MUcrAC/3bC8gLgXi6OfJuyri450zMLvJekFUhuq3iN5gpdPjoSoStNl9Eijfg==}
@@ -4723,13 +4721,11 @@ snapshots:
     dependencies:
       '@svgdotjs/svg.js': 3.2.8
 
-  '@svgdotjs/svg.js@3.2.7': {}
-
   '@svgdotjs/svg.js@3.2.8': {}
 
   '@svgdotjs/svg.panzoom.js@2.1.2':
     dependencies:
-      '@svgdotjs/svg.js': 3.2.7
+      '@svgdotjs/svg.js': 3.2.8
 
   '@swc/helpers@0.5.23':
     dependencies:
