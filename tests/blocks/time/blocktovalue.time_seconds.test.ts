@@ -1,3 +1,7 @@
+/**
+ * time_seconds value block regression: each loop iteration accumulates the
+ * configured time_setup interval (0.3s) into the target variable.
+ */
 import "@/core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
@@ -11,6 +15,7 @@ import {
   createTestEvent,
 } from "../../app/tests.helper";
 import { VariableTypes } from "@/core/blockly/dto/variable.type";
+
 describe("get time block factories", () => {
   let workspace: Workspace;
   let timesetup: BlockSvg;
@@ -27,7 +32,7 @@ describe("get time block factories", () => {
     timesetup.setFieldValue(".3", "time_in_seconds");
   });
 
-  it("should be able generate state for time setup block", () => {
+  it("time_seconds accumulates the setup interval across loop iterations", () => {
     arduinoBlock.setFieldValue("3", "LOOP_TIMES");
 
     const numberVariableBlock = createSetVariableBlockWithValue(

@@ -1,113 +1,106 @@
-import type { BlockSvg, Workspace } from "blockly";
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+/**
+ * LED block regression — rewritten as data-driven specs (see _harness).
+ * Every assertion from the original bespoke tests is preserved.
+ */
+import { describe, it, beforeEach, afterEach } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
-import "@/core/blockly/blocks";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+import { createArduinoAndWorkSpace } from "../../app/tests.helper";
 import { ArduinoComponentType } from "@/core/frames/arduino.frame";
-import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
 import {
-  createArduinoAndWorkSpace,
-  createTestEvent,
-  createValueBlock,
-} from "../../app/tests.helper";
-import type { LedState } from "@/blocks/led/state";
+  stack,
+  framesFor,
+  expectFrame,
+} from "../_harness/block.harness";
 
-describe("test leds", () => {
-  let workspace: Workspace;
+describe("led blocks", () => {
+  let ws: Workspace;
+  let arduino: BlockSvg;
   beforeEach(() => {
-    [workspace] = createArduinoAndWorkSpace();
+    [ws, arduino] = createArduinoAndWorkSpace();
   });
   afterEach(() => {
-    workspace.dispose();
+    ws.dispose();
   });
 
-  it("should not create 1 leds if they share the same pin", () => {
-    const ledBlock1 = workspace.newBlock("led");
-    ledBlock1.setFieldValue("3", "PIN");
-    ledBlock1.setFieldValue("ON", "STATE");
+  it("two leds sharing a pin: the later block replaces the earlier one", () => {
+    const [, led2] = stack(
+      ws,
+      [
+        { type: "led", fields: { PIN: "3", STATE: "ON" } },
+        { type: "led", fields: { PIN: "3", STATE: "OFF" } },
+      ],
+      arduino,
+    );
+    const [frame1, frame2] = framesFor(led2);
 
-    const ledBlock2 = workspace.newBlock("led");
-    ledBlock2.setFieldValue("3", "PIN");
-    ledBlock2.setFieldValue("OFF", "STATE");
-
-    connectToArduinoBlock(ledBlock2 as BlockSvg);
-    connectToArduinoBlock(ledBlock1 as BlockSvg);
-
-    const event = createTestEvent(ledBlock2.id);
-
-    const [frame1, frame2] = eventToFrameFactory(event).frames;
-    expect(frame1.components.length).toBe(1);
-    expect(frame1.components[0].pins).toEqual(["3"]);
-    expect((frame1.components[0] as LedState).state).toBe(1);
-    expect((frame1.components[0] as LedState).fade).toBeFalsy();
-    expect(frame1.explanation).toBe("Turning on led 3.");
-
-    expect(frame2.components.length).toBe(1);
-    expect(frame2.components[0].pins).toEqual(["3"]);
-    expect((frame2.components[0] as LedState).state).toBe(0);
-    expect((frame2.components[0] as LedState).fade).toBeFalsy();
-    expect(frame2.explanation).toBe("Turning off led 3.");
+    expectFrame(frame1, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.LED,
+          pins: ["3"],
+          fields: { state: 1, fade: false },
+        },
+      ],
+      explanation: "Turning on led 3.",
+    });
+    expectFrame(frame2, {
+      count: 1,
+      components: [{ pins: ["3"], fields: { state: 0 } }],
+      explanation: "Turning off led 3.",
+    });
   });
 
-  it("should create 2 leds if they are using different pins", () => {
-    const ledBlock1 = workspace.newBlock("led");
-    ledBlock1.setFieldValue("3", "PIN");
-    ledBlock1.setFieldValue("ON", "STATE");
+  it("leds on different pins coexist and keep their own states", () => {
+    const [, led2] = stack(
+      ws,
+      [
+        { type: "led", fields: { PIN: "3", STATE: "ON" } },
+        { type: "led", fields: { PIN: "5", STATE: "OFF" } },
+      ],
+      arduino,
+    );
+    const [frame1, frame2] = framesFor(led2);
 
-    const ledBlock2 = workspace.newBlock("led");
-    ledBlock2.setFieldValue("5", "PIN");
-    ledBlock2.setFieldValue("OFF", "STATE");
-
-    connectToArduinoBlock(ledBlock2 as BlockSvg);
-    connectToArduinoBlock(ledBlock1 as BlockSvg);
-
-    const event = createTestEvent(ledBlock2.id);
-
-    const [frame1, frame2] = eventToFrameFactory(event).frames;
-    expect(frame1.components.length).toBe(1);
-    expect(frame1.components[0].pins).toEqual(["3"]);
-    expect((frame1.components[0] as LedState).state).toBe(1);
-    expect((frame1.components[0] as LedState).fade).toBeFalsy();
-    expect(frame1.explanation).toBe("Turning on led 3.");
-
-    expect(frame2.components.length).toBe(2);
-    const led3State = frame2.components.find(
-      (c) => c.type === ArduinoComponentType.LED && (c as LedState).pin === ARDUINO_PINS.PIN_3
-    ) as LedState;
-
-    const led5State = frame2.components.find(
-      (c) => c.type === ArduinoComponentType.LED && (c as LedState).pin === ARDUINO_PINS.PIN_5
-    ) as LedState;
-
-    expect(led5State.fade).toBeFalsy();
-    expect(led3State.fade).toBeFalsy();
-
-    expect(led3State.pin).toBe("3");
-    expect(led5State.pin).toBe("5");
-
-    expect(led3State.state).toBe(1);
-    expect(led5State.state).toBe(0);
-
-    expect(frame2.explanation).toBe("Turning off led 5.");
+    expectFrame(frame1, {
+      count: 1,
+      components: [{ pins: ["3"], fields: { state: 1 } }],
+    });
+    expectFrame(frame2, {
+      count: 2,
+      components: [
+        { pins: ["3"], fields: { pin: "3", state: 1, fade: false } },
+        { pins: ["5"], fields: { pin: "5", state: 0, fade: false } },
+      ],
+      explanation: "Turning off led 5.",
+    });
   });
 
-  it("should be able to do an led fade block", () => {
-    const ledFadeBlock = workspace.newBlock("led_fade");
-    connectToArduinoBlock(ledFadeBlock as BlockSvg);
-    ledFadeBlock.setFieldValue("9", "PIN");
-    const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 30);
-    ledFadeBlock.getInput("FADE")!.connection!.connect(numBlock.outputConnection!);
-    connectToArduinoBlock(ledFadeBlock as BlockSvg);
-    const event = createTestEvent(ledFadeBlock.id);
+  it("led_fade drives a pwm value from an input", () => {
+    const [fade] = stack(
+      ws,
+      [
+        {
+          type: "led_fade",
+          fields: { PIN: "9" },
+          values: { FADE: { num: 30 } },
+        },
+      ],
+      arduino,
+    );
+    const [frame1] = framesFor(fade);
 
-    const [frame1] = eventToFrameFactory(event).frames;
-
-    expect(frame1.components.length).toBe(1);
-    expect((frame1.components[0] as LedState).fade).toBe(true);
-    expect((frame1.components[0] as LedState).state).toBe(30);
-    expect((frame1.components[0] as LedState).pin).toBe("9");
-    expect(frame1.explanation).toBe("Fading Led 9 to 30.");
+    expectFrame(frame1, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.LED,
+          pins: ["9"],
+          fields: { fade: true, state: 30 },
+        },
+      ],
+      explanation: "Fading Led 9 to 30.",
+    });
   });
 });

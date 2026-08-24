@@ -1,3 +1,7 @@
+/**
+ * Arduino message value blocks (get / receive) regression across loop
+ * iterations. Setup ordering needs raw primitives; assertions preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -27,28 +31,24 @@ describe("arduino message state factories", () => {
     arduinoBlock.setFieldValue("3", "LOOP_TIMES");
     messageSetup = workspace.newBlock("message_setup") as BlockSvg;
 
+    // Register the sensor data for each of the three loop iterations:
+    // loops 1 and 2 receive messages, loop 3 stops receiving.
     messageSetup.setFieldValue("1", "LOOP");
     messageSetup.setFieldValue("TRUE", "receiving_message");
     messageSetup.setFieldValue("one", "message");
-
-    const event = createTestEvent(messageSetup.id);
-    saveSensorSetupBlockData(event).forEach(updater);
+    saveSensorSetupBlockData(createTestEvent(messageSetup.id)).forEach(updater);
 
     messageSetup.setFieldValue("2", "LOOP");
     messageSetup.setFieldValue("TRUE", "receiving_message");
     messageSetup.setFieldValue("two", "message");
-
-    const event2 = createTestEvent(messageSetup.id);
-    saveSensorSetupBlockData(event2).forEach(updater);
+    saveSensorSetupBlockData(createTestEvent(messageSetup.id)).forEach(updater);
 
     messageSetup.setFieldValue("3", "LOOP");
     messageSetup.setFieldValue("FALSE", "receiving_message");
-
-    const event3 = createTestEvent(messageSetup.id);
-    saveSensorSetupBlockData(event3).forEach(updater);
+    saveSensorSetupBlockData(createTestEvent(messageSetup.id)).forEach(updater);
   });
 
-  it("should be to get the text message being sent", () => {
+  it("arduino_get_message returns the message of the current loop", () => {
     const textVariableBlock = createSetVariableBlockWithValue(
       workspace,
       "text",
@@ -70,7 +70,7 @@ describe("arduino message state factories", () => {
     expect(state4.variables["text"].value).toBe("");
   });
 
-  it("should be able to see if the arduino is recieving a message", () => {
+  it("arduino_receive_message reports whether a message is arriving per loop", () => {
     const boolVariableBlock = createSetVariableBlockWithValue(
       workspace,
       "has_message",

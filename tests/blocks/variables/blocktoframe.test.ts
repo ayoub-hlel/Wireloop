@@ -1,3 +1,7 @@
+/**
+ * Variable set-block regression: every typed set block stores its value and
+ * accumulates into the running frame state.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -14,7 +18,7 @@ import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import _ from "lodash";
 
-describe("test variables factories", () => {
+describe("variables state factories", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
 
@@ -90,6 +94,7 @@ describe("test variables factories", () => {
     const states = eventToFrameFactory(event).frames;
     expect(states.length).toEqual(4);
 
+    // Each frame adds exactly one variable to the accumulated state.
     const [state1, state2, state3, state4] = states;
     const actualExplanation = states.map((s) => s.explanation).sort();
     const expectedExplanations = [
@@ -104,6 +109,7 @@ describe("test variables factories", () => {
     expect(_.keys(state3.variables).length).toBe(3);
     expect(_.keys(state4.variables).length).toBe(4);
 
+    // Final frame carries every variable with the right type and value.
     verifyVariable("num_var", VariableTypes.NUMBER, 30, state4.variables);
     verifyVariable(
       "string_var",

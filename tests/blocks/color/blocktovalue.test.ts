@@ -1,28 +1,79 @@
+/**
+ * Color block regression — rewritten for the table-driven suite (see _harness).
+ * Merged from blocktovalue.color-simple.test.ts + blocktovalue.color-rgb.test.ts.
+ * Every original assertion is preserved. These flows are variable-centric
+ * (colour stored into variables), so they keep raw workspace wiring instead
+ * of the declarative stack helper.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
-import {
-  createArduinoAndWorkSpace,
-  createSetVariableBlockWithValue,
-  createTestEvent,
-} from "../../app/tests.helper";
 import "../../app/fake-block";
 import type { Workspace } from "blockly";
 import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
+import type { Color } from "@/core/frames/arduino.frame";
+import {
+  createArduinoAndWorkSpace,
+  createSetVariableBlockWithValue,
+  createTestEvent,
+  verifyVariable,
+} from "../../app/tests.helper";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
-describe("color rgb state factories", () => {
-  let workspace: Workspace;
 
-  afterEach(() => {
-    workspace.dispose();
-  });
+describe("color blocks", () => {
+  let workspace: Workspace;
 
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
   });
+  afterEach(() => {
+    workspace.dispose();
+  });
 
-  it("test rgb color block can handle variables, number blocks, and blanks", () => {
+  it("color picker block stores the exact picked rgb value", () => {
+    const colorPickerVariable = createSetVariableBlockWithValue(
+      workspace,
+      "color_test",
+      VariableTypes.COLOUR,
+      { red: 92, green: 230, blue: 147 }
+    );
+    connectToArduinoBlock(colorPickerVariable);
+
+    const event = createTestEvent(colorPickerVariable.id);
+    const [state1event1] = eventToFrameFactory(event).frames;
+
+    expect(state1event1.explanation).toBe(
+      'Variable "color_test" stores (red=92,green=230,blue=147).'
+    );
+    verifyVariable(
+      "color_test",
+      VariableTypes.COLOUR,
+      { red: 92, green: 230, blue: 147 },
+      state1event1.variables
+    );
+
+    const randomColorBlock = workspace.newBlock("colour_random");
+    colorPickerVariable
+      .getInput("VALUE")!.connection!.targetBlock()!
+      .dispose(true);
+    colorPickerVariable
+      .getInput("VALUE")!.connection!.connect(randomColorBlock.outputConnection!);
+
+    const event2 = createTestEvent(colorPickerVariable.id);
+    const [state1event2] = eventToFrameFactory(event2).frames;
+
+    expect(state1event1.explanation).toContain(
+      'Variable "color_test" stores (red='
+    );
+    const color = state1event2.variables["color_test"].value as Color;
+    expect(color).toBeDefined();
+    expect(color.blue > 0).toBeTruthy();
+    expect(color.red > 0).toBeTruthy();
+    expect(color.green > 0).toBeTruthy();
+  });
+
+  it("rgb color block handles number blocks, variables, and blank inputs", () => {
     const numberBlock = workspace.newBlock("math_number");
     const rgbColorBlock = workspace.newBlock("colour_rgb");
     numberBlock.setFieldValue("120", "NUM");

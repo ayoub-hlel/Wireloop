@@ -1,3 +1,7 @@
+/**
+ * delay_block regression: explicit DELAY input drives the frame delay in ms;
+ * with no input it falls back to the default 1 second.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -6,7 +10,6 @@ import Blockly from "blockly";
 import {
   createArduinoAndWorkSpace,
   createValueBlock,
-  createTestEvent,
 } from "../../app/tests.helper";
 import {
   connectToArduinoBlock,
@@ -18,9 +21,10 @@ import { transformBlock } from "@/core/blockly/transformers/block.transformer";
 import { getAllVariables } from "@/core/blockly/helpers/variable.helper";
 import { transformVariable } from "@/core/blockly/transformers/variables.transformer";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+import { framesFor } from "../_harness/block.harness";
 import { MicroControllerType } from "@/core/microcontroller/microcontroller";
 
-describe("factories delay state", () => {
+describe("delay block state factories", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
 
@@ -32,7 +36,7 @@ describe("factories delay state", () => {
     [workspace, arduinoBlock] = createArduinoAndWorkSpace();
   });
 
-  it("should be able to delay for a certain number of seconds with and without input", () => {
+  it("delays for the input's seconds and falls back to 1s without input", () => {
     arduinoBlock.setFieldValue("1", "LOOP_TIMES");
     const delayBlock = workspace.newBlock("delay_block") as BlockSvg;
     const numberBlock = createValueBlock(
@@ -44,13 +48,12 @@ describe("factories delay state", () => {
       .getInput("DELAY")!.connection!.connect(numberBlock.outputConnection!);
     connectToArduinoBlock(delayBlock);
 
-    const event = createTestEvent(delayBlock.id);
-
-    const [state] = eventToFrameFactory(event).frames;
+    const [state] = framesFor(delayBlock);
 
     expect(state.explanation).toBe("Waiting for 3.53 seconds.");
     expect(state.delay).toBe(3.532342 * 1000);
 
+    // Dispose the DELAY input -> generator default of 1000ms kicks in.
     numberBlock.dispose(true);
 
     const event2: BlockEvent = {

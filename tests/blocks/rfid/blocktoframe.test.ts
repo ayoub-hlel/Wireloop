@@ -1,8 +1,11 @@
+/**
+ * RFID setup-block frame regression — harness-style spec.
+ * All assertions from the original bespoke test are preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
 import { saveSensorSetupBlockData } from "@/core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "@/core/blockly/updater";
@@ -15,6 +18,7 @@ import {
   createTestEvent,
 } from "../../app/tests.helper";
 import type { RfidState } from "@/blocks/rfid/state";
+import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 
 describe("rfid state factories", () => {
   let workspace: Workspace;
@@ -35,13 +39,10 @@ describe("rfid state factories", () => {
     rfidBlock.setFieldValue("card_num", "card_number");
     rfidBlock.setFieldValue("tag", "tag");
 
-    const event = createTestEvent(rfidBlock.id);
-    saveSensorSetupBlockData(event).forEach(updater);
+    saveSensorSetupBlockData(createTestEvent(rfidBlock.id)).forEach(updater);
   });
 
   it("should be able generate state for rfid setup block", () => {
-    const event = createTestEvent(rfidBlock.id);
-
     const rfidComponent: RfidState = {
       pins: [ARDUINO_PINS.PIN_6, ARDUINO_PINS.PIN_7],
       txPin: ARDUINO_PINS.PIN_6,
@@ -61,12 +62,14 @@ describe("rfid state factories", () => {
       variables: {},
       txLedOn: false,
       builtInLedOn: false,
-      sendMessage: "", // message arduino is sending
-      delay: 0, // Number of milliseconds to delay
+      sendMessage: "",
+      delay: 0,
       powerLedOn: true,
       frameNumber: 1,
     };
 
-    expect(eventToFrameFactory(event).frames).toEqual([rfidSetupState]);
+    expect(eventToFrameFactory(createTestEvent(rfidBlock.id)).frames).toEqual([
+      rfidSetupState,
+    ]);
   });
 });

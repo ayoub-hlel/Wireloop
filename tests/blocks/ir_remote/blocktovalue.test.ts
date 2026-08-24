@@ -1,3 +1,8 @@
+/**
+ * IR remote value blocks (has_code / get_code) regression.
+ * Complex sensor-setup + variable chaining — raw primitives kept where the
+ * declarative stack helper cannot express the setup ordering.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -19,7 +24,8 @@ import {
   ArduinoFrame,
 } from "@/core/frames/arduino.frame";
 import type { IRRemoteState } from "@/blocks/ir_remote/state";
-describe("button state factories", () => {
+
+describe("ir remote state factories", () => {
   let workspace: Workspace;
 
   afterEach(() => {
@@ -30,11 +36,12 @@ describe("button state factories", () => {
     [workspace] = createArduinoAndWorkSpace();
   });
 
-  it("should be able generate state for ir remote read setup block", () => {
+  it("has_code / get_code track scanned codes across loops", () => {
     const irRemoteSetup = workspace.newBlock("ir_remote_setup") as BlockSvg;
     setSetupBlock(1, true, "code_1", irRemoteSetup);
     setSetupBlock(2, false, "", irRemoteSetup);
     setSetupBlock(3, true, "code_3", irRemoteSetup);
+
     const hasCodeBlock = workspace.newBlock("ir_remote_has_code_receive");
     const getCodeBlock = workspace.newBlock("ir_remote_get_code");
     const varHasCodeBlock = createSetVariableBlockWithValue(
@@ -67,6 +74,7 @@ describe("button state factories", () => {
     const [, state1, state2, state3, state4, state5, state6] =
       eventToFrameFactory(event).frames;
 
+    // Loop 1: code_1 scanned -> has_code true, then stored into both variables.
     expect(_.keys(state1.variables).length).toBe(1);
     expect(state1.variables["has_code"].value).toBeTruthy();
     verifyComponent(state1, "code_1", true);
@@ -74,12 +82,14 @@ describe("button state factories", () => {
     verifyVariables(state2, "code_1", true);
     verifyComponent(state2, "code_1", true);
 
+    // Loop 2: nothing scanned -> has_code flips false, code resets to "".
     verifyVariables(state3, "code_1", false);
     verifyComponent(state3, "", false);
 
     verifyVariables(state4, "", false);
     verifyComponent(state4, "", false);
 
+    // Loop 3: code_3 scanned again.
     verifyVariables(state5, "", true);
     verifyComponent(state5, "code_3", true);
 

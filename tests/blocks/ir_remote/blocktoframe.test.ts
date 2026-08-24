@@ -1,7 +1,12 @@
+/**
+ * IR remote block regression — rewritten on the shared harness.
+ * The setup-block test asserts the FULL frame shape via toEqual; everything
+ * else uses harness assertions. All original assertions preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
 import "@/core/blockly/blocks";
-import type { Workspace, BlockSvg } from "blockly";
 import {
   createArduinoAndWorkSpace,
   createTestEvent,
@@ -16,7 +21,7 @@ import {
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import type { IRRemoteState } from "@/blocks/ir_remote/state";
 
-describe("button state factories", () => {
+describe("ir remote state factories", () => {
   let workspace: Workspace;
   let irRemoteSetup: BlockSvg;
 
@@ -35,7 +40,7 @@ describe("button state factories", () => {
     saveSensorSetupBlockData(event).forEach(updater);
   });
 
-  it("should be able generate state for ir remote read setup block", () => {
+  it("ir_remote_setup generates the full setup frame", () => {
     const event = createTestEvent(irRemoteSetup.id);
 
     const irRemote: IRRemoteState = {

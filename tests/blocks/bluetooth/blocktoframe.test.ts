@@ -1,17 +1,10 @@
+/**
+ * Bluetooth block regression (setup / send_message) — rewritten against the
+ * shared harness. Every assertion from the original bespoke file is preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
-
-import "@/core/blockly/blocks";
-import Blockly from "blockly";
 import type { Workspace, BlockSvg } from "blockly";
-import {
-  getAllBlocks,
-  connectToArduinoBlock,
-} from "@/core/blockly/helpers/block.helper";
-import type { BlockEvent } from "@/core/blockly/dto/event.type";
-import { transformBlock } from "@/core/blockly/transformers/block.transformer";
-import { getAllVariables } from "@/core/blockly/helpers/variable.helper";
-import { transformVariable } from "@/core/blockly/transformers/variables.transformer";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
 import { saveSensorSetupBlockData } from "@/core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "@/core/blockly/updater";
@@ -21,126 +14,146 @@ import {
 } from "@/core/frames/arduino.frame";
 import {
   createArduinoAndWorkSpace,
-  createValueBlock,
   createTestEvent,
 } from "../../app/tests.helper";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
-import { MicroControllerType } from "@/core/microcontroller/microcontroller";
+import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import type { BluetoothState } from "@/blocks/bluetooth/state";
+import { stack, framesFor } from "../_harness/block.harness";
 
-describe("bluetooth state factories", () => {
-  let workspace: Workspace;
-  let bluethoothsetupblock: BlockSvg;
+const setupBluetoothBlock = (ws: Workspace): BlockSvg => {
+  const btSetup = ws.newBlock("bluetooth_setup") as BlockSvg;
+  btSetup.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_RX");
+  btSetup.setFieldValue(ARDUINO_PINS.PIN_6, "PIN_TX");
+  return btSetup;
+};
+
+describe("bluetooth blocks", () => {
+  let ws: Workspace;
   let arduinoBlock: BlockSvg;
+  let bluetoothSetupBlock: BlockSvg;
 
   afterEach(() => {
-    workspace.dispose();
+    ws.dispose();
   });
 
-  beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    bluethoothsetupblock = workspace.newBlock("bluetooth_setup") as BlockSvg;
-    bluethoothsetupblock.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_RX");
-    bluethoothsetupblock.setFieldValue(ARDUINO_PINS.PIN_6, "PIN_TX");
+  describe("bluetooth_setup state", () => {
+    beforeEach(() => {
+      [ws, arduinoBlock] = createArduinoAndWorkSpace();
+      bluetoothSetupBlock = setupBluetoothBlock(ws);
+      bluetoothSetupBlock.setFieldValue("TRUE", "receiving_message");
+      bluetoothSetupBlock.setFieldValue("hello world", "message");
 
-    bluethoothsetupblock.setFieldValue("TRUE", "receiving_message");
-    bluethoothsetupblock.setFieldValue("hello world", "message");
+      saveSensorSetupBlockData(createTestEvent(bluetoothSetupBlock.id)).forEach(
+        updater,
+      );
+    });
 
-    const event = createTestEvent(bluethoothsetupblock.id);
-    saveSensorSetupBlockData(event).forEach(updater);
+    it("generates the exact pre-setup frame for the bluetooth component", () => {
+      const event = createTestEvent(bluetoothSetupBlock.id);
+
+      const btComponent: BluetoothState = {
+        pins: [ARDUINO_PINS.PIN_6, ARDUINO_PINS.PIN_7],
+        rxPin: ARDUINO_PINS.PIN_7,
+        txPin: ARDUINO_PINS.PIN_6,
+        hasMessage: true,
+        message: "hello world",
+        sendMessage: "",
+        type: ArduinoComponentType.BLUE_TOOTH,
+      };
+
+      const state: ArduinoFrame = {
+        blockId: bluetoothSetupBlock.id,
+        blockName: "bluetooth_setup",
+        timeLine: { function: "pre-setup", iteration: 0 },
+        explanation: "Setting up Bluetooth.",
+        components: [btComponent],
+        variables: {},
+        txLedOn: false,
+        builtInLedOn: false,
+        sendMessage: "", // message arduino is sending
+        delay: 0, // Number of milliseconds to delay
+        powerLedOn: true,
+        frameNumber: 1,
+      };
+
+      expect(eventToFrameFactory(event).frames).toEqual([state]);
+    });
   });
 
-  it("should be able generate state for bluetooth setup block", () => {
-    const event = createTestEvent(bluethoothsetupblock.id);
+  describe("bluetooth_send_message", () => {
+    beforeEach(() => {
+      [ws, arduinoBlock] = createArduinoAndWorkSpace();
+    });
 
-    const btComponent: BluetoothState = {
-      pins: [ARDUINO_PINS.PIN_6, ARDUINO_PINS.PIN_7],
-      rxPin: ARDUINO_PINS.PIN_7,
-      txPin: ARDUINO_PINS.PIN_6,
-      hasMessage: true,
-      message: "hello world",
-      sendMessage: "",
-      type: ArduinoComponentType.BLUE_TOOTH,
-    };
+    it("sends the wired message every loop iteration", () => {
+      bluetoothSetupBlock = setupBluetoothBlock(ws);
+      bluetoothSetupBlock.setFieldValue("TRUE", "receiving_message");
+      bluetoothSetupBlock.setFieldValue("hello world", "message");
+      arduinoBlock.setFieldValue("2", "LOOP_TIMES");
 
-    const state: ArduinoFrame = {
-      blockId: bluethoothsetupblock.id,
-      blockName: "bluetooth_setup",
-      timeLine: { function: "pre-setup", iteration: 0 },
-      explanation: "Setting up Bluetooth.",
-      components: [btComponent],
-      variables: {},
-      txLedOn: false,
-      builtInLedOn: false,
-      sendMessage: "", // message arduino is sending
-      delay: 0, // Number of milliseconds to delay
-      powerLedOn: true,
-      frameNumber: 1,
-    };
+      saveSensorSetupBlockData(createTestEvent(bluetoothSetupBlock.id)).forEach(
+        updater,
+      );
 
-    expect(eventToFrameFactory(event).frames).toEqual([state]);
-  });
+      const [sendMessageBlock] = stack(
+        ws,
+        [
+          {
+            type: "bluetooth_send_message",
+            values: { MESSAGE: { str: "HELLO WORLD" } },
+          },
+        ],
+        arduinoBlock,
+      );
 
-  it("should be able to send a message via bluetooth block", () => {
-    arduinoBlock.setFieldValue("2", "LOOP_TIMES");
+      // Event fired from the setup block still walks the whole loop stack.
+      const [, state2, state3] =
+        eventToFrameFactory(createTestEvent(bluetoothSetupBlock.id)).frames;
 
-    const btSendMessageBlock = workspace.newBlock(
-      "bluetooth_send_message"
-    ) as BlockSvg;
-    const textMessage = createValueBlock(
-      workspace,
-      VariableTypes.STRING,
-      "HELLO WORLD"
-    );
-    btSendMessageBlock
-      .getInput("MESSAGE")!.connection!.connect(textMessage.outputConnection!);
+      expect(state2.explanation).toBe(
+        'Sending "HELLO WORLD" from bluetooth to computer.',
+      );
+      expect(state2.blockId).toBe(sendMessageBlock.id);
+      expect(state2.components.length).toBe(1);
+      const btComponentS2 = state2.components.find(
+        (c) => c.type === ArduinoComponentType.BLUE_TOOTH,
+      ) as BluetoothState;
+      expect(btComponentS2.sendMessage).toBe("HELLO WORLD");
 
-    connectToArduinoBlock(btSendMessageBlock);
+      expect(state3.blockId).toBe(sendMessageBlock.id);
+      expect(state3.components.length).toBe(1);
+      const btComponentS3 = state3.components.find(
+        (c) => c.type === ArduinoComponentType.BLUE_TOOTH,
+      ) as BluetoothState;
+      expect(btComponentS3.sendMessage).toBe("HELLO WORLD");
 
-    const event1: BlockEvent = {
-      blocks: getAllBlocks().map(transformBlock),
-      variables: getAllVariables().map(transformVariable),
-      type: Blockly.Events.BLOCK_MOVE,
-      blockId: bluethoothsetupblock.id,
-      microController: MicroControllerType.ARDUINO_UNO,
-    };
+      // Removing the message input degrades to an empty-string send.
+      sendMessageBlock
+        .getInput("MESSAGE")!
+        .connection!.targetBlock()!
+        .dispose(true);
 
-    const [, state2, state3] = eventToFrameFactory(event1).frames;
+      const [, state2e2] =
+        eventToFrameFactory(createTestEvent(bluetoothSetupBlock.id)).frames;
 
-    expect(state2.explanation).toEqual(
-      'Sending "HELLO WORLD" from bluetooth to computer.'
-    );
-    expect(state2.blockId).toBe(btSendMessageBlock.id);
-    expect(state2.components.length).toBe(1);
-    const btComponentS2 = state2.components.find(
-      (c) => c.type === ArduinoComponentType.BLUE_TOOTH
-    ) as BluetoothState;
-    expect(btComponentS2.sendMessage).toBe("HELLO WORLD");
+      expect(state2e2.explanation).toBe('Sending "" from bluetooth to computer.');
+      expect(state2e2.blockId).toBe(sendMessageBlock.id);
+    });
 
-    expect(state3.blockId).toBe(btSendMessageBlock.id);
-    expect(state3.components.length).toBe(1);
-    const btComponentS3 = state3.components.find(
-      (c) => c.type === ArduinoComponentType.BLUE_TOOTH
-    ) as BluetoothState;
-    expect(btComponentS3.sendMessage).toBe("HELLO WORLD");
-
-    btSendMessageBlock
-      .getInput("MESSAGE")!.connection!.targetBlock()!
-      .dispose(true);
-
-    const event2: BlockEvent = {
-      blocks: getAllBlocks().map(transformBlock),
-      variables: getAllVariables().map(transformVariable),
-      type: Blockly.Events.BLOCK_MOVE,
-      blockId: bluethoothsetupblock.id,
-      microController: MicroControllerType.ARDUINO_UNO,
-    };
-
-    const [, state2e2] = eventToFrameFactory(event2).frames;
-
-    expect(state2e2.explanation).toEqual(
-      'Sending "" from bluetooth to computer.'
-    );
-    expect(state2e2.blockId).toBe(btSendMessageBlock.id);
+    // Added coverage: the transformer must no-op without a previous BT state
+    // (send-message dragged in with no bluetooth_setup on the canvas).
+    it("produces no frames when no bluetooth_setup exists", () => {
+      const [orphanSend] = stack(
+        ws,
+        [
+          {
+            type: "bluetooth_send_message",
+            values: { MESSAGE: { str: "anyone there?" } },
+          },
+        ],
+        arduinoBlock,
+      );
+      expect(framesFor(orphanSend)).toHaveLength(0);
+    });
   });
 });

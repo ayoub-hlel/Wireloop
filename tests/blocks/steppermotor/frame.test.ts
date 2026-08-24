@@ -1,111 +1,89 @@
-import { BlockSvg, Workspace } from "blockly";
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+/**
+ * Stepper motor blocks — setup + move with rotation accumulation.
+ * Rewritten from the bespoke frame test; every assertion kept.
+ */
+import type { Workspace } from "blockly";
+import { describe, it, beforeEach, afterEach } from "vitest";
 
 import "@/core/blockly/blocks";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import {
-  ArduinoComponentType,
-  ArduinoFrame,
-} from "@/core/frames/arduino.frame";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+import { ArduinoComponentType } from "@/core/frames/arduino.frame";
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
-import "../../app/fake-block";
+import { createArduinoAndWorkSpace } from "../../app/tests.helper";
 import {
-  createArduinoAndWorkSpace,
-  createTestEvent,
-  createValueBlock,
-} from "../../app/tests.helper";
-import { StepperMotorState } from "@/blocks/steppermotor/state";
+  stack,
+  framesFor,
+  expectFrame,
+} from "../_harness/block.harness";
 
-describe("Passive Buzzer Tests", () => {
-  let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
-
-  afterEach(() => {
-    workspace.dispose();
-  });
+describe("stepper motor blocks", () => {
+  let ws: Workspace;
+  let arduinoBlock: import("blockly").BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    arduinoBlock.setFieldValue("1", "LOOP_TIMES");
+    [ws, arduinoBlock] = createArduinoAndWorkSpace();
+  });
+  afterEach(() => {
+    ws.dispose();
   });
 
-  it("should be able to setup and move the stepper motor.", () => {
-    const setupBlock = workspace.newBlock("stepper_motor_setup");
+  const expectStepper = (
+    frame: Parameters<typeof expectFrame>[0],
+    exp: { steps: number; totalSteps: number; currentRotation: number },
+    explanation?: string,
+  ) =>
+    expectFrame(frame, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.STEPPER_MOTOR,
+          fields: {
+            pin1: ARDUINO_PINS.PIN_4,
+            pin2: ARDUINO_PINS.PIN_5,
+            pin3: ARDUINO_PINS.PIN_6,
+            pin4: ARDUINO_PINS.PIN_7,
+            steps: exp.steps,
+            totalSteps: exp.totalSteps,
+            currentRotation: exp.currentRotation,
+          },
+        },
+      ],
+      ...(explanation !== undefined ? { explanation } : {}),
+    });
+
+  it("sets up and moves the stepper motor, accumulating rotation", () => {
+    // stepper_motor_setup is pre-setup: in the workspace, never stacked.
+    const setupBlock = ws.newBlock("stepper_motor_setup");
     setupBlock.setFieldValue(ARDUINO_PINS.PIN_4, "PIN_1");
     setupBlock.setFieldValue(ARDUINO_PINS.PIN_5, "PIN_2");
     setupBlock.setFieldValue(ARDUINO_PINS.PIN_6, "PIN_3");
     setupBlock.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_4");
     setupBlock.setFieldValue("300", "TOTAL_STEPS");
-    const moveBlock1Number = createValueBlock(
-      workspace,
-      VariableTypes.NUMBER,
-      20
+
+    const [move1] = stack(
+      ws,
+      [
+        { type: "stepper_motor_move", values: { STEPS: { num: 20 } } },
+        { type: "stepper_motor_move", values: { STEPS: { num: -30 } } },
+      ],
+      arduinoBlock,
     );
-    const moveBlock1 = workspace.newBlock("stepper_motor_move") as BlockSvg;
-    moveBlock1
-      .getInput("STEPS")!.connection!.connect(moveBlock1Number.outputConnection!);
 
-    const moveBlock2Number = createValueBlock(
-      workspace,
-      VariableTypes.NUMBER,
-      -30
+    const [frame1, frame2, frame3] = framesFor(move1);
+
+    expectStepper(
+      frame1,
+      { steps: 0, totalSteps: 300, currentRotation: 0 },
+      "Setting up the stepper motor.",
     );
-    const moveBlock2 = workspace.newBlock("stepper_motor_move") as BlockSvg;
-    moveBlock2
-      .getInput("STEPS")!.connection!.connect(moveBlock2Number.outputConnection!);
-
-    connectToArduinoBlock(moveBlock2);
-    connectToArduinoBlock(moveBlock1);
-
-    const event = createTestEvent(moveBlock1.id);
-
-    const frameContainer = eventToFrameFactory(event);
-
-    const [frame1, frame2, frame3] = frameContainer.frames;
-
-    verifySetupFrame(frame1, 0, 300, 0);
-    verifyFrameStep(frame2, 20, 300, 20);
-    verifyFrameStep(frame3, -30, 300, -10);
+    expectStepper(
+      frame2,
+      { steps: 20, totalSteps: 300, currentRotation: 20 },
+      "Stepper motor moving 20 steps.",
+    );
+    expectStepper(
+      frame3,
+      { steps: -30, totalSteps: 300, currentRotation: -10 },
+      "Stepper motor moving -30 steps.",
+    );
   });
 });
-
-function verifySetupFrame(
-  frame: ArduinoFrame,
-  steps: number,
-  totalSteps: number,
-  currentRotation: number
-) {
-  expect(frame.explanation).toBe(`Setting up the stepper motor.`);
-  verifyFrame(frame, steps, totalSteps, currentRotation);
-}
-
-function verifyFrameStep(
-  frame: ArduinoFrame,
-  steps: number,
-  totalSteps: number,
-  currentRotation: number
-) {
-  expect(frame.explanation).toBe(`Stepper motor moving ${steps} steps.`);
-  verifyFrame(frame, steps, totalSteps, currentRotation);
-}
-
-function verifyFrame(
-  frame: ArduinoFrame,
-  steps: number,
-  totalSteps: number,
-  currentRotation: number
-) {
-  const components = frame.components;
-  expect(components.length).toBe(1);
-  const [component] = components as StepperMotorState[];
-  expect(component.type).toBe(ArduinoComponentType.STEPPER_MOTOR);
-  expect(component.pin1).toBe(ARDUINO_PINS.PIN_4);
-  expect(component.pin2).toBe(ARDUINO_PINS.PIN_5);
-  expect(component.pin3).toBe(ARDUINO_PINS.PIN_6);
-  expect(component.pin4).toBe(ARDUINO_PINS.PIN_7);
-  expect(component.steps).toBe(steps);
-  expect(component.totalSteps).toBe(totalSteps);
-  expect(component.currentRotation).toBe(currentRotation);
-}

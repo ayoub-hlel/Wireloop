@@ -1,3 +1,7 @@
+/**
+ * Button value regression — is_button_pressed read through variables across
+ * loop iterations. All assertions from the original bespoke tests preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -20,7 +24,7 @@ import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import { findComponent } from "@/core/frames/transformer/frame-transformer.helpers";
 import type { ButtonState } from "@/blocks/button/state";
 
-describe("button state factories", () => {
+describe("button value factories", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
   afterEach(() => {
@@ -32,7 +36,31 @@ describe("button state factories", () => {
     arduinoBlock.setFieldValue("2", "LOOP_TIMES");
   });
 
-  it("should be able generate state for button setup block", () => {
+  const saveSetup = (setup: BlockSvg) => {
+    saveSensorSetupBlockData(createTestEvent(setup.id)).forEach(updater);
+  };
+
+  const createSetVariableBlock = (
+    variableName: string,
+    pin: string
+  ): BlockSvg => {
+    const setBoolVariableBlock = createSetVariableBlockWithValue(
+      workspace,
+      variableName,
+      VariableTypes.BOOLEAN,
+      true
+    );
+    setBoolVariableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
+
+    const isButtonPressed = workspace.newBlock("is_button_pressed");
+    isButtonPressed.setFieldValue(pin, "PIN");
+    setBoolVariableBlock
+      .getInput("VALUE")!.connection!.connect(isButtonPressed.outputConnection!);
+
+    return setBoolVariableBlock as BlockSvg;
+  };
+
+  it("reads per-pin pressed state into variables for every loop iteration", () => {
     const buttonSetup1 = workspace.newBlock("button_setup") as BlockSvg;
     buttonSetup1.setFieldValue("3", "PIN");
     buttonSetup1.setFieldValue("TRUE", "is_pressed");
@@ -40,25 +68,19 @@ describe("button state factories", () => {
     const buttonSetup2 = workspace.newBlock("button_setup") as BlockSvg;
     buttonSetup2.setFieldValue("5", "PIN");
     buttonSetup2.setFieldValue("FALSE", "is_pressed");
-    saveDebugData(buttonSetup1, buttonSetup2);
+    saveSetup(buttonSetup1);
+    saveSetup(buttonSetup2);
 
+    // Iteration 2: swap the pressed states.
     buttonSetup1.setFieldValue("2", "LOOP");
     buttonSetup2.setFieldValue("2", "LOOP");
     buttonSetup2.setFieldValue("TRUE", "is_pressed");
     buttonSetup1.setFieldValue("FALSE", "is_pressed");
-    saveDebugData(buttonSetup1, buttonSetup2);
+    saveSetup(buttonSetup1);
+    saveSetup(buttonSetup2);
 
-    const setVariablePin3 = createSetVariableBlock(
-      workspace,
-      "block1",
-      ARDUINO_PINS.PIN_3
-    );
-
-    const setVariablePin5 = createSetVariableBlock(
-      workspace,
-      "block2",
-      ARDUINO_PINS.PIN_5
-    );
+    const setVariablePin3 = createSetVariableBlock("block1", ARDUINO_PINS.PIN_3);
+    const setVariablePin5 = createSetVariableBlock("block2", ARDUINO_PINS.PIN_5);
     connectToArduinoBlock(setVariablePin3);
     setVariablePin3.nextConnection!.connect(setVariablePin5.previousConnection!);
     const event = createTestEvent(setVariablePin3.id);
@@ -67,6 +89,35 @@ describe("button state factories", () => {
       eventToFrameFactory(event).frames;
 
     expect(state1.variables["block1"].value).toBeTruthy();
+
+    const verifyState = (
+      state: ArduinoFrame,
+      pin3Pressed: boolean,
+      pin5Pressed: boolean
+    ) => {
+      const buttonPin3 = findComponent<ButtonState>(
+        state,
+        ArduinoComponentType.BUTTON,
+        ARDUINO_PINS.PIN_3
+      )!;
+      const buttonPin5 = findComponent<ButtonState>(
+        state,
+        ArduinoComponentType.BUTTON,
+        ARDUINO_PINS.PIN_5
+      )!;
+      expect(buttonPin3.isPressed).toBe(pin3Pressed);
+      expect(buttonPin5.isPressed).toBe(pin5Pressed);
+    };
+
+    const verifyVariables = (
+      state: ArduinoFrame,
+      block1Value: boolean,
+      block2Value: boolean
+    ) => {
+      expect(state.variables["block1"].value).toBe(block1Value);
+      expect(state.variables["block2"].value).toBe(block2Value);
+    };
+
     verifyState(state1, true, false);
     verifyState(state2, true, false);
     verifyState(state3, false, true);
@@ -76,60 +127,3 @@ describe("button state factories", () => {
     verifyVariables(state4, false, true);
   });
 });
-
-const verifyVariables = (
-  state: ArduinoFrame,
-  block1Value: boolean,
-  block2Value: boolean
-) => {
-  expect(state.variables["block1"].value).toBe(block1Value);
-  expect(state.variables["block2"].value).toBe(block2Value);
-};
-
-const verifyState = (
-  state: ArduinoFrame,
-  pin3Pressed: boolean,
-  pin5Pressed: boolean
-) => {
-  const buttonPin3 = findComponent<ButtonState>(
-    state,
-    ArduinoComponentType.BUTTON,
-    ARDUINO_PINS.PIN_3
-  )!;
-
-  const buttonPin5 = findComponent<ButtonState>(
-    state,
-    ArduinoComponentType.BUTTON,
-    ARDUINO_PINS.PIN_5
-  )!;
-
-  expect(buttonPin3.isPressed).toBe(pin3Pressed);
-  expect(buttonPin5.isPressed).toBe(pin5Pressed);
-};
-
-const createSetVariableBlock = (
-  workspace: Workspace,
-  variableName: string,
-  pin: ARDUINO_PINS
-) => {
-  const setBoolVariableBlock = createSetVariableBlockWithValue(
-    workspace,
-    variableName,
-    VariableTypes.BOOLEAN,
-    true
-  );
-  setBoolVariableBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
-
-  const isButtonPressed = workspace.newBlock("is_button_pressed");
-  isButtonPressed.setFieldValue(pin, "PIN");
-  setBoolVariableBlock
-    .getInput("VALUE")!.connection!.connect(isButtonPressed.outputConnection!);
-
-  return setBoolVariableBlock;
-};
-
-const saveDebugData = (buttonSetup1: BlockSvg, buttonSetup2: BlockSvg) => {
-  saveSensorSetupBlockData(createTestEvent(buttonSetup1.id)).forEach(updater);
-
-  saveSensorSetupBlockData(createTestEvent(buttonSetup2.id)).forEach(updater);
-};

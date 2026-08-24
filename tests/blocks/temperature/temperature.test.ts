@@ -1,3 +1,10 @@
+/**
+ * Temperature sensor block regression (temp_setup frame + temp_get_temp /
+ * temp_get_humidity value factories) — rewritten against the shared harness
+ * (see _harness). Sensor-setup ordering needs the raw primitives
+ * (saveSensorSetupBlockData + updater), so harness sugar is only used where
+ * it fits. Every assertion from the original bespoke tests is kept.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -24,18 +31,64 @@ import {
 } from "@/core/frames/transformer/frame-transformer.helpers";
 import type { TemperatureState } from "@/blocks/temperature/state";
 
-describe("rfid value factories", () => {
+describe("temp_setup state factory", () => {
   let workspace: Workspace;
+  let tempBlock: BlockSvg;
 
+  beforeEach(() => {
+    [workspace] = createArduinoAndWorkSpace();
+    tempBlock = workspace.newBlock("temp_setup") as BlockSvg;
+    tempBlock.setFieldValue("70", "humidity");
+    tempBlock.setFieldValue("50", "temp");
+    tempBlock.setFieldValue(ARDUINO_PINS.PIN_8, "PIN");
+
+    const event = createTestEvent(tempBlock.id);
+    saveSensorSetupBlockData(event).forEach(updater);
+  });
   afterEach(() => {
     workspace.dispose();
   });
 
+  it("generates a full temperature-sensor setup frame", () => {
+    const event = createTestEvent(tempBlock.id);
+
+    const tempSensorState: TemperatureState = {
+      pins: [ARDUINO_PINS.PIN_8],
+      temperature: 50,
+      humidity: 70,
+      type: ArduinoComponentType.TEMPERATURE_SENSOR,
+    };
+
+    const expected: ArduinoFrame = {
+      blockId: tempBlock.id,
+      blockName: "temp_setup",
+      timeLine: { function: "pre-setup", iteration: 0 },
+      explanation: "Setting up temperature sensor.",
+      components: [tempSensorState],
+      variables: {},
+      txLedOn: false,
+      builtInLedOn: false,
+      sendMessage: "", // message arduino is sending
+      delay: 0, // Number of milliseconds to delay
+      powerLedOn: true,
+      frameNumber: 1,
+    };
+
+    expect(eventToFrameFactory(event).frames).toEqual([expected]);
+  });
+});
+
+describe("temperature value factories", () => {
+  let workspace: Workspace;
+
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
   });
+  afterEach(() => {
+    workspace.dispose();
+  });
 
-  it("should be able generate state for temp sesnor setup block", () => {
+  it("reads live temp/humidity per loop iteration into variables", () => {
     const tempSetupBlock = workspace.newBlock("temp_setup") as BlockSvg;
     const tempReadBlock = workspace.newBlock("temp_get_temp");
     const tempHumidityBlock = workspace.newBlock("temp_get_humidity");
@@ -47,7 +100,6 @@ describe("rfid value factories", () => {
       tempReadBlock,
       workspace
     );
-
     const humidityVarBlock = createVariableBlock(
       "humidity",
       VariableTypes.NUMBER,

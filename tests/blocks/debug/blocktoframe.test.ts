@@ -1,7 +1,11 @@
+/**
+ * Debug block regression — data-driven specs (see ../_harness).
+ * Every assertion from the original bespoke test preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
 import "@/core/blockly/blocks";
-import type { Workspace, BlockSvg } from "blockly";
 import {
   createArduinoAndWorkSpace,
   createSetVariableBlockWithValue,
@@ -11,7 +15,7 @@ import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 
-describe("factories debug state", () => {
+describe("debug block", () => {
   let workspace: Workspace;
 
   afterEach(() => {
@@ -22,20 +26,20 @@ describe("factories debug state", () => {
     [workspace] = createArduinoAndWorkSpace();
   });
 
-  it("should create debug state with all variables and components", () => {
+  it("creates a debug frame carrying all variables and components", () => {
     const debugBlock = workspace.newBlock("debug_block") as BlockSvg;
     connectToArduinoBlock(debugBlock);
     const numberVarBlock = createSetVariableBlockWithValue(
       workspace,
       "var1",
       VariableTypes.NUMBER,
-      33
+      33,
     );
     connectToArduinoBlock(numberVarBlock);
 
-    const event = createTestEvent(numberVarBlock.id);
-
-    const [state1, state2] = eventToFrameFactory(event).frames;
+    const [state1, state2] = eventToFrameFactory(
+      createTestEvent(numberVarBlock.id),
+    ).frames;
 
     expect(state2.blockId).toBe(debugBlock.id);
     expect(state2.explanation).toBe("Debug [will pause in Arduino Code.]");

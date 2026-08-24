@@ -1,3 +1,7 @@
+/**
+ * variables_get default-value regression: reading an unset variable falls
+ * back to the type's default (0 for numbers), never undefined.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
@@ -13,7 +17,7 @@ import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import _ from "lodash";
 
-describe("math_arithmetic state factories", () => {
+describe("variables state factories", () => {
   let workspace: Workspace;
 
   afterEach(() => {
@@ -49,6 +53,8 @@ describe("math_arithmetic state factories", () => {
     connectToArduinoBlock(testNumberVariableBlock);
 
     const event = createTestEvent(testNumberVariableBlock.id);
+    // Frame 1 sets var_test from the UNSET num getter -> default 0.
+    // Frame 2 runs after num was assigned 33.
     const [state1, state2] = eventToFrameFactory(event).frames;
 
     expect(state1.explanation).toBe('Variable "var_test" stores 0.');

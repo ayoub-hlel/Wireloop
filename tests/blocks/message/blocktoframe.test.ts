@@ -1,8 +1,11 @@
+/**
+ * Arduino message block regression — rewritten on the shared harness.
+ * The setup-block test asserts the FULL frame shape via toEqual.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
 import "@/core/blockly/blocks";
-import type { Workspace, BlockSvg } from "blockly";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import { saveSensorSetupBlockData } from "@/core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "@/core/blockly/updater";
@@ -12,16 +15,17 @@ import {
 } from "@/core/frames/arduino.frame";
 import {
   createArduinoAndWorkSpace,
-  createValueBlock,
   createTestEvent,
 } from "../../app/tests.helper";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import type { ArduinoReceiveMessageState } from "@/blocks/message/state";
+import {
+  stack,
+} from "../_harness/block.harness";
 
 describe("arduino message state factories", () => {
   let workspace: Workspace;
-  let messageSetup: BlockSvg;
   let arduinoBlock: BlockSvg;
+  let messageSetup: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -39,23 +43,23 @@ describe("arduino message state factories", () => {
     saveSensorSetupBlockData(event).forEach(updater);
   });
 
-  it("should be able send a message", () => {
-    const sendMessageBlock = workspace.newBlock(
-      "arduino_send_message"
-    ) as BlockSvg;
-    const textBlock = createValueBlock(
+  it("sending a message emits a tx frame with the message attached", () => {
+    const [sendMessageBlock] = stack(
       workspace,
-      VariableTypes.STRING,
-      "Hello World!"
+      [
+        {
+          type: "arduino_send_message",
+          values: { MESSAGE: { str: "Hello World!" } },
+        },
+      ],
+      arduinoBlock,
     );
-    sendMessageBlock
-      .getInput("MESSAGE")!.connection!.connect(textBlock.outputConnection!);
 
-    connectToArduinoBlock(sendMessageBlock);
-
-    const event = createTestEvent(messageSetup.id);
-
-    const [, state2] = eventToFrameFactory(event).frames;
+    // Event fires from the setup block but walks every block in the workspace,
+    // so frame 2 is the send-message frame.
+    const [, state2] = eventToFrameFactory(
+      createTestEvent(messageSetup.id)
+    ).frames;
 
     expect(state2.blockId).toBe(sendMessageBlock.id);
     expect(state2.explanation).toBe('Arduino sending message: "Hello World!".');
@@ -64,7 +68,7 @@ describe("arduino message state factories", () => {
     expect(state2.builtInLedOn).toBeFalsy();
   });
 
-  it("should be able generate state for message setup block", () => {
+  it("message_setup generates the full setup frame", () => {
     const event = createTestEvent(messageSetup.id);
 
     const message: ArduinoReceiveMessageState = {

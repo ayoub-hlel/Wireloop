@@ -1,7 +1,13 @@
-import "@/core/blockly/blocks";
+/**
+ * LED matrix block regression — rewritten against the shared harness
+ * (see _harness). Per-led grid assertions stay as explicit loops because a
+ * 64-led array doesn't fit declarative partial matching. Every assertion from
+ * the original bespoke tests is kept.
+ */
+import { describe, it, beforeEach, afterEach, expect } from "vitest";
 import type { Workspace, BlockSvg } from "blockly";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+
+import "@/core/blockly/blocks";
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
 import { ArduinoComponentType } from "@/core/frames/arduino.frame";
 import {
@@ -13,14 +19,12 @@ import "../../app/fake-block";
 import { findComponent } from "@/core/frames/transformer/frame-transformer.helpers";
 import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import type { LedMatrixState } from "@/blocks/led_matrix/state";
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 
-describe("led matrix  factories", () => {
+describe("led matrix factories", () => {
   let workspace: Workspace;
   let ledmatrixsetup: BlockSvg;
-  afterEach(() => {
-    workspace.dispose();
-  });
 
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
@@ -29,8 +33,36 @@ describe("led matrix  factories", () => {
     ledmatrixsetup.setFieldValue("10", "PIN_CLK");
     ledmatrixsetup.setFieldValue("11", "PIN_CS");
   });
+  afterEach(() => {
+    workspace.dispose();
+  });
 
-  it("should be able to draw with the led and should be limited", () => {
+  const createLedMatrixBlock = (row: number, col: number, isOn: boolean) => {
+    const ledMatrix = workspace.newBlock(
+      "led_matrix_turn_one_on_off"
+    ) as BlockSvg;
+
+    const rowBlock = createValueBlock(workspace, VariableTypes.NUMBER, row);
+    const colBlock = createValueBlock(workspace, VariableTypes.NUMBER, col);
+
+    ledMatrix.getInput("ROW")!.connection!.connect(rowBlock.outputConnection!);
+    ledMatrix.getInput("COLUMN")!.connection!.connect(colBlock.outputConnection!);
+
+    ledMatrix.setFieldValue(isOn ? "ON" : "OFF", "STATE");
+
+    return ledMatrix as BlockSvg;
+  };
+
+  const createServoBlock = (degree: number, pin: ARDUINO_PINS) => {
+    const rotateServo = workspace.newBlock("rotate_servo") as BlockSvg;
+    const numberBlock = createValueBlock(workspace, VariableTypes.NUMBER, degree);
+    rotateServo.setFieldValue(pin, "PIN");
+    rotateServo
+      .getInput("DEGREE")!.connection!.connect(numberBlock.outputConnection!);
+    return rotateServo;
+  };
+
+  it("draws on the matrix and limits state to one component", () => {
     const ledmatrixdraw1 = workspace.newBlock(
       "led_matrix_make_draw"
     ) as BlockSvg;
@@ -41,7 +73,6 @@ describe("led matrix  factories", () => {
     const ledmatrixdraw2 = workspace.newBlock(
       "led_matrix_make_draw"
     ) as BlockSvg;
-
     ledmatrixdraw2.setFieldValue("TRUE", "8,8");
     ledmatrixdraw2.setFieldValue("TRUE", "7,7");
     ledmatrixdraw2.setFieldValue("TRUE", "6,6");
@@ -73,7 +104,6 @@ describe("led matrix  factories", () => {
       state2,
       ArduinoComponentType.LED_MATRIX
     )!;
-
     component2.leds.forEach((led) => {
       if (led.col === led.row && [6, 7, 8].includes(led.row)) {
         expect(led.isOn).toBeTruthy();
@@ -94,7 +124,7 @@ describe("led matrix  factories", () => {
     expect(state2.components.length).toBe(1);
   });
 
-  it("should be able to have 2 types of components and not lose it's states", () => {
+  it("keeps its state when other component types join the frame", () => {
     const ledmatrixdraw1 = workspace.newBlock(
       "led_matrix_make_draw"
     ) as BlockSvg;
@@ -118,7 +148,7 @@ describe("led matrix  factories", () => {
     expect(state6.components.length).toBe(2);
   });
 
-  it("should be able to keep the state when using single led", () => {
+  it("keeps per-led state across single-led turn blocks", () => {
     const ledMatrix1 = createLedMatrixBlock(1, 1, true);
     const ledMatrix2 = createLedMatrixBlock(2, 2, true);
     const ledMatrix3 = createLedMatrixBlock(1, 1, false);
@@ -166,34 +196,4 @@ describe("led matrix  factories", () => {
       expect(led.isOn).toBeFalsy();
     });
   });
-
-  const createLedMatrixBlock = (row: number, col: number, isOn: boolean) => {
-    const ledMatrix = workspace.newBlock(
-      "led_matrix_turn_one_on_off"
-    ) as BlockSvg;
-
-    const rowBlock = createValueBlock(workspace, VariableTypes.NUMBER, row);
-    const colBlock = createValueBlock(workspace, VariableTypes.NUMBER, col);
-
-    ledMatrix.getInput("ROW")!.connection!.connect(rowBlock.outputConnection!);
-    ledMatrix.getInput("COLUMN")!.connection!.connect(colBlock.outputConnection!);
-
-    ledMatrix.setFieldValue(isOn ? "ON" : "OFF", "STATE");
-
-    return ledMatrix as BlockSvg;
-  };
-
-  const createServoBlock = (degree: number, pin: ARDUINO_PINS) => {
-    const rotateServo = workspace.newBlock("rotate_servo") as BlockSvg;
-    const numberBlock = createValueBlock(
-      workspace,
-      VariableTypes.NUMBER,
-      degree
-    );
-    rotateServo.setFieldValue(pin, "PIN");
-    rotateServo
-      .getInput("DEGREE")!.connection!.connect(numberBlock.outputConnection!);
-
-    return rotateServo;
-  };
 });

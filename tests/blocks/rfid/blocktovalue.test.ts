@@ -1,9 +1,13 @@
+/**
+ * RFID value regression — rfid_scan / rfid_card / rfid_tag read through
+ * variables across loop iterations. All assertions from the original
+ * bespoke test are preserved (9 frames, 3 loop configurations).
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
 import type { Workspace, BlockSvg, Block } from "blockly";
 import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import { saveSensorSetupBlockData } from "@/core/blockly/actions/saveSensorSetupBlockData";
 import { updater } from "@/core/blockly/updater";
 import {
@@ -21,9 +25,11 @@ import {
   findComponent,
 } from "@/core/frames/transformer/frame-transformer.helpers";
 import type { RfidState } from "@/blocks/rfid/state";
+import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 
 describe("rfid value factories", () => {
   let workspace: Workspace;
+  let setupBlock: BlockSvg;
 
   afterEach(() => {
     workspace.dispose();
@@ -31,38 +37,94 @@ describe("rfid value factories", () => {
 
   beforeEach(() => {
     [workspace] = createArduinoAndWorkSpace();
+    setupBlock = workspace.newBlock("rfid_setup") as BlockSvg;
   });
 
-  it("should be able generate state for rfid setup block", () => {
-    const setupBlock = workspace.newBlock("rfid_setup") as BlockSvg;
+  const configureSetup = (
+    loopNumber: number,
+    scannedCard: boolean,
+    cardNumber: string,
+    tag: string
+  ) => {
+    setupBlock.setFieldValue(loopNumber.toString(), "LOOP");
+    setupBlock.setFieldValue(scannedCard ? "TRUE" : "FALSE", "scanned_card");
+    setupBlock.setFieldValue(tag, "tag");
+    setupBlock.setFieldValue(cardNumber, "card_number");
 
+    saveSensorSetupBlockData(createTestEvent(setupBlock.id)).forEach(updater);
+  };
+
+  const createVariableBlock = (
+    variableName: string,
+    type: VariableTypes,
+    sensorBlock: Block
+  ): BlockSvg => {
+    const varBlock = createSetVariableBlockWithValue(
+      workspace,
+      variableName,
+      type,
+      getDefaultValue(type) as string | number | boolean | { red: number; green: number; blue: number }
+    );
+    varBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
+
+    varBlock.getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
+
+    return varBlock as BlockSvg;
+  };
+
+  const verifyComponent = (
+    state: ArduinoFrame,
+    hasCard: boolean,
+    tag: string,
+    cardNumer: string
+  ) => {
+    const rfidState = findComponent<RfidState>(state, ArduinoComponentType.RFID)!;
+
+    expect(rfidState.scannedCard).toBe(hasCard);
+    expect(rfidState.tag).toBe(tag);
+    expect(rfidState.cardNumber).toBe(cardNumer);
+  };
+
+  const verifyVariables = (
+    state: ArduinoFrame,
+    hasCard: boolean | undefined,
+    cardNumber: string | undefined,
+    tag: string | undefined
+  ) => {
+    if (hasCard !== undefined) {
+      expect(state.variables["has_card"].value).toBe(hasCard);
+    }
+    if (tag !== undefined) {
+      expect(state.variables["tag_number"].value).toBe(tag);
+    }
+    if (cardNumber !== undefined) {
+      expect(state.variables["card_number"].value).toBe(cardNumber);
+    }
+  };
+
+  it("reads scan state, card number and tag through three loop iterations", () => {
     const rfidHasScanCardBlock = workspace.newBlock("rfid_scan");
     const rfidCardNumberBlock = workspace.newBlock("rfid_card");
     const rfidTagBlock = workspace.newBlock("rfid_tag");
 
-    setSetupBlock(1, true, "card_1", "tag_1", setupBlock);
-    setSetupBlock(2, false, "", "", setupBlock);
-    setSetupBlock(3, true, "card_3", "tag_3", setupBlock);
+    configureSetup(1, true, "card_1", "tag_1");
+    configureSetup(2, false, "", "");
+    configureSetup(3, true, "card_3", "tag_3");
 
     const hasCardVarBlock = createVariableBlock(
       "has_card",
       VariableTypes.BOOLEAN,
-      rfidHasScanCardBlock,
-      workspace
+      rfidHasScanCardBlock
     );
-
     const cardNumberVarBlock = createVariableBlock(
       "card_number",
       VariableTypes.STRING,
-      rfidCardNumberBlock,
-      workspace
+      rfidCardNumberBlock
     );
-
     const tagNumberVarBlock = createVariableBlock(
       "tag_number",
       VariableTypes.STRING,
-      rfidTagBlock,
-      workspace
+      rfidTagBlock
     );
 
     connectToArduinoBlock(hasCardVarBlock);
@@ -107,69 +169,3 @@ describe("rfid value factories", () => {
     verifyVariables(state9, true, "card_3", "tag_3");
   });
 });
-
-const verifyComponent = (
-  state: ArduinoFrame,
-  hasCard: boolean,
-  tag: string,
-  cardNumer: string
-) => {
-  const rfidState = findComponent<RfidState>(state, ArduinoComponentType.RFID)!;
-
-  expect(rfidState.scannedCard).toBe(hasCard);
-  expect(rfidState.tag).toBe(tag);
-  expect(rfidState.cardNumber).toBe(cardNumer);
-};
-
-const verifyVariables = (
-  state: ArduinoFrame,
-  hasCard: boolean | undefined,
-  cardNumber: string | undefined,
-  tag: string | undefined
-) => {
-  if (hasCard !== undefined) {
-    expect(state.variables["has_card"].value).toBe(hasCard);
-  }
-
-  if (tag !== undefined) {
-    expect(state.variables["tag_number"].value).toBe(tag);
-  }
-
-  if (cardNumber !== undefined) {
-    expect(state.variables["card_number"].value).toBe(cardNumber);
-  }
-};
-
-const createVariableBlock = (
-  variableName: string,
-  type: VariableTypes,
-  sensorBlock: Block,
-  workspace: Workspace
-) => {
-  const varBlock = createSetVariableBlockWithValue(
-    workspace,
-    variableName,
-    type,
-    getDefaultValue(type) as string | number | boolean | { red: number; green: number; blue: number }
-  );
-  varBlock.getInput("VALUE")!.connection!.targetBlock()!.dispose(true);
-
-  varBlock.getInput("VALUE")!.connection!.connect(sensorBlock.outputConnection!);
-
-  return varBlock;
-};
-
-const setSetupBlock = (
-  loopNumber: number,
-  scannedCard: boolean,
-  cardNumber: string,
-  tag: string,
-  setupBlock: BlockSvg
-) => {
-  setupBlock.setFieldValue(loopNumber.toString(), "LOOP");
-  setupBlock.setFieldValue(scannedCard ? "TRUE" : "FALSE", "scanned_card");
-  setupBlock.setFieldValue(tag, "tag");
-  setupBlock.setFieldValue(cardNumber, "card_number");
-
-  saveSensorSetupBlockData(createTestEvent(setupBlock.id)).forEach(updater);
-};

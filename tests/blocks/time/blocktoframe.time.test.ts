@@ -1,3 +1,7 @@
+/**
+ * time_setup regression: converts the seconds field into a TIME component on
+ * the pre-setup frame. Full frame shape locked via toEqual.
+ */
 import "@/core/blockly/blocks";
 import type { Workspace, BlockSvg } from "blockly";
 
@@ -28,7 +32,7 @@ describe("time state factories", () => {
     timesetup.setFieldValue(".3", "time_in_seconds");
   });
 
-  it("should be able generate state for time setup block", () => {
+  it("time_setup generates the full setup frame with the interval", () => {
     const event = createTestEvent(timesetup.id);
 
     const timeState: TimeState = {

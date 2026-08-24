@@ -1,7 +1,14 @@
+/**
+ * Joystick block regression — rewritten in harness style.
+ * Every assertion from the original bespoke test is preserved; the sensor
+ * setup flow (saveSensorSetupBlockData + updater) stays on raw primitives
+ * because it simulates two iterations of setup-block data rather than a
+ * plain block stack.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
-import type { Workspace, BlockSvg } from "blockly";
+import type { Workspace } from "blockly";
 import {
   createArduinoAndWorkSpace,
   createSetVariableBlockWithValue,
@@ -10,28 +17,34 @@ import {
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
 import { updater } from "@/core/blockly/updater";
 import { saveSensorSetupBlockData } from "@/core/blockly/actions/saveSensorSetupBlockData";
-import {
-  ArduinoComponentType,
-  ArduinoFrame,
-} from "@/core/frames/arduino.frame";
+import { ArduinoComponentType } from "@/core/frames/arduino.frame";
+import type { ArduinoFrame } from "@/core/frames/arduino.frame";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import type { JoystickState } from "@/blocks/joystick/state";
 import { VariableTypes } from "@/core/blockly/dto/variable.type";
 import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 
-describe("Tests the joy stick out", () => {
+describe("joystick blocks", () => {
   let workspace: Workspace;
-  let joystickSetup;
   let arduinoSetupBlock;
 
   afterEach(() => {
     workspace.dispose();
   });
 
+  /** Pins are identical across all joystick states under test. */
+  const expectPins = (frame: ArduinoFrame) => {
+    const state = frame.components[0] as JoystickState;
+    expect(state.type).toBe(ArduinoComponentType.JOYSTICK);
+    expect(state.xPin).toBe(ARDUINO_PINS.PIN_A2);
+    expect(state.yPin).toBe(ARDUINO_PINS.PIN_A4);
+    expect(state.buttonPin).toBe(ARDUINO_PINS.PIN_7);
+  };
+
   beforeEach(() => {
     [workspace, arduinoSetupBlock] = createArduinoAndWorkSpace();
     arduinoSetupBlock.setFieldValue("2", "LOOP_TIMES");
-    joystickSetup = workspace.newBlock("joystick_setup") as BlockSvg;
+    const joystickSetup = workspace.newBlock("joystick_setup");
     joystickSetup.setFieldValue(ARDUINO_PINS.PIN_A2, "PIN_X");
     joystickSetup.setFieldValue(ARDUINO_PINS.PIN_A4, "PIN_Y");
     joystickSetup.setFieldValue(ARDUINO_PINS.PIN_7, "PIN_BUTTON");
@@ -44,6 +57,8 @@ describe("Tests the joy stick out", () => {
       updater
     );
 
+    // Second save simulates the sensor data changing between loop
+    // iterations — the frames must reflect the LATEST setup values.
     joystickSetup.setFieldValue("2", "LOOP");
     joystickSetup.setFieldValue("TRUE", "ENGAGED");
     joystickSetup.setFieldValue("90", "DEGREE");
@@ -70,31 +85,25 @@ describe("Tests the joy stick out", () => {
 
     const event = createTestEvent(degreeVarBlock.id);
 
-    const frameContainer = eventToFrameFactory(event);
-    const frames = frameContainer.frames;
+    const frames = eventToFrameFactory(event).frames;
     expect(frames.length).toBe(3);
 
     const [frame1, frame2, frame3] = frames;
     expect(frame1.explanation).toBe("Setting up joystick.");
-    verifyState(frame1, false, false, 0);
-    verifyState(frame2, false, false, 0);
-    verifyState(frame3, true, true, 90);
+    expectPins(frame1);
+    expect((frame1.components[0] as JoystickState).degree).toBe(0);
+    expect((frame1.components[0] as JoystickState).buttonPressed).toBe(false);
+    expect((frame1.components[0] as JoystickState).engaged).toBe(false);
+
+    expectPins(frame2);
+    expect((frame2.components[0] as JoystickState).degree).toBe(0);
+    expect((frame2.components[0] as JoystickState).buttonPressed).toBe(false);
+    expect((frame2.components[0] as JoystickState).engaged).toBe(false);
+
+    expectPins(frame3);
+    expect((frame3.components[0] as JoystickState).degree).toBe(90);
+    expect((frame3.components[0] as JoystickState).buttonPressed).toBe(true);
+    expect((frame3.components[0] as JoystickState).engaged).toBe(true);
   });
 
-  function verifyState(
-    frame: ArduinoFrame,
-    engaged: boolean,
-    pressed: boolean,
-    degrees: number
-  ) {
-    const state = frame.components[0] as JoystickState;
-    expect(state.type).toBe(ArduinoComponentType.JOYSTICK);
-    expect(state.xPin).toBe(ARDUINO_PINS.PIN_A2);
-    expect(state.yPin).toBe(ARDUINO_PINS.PIN_A4);
-    expect(state.buttonPin).toBe(ARDUINO_PINS.PIN_7);
-
-    expect(state.degree).toBe(degrees);
-    expect(state.buttonPressed).toBe(pressed);
-    expect(state.engaged).toBe(engaged);
-  }
 });

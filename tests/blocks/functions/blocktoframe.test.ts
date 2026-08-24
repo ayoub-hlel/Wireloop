@@ -1,15 +1,17 @@
+/**
+ * Function (procedures) block regression — data-driven specs (see ../_harness).
+ * Every assertion from the original bespoke test preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
 import "@/core/blockly/blocks";
-import type { Workspace, BlockSvg } from "blockly";
-import {
-  createArduinoAndWorkSpace,
-  createTestEvent,
-} from "../../app/tests.helper";
+import { createArduinoAndWorkSpace } from "../../app/tests.helper";
 import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
 import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
+import { createTestEvent } from "../../app/tests.helper";
 
-describe("generate states for functions", () => {
+describe("function blocks", () => {
   let workspace: Workspace;
   let arduinoBlock: BlockSvg;
 
@@ -22,22 +24,21 @@ describe("generate states for functions", () => {
     arduinoBlock.setFieldValue("1", "LOOP_TIMES");
   });
 
-  it("should be able to create an call a function", () => {
-    const functionBlock = workspace.newBlock("procedures_defnoreturn");
+  it("defines a function and emits a calling frame for its call block", () => {
+    const functionBlock = workspace.newBlock("procedures_defnoreturn") as BlockSvg;
     functionBlock.setFieldValue("funcName", "NAME");
-    const debugBlock = workspace.newBlock("debug_block");
-    functionBlock
-      .getInput("STACK")!.connection!.connect(debugBlock.previousConnection!);
 
-    const funcCallBlock = workspace.newBlock(
-      "procedures_callnoreturn"
-    ) as BlockSvg;
+    // The debug block lives inside the function body; executing the call
+    // must produce one frame for the call itself and one for each body block.
+    const debugBlock = workspace.newBlock("debug_block") as BlockSvg;
+    functionBlock.getInput("STACK")!.connection!.connect(debugBlock.previousConnection!);
+
+    const funcCallBlock = workspace.newBlock("procedures_callnoreturn") as BlockSvg;
     funcCallBlock.setFieldValue("funcName", "NAME");
     connectToArduinoBlock(funcCallBlock);
 
-    const event = createTestEvent(funcCallBlock.id);
+    const states = eventToFrameFactory(createTestEvent(funcCallBlock.id)).frames;
 
-    const states = eventToFrameFactory(event).frames;
     expect(states.length).toBe(2);
     const [state1, state2] = states;
     expect(state1.blockId).toBe(funcCallBlock.id);

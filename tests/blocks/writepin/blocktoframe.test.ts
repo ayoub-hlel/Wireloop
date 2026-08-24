@@ -1,122 +1,141 @@
-import type { BlockSvg, Workspace } from "blockly";
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+/**
+ * writepin blocks (digital_write / analog_write).
+ * Rewritten from the bespoke blocktoframe test; every assertion kept, plus a
+ * default-value case for analog_write.
+ */
+import type { Workspace } from "blockly";
+import { describe, it, beforeEach, afterEach } from "vitest";
 
 import "@/core/blockly/blocks";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
 import { ArduinoComponentType } from "@/core/frames/arduino.frame";
-import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
+import { createArduinoAndWorkSpace } from "../../app/tests.helper";
 import {
-  createArduinoAndWorkSpace,
-  createTestEvent,
-  createValueBlock,
-} from "../../app/tests.helper";
-import { WritePinState, WritePinType } from "@/blocks/writepin/state";
+  stack,
+  framesFor,
+  expectFrame,
+} from "../_harness/block.harness";
+import { WritePinType } from "@/blocks/writepin/state";
 
-describe("test leds", () => {
-  let workspace: Workspace;
+describe("writepin blocks", () => {
+  let ws: Workspace;
+  let arduinoBlock: import("blockly").BlockSvg;
+
   beforeEach(() => {
-    [workspace] = createArduinoAndWorkSpace();
+    [ws, arduinoBlock] = createArduinoAndWorkSpace();
   });
   afterEach(() => {
-    workspace.dispose();
+    ws.dispose();
   });
 
-  it("should not create 1 digital write pin if they share the same pin number.", () => {
-    const ledBlock1 = workspace.newBlock("digital_write");
-    ledBlock1.setFieldValue("3", "PIN");
-    ledBlock1.setFieldValue("ON", "STATE");
-
-    const ledBlock2 = workspace.newBlock("digital_write");
-    ledBlock2.setFieldValue("3", "PIN");
-    ledBlock2.setFieldValue("OFF", "STATE");
-
-    connectToArduinoBlock(ledBlock2 as BlockSvg);
-    connectToArduinoBlock(ledBlock1 as BlockSvg);
-
-    const event = createTestEvent(ledBlock2.id);
-
-    const [frame1, frame2] = eventToFrameFactory(event).frames;
-    expect(frame1.components.length).toBe(1);
-    expect(frame1.components[0].pins).toEqual(["3"]);
-    expect((frame1.components[0] as WritePinState).state).toBe(1);
-    expect((frame1.components[0] as WritePinState).pinType).toBe(
-      WritePinType.DIGITAL_OUTPUT
+  it("digital_write on the same pin replaces the previous state", () => {
+    const [, second] = stack(
+      ws,
+      [
+        { type: "digital_write", fields: { PIN: "3", STATE: "ON" } },
+        { type: "digital_write", fields: { PIN: "3", STATE: "OFF" } },
+      ],
+      arduinoBlock,
     );
-    expect(frame1.explanation).toBe("Turning pin 3 on.");
+    const [frame1, frame2] = framesFor(second);
 
-    expect(frame2.components.length).toBe(1);
-    expect(frame2.components[0].pins).toEqual(["3"]);
-    expect((frame2.components[0] as WritePinState).state).toBe(0);
-    expect((frame2.components[0] as WritePinState).pinType).toBe(
-      WritePinType.DIGITAL_OUTPUT
-    );
-    expect(frame2.explanation).toBe("Turning pin 3 off.");
+    expectFrame(frame1, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.WRITE_PIN,
+          pins: ["3"],
+          state: 1,
+          fields: { pinType: WritePinType.DIGITAL_OUTPUT },
+        },
+      ],
+      explanation: "Turning pin 3 on.",
+    });
+    expectFrame(frame2, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.WRITE_PIN,
+          pins: ["3"],
+          state: 0,
+          fields: { pinType: WritePinType.DIGITAL_OUTPUT },
+        },
+      ],
+      explanation: "Turning pin 3 off.",
+    });
   });
 
-  it("should create 2 digital write pins if they are using different pins", () => {
-    const ledBlock1 = workspace.newBlock("digital_write");
-    ledBlock1.setFieldValue("3", "PIN");
-    ledBlock1.setFieldValue("ON", "STATE");
-
-    const ledBlock2 = workspace.newBlock("digital_write");
-    ledBlock2.setFieldValue("5", "PIN");
-    ledBlock2.setFieldValue("OFF", "STATE");
-
-    connectToArduinoBlock(ledBlock2 as BlockSvg);
-    connectToArduinoBlock(ledBlock1 as BlockSvg);
-
-    const event = createTestEvent(ledBlock2.id);
-
-    const [frame1, frame2] = eventToFrameFactory(event).frames;
-    expect(frame1.components.length).toBe(1);
-    expect(frame1.components[0].pins).toEqual(["3"]);
-    expect((frame1.components[0] as WritePinState).state).toBe(1);
-    expect((frame1.components[0] as WritePinState).pinType).toBe(
-      WritePinType.DIGITAL_OUTPUT
+  it("digital_write on different pins coexists with its own state", () => {
+    const [, second] = stack(
+      ws,
+      [
+        { type: "digital_write", fields: { PIN: "3", STATE: "ON" } },
+        { type: "digital_write", fields: { PIN: "5", STATE: "OFF" } },
+      ],
+      arduinoBlock,
     );
-    expect(frame1.explanation).toBe("Turning pin 3 on.");
+    const [frame1, frame2] = framesFor(second);
 
-    expect(frame2.components.length).toBe(2);
-    const led3State = frame2.components.find(
-      (c) => c.type === ArduinoComponentType.WRITE_PIN && (c as WritePinState).pin === ARDUINO_PINS.PIN_3
-    ) as WritePinState;
-
-    const led5State = frame2.components.find(
-      (c) => c.type === ArduinoComponentType.WRITE_PIN && (c as WritePinState).pin === ARDUINO_PINS.PIN_5
-    ) as WritePinState;
-
-    expect(led5State.pinType).toBe(WritePinType.DIGITAL_OUTPUT);
-    expect(led3State.pinType).toBe(WritePinType.DIGITAL_OUTPUT);
-
-    expect(led3State.pin).toBe("3");
-    expect(led5State.pin).toBe("5");
-
-    expect(led3State.state).toBe(1);
-    expect(led5State.state).toBe(0);
-
-    expect(frame2.explanation).toBe("Turning pin 5 off.");
+    expectFrame(frame1, {
+      count: 1,
+      components: [{ pins: ["3"], state: 1 }],
+      explanation: "Turning pin 3 on.",
+    });
+    expectFrame(frame2, {
+      count: 2,
+      components: [
+        {
+          pins: ["3"],
+          fields: { pin: "3", state: 1, pinType: WritePinType.DIGITAL_OUTPUT },
+        },
+        {
+          pins: ["5"],
+          fields: { pin: "5", state: 0, pinType: WritePinType.DIGITAL_OUTPUT },
+        },
+      ],
+      explanation: "Turning pin 5 off.",
+    });
   });
 
-  it("should be able to do an led fade block", () => {
-    const ledFadeBlock = workspace.newBlock("analog_write");
-    connectToArduinoBlock(ledFadeBlock as BlockSvg);
-    ledFadeBlock.setFieldValue("9", "PIN");
-    const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 30);
-    ledFadeBlock
-      .getInput("WRITE_VALUE")!.connection!.connect(numBlock.outputConnection!);
-    connectToArduinoBlock(ledFadeBlock as BlockSvg);
-    const event = createTestEvent(ledFadeBlock.id);
-
-    const [frame1] = eventToFrameFactory(event).frames;
-
-    expect(frame1.components.length).toBe(1);
-    expect((frame1.components[0] as WritePinState).pinType).toBe(
-      WritePinType.ANALOG_OUTPUT
+  it("analog_write sends an input value to the pin", () => {
+    const [write] = stack(
+      ws,
+      [
+        {
+          type: "analog_write",
+          fields: { PIN: "9" },
+          values: { WRITE_VALUE: { num: 30 } },
+        },
+      ],
+      arduinoBlock,
     );
-    expect((frame1.components[0] as WritePinState).state).toBe(30);
-    expect((frame1.components[0] as WritePinState).pin).toBe("9");
-    expect(frame1.explanation).toBe("Sending 30 to pin 9.");
+    const [frame1] = framesFor(write);
+
+    expectFrame(frame1, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.WRITE_PIN,
+          pins: ["9"],
+          state: 30,
+          fields: { pinType: WritePinType.ANALOG_OUTPUT, pin: "9" },
+        },
+      ],
+      explanation: "Sending 30 to pin 9.",
+    });
+  });
+
+  it("analog_write defaults to 1 when no value is wired", () => {
+    const [write] = stack(
+      ws,
+      [{ type: "analog_write", fields: { PIN: "6" } }],
+      arduinoBlock,
+    );
+    const [frame1] = framesFor(write);
+
+    expectFrame(frame1, {
+      count: 1,
+      components: [{ state: 1, pins: ["6"] }],
+      explanation: "Sending 1 to pin 6.",
+    });
   });
 });

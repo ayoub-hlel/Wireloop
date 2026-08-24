@@ -1,101 +1,83 @@
+/**
+ * Servo blocks — rotation state accumulation across pins.
+ * Rewritten from the bespoke blocktoframe test; every assertion kept.
+ */
+import type { Workspace } from "blockly";
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
 
 import "@/core/blockly/blocks";
-
-import {
-  createArduinoAndWorkSpace,
-  createValueBlock,
-  createTestEvent,
-} from "../../app/tests.helper";
-import type { Workspace, BlockSvg } from "blockly";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
+import { createArduinoAndWorkSpace } from "../../app/tests.helper";
+import type { BlockSvg } from "blockly";
 import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
-import { findComponent } from "@/core/frames/transformer/frame-transformer.helpers";
 import {
   ArduinoComponentType,
   ArduinoFrame,
 } from "@/core/frames/arduino.frame";
+import { findComponent } from "@/core/frames/transformer/frame-transformer.helpers";
 import type { ServoState } from "@/blocks/servo/state";
+import {
+  stack,
+  framesFor,
+  expectFrame,
+} from "../_harness/block.harness";
 
-describe("test servos factories", () => {
-  let workspace: Workspace;
-
-  afterEach(() => {
-    workspace.dispose();
-  });
+describe("servo blocks", () => {
+  let ws: Workspace;
+  let arduinoBlock: BlockSvg;
 
   beforeEach(() => {
-    [workspace] = createArduinoAndWorkSpace();
+    [ws, arduinoBlock] = createArduinoAndWorkSpace();
+  });
+  afterEach(() => {
+    ws.dispose();
   });
 
-  it("should be able to create different arduino", () => {
-    const servo6Block1 = createServoBlock(20, ARDUINO_PINS.PIN_6);
-    const servo6Block2 = createServoBlock(120, ARDUINO_PINS.PIN_6);
-    const servo9Block1 = createServoBlock(29, ARDUINO_PINS.PIN_9);
-    const servo9Block2 = createServoBlock(140, ARDUINO_PINS.PIN_9);
+  it("rotates servos on different pins and keeps per-pin degrees", () => {
+    const [firstServo] = stack(
+      ws,
+      [
+        { type: "rotate_servo", fields: { PIN: ARDUINO_PINS.PIN_6 }, values: { DEGREE: { num: 20 } } },
+        { type: "rotate_servo", fields: { PIN: ARDUINO_PINS.PIN_9 }, values: { DEGREE: { num: 29 } } },
+        { type: "rotate_servo", fields: { PIN: ARDUINO_PINS.PIN_6 }, values: { DEGREE: { num: 120 } } },
+        { type: "rotate_servo", fields: { PIN: ARDUINO_PINS.PIN_9 }, values: { DEGREE: { num: 140 } } },
+      ],
+      arduinoBlock,
+    );
 
-    connectToArduinoBlock(servo6Block1);
-    servo6Block1.nextConnection!.connect(servo9Block1.previousConnection!);
-    servo9Block1.nextConnection!.connect(servo6Block2.previousConnection!);
-    servo6Block2.nextConnection!.connect(servo9Block2.previousConnection!);
-
-    const event = createTestEvent(servo6Block1.id);
-
-    const [state1, state2, state3, state4] = eventToFrameFactory(event).frames;
+    const [state1, state2, state3, state4] = framesFor(firstServo);
 
     expect(state1.explanation).toBe("Servo 6 is rotating to 20 degrees.");
     expect(state2.explanation).toBe("Servo 9 is rotating to 29 degrees.");
     expect(state3.explanation).toBe("Servo 6 is rotating to 120 degrees.");
     expect(state4.explanation).toBe("Servo 9 is rotating to 140 degrees.");
 
-    const servo6State1 = findComponent<ServoState>(
-      state1,
-      ArduinoComponentType.SERVO,
-      ARDUINO_PINS.PIN_6
-    )!;
-    expect(state1.components.length).toBe(1);
-    expect(servo6State1.degree).toBe(20);
+    expectFrame(state1, {
+      count: 1,
+      components: [{ type: ArduinoComponentType.SERVO, fields: { degree: 20 } }],
+    });
+
+    const verifyServos = (
+      frame: ArduinoFrame,
+      servo6Degree: number,
+      servo9Degree: number,
+    ) => {
+      const servo6 = findComponent<ServoState>(
+        frame,
+        ArduinoComponentType.SERVO,
+        ARDUINO_PINS.PIN_6,
+      )!;
+      const servo9 = findComponent<ServoState>(
+        frame,
+        ArduinoComponentType.SERVO,
+        ARDUINO_PINS.PIN_9,
+      )!;
+      expect(servo6.degree).toBe(servo6Degree);
+      expect(servo9.degree).toBe(servo9Degree);
+      expect(frame.components.length).toBe(2);
+    };
 
     verifyServos(state2, 20, 29);
     verifyServos(state3, 120, 29);
     verifyServos(state4, 120, 140);
   });
-
-  const createServoBlock = (degree: number, pin: ARDUINO_PINS) => {
-    const rotateServo = workspace.newBlock("rotate_servo") as BlockSvg;
-    const numberBlock = createValueBlock(
-      workspace,
-      VariableTypes.NUMBER,
-      degree
-    );
-    rotateServo.setFieldValue(pin, "PIN");
-    rotateServo
-      .getInput("DEGREE")!.connection!.connect(numberBlock.outputConnection!);
-
-    return rotateServo;
-  };
-
-  const verifyServos = (
-    state: ArduinoFrame,
-    servo6Degree: number,
-    servo9Degree: number
-  ) => {
-    const servoState6 = findComponent<ServoState>(
-      state,
-      ArduinoComponentType.SERVO,
-      ARDUINO_PINS.PIN_6
-    )!;
-
-    const servoState9 = findComponent<ServoState>(
-      state,
-      ArduinoComponentType.SERVO,
-      ARDUINO_PINS.PIN_9
-    )!;
-
-    expect(servoState6.degree).toBe(servo6Degree);
-    expect(servoState9.degree).toBe(servo9Degree);
-    expect(state.components.length).toBe(2);
-  };
 });

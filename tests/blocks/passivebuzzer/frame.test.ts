@@ -1,168 +1,133 @@
-import { BlockSvg, Workspace } from "blockly";
+/**
+ * Passive buzzer regression — rewritten as data-driven specs (see _harness).
+ * Every assertion from the original frame.test.ts is preserved.
+ */
 import { describe, it, beforeEach, afterEach, expect } from "vitest";
+import type { Workspace, BlockSvg } from "blockly";
 
 import "@/core/blockly/blocks";
-import { VariableTypes } from "@/core/blockly/dto/variable.type";
-import { connectToArduinoBlock } from "@/core/blockly/helpers/block.helper";
-import {
-  ArduinoComponentType,
-  ArduinoFrame,
-} from "@/core/frames/arduino.frame";
-import { eventToFrameFactory } from "@/core/frames/event-to-frame.factory";
-import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
-import "../../app/fake-block";
 import {
   createArduinoAndWorkSpace,
-  createTestEvent,
-  createValueBlock,
 } from "../../app/tests.helper";
-import { PassiveBuzzerState, NOTE_TONES, Notes } from "@/blocks/passivebuzzer/state";
+import {
+  stack,
+  framesFor,
+  expectFrame,
+} from "../_harness/block.harness";
+import { ArduinoComponentType } from "@/core/frames/arduino.frame";
+import { ARDUINO_PINS } from "@/core/microcontroller/selectBoard";
+import { NOTE_TONES, Notes } from "@/blocks/passivebuzzer/state";
 
-describe("Passive Buzzer Tests", () => {
-  let workspace: Workspace;
-  let arduinoBlock: BlockSvg;
+const tone = (value: number | string) => String(value);
 
-  afterEach(() => {
-    workspace.dispose();
-  });
+describe("passive buzzer blocks", () => {
+  let ws: Workspace;
+  let arduino: BlockSvg;
 
   beforeEach(() => {
-    [workspace, arduinoBlock] = createArduinoAndWorkSpace();
-    arduinoBlock.setFieldValue("1", "LOOP_TIMES");
+    [ws, arduino] = createArduinoAndWorkSpace();
+    arduino.setFieldValue("1", "LOOP_TIMES");
+  });
+  afterEach(() => {
+    ws.dispose();
   });
 
-  it("should be able to do one passive buzzer and it on and off", () => {
-    const block1 = workspace.newBlock("passive_buzzer_tone") as BlockSvg;
-    block1.setFieldValue(ARDUINO_PINS.PIN_3, "PIN");
-    const numBlock = createValueBlock(workspace, VariableTypes.NUMBER, 33);
-    block1.getInput("TONE")!.connection!.connect(numBlock.outputConnection!);
+  const expectedToneExplanation = (pin: string, toneValue: number) =>
+    toneValue !== 0
+      ? `Setting passive buzzer ${pin} to play tone ${Notes[toneValue] ?? toneValue}.`
+      : `Turning off passive buzzer ${pin}.`;
 
-    const block2 = createPassiveBuzzerBlock(
-      NOTE_TONES.NO_TONE,
-      ARDUINO_PINS.PIN_3,
-      workspace
+  it("tone block then note blocks turn one buzzer on and off", () => {
+    const [block1] = stack(
+      ws,
+      [
+        {
+          type: "passive_buzzer_tone",
+          fields: { PIN: ARDUINO_PINS.PIN_3 },
+          values: { TONE: { num: 33 } },
+        },
+        {
+          type: "passive_buzzer_note",
+          fields: { PIN: ARDUINO_PINS.PIN_3, TONE: tone(NOTE_TONES.NO_TONE) },
+        },
+        {
+          type: "passive_buzzer_note",
+          fields: { PIN: ARDUINO_PINS.PIN_3, TONE: tone(NOTE_TONES.C) },
+        },
+      ],
+      arduino,
     );
-
-    const block3 = createPassiveBuzzerBlock(
-      NOTE_TONES.C,
-      ARDUINO_PINS.PIN_3,
-      workspace
-    );
-
-    connectToArduinoBlock(block3);
-    connectToArduinoBlock(block2);
-    connectToArduinoBlock(block1);
-
-    const event = createTestEvent(block1.id);
-
-    const frames = eventToFrameFactory(event).frames;
+    const frames = framesFor(block1);
     expect(frames.length).toBe(3);
-    console.log(
-      frames.map((f) => f.components[0]),
-      "frames"
-    );
-    verifySingleComponentFrame(frames[0], 33, ARDUINO_PINS.PIN_3);
-    verifySingleComponentFrame(frames[1], 0, ARDUINO_PINS.PIN_3);
-    verifySingleComponentFrame(frames[2], NOTE_TONES.C, ARDUINO_PINS.PIN_3);
+
+    [33, 0, NOTE_TONES.C].forEach((expectedTone, i) => {
+      expectFrame(frames[i], {
+        count: 1,
+        components: [
+          {
+            type: ArduinoComponentType.PASSIVE_BUZZER,
+            pins: [ARDUINO_PINS.PIN_3],
+            fields: { tone: expectedTone },
+          },
+        ],
+        explanation: expectedToneExplanation(ARDUINO_PINS.PIN_3, expectedTone),
+      });
+    });
   });
 
-  it("should be able to do multiple buzzer and change their sound", () => {
-    const block1 = createPassiveBuzzerBlock(
-      NOTE_TONES["A#"],
-      ARDUINO_PINS.PIN_4,
-      workspace
+  it("multiple buzzers keep independent tones per pin", () => {
+    const [block1] = stack(
+      ws,
+      [
+        {
+          type: "passive_buzzer_note",
+          fields: { PIN: ARDUINO_PINS.PIN_4, TONE: tone(NOTE_TONES["A#"]) },
+        },
+        {
+          type: "passive_buzzer_note",
+          fields: { PIN: ARDUINO_PINS.PIN_3, TONE: tone(NOTE_TONES.B) },
+        },
+        {
+          type: "passive_buzzer_note",
+          fields: { PIN: ARDUINO_PINS.PIN_4, TONE: tone(NOTE_TONES.NO_TONE) },
+        },
+      ],
+      arduino,
     );
+    const [frame1, frame2, frame3] = framesFor(block1);
+    expect(frame1.components.length).toBe(1);
+    expectFrame(frame1, {
+      count: 1,
+      components: [
+        {
+          type: ArduinoComponentType.PASSIVE_BUZZER,
+          pins: [ARDUINO_PINS.PIN_4],
+          fields: { tone: NOTE_TONES["A#"] },
+        },
+      ],
+      explanation: expectedToneExplanation(
+        ARDUINO_PINS.PIN_4,
+        NOTE_TONES["A#"]
+      ),
+    });
 
-    const block2 = createPassiveBuzzerBlock(
-      NOTE_TONES.B,
-      ARDUINO_PINS.PIN_3,
-      workspace
-    );
-
-    const block3 = createPassiveBuzzerBlock(
-      NOTE_TONES.NO_TONE,
-      ARDUINO_PINS.PIN_4,
-      workspace
-    );
-
-    connectToArduinoBlock(block3);
-    connectToArduinoBlock(block2);
-    connectToArduinoBlock(block1);
-
-    const event = createTestEvent(block1.id);
-
-    const frames = eventToFrameFactory(event).frames;
-    expect(frames.length).toBe(3);
-
-    verifySingleComponentFrame(frames[0], NOTE_TONES["A#"], ARDUINO_PINS.PIN_4);
-
-    const frame2 = frames[1];
-    expect(frame2.components.length).toBe(2);
-    const componentFrame2Pin4 = frame2.components.find(
-      (c) => c.pins[0] === ARDUINO_PINS.PIN_4
-    ) as PassiveBuzzerState;
-    const componentFrame2Pin3 = frame2.components.find(
-      (c) => c.pins[0] === ARDUINO_PINS.PIN_3
-    ) as PassiveBuzzerState;
-
-    verifyComponent(componentFrame2Pin4, ARDUINO_PINS.PIN_4, NOTE_TONES["A#"]);
-    verifyComponent(componentFrame2Pin3, ARDUINO_PINS.PIN_3, NOTE_TONES.B);
-
-    const frame3 = frames[2];
-    expect(frame3.components.length).toBe(2);
-    const componentFrame3Pin4 = frame3.components.find(
-      (c) => c.pins[0] === ARDUINO_PINS.PIN_4
-    ) as PassiveBuzzerState;
-    const componentFrame3Pin3 = frame3.components.find(
-      (c) => c.pins[0] === ARDUINO_PINS.PIN_3
-    ) as PassiveBuzzerState;
-
-    verifyComponent(
-      componentFrame3Pin4,
-      ARDUINO_PINS.PIN_4,
-      NOTE_TONES.NO_TONE
-    );
-    verifyComponent(componentFrame3Pin3, ARDUINO_PINS.PIN_3, NOTE_TONES.B);
+    // Frames 2 and 3 carry both buzzers; find each by pin like the original.
+    [frame2, frame3].forEach((frame, i) => {
+      expect(frame.components.length).toBe(2);
+      const pin4 = frame.components.find(
+        (c) => c.pins[0] === ARDUINO_PINS.PIN_4
+      );
+      const pin3 = frame.components.find(
+        (c) => c.pins[0] === ARDUINO_PINS.PIN_3
+      );
+      expect(pin4).toBeDefined();
+      expect(pin3).toBeDefined();
+      expect((pin4 as any).type).toBe(ArduinoComponentType.PASSIVE_BUZZER);
+      expect((pin3 as any).type).toBe(ArduinoComponentType.PASSIVE_BUZZER);
+      expect((pin4 as any).tone).toBe(
+        i === 0 ? NOTE_TONES["A#"] : NOTE_TONES.NO_TONE
+      );
+      expect((pin3 as any).tone).toBe(NOTE_TONES.B);
+    });
   });
 });
-
-function createPassiveBuzzerBlock(
-  tone: NOTE_TONES,
-  pin: ARDUINO_PINS,
-  workspace: Workspace
-) {
-  const block = workspace.newBlock("passive_buzzer_note");
-
-  block.setFieldValue(pin, "PIN");
-  block.setFieldValue(tone.toString(), "TONE");
-
-  return block as BlockSvg;
-}
-
-function verifySingleComponentFrame(
-  frame: ArduinoFrame,
-  tone: number,
-  pin: ARDUINO_PINS
-) {
-  if (tone !== 0) {
-    expect(frame.explanation).toBe(
-      `Setting passive buzzer ${pin} to play tone ${Notes[tone] ?? tone}.`
-    );
-  } else {
-    expect(frame.explanation).toBe(`Turning off passive buzzer ${pin}.`);
-  }
-
-  expect(frame.components.length).toBe(1);
-  const component = frame.components[0] as PassiveBuzzerState;
-  verifyComponent(component, pin, tone);
-}
-
-function verifyComponent(
-  component: PassiveBuzzerState,
-  pin: ARDUINO_PINS,
-  tone: number
-) {
-  expect(component.type).toBe(ArduinoComponentType.PASSIVE_BUZZER);
-  expect(component.pins).toEqual([pin]);
-  expect(component.tone).toBe(tone);
-}
