@@ -226,3 +226,16 @@ export const invitesRelations = relations(invites, ({ one }) => ({
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(user, { fields: [notifications.userId], references: [user.id] }),
 }));
+
+// Append-only audit trail for sensitive mutations. The DB trigger added in
+// migration 0006 makes UPDATE/DELETE impossible even for the table owner —
+// the application can only ever INSERT here.
+export const auditLog = pgTable('audit_log', {
+  id: text('id').primaryKey(),
+  actorUserId: text('actor_user_id').references(() => user.id, { onDelete: 'set null' }),
+  action: text('action').notNull(),
+  targetType: text('target_type'),
+  targetId: text('target_id'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
