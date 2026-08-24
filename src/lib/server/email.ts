@@ -30,8 +30,17 @@ export async function sendEmail({
     });
     console.warn('[EMAIL] sendEmail done', { to, subject });
   } catch (e) {
-    Sentry.captureException(e, { tags: { service: 'email', action: 'send' }, extra: { to, subject } });
-    console.warn('[EMAIL] sendEmail error', { to, subject, error: String(e) });
+    // Email failures must be LOUD: a missing/invalid RESEND_API_KEY or an
+    // unverified sending domain otherwise fails invisibly and blocks every
+    // verification / invite / password-reset flow with zero signal.
+    // ponytail: swallowed, not rethrown — callers are fire-and-forget (`void
+    // sendVerificationEmail`) or user-facing flows where a bounce must not 500.
+    Sentry.captureException(e, {
+      level: 'warning',
+      tags: { service: 'email', action: 'send-failed' },
+      extra: { to, subject },
+    });
+    console.error('[EMAIL] send FAILED', { to, subject, error: String(e) });
   }
 }
 

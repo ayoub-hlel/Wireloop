@@ -35,7 +35,18 @@
      submitting = true;
      try {
        await authStore.signUp(email, password, username);
-       sentEmail = email;
+       // Truthful UX: in dev (verification disabled) better-auth signs the user
+       // in during signUp — refresh the session store and let the redirect guard
+       // take over. Only claim "we sent an email" when no session was granted.
+       await authStore.init(true);
+       if (!$authStore.isLoggedIn) {
+         sentEmail = email;
+         resendCooldown = 60;
+         const interval = setInterval(() => {
+           resendCooldown--;
+           if (resendCooldown <= 0) clearInterval(interval);
+         }, 1000);
+       }
      } catch (e: unknown) {
        error = e instanceof Error ? e.message : "Sign up failed";
      } finally {

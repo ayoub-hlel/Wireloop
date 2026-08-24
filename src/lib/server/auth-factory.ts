@@ -43,6 +43,11 @@ export type AuthFactoryDeps = {
    */
   disableEmailVerification?: boolean;
   /**
+   * Pre-built Better Auth database (test seam) — overrides the Neon client
+   * built from databaseUrl so tests can point Better Auth at pglite.
+   */
+  database?: BetterAuthOptions["database"];
+  /**
    * Distributed KV store (Upstash Redis). Enables better-auth's rate limiter to
    * use atomic INCR across all Workers isolates instead of per-isolate memory.
    */
@@ -59,7 +64,8 @@ export function createAuth(deps: AuthFactoryDeps) {
   const db = drizzle(sql, { schema });
 
   return betterAuth({
-    database: drizzleAdapter(db, { provider: "pg", schema }),
+    // Test seam: injected database wins over the Neon client.
+    database: deps.database ?? drizzleAdapter(db, { provider: "pg", schema }),
     secret: deps.secret,
     basePath: "/api/auth",
     baseURL: {
