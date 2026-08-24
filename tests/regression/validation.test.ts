@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { project, user, organization, projectShare, invite, notification } from '../../src/lib/server/validation';
-import { z } from 'zod';
 
 describe('Validation Schemas — Security', () => {
   // safeName isn't exported, so exercise it through project.create — the real
@@ -51,36 +50,41 @@ describe('Validation Schemas — Security', () => {
     });
   });
 
-  describe('usernameSchema', () => {
-    const schema = z.string().min(2).max(30).regex(/^[a-zA-Z0-9_-]+$/);
+  describe('usernameSchema (via user.updateProfile — the real production path)', () => {
+    // Same principle as safeName above: exercise the exported schema, never a
+    // local copy of the regex. A weakened source regex must fail here.
+    const parseUsername = (username: string) =>
+      user.updateProfile.safeParse({ username }).success;
 
     it('accepts valid usernames', () => {
-      expect(schema.safeParse('john').success).toBe(true);
-      expect(schema.safeParse('john_doe').success).toBe(true);
-      expect(schema.safeParse('john-doe').success).toBe(true);
-      expect(schema.safeParse('JohnDoe123').success).toBe(true);
+      expect(parseUsername('john')).toBe(true);
+      expect(parseUsername('john_doe')).toBe(true);
+      expect(parseUsername('john-doe')).toBe(true);
+      expect(parseUsername('JohnDoe123')).toBe(true);
     });
 
     it('rejects invalid usernames', () => {
-      expect(schema.safeParse('a').success).toBe(false); // too short
-      expect(schema.safeParse('user name').success).toBe(false); // space
-      expect(schema.safeParse('user@name').success).toBe(false); // special char
-      expect(schema.safeParse('user.name').success).toBe(false); // dot
+      expect(parseUsername('a')).toBe(false); // too short
+      expect(parseUsername('user name')).toBe(false); // space
+      expect(parseUsername('user@name')).toBe(false); // special char
+      expect(parseUsername('user.name')).toBe(false); // dot
+      expect(parseUsername('a'.repeat(31))).toBe(false); // too long
     });
   });
 
-  describe('slugSchema', () => {
-    const schema = z.string().min(2).max(50).regex(/^[a-z0-9-]+$/);
+  describe('slugSchema (via organization.create — the real production path)', () => {
+    const parseSlug = (slug: string) =>
+      organization.create.safeParse({ name: 'Org', slug }).success;
 
     it('accepts valid slugs', () => {
-      expect(schema.safeParse('my-org').success).toBe(true);
-      expect(schema.safeParse('org123').success).toBe(true);
+      expect(parseSlug('my-org')).toBe(true);
+      expect(parseSlug('org123')).toBe(true);
     });
 
     it('rejects invalid slugs', () => {
-      expect(schema.safeParse('My-Org').success).toBe(false); // uppercase
-      expect(schema.safeParse('my_org').success).toBe(false); // underscore
-      expect(schema.safeParse('my org').success).toBe(false); // space
+      expect(parseSlug('My-Org')).toBe(false); // uppercase
+      expect(parseSlug('my_org')).toBe(false); // underscore
+      expect(parseSlug('my org')).toBe(false); // space
     });
   });
 
