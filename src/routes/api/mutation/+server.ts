@@ -1,6 +1,6 @@
 import { json, error, isHttpError } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
-import { projects, settings, profiles, projectFiles, starredProjects, organizations, orgMembers, sharedProjects, invites, notifications } from '$lib/db/schema/projects';
+import { projects, settings, profiles, projectFiles, starredProjects, organizations, orgMembers, sharedProjects, invites, notifications, auditLog } from '$lib/db/schema/projects';
 import { user as userTable } from '$lib/db/schema/auth';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { generateId } from 'better-auth';
@@ -167,6 +167,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         }
         await db.delete(projectFiles).where(eq(projectFiles.projectId, data.projectId as string));
         await db.delete(projects).where(eq(projects.id, data.projectId as string));
+        await writeAudit(db, me, 'projects:deleteProject', 'project', data.projectId as string, { name: existing.name });
         return json({ success: true });
       }
 
@@ -179,6 +180,11 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         console.warn('[MUTATION] case:projects:saveProjectFile', { projectId: data.projectId, user: me });
         // Security: never trust client-supplied userId — always scope to the session user.
         const uid = me;
+        // Security: the caller must have write access to the project — otherwise any
+        // user could attach file rows to someone else's project.
+        const target = await db.select().from(projects).where(eq(projects.id, data.projectId as string)).then(r => r[0]);
+        if (!target) throw error(404, 'Not found');
+        await requireProjectWrite(db, target, uid);
         const storageId = isR2Configured() ? `r2:${data.projectId as string}` : `inline:${data.projectId as string}`;
         if (isR2Configured() && data.content) {
           await putFile(`projects/${data.projectId as string}.xml`, data.content as string, 'application/xml').catch(e => console.error('R2 upload failed, falling back to inline:', e));
@@ -251,6 +257,18 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         console.warn('[MUTATION] case:projects:forkProject', { projectId: data.projectId, user: me });
         const source = await db.select().from(projects).where(eq(projects.id, data.projectId as string)).then(r => r[0]);
         if (!source) throw error(404, 'Not found');
+        // Security: forking copies the full workspace — only allow it when the
+        // caller can already see the source. 404 (not 403) so private-project
+        // existence isn't leaked either.
+        if (!source.isPublic && source.userId !== me) {
+          let canSee = false;
+          if (source.orgId) canSee = !!(await getOrgRole(db, source.orgId, me));
+          if (!canSee) {
+            const share = await db.select().from(sharedProjects).where(and(eq(sharedProjects.projectId, source.id), eq(sharedProjects.sharedWithUserId, me))).then(r => r[0]);
+            canSee = !!share;
+          }
+          if (!canSee) throw error(404, 'Not found');
+        }
         const taken = await containerProjectNames(db, { kind: 'personal', userId: me });
         const forkName = uniqueCopyName(source.name, taken);
         const id = generateId();
@@ -269,6 +287,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         await requireProjectWrite(db, row, me);
         await db.update(projects).set({ deletedAt: new Date(), deletedBy: me }).where(eq(projects.id, data.projectId as string));
         if (row.orgId) await notifyOrgMembers(db, row.orgId, me, 'org_project_deleted', { projectName: row.name });
+        await writeAudit(db, me, 'projects:trashProject', 'project', data.projectId as string);
         return json({ success: true });
       }
 
@@ -341,6 +360,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         if (!target) throw error(404, 'Member not found');
         if (target.role === 'owner') throw error(403, 'Cannot change owner role');
         await db.update(orgMembers).set({ role: data.role as OrgRole }).where(and(eq(orgMembers.orgId, data.orgId as string), eq(orgMembers.userId, data.userId as string)));
+        await writeAudit(db, me, 'org:changeRole', 'org', data.orgId as string, { targetUser: data.userId, newRole: data.role });
         return json({ success: true });
       }
 
@@ -354,6 +374,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         await db.update(orgMembers).set({ role: 'owner' }).where(and(eq(orgMembers.orgId, data.orgId as string), eq(orgMembers.userId, newOwner)));
         await db.update(orgMembers).set({ role: 'admin' }).where(and(eq(orgMembers.orgId, data.orgId as string), eq(orgMembers.userId, me)));
         await db.insert(notifications).values({ id: generateId(), userId: newOwner, type: 'ownership_transferred', payload: { orgId: data.orgId as string }, createdAt: new Date() });
+        await writeAudit(db, me, 'org:transferOwnership', 'org', data.orgId as string, { newOwner: newOwner });
         return json({ success: true });
       }
 
@@ -364,10 +385,14 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         if (!target) return json({ success: true });
         if (target.role === 'owner') throw error(403, 'Cannot remove owner');
         await db.delete(orgMembers).where(and(eq(orgMembers.orgId, data.orgId as string), eq(orgMembers.userId, data.userId as string)));
+        await writeAudit(db, me, 'org:removeMember', 'org', data.orgId as string, { removedUser: data.userId });
         return json({ success: true });
       }
 
       case 'org:leave': {
+        // Security/UX: leaving requires membership — previously a non-member got
+        // a silent success. Owners still must transfer first (requireNotOwner).
+        await requireOrgRole(db, data.orgId as string, me, 'viewer');
         await requireNotOwner(db, data.orgId as string, me);
         await db.delete(orgMembers).where(and(eq(orgMembers.orgId, data.orgId as string), eq(orgMembers.userId, me)));
         return json({ success: true });
@@ -414,6 +439,7 @@ export async function POST({ request, locals, getClientAddress, platform }) {
         await db.update(projects).set({ userId: newOwner }).where(eq(projects.id, data.projectId as string));
         await db.update(sharedProjects).set({ sharedWithUserId: me, permission: 'edit' }).where(and(eq(sharedProjects.projectId, data.projectId as string), eq(sharedProjects.sharedWithUserId, newOwner)));
         await db.insert(notifications).values({ id: generateId(), userId: newOwner, type: 'ownership_transferred', payload: { projectId: data.projectId as string, projectName: proj.name }, createdAt: new Date() });
+        await writeAudit(db, me, 'project:transferOwnership', 'project', data.projectId as string, { newOwner: newOwner });
         return json({ success: true });
       }
 
@@ -436,6 +462,13 @@ export async function POST({ request, locals, getClientAddress, platform }) {
       }
 
       case 'invite:decline': {
+        // Security: same scoping as accept — only the invited email may decline,
+        // otherwise anyone with an invite id could kill someone else's invite.
+        const inv = await db.select().from(invites).where(eq(invites.id, data.inviteId as string)).then(r => r[0]);
+        if (!inv || inv.status !== 'pending') throw error(404, 'Invite not found');
+        if ((inv.inviteeEmail ?? '').toLowerCase() !== locals.user?.email?.toLowerCase()) {
+          throw error(403, 'This invite was sent to a different email address');
+        }
         await db.update(invites).set({ status: 'declined' }).where(eq(invites.id, data.inviteId as string));
         return json({ success: true });
       }
@@ -475,6 +508,29 @@ export async function POST({ request, locals, getClientAddress, platform }) {
 }
 
 // ── Helpers ──
+
+// Append-only audit entry for sensitive mutations. Fire-and-forget is wrong here:
+// the write must be part of the same committed state as the mutation itself.
+// Never throws into the request path — a failed audit insert must not block UX,
+// but it IS logged loudly.
+async function writeAudit(
+  db: Db,
+  actorId: string,
+  action: string,
+  targetType: string,
+  targetId: string,
+  metadata?: Record<string, unknown>,
+) {
+  try {
+    await db.insert(auditLog).values({
+      id: generateId(), actorUserId: actorId, action,
+      targetType, targetId, metadata: metadata ?? null, createdAt: new Date(),
+    });
+  } catch (e) {
+    console.error('[AUDIT] write failed', { action, targetId, error: String(e) });
+    Sentry.captureException(e, { tags: { route: 'audit' } });
+  }
+}
 
 // ponytail: write access = owner (personal) or admin+ (org). One place, one rule.
 async function requireProjectWrite(db: Db, project: typeof projects.$inferSelect, userId: string) {

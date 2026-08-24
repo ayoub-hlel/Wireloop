@@ -76,13 +76,35 @@ export async function POST({ request, locals, getClientAddress, platform }) {
 
       case 'projects:getProjectFile': {
         if (!locals.user) throw error(401, 'Unauthorized');
-        const uid = (data.userId as string) ?? locals.user.id;
+        const uid = locals.user.id;
+        // Security: ignore any client-supplied userId (IDOR) and authorize against
+        // the project instead: owner, public, org member, or shared collaborator.
+        // Missing/forbidden projects return empty content — same shape as a
+        // project without files, so private-project existence isn't leaked.
+        const proj = await db
+          .select()
+          .from(projects)
+          .where(eq(projects.id, data.projectId as string))
+          .then(r => r[0] ?? null);
+        if (!proj) return json({ content: '' });
+        let canRead = proj.userId === uid || !!proj.isPublic;
+        if (!canRead && proj.orgId) canRead = !!(await getOrgRole(db, proj.orgId, uid));
+        if (!canRead) {
+          const share = await db
+            .select()
+            .from(sharedProjects)
+            .where(and(eq(sharedProjects.projectId, data.projectId as string), eq(sharedProjects.sharedWithUserId, uid)))
+            .then(r => r[0]);
+          canRead = !!share;
+        }
+        if (!canRead) return json({ content: '' });
+        // Load the owner's file row (collaborators read the owner's content).
         const row = await db
           .select()
           .from(projectFiles)
           .where(and(
             eq(projectFiles.projectId, data.projectId as string),
-            eq(projectFiles.userId, uid),
+            eq(projectFiles.userId, proj.userId),
           ))
           .then(r => r[0] ?? null);
         if (!row) return json({ content: '' });
