@@ -143,7 +143,10 @@ async function captureAndUploadThumbnail(projectId: string, workspaceXml?: strin
   const form = new FormData();
   form.append('projectId', projectId);
   form.append('thumbnail', blob, 'thumbnail.png');
-  await fetch('/api/upload/thumbnail', { method: 'POST', body: form, credentials: 'same-origin' });
+  // Background op: check the result but never nag the user — a failed thumbnail
+  // is invisible by design (previously a 429/500 here was swallowed silently).
+  const res = await fetch('/api/upload/thumbnail', { method: 'POST', body: form, credentials: 'same-origin' });
+  if (!res.ok) console.warn('[PROJECT] thumbnail upload failed', { status: res.status });
 }
 
 const enhancedProjectStore = {

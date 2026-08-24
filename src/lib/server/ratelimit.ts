@@ -1,22 +1,29 @@
 import { json } from '@sveltejs/kit';
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 import { env } from '$env/dynamic/private';
+import * as Sentry from '@sentry/sveltekit';
+import { getUpstashRedis } from './upstash';
 
 // ponytail: no Upstash env (local dev) → null limiters → limiting disabled, never 429s locally.
-// Prod sets both vars (validateEnv flags them missing).
-const redis =
-  env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
-    ? new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN })
+// Prod sets both vars (validateEnv hard-fails at boot).
+const redis = getUpstashRedis();
+
+// Per-kind prefix is REQUIRED: every Ratelimit instance defaults to the same
+// "@upstash/ratelimit" prefix, so query/mutation/upload would share one Redis
+// key per identifier and bleed into each other's budgets.
+const make = (kind: string, requests: number) =>
+  redis
+    ? new Ratelimit({
+        prefix: `wl:${kind}`,
+        redis,
+        limiter: Ratelimit.slidingWindow(requests, '10 s'),
+      })
     : null;
 
-const make = (requests: number) =>
-  redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(requests, '10 s') }) : null;
-
 export const limiters = {
-  query: make(60),
-  mutation: make(30),
-  upload: make(5),
+  query: make('query', 60),
+  mutation: make('mutation', 30),
+  upload: make('upload', 5),
 };
 
 export type LimiterKind = keyof typeof limiters;
@@ -41,30 +48,40 @@ export async function checkRateLimit(
   const key = locals.user?.id ?? getClientAddress();
   console.warn('[RATELIMIT] checkRateLimit entry', { kind, key });
 
-  // ponytail: Upstash REST can throw "Illegal invocation" or hang — wrap in
-  // try-catch so a broken rate limiter never takes down the entire API. Fail
-  // open: if limiting is broken, let the request through rather than 500ing.
+  // ponytail: Upstash REST can throw "Illegal invocation" or hang — fail open so a
+  // broken limiter never takes down the API, but capture to Sentry so outages surface.
+  const pass = { success: true as const, reset: 0 };
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    // ponytail: race against 300ms budget — Upstash can take ~2s cross-region.
-    const { success, reset } = await Promise.race([
-      limiter.limit(key),
-      new Promise<{ success: boolean; reset: number }>(r =>
-        setTimeout(() => r({ success: true, reset: 0 }), 300),
-      ),
+    // Race against a 300ms budget — Upstash can take ~2s cross-region. The loser
+    // of Promise.race must have its rejection pre-caught: a late REST failure on
+    // the dangling promise would otherwise be an unhandledRejection and can kill
+    // the Workers isolate after we already responded.
+    const result = await Promise.race([
+      limiter.limit(key).catch((e: unknown) => {
+        Sentry.captureException(e, { tags: { component: 'ratelimit', action: 'fail-open', kind } });
+        return pass;
+      }),
+      new Promise<{ success: true; reset: number }>(resolve => {
+        timer = setTimeout(() => resolve(pass), 300);
+      }),
     ]);
-    if (success) {
+    clearTimeout(timer);
+
+    if (result.success) {
       console.warn('[RATELIMIT] passed', { kind, key });
       return null;
     }
 
-    const retryAfter = Math.max(1, Math.ceil((reset - Date.now()) / 1000));
+    const retryAfter = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
     console.warn('[RATELIMIT] rate limited', { kind, key, retryAfter });
     return json(
       { message: 'Too many requests' },
       { status: 429, headers: { 'Retry-After': String(retryAfter) } },
     );
   } catch (e) {
-    console.error('[RATELIMIT CAUGHT]', String(e));
+    clearTimeout(timer);
+    Sentry.captureException(e, { tags: { component: 'ratelimit', action: 'fail-open', kind } });
     console.warn('[RATELIMIT] error — failing open', { kind, key, error: String(e) });
     return null; // ponytail: rate limiter broken → fail open, never block API
   }

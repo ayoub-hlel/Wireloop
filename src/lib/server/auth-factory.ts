@@ -42,6 +42,16 @@ export type AuthFactoryDeps = {
    * Disable email verification requirement (for tests).
    */
   disableEmailVerification?: boolean;
+  /**
+   * Distributed KV store (Upstash Redis). Enables better-auth's rate limiter to
+   * use atomic INCR across all Workers isolates instead of per-isolate memory.
+   */
+  secondaryStorage?: {
+    get: (key: string) => Promise<string | null>;
+    set: (key: string, value: string, ttl?: number) => Promise<void>;
+    delete: (key: string) => Promise<void>;
+    increment: (key: string, ttl?: number) => Promise<number>;
+  };
 };
 
 export function createAuth(deps: AuthFactoryDeps) {
@@ -85,6 +95,21 @@ export function createAuth(deps: AuthFactoryDeps) {
 
     // ── Social / OAuth providers ────────────────────────────────
     ...(deps.socialProviders ? { socialProviders: deps.socialProviders } : {}),
+
+    // ── Distributed rate limiting (brute-force protection) ─────
+    // Without this, better-auth throttles sign-in/sign-up/password-reset in
+    // per-isolate memory — useless across Cloudflare Workers isolates.
+    ...(deps.secondaryStorage
+      ? {
+          secondaryStorage: deps.secondaryStorage,
+          rateLimit: {
+            enabled: true,
+            storage: "secondary-storage" as const,
+            window: 60, // seconds
+            max: 10,
+          },
+        }
+      : {}),
 
     // ── Password complexity hook ─────────────────────────────────
     hooks: {

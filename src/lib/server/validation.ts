@@ -60,7 +60,9 @@ export const project = {
   saveFile: z.object({
     projectId: uuid,
     userId: uuid.optional(),
-    content: z.string().optional().default(''),
+    // ponytail: 512KB cap — real Arduino sketches are KBs; unbounded content lets
+    // any authenticated user bloat Postgres/R2 with multi-MB bodies per request.
+    content: z.string().max(524_288).optional().default(''),
     filename: z.string().optional(),
   }).strict(),
 

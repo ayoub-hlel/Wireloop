@@ -30,4 +30,21 @@ describe('validateEnv (WL-017)', () => {
     validateEnv();
     expect(spy).not.toHaveBeenCalled();
   });
+
+  it('hard-fails in production when required vars are missing', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    env.NODE_ENV = 'production';
+    delete env.UPSTASH_REDIS_REST_URL;
+    delete env.UPSTASH_REDIS_REST_TOKEN;
+    expect(() => validateEnv()).toThrow(/UPSTASH_REDIS_REST_URL/);
+  });
+
+  it('stays warn-only in development when optional vars are missing', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    env.NODE_ENV = 'development';
+    delete env.UPSTASH_REDIS_REST_URL;
+    expect(() => validateEnv()).not.toThrow();
+    expect(warnSpy).toHaveBeenCalled();
+  });
 });

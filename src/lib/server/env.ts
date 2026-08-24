@@ -16,6 +16,11 @@ export function validateEnv(): void {
   if (missing.length > 0) {
     console.error(`Missing required env vars: ${missing.join(", ")}`);
     console.warn('[ENV] missing required vars', { missing });
+    // ponytail: hard-fail in prod — silently booting without rate limiting or DB
+    // config is worse than a loud crash. Dev stays warn-only.
+    if (env.NODE_ENV === "production") {
+      throw new Error(`Missing required env vars: ${missing.join(", ")}`);
+    }
   }
   // ponytail: fail fast on redis:// URLs — Upstash REST client needs https:// (WL-017 class);
   // a bad value otherwise 500s every API route at first request instead of being flagged at boot.

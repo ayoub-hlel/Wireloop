@@ -5,6 +5,7 @@ import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { setR2Binding } from '$lib/server/r2';
 import { validateEnv } from '$lib/server/env';
 import { logServerError, logRequest } from '$lib/server/log';
+import { withSecurityHeaders } from '$lib/server/security-headers';
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { building, dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
@@ -100,7 +101,7 @@ export const handle: Handle = sequence(
           event.platform?.ctx?.waitUntil?.bind(event.platform.ctx),
         );
       }
-      return res;
+      return withSecurityHeaders(res, isProd);
     } else {
       console.warn('[HOOKS] no session found');
       // Auth factory unavailable (missing DATABASE_URL/BETTER_AUTH_SECRET or
@@ -137,5 +138,5 @@ export const handle: Handle = sequence(
       event.platform?.ctx?.waitUntil?.bind(event.platform.ctx),
     );
   }
-  return response;
+  return withSecurityHeaders(response, isProd);
 });

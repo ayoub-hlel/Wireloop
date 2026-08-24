@@ -177,7 +177,8 @@ export async function POST({ request, locals, getClientAddress, platform }) {
 
       case 'projects:saveProjectFile': {
         console.warn('[MUTATION] case:projects:saveProjectFile', { projectId: data.projectId, user: me });
-        const uid = (data.userId as string) ?? me;
+        // Security: never trust client-supplied userId — always scope to the session user.
+        const uid = me;
         const storageId = isR2Configured() ? `r2:${data.projectId as string}` : `inline:${data.projectId as string}`;
         if (isR2Configured() && data.content) {
           await putFile(`projects/${data.projectId as string}.xml`, data.content as string, 'application/xml').catch(e => console.error('R2 upload failed, falling back to inline:', e));
@@ -420,6 +421,11 @@ export async function POST({ request, locals, getClientAddress, platform }) {
       case 'invite:accept': {
         const inv = await db.select().from(invites).where(eq(invites.id, data.inviteId as string)).then(r => r[0]);
         if (!inv || inv.status !== 'pending') throw error(404, 'Invite not found');
+        // Security: only the invited email may accept — invite IDs are guessable-enough
+        // tokens, and accepting someone else's invite would grant org/project access.
+        if (inv.inviteeEmail && inv.inviteeEmail !== locals.user?.email?.toLowerCase()) {
+          throw error(403, 'This invite was sent to a different email address');
+        }
         if (inv.kind === 'org') {
           await db.insert(orgMembers).values({ orgId: inv.orgId!, userId: me, role: inv.role as OrgRole, createdAt: new Date() }).onConflictDoNothing();
         } else {

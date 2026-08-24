@@ -3,6 +3,7 @@ import { sveltekitCookies } from "better-auth/svelte-kit";
 import { getRequestEvent } from "$app/server";
 import { env } from "$env/dynamic/private";
 import * as Sentry from '@sentry/sveltekit';
+import { getUpstashSecondaryStorage } from "./upstash";
 
 let _auth: ReturnType<typeof createAuth> | null = null;
 
@@ -52,6 +53,11 @@ export function getAuth(baseURL?: string) {
         socialProviders: Object.keys(socialProviders).length > 0 ? socialProviders : undefined,
         disableEmailVerification: env.NODE_ENV === 'development',
         extraPlugins: [sveltekitCookies(getRequestEvent)],
+        // Distributed brute-force protection on /api/auth/* (sign-in, sign-up,
+        // password reset, OAuth callbacks) via Upstash-backed secondaryStorage.
+        ...(getUpstashSecondaryStorage()
+          ? { secondaryStorage: getUpstashSecondaryStorage()! }
+          : {}),
       });
       console.warn('[AUTH] auth instance created successfully');
     } catch (e) {

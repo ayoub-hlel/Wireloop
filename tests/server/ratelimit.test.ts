@@ -1,11 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+// ponytail: the first loadModule() pays the one-time @sentry/sveltekit init cost
+// (~5s cold) — default 5s test timeout is too tight for that single test.
+vi.setConfig({ testTimeout: 20_000 });
+
 // Mock the Upstash modules before importing the limiter (it reads env at import time).
 const limitMock = vi.fn();
+const ratelimitCtorSpy = vi.fn();
+vi.mock('@sentry/sveltekit', () => ({ captureException: vi.fn() }));
 vi.mock('@upstash/ratelimit', () => ({
   Ratelimit: Object.assign(
     class {
       limit = limitMock;
+      constructor(public opts: unknown) {
+        ratelimitCtorSpy(opts);
+      }
     },
     { slidingWindow: vi.fn(() => ({})) },
   ),
@@ -26,6 +35,7 @@ const loadModule = async () => {
 describe('checkRateLimit', () => {
   beforeEach(() => {
     limitMock.mockReset();
+    ratelimitCtorSpy.mockClear();
     process.env.UPSTASH_REDIS_REST_URL = 'http://fake-redis';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'fake-token';
   });
@@ -81,5 +91,34 @@ describe('checkRateLimit', () => {
     const elapsed = Date.now() - t0;
     expect(res).toBeNull();
     expect(elapsed).toBeLessThan(600); // generous margin; the timeout is 300ms
+  });
+
+  it('gives each limiter kind its own Redis prefix', async () => {
+    await loadModule();
+    const prefixes = ratelimitCtorSpy.mock.calls.map(c => (c[0] as { prefix: string }).prefix);
+    expect(prefixes).toContain('wl:query');
+    expect(prefixes).toContain('wl:mutation');
+    expect(prefixes).toContain('wl:upload');
+    expect(new Set(prefixes).size).toBe(3);
+  });
+
+  it('survives a late rejection from a stalled Upstash call without an unhandled rejection', async () => {
+    // Rejects AFTER the 300ms race timeout has already resolved the request —
+    // the dangling loser must have its rejection pre-caught.
+    limitMock.mockImplementation(
+      () => new Promise((_, reject) => setTimeout(() => reject(new Error('late boom')), 400)),
+    );
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    try {
+      const { checkRateLimit } = await loadModule();
+      const res = await checkRateLimit('query', { user: { id: 'u1' } }, () => '127.0.0.1');
+      expect(res).toBeNull();
+      // let the late rejection fire while we're still watching
+      await new Promise(r => setTimeout(r, 500));
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      process.off('unhandledRejection', unhandled);
+    }
   });
 });

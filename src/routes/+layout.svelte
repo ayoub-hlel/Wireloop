@@ -7,6 +7,7 @@
   import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
   import { initializeApiClient } from '../stores/api.client';
+  import { Toaster } from 'svelte-sonner';
 
   let { children }: { children: Snippet } = $props();
 
@@ -33,4 +34,5 @@
   <Tooltip.Provider>
     {@render children()}
   </Tooltip.Provider>
+  <Toaster richColors position="top-center" />
 </main>

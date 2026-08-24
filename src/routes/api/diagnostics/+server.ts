@@ -1,5 +1,6 @@
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import type { RequestEvent } from '@sveltejs/kit';
 import { getDb } from '$lib/db';
 import * as authSchema from '$lib/db/schema/auth';
 import { getAuth } from '$lib/server/auth';
@@ -16,8 +17,12 @@ const ENV_VARS = [
   'GOOGLE_CLIENT_SECRET',
 ] as const;
 
-export async function GET() {
+export async function GET({ locals }: RequestEvent) {
   console.warn('[DIAG] GET entry');
+  // Security: this endpoint reveals env-var presence, DB latency and table counts.
+  // Open in dev; in deployed environments require a session and answer 404 to
+  // anonymous callers so infra status isn't publicly enumerable.
+  if (env.NODE_ENV === 'production' && !locals.user) throw error(404, 'Not found');
   const checks: Record<string, unknown> = {};
 
   checks.env = checkEnv();
