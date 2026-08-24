@@ -1,368 +1,1129 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import * as Card from "$lib/components/ui/card/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Badge } from "$lib/components/ui/badge/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
+  import SunIcon from "@lucide/svelte/icons/sun";
+  import MoonIcon from "@lucide/svelte/icons/moon";
   import { toggleTheme, getTheme } from "$lib/theme.js";
 
-  // ── Theme tracking (reactive for icon display) ───────────────────
   let currentTheme = $state(getTheme());
+  const isDark = $derived(currentTheme === "dark");
   function handleToggle() {
     toggleTheme();
     currentTheme = getTheme();
   }
 
-  // ── Smooth scroll to anchor ──────────────────────────────────────
-  function scrollTo(e: Event, id: string) {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    mobileOpen = false;
-  }
+  let booted = $state(false);
+  let scrolled = $state(false);
+  let activeStep = $state(0);
 
-  // ── Mobile menu state ────────────────────────────────────────────
-  let mobileOpen = $state(false);
-
-  // ── Nav items ────────────────────────────────────────────────────
-  const navItems = [
-    { label: "Product", id: "product" },
-    { label: "Features", id: "features" },
-    { label: "How it works", id: "how" },
-  ];
-
-  // ── Feature data ─────────────────────────────────────────────────
   const features = [
     {
-      title: "Visual Block Editor",
-      body: "Snap together blocks for sensors, actuators, logic, and math. Every connection is valid by construction — no syntax errors, no guessing.",
+      title: "Drag-and-drop editor",
+      body: "Snap blocks for lights, motors and sensors. Connections are always valid, so mistakes can't happen.",
+      icon: "blocks",
     },
     {
-      title: "Real-Time Simulation",
-      body: "LEDs blink, servos turn, sensors react. Your circuit comes to life in the browser before you ever flash a board.",
+      title: "Live circuit simulation",
+      body: "Watch LEDs blink and motors turn before you touch hardware. Pause or step through whenever you like.",
+      icon: "pulse",
     },
     {
-      title: "Code Generation",
-      body: "Every block compiles to real Arduino C++. Copy to your IDE or compile directly from the workspace.",
+      title: "One-click upload",
+      body: "Plug in your board and flash your project instantly. No extra software needed.",
+      icon: "upload",
+    },
+  ] as const;
+
+  const steps = [
+    {
+      n: "01",
+      title: "Build your program",
+      body: "Drag colorful blocks together to build your program. Logic, timing, sensors and actuators snap into place — and only valid connections are allowed, so mistakes can't happen.",
     },
     {
-      title: "Serial Monitor",
-      body: "Watch sensor readings and debug output in real time. Step through your program frame by frame.",
+      n: "02",
+      title: "Wire the circuit",
+      body: "Connect LEDs, motors and sensors on a virtual breadboard. The circuit updates as you build, so you always see exactly what's connected to what.",
+    },
+    {
+      n: "03",
+      title: "Watch it run",
+      body: "Simulate your project instantly, right in the browser. Follow every step, pause whenever you like, and understand precisely what your program does before touching hardware.",
+    },
+    {
+      n: "04",
+      title: "Upload to your board",
+      body: "Plug in your Arduino and flash your project with a single click. No extra tools, no configuration — your creation runs on real hardware in seconds.",
     },
   ];
 
-  const steps = [
-    { n: "01", title: "Drag your blocks", body: "Pick from the toolbox and snap them together. The editor prevents invalid connections." },
-    { n: "02", title: "Wire your circuit", body: "Connect components on a virtual breadboard. The circuit updates live as your program changes." },
-    { n: "03", title: "Generate and deploy", body: "Copy the C++ to your IDE and flash. Or simulate everything right in the browser." },
+  const footerCols = [
+    { head: "Product", links: ["Studio", "Examples", "Changelog"] },
+    { head: "Resources", links: ["Docs", "Site map", "Community"] },
+    { head: "Legal", links: ["Terms of Service", "Privacy Policy", "Safe Use Policy"] },
   ];
+
+  onMount(() => {
+    requestAnimationFrame(() => (booted = true));
+
+    // nav morph — transparent over hero, frosty pill narrows past threshold
+    let ticking = false;
+    let stepEls: HTMLElement[] = [];
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        scrolled = window.scrollY > 80;
+        // active how-it-works step = the one nearest viewport center
+        if (!stepEls.length) stepEls = [...document.querySelectorAll<HTMLElement>(".step")];
+        const mid = window.innerHeight * 0.5;
+        let best = 0;
+        let bestDist = Infinity;
+        stepEls.forEach((el, i) => {
+          const r = el.getBoundingClientRect();
+          const d = Math.abs(r.top + r.height / 2 - mid);
+          if (d < bestDist) {
+            bestDist = d;
+            best = i;
+          }
+        });
+        activeStep = best;
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("is-in");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => io.observe(el));
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      io.disconnect();
+    };
+  });
 </script>
 
 <svelte:head>
   <title>Wireloop — Visual Arduino Programming</title>
-  <meta name="description" content="Build Arduino projects without writing code. Drag blocks, wire circuits, simulate in real time, and generate production C++ — all in your browser." />
+  <meta name="description" content="Build Arduino projects without writing code. Drag blocks, simulate in real time and upload to your board — all in your browser." />
   <meta property="og:title" content="Wireloop — Visual Arduino Programming" />
-  <meta property="og:description" content="Drag blocks, wire circuits, simulate in real time. No syntax. No setup. Just build." />
+  <meta property="og:description" content="Drag blocks, watch it run, upload to your board. No syntax. No setup." />
   <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Wireloop — Visual Arduino Programming" />
-  <meta name="twitter:description" content="Build Arduino projects without writing code. Drag, wire, simulate, deploy." />
   <link rel="canonical" href="https://wireloop.io/" />
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Wireloop",
-      "applicationCategory": "DeveloperTool",
-      "operatingSystem": "Web",
-      "description": "Visual Arduino programming environment. Drag blocks, wire circuits, simulate in the browser, and generate Arduino C++ code.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-  </script>
 </svelte:head>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     NAV — minimal, Apple-style
-     ═══════════════════════════════════════════════════════════════ -->
-<nav class="fixed top-0 left-0 right-0 z-50 h-12 bg-background/80 backdrop-blur-xl border-b border-border/50">
-  <div class="max-w-[980px] mx-auto h-full flex items-center justify-between px-6">
-    <a href="/" class="flex items-center gap-2 no-underline shrink-0">
-      <img src="/LOGO.svg" alt="Wireloop" class="h-5 w-auto" />
+<!-- ── Nav — part of the hero at top, narrows into a frosty pill ── -->
+<nav class="nav-wrap" class:is-booted={booted} aria-label="Primary">
+  <div class="nav-pill" class:is-scrolled={scrolled} style:max-width={scrolled ? "980px" : "1280px"}>
+    <a href="/" class="nav-logo" aria-label="Wireloop home">
+      <img src="/LOGO.svg" alt="" class="nav-logo-img" />
+      <span class="nav-word">Wireloop</span>
+      <Badge variant="outline" class="nav-beta">Beta</Badge>
     </a>
 
-    <!-- Desktop links -->
-    <div class="hidden md:flex items-center gap-7">
-      {#each navItems as item (item.id)}
-        <a
-          href="#{item.id}"
-          onclick={(e) => scrollTo(e, item.id)}
-          class="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150 no-underline"
+    <div class="nav-right">
+      <a
+        href="https://github.com/ayoub-hlel/Wireloop"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="nav-gh"
+        aria-label="GitHub"
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      </a>
+      <div class="theme-switch" role="group" aria-label="Theme">
+        <button
+          class="seg"
+          class:active={!isDark}
+          onclick={() => { if (isDark) handleToggle(); }}
+          aria-label="Light theme"
+          aria-pressed={!isDark}
         >
-          {item.label}
-        </a>
-      {/each}
-    </div>
-
-    <!-- Desktop auth + theme toggle -->
-    <div class="hidden md:flex items-center gap-4">
-      <button
-        onclick={handleToggle}
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors duration-150"
-        aria-label="Toggle theme"
-      >
-        {#if currentTheme === "dark"}
-          <!-- Sun icon in dark mode -->
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-muted-foreground">
-            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-          </svg>
-        {:else}
-          <!-- Moon icon in light mode -->
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-muted-foreground">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        {/if}
-      </button>
-      <a href="/login" class="text-xs text-muted-foreground hover:text-foreground transition-colors duration-150 no-underline">Sign In</a>
-      <a href="/signup" class="text-xs px-3.5 py-1.5 rounded-full font-medium transition-opacity duration-150 no-underline" style="background: hsl(var(--foreground)); color: hsl(var(--background));">Get Started</a>
-    </div>
-
-    <!-- Mobile toggle -->
-    <div class="md:hidden flex items-center gap-2">
-      <button
-        onclick={handleToggle}
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors duration-150"
-        aria-label="Toggle theme"
-      >
-        {#if currentTheme === "dark"}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-muted-foreground">
-            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-          </svg>
-        {:else}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-muted-foreground">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        {/if}
-      </button>
-      <button
-        class="w-8 h-8 flex items-center justify-center"
-        onclick={() => mobileOpen = !mobileOpen}
-        aria-label="Toggle menu"
-        aria-expanded={mobileOpen}
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="text-foreground">
-          {#if !mobileOpen}
-            <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          {:else}
-            <path d="M5 5l8 8M13 5l-8 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          {/if}
-        </svg>
-      </button>
+          <SunIcon size={12} strokeWidth={2} />
+        </button>
+        <button
+          class="seg"
+          class:active={isDark}
+          onclick={() => { if (!isDark) handleToggle(); }}
+          aria-label="Dark theme"
+          aria-pressed={isDark}
+        >
+          <MoonIcon size={12} strokeWidth={2} />
+        </button>
+      </div>
+      <Button href="/signup" class="nav-cta rounded-full h-8 px-4 text-[14px]">Get Started</Button>
     </div>
   </div>
-
-  <!-- Mobile menu -->
-  {#if mobileOpen}
-    <div class="md:hidden bg-background border-b border-border px-6 py-5 space-y-4">
-      {#each navItems as item (item.id)}
-        <a
-          href="#{item.id}"
-          onclick={(e) => scrollTo(e, item.id)}
-          class="block text-sm text-foreground no-underline py-1"
-        >
-          {item.label}
-        </a>
-      {/each}
-      <Separator />
-      <div class="flex flex-col gap-3 pt-2">
-        <a href="/login" class="text-sm text-muted-foreground no-underline">Sign In</a>
-        <a href="/signup" class="text-sm px-4 py-2 rounded-full text-center font-medium no-underline" style="background: hsl(var(--foreground)); color: hsl(var(--background));">Get Started</a>
-      </div>
-    </div>
-  {/if}
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     HERO — big type, centered, no decoration
-     ═══════════════════════════════════════════════════════════════ -->
-<section id="product" class="pt-32 sm:pt-40 pb-20 sm:pb-28 px-6">
-  <div class="max-w-[680px] mx-auto text-center">
-    <h1 class="text-[2.5rem] sm:text-[3.5rem] lg:text-[4rem] leading-[1.08] tracking-tight font-semibold text-foreground mb-6">
-      Build Arduino projects without writing code.
-    </h1>
-    <p class="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-[540px] mx-auto mb-10">
-      Drag blocks, wire circuits, and simulate in real time. Generate production C++ — all in your browser.
-    </p>
-    <div class="flex items-center justify-center gap-5">
-      <a href="/signup" class="text-sm px-5 py-2.5 rounded-full font-medium no-underline hover:opacity-80" style="background: hsl(var(--foreground)); color: hsl(var(--background)); transition: opacity 150ms;">
-        Start Building
-      </a>
-      <a
-        href="#how"
-        onclick={(e) => scrollTo(e, 'how')}
-        class="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 no-underline"
-      >
-        See how it works
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     PRODUCT PREVIEW — full width, no chrome, just the product
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="px-6 pb-28">
-  <div class="max-w-[980px] mx-auto">
-    <div class="rounded-2xl border border-border bg-card overflow-hidden">
-      <!-- Minimal window chrome -->
-      <div class="flex items-center gap-1.5 px-5 py-3 border-b border-border">
-        <span class="w-2.5 h-2.5 rounded-full bg-muted-foreground/20"></span>
-        <span class="w-2.5 h-2.5 rounded-full bg-muted-foreground/20"></span>
-        <span class="w-2.5 h-2.5 rounded-full bg-muted-foreground/20"></span>
-      </div>
-      <!-- Workspace visualization -->
-      <div class="aspect-[16/10] relative bg-background flex items-center justify-center p-8 sm:p-12">
-        <!-- Subtle grid -->
-        <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px); background-size: 48px 48px;"></div>
-
-        <div class="relative z-10 w-full max-w-[700px] grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-8 sm:gap-12 items-center">
-          <!-- Blocks side -->
-          <div class="flex flex-col gap-2.5">
-            <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-muted/50 border border-border w-fit">
-              <span class="w-2 h-2 rounded-full bg-foreground/40"></span>
-              <span class="text-xs font-mono text-foreground">Setup</span>
-            </div>
-            <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-muted/50 border border-border w-fit ml-4">
-              <span class="w-2 h-2 rounded-full bg-foreground/30"></span>
-              <span class="text-xs font-mono text-muted-foreground">Loop</span>
-            </div>
-            <div class="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-muted/50 border border-border w-fit">
-              <span class="w-2 h-2 rounded-full bg-foreground/20"></span>
-              <span class="text-xs font-mono text-muted-foreground/70">Delay</span>
-            </div>
-          </div>
-
-          <!-- Circuit SVG -->
-          <svg viewBox="0 0 240 160" class="w-full max-w-[280px] mx-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Arduino board -->
-            <rect x="10" y="35" width="80" height="90" rx="8" stroke="hsl(var(--foreground))" stroke-width="1" opacity="0.3"/>
-            <text x="50" y="84" text-anchor="middle" fill="hsl(var(--foreground))" font-size="10" font-family="monospace" opacity="0.5">Arduino</text>
-            <!-- Pins -->
-            <rect x="46" y="28" width="8" height="7" rx="1" fill="hsl(var(--foreground))" opacity="0.15"/>
-            <rect x="58" y="125" width="8" height="7" rx="1" fill="hsl(var(--foreground))" opacity="0.15"/>
-            <!-- LED -->
-            <circle cx="180" cy="80" r="22" stroke="hsl(var(--foreground))" stroke-width="1" opacity="0.25"/>
-            <circle cx="180" cy="80" r="8" stroke="hsl(var(--foreground))" stroke-width="1" opacity="0.4"/>
-            <line x1="180" y1="102" x2="180" y2="135" stroke="hsl(var(--foreground))" stroke-width="0.75" opacity="0.2"/>
-            <line x1="170" y1="135" x2="190" y2="135" stroke="hsl(var(--foreground))" stroke-width="0.75" opacity="0.2"/>
-            <!-- Wire -->
-            <path d="M90 45 L150 45 L150 80 L168 80" stroke="hsl(var(--foreground))" stroke-width="1.5" opacity="0.5" stroke-linecap="round"/>
-            <!-- Resistor -->
-            <rect x="140" y="76" width="20" height="8" rx="2" stroke="hsl(var(--foreground))" stroke-width="0.75" opacity="0.3"/>
-            <!-- Pin label -->
-            <text x="50" y="24" text-anchor="middle" fill="hsl(var(--foreground))" font-size="7" font-family="monospace" opacity="0.4">13</text>
-          </svg>
+<main>
+  <!-- ── Hero ───────────────────────────────────────────────────── -->
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div class="hero-copy" class:is-booted={booted}>
+        <p class="hero-eyebrow boot boot-1">Visual Arduino programming</p>
+        <h1 class="ds-h1 boot boot-2">Build Arduino projects<br />without writing code.</h1>
+        <p class="hero-sub boot boot-3">
+          Drag blocks together, watch your circuit run, and upload to your board — right from the browser.
+        </p>
+        <div class="hero-actions boot boot-4">
+          <Button href="/signup" class="pill-primary h-9 px-4 text-[15px] font-medium">Start Building</Button>
+          <Button variant="outline" href="/studio" class="pill-ghost h-9 px-4 text-[15px] font-medium">Open Studio</Button>
+          <a
+            href="https://github.com/ayoub-hlel/Wireloop"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pill-ghost inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-4 text-[15px] font-medium text-foreground"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            GitHub
+          </a>
         </div>
       </div>
+      <!-- right half intentionally empty -->
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     FEATURES — clean list, no cards, generous spacing
-     ═══════════════════════════════════════════════════════════════ -->
-<section id="features" class="py-24 sm:py-32 px-6">
-  <div class="max-w-[680px] mx-auto">
-    <p class="text-sm text-muted-foreground mb-2">Features</p>
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-16 sm:mb-20">
-      Everything you need.
-    </h2>
+  <!-- ── Manifesto ──────────────────────────────────────────────── -->
+  <section class="manifesto reveal">
+    <span class="chip font-mono">BUILD · SIMULATE · FLASH</span>
+    <h2 class="ds-h2">From first block to running board.</h2>
+    <p class="manifesto-line">No syntax to learn. No drivers to install.</p>
+    <p class="manifesto-line muted">Your idea, working on real hardware, in minutes.</p>
+  </section>
 
-    <div class="space-y-16">
-      {#each features as feature (feature.title)}
-        <div>
-          <h3 class="text-xl sm:text-2xl font-semibold text-foreground mb-3 tracking-tight">
-            {feature.title}
-          </h3>
-          <p class="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-[560px]">
-            {feature.body}
-          </p>
-        </div>
-      {/each}
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     HOW IT WORKS — numbered, minimal
-     ═══════════════════════════════════════════════════════════════ -->
-<section id="how" class="py-24 sm:py-32 px-6 border-t border-border">
-  <div class="max-w-[680px] mx-auto">
-    <p class="text-sm text-muted-foreground mb-2">How it works</p>
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-16 sm:mb-20">
-      Three steps. Zero setup.
-    </h2>
-
-    <div class="space-y-12">
-      {#each steps as step (step.n)}
-        <div class="flex gap-5">
-          <span class="text-sm font-mono text-muted-foreground/50 shrink-0 mt-0.5 w-8">{step.n}</span>
-          <div>
-            <h3 class="text-lg sm:text-xl font-semibold text-foreground mb-2 tracking-tight">
-              {step.title}
-            </h3>
-            <p class="text-base text-muted-foreground leading-relaxed max-w-[480px]">
-              {step.body}
-            </p>
+  <!-- ── Feature trio ───────────────────────────────────────────── -->
+  <section class="trio reveal" aria-label="Features">
+    {#each features as f (f.title)}
+      <Card.Root class="feature-card rounded-[10px] border-border shadow-none py-0 gap-0 overflow-hidden">
+        <Card.Content class="p-5 flex flex-col items-center text-center gap-3">
+          <div class="feature-icon" aria-hidden="true">
+            {#if f.icon === "blocks"}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></svg>
+            {:else if f.icon === "pulse"}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /><path d="M12 4v2M12 18v2M4 12h2M18 12h2" /></svg>
+            {:else}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            {/if}
           </div>
+          <Card.Title class="feature-title text-[16px] font-medium tracking-[-0.01em]">{f.title}</Card.Title>
+          <Card.Description class="feature-body text-[14px] leading-relaxed text-muted-foreground m-0">{f.body}</Card.Description>
+        </Card.Content>
+      </Card.Root>
+    {/each}
+  </section>
+
+  <!-- ── How it works — sticky media swaps while text scrolls ──── -->
+  <section class="how" id="how-it-works">
+    <div class="how-head reveal">
+      <span class="chip font-mono">HOW IT WORKS</span>
+      <h2 class="ds-h2 left">Four steps. Zero setup.</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-copy">
+        {#each steps as s, i (s.n)}
+          <div class="step" class:active={activeStep === i}>
+            <span class="step-n font-mono">{s.n}</span>
+            <h3 class="step-title">{s.title}</h3>
+            <p class="step-text">{s.body}</p>
+            <!-- mobile-only: DS-style media under each step -->
+            <div class="media-frame step-media" aria-hidden="true">
+              <span class="media-label font-mono">{s.n} · SCREENSHOT / VIDEO</span>
+            </div>
+          </div>
+        {/each}
+      </div>
+      <div class="how-media">
+        <div class="media-frame">
+          {#each steps as s, i (s.n)}
+            <!-- media placeholder: swap inner box for <img>/<video> when ready -->
+            <div class="media-pane" class:pane-active={activeStep === i} aria-hidden="true">
+              <span class="media-label font-mono">{s.n} · SCREENSHOT / VIDEO</span>
+            </div>
+          {/each}
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Get started ────────────────────────────────────────────── -->
+  <section class="start">
+    <div class="how-head reveal">
+      <span class="chip font-mono">GET STARTED</span>
+      <h2 class="ds-h2 left">Try it now.</h2>
+    </div>
+    <div class="start-grid">
+      <Card.Root class="feature-card start-card rounded-[10px] border-border shadow-none py-0 gap-0">
+        <Card.Content class="p-4 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <Card.Title class="text-sm font-medium mb-0.5">Open Studio</Card.Title>
+            <Card.Description class="text-xs leading-snug text-muted-foreground m-0">Autosaved workspace — blocks, wiring and code in sync.</Card.Description>
+          </div>
+          <Button href="/studio" class="pill-primary h-8 shrink-0 rounded-full px-3.5 text-[14px] font-medium">Open</Button>
+        </Card.Content>
+      </Card.Root>
+      <Card.Root class="feature-card start-card rounded-[10px] border-border shadow-none py-0 gap-0">
+        <Card.Content class="p-4 flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <Card.Title class="text-sm font-medium mb-0.5">Create a free account</Card.Title>
+            <Card.Description class="text-xs leading-snug text-muted-foreground m-0">Save projects and continue on any device.</Card.Description>
+          </div>
+          <Button href="/signup" class="pill-primary h-8 shrink-0 rounded-full px-3.5 text-[14px] font-medium">Sign up</Button>
+        </Card.Content>
+      </Card.Root>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <Separator class="footer-sep" />
+    <div class="footer-grid">
+      <div class="footer-brand-col">
+        <a href="/" class="footer-brand-row" aria-label="Wireloop home">
+          <img src="/LOGO.svg" alt="" class="footer-logo" />
+          <span class="footer-word">Wireloop</span>
+        </a>
+        <p class="footer-tagline">Visual Arduino programming,<br />right in your browser.</p>
+        <a
+          href="https://github.com/ayoub-hlel/Wireloop"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="footer-gh"
+          aria-label="GitHub"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        </a>
+      </div>
+      {#each footerCols as col (col.head)}
+        <nav class="footer-col" aria-label={col.head}>
+          <h4 class="footer-head font-mono">{col.head.toUpperCase()}</h4>
+          <ul class="footer-list">
+            {#each col.links as link (link)}
+              <li><a href="#top" class="footer-link">{link}</a></li>
+            {/each}
+          </ul>
+        </nav>
       {/each}
     </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     CTA — simple, centered
-     ═══════════════════════════════════════════════════════════════ -->
-<section class="py-24 sm:py-32 px-6">
-  <div class="max-w-[480px] mx-auto text-center">
-    <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground mb-4">
-      Start building today.
-    </h2>
-    <p class="text-base sm:text-lg text-muted-foreground mb-10 leading-relaxed">
-      Free to use. No hardware required.
-    </p>
-    <a href="/signup" class="inline-block text-sm px-6 py-3 rounded-full font-medium no-underline hover:opacity-80" style="background: hsl(var(--foreground)); color: hsl(var(--background)); transition: opacity 150ms;">
-      Get Started Free
-    </a>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     FOOTER — minimal
-     ═══════════════════════════════════════════════════════════════ -->
-<footer class="py-6 px-6 border-t border-border">
-  <div class="max-w-[980px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-    <span class="text-xs text-muted-foreground/60">Arduino Workflow Builder</span>
-    <div class="flex items-center gap-5">
-      <a href="/studio" class="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150 no-underline">Studio</a>
-      <a href="/login" class="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150 no-underline">Sign In</a>
-      <a href="/signup" class="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors duration-150 no-underline">Sign Up</a>
+    <Separator class="footer-sep" />
+    <div class="footer-bottom">
+      <span>© {new Date().getFullYear()} Wireloop — All rights reserved.</span>
+      <span class="font-mono footer-status"><span class="status-dot"></span>All systems operational</span>
     </div>
   </div>
 </footer>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     GLOBAL — smooth scroll, respect reduced motion
-     ═══════════════════════════════════════════════════════════════ -->
 <style>
-  :global(html) {
-    scroll-behavior: smooth;
-    scroll-padding-top: 3.5rem;
+  /* rotating conic border — custom property must be registered to animate */
+  @property --border-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes rotating-border {
+    from {
+      --border-angle: 0deg;
+    }
+    to {
+      --border-angle: 360deg;
+    }
   }
 
+  /* ── tokens ─────────────────────────────────────────────────── */
+  main,
+  footer {
+    width: min(100%, 1240px);
+    margin: 0 auto;
+    padding-inline: 1.5rem;
+  }
+  main {
+    scroll-margin-top: 5.5rem;
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* ── nav — part of hero at top, narrows into frosty pill ───── */
+  .nav-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    padding: 0.55rem 1.25rem 0;
+  }
+  .nav-pill {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 7px 7px 7px 15px;
+    transition: max-width 450ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* frosty pill surface — DS ::before pattern */
+  .nav-pill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.52);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    box-shadow:
+      0 1px 0 hsl(var(--background) / 0.4) inset,
+      0 12px 40px -12px hsl(var(--background) / 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 400ms ease-in-out,
+      visibility 0s 400ms;
+  }
+  .nav-pill.is-scrolled::before {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 400ms ease-in-out;
+  }
+  .nav-pill > * {
+    position: relative;
+  }
+  .nav-wrap {
+    opacity: 0;
+    transform: translateY(-0.4rem);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-wrap.is-booted {
+    opacity: 1;
+    transform: none;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    min-width: 0;
+  }
+  .nav-logo-img {
+    height: 22px;
+    width: auto;
+    display: block;
+  }
+  .nav-word {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    font-size: 15.5px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  :global(.nav-beta) {
+    height: auto;
+    padding: 0.08rem 0.45rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    color: hsl(var(--muted-foreground));
+    border-color: hsl(var(--border));
+    background: hsl(var(--card) / 0.5);
+  }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .nav-gh {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    color: hsl(var(--foreground));
+    transition: background 200ms;
+  }
+  .nav-gh:hover {
+    background: hsl(var(--muted));
+  }
+
+  /* ── theme switch — segmented, animated glyphs ─────────────── */
+  .theme-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid hsl(var(--border));
+    border-radius: 999px;
+    background: hsl(var(--card) / 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .seg {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.35rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: hsl(var(--muted-foreground));
+    cursor: pointer;
+    transition:
+      background 300ms,
+      color 300ms;
+  }
+  .seg:hover {
+    color: hsl(var(--foreground));
+  }
+  .seg.active {
+    background: hsl(var(--foreground) / 0.14);
+    color: hsl(var(--foreground));
+  }
+  .seg :global(svg) {
+    transform: scale(0.78);
+    opacity: 0.5;
+    transition:
+      transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 300ms;
+  }
+  .seg.active :global(svg) {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  :global(.nav-cta) {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  @media (max-width: 420px) {
+    :global(.nav-beta) {
+      display: none !important;
+    }
+    .nav-word {
+      font-size: 0.85rem;
+    }
+    :global(.nav-cta) {
+      padding-inline: 0.75rem;
+      font-size: 0.78rem;
+    }
+    .nav-pill {
+      gap: 0.4rem;
+      padding-left: 0.6rem;
+      padding-right: 0.35rem;
+    }
+    .nav-right {
+      gap: 0.25rem;
+    }
+    .theme-switch {
+      padding: 2px;
+      gap: 1px;
+    }
+    .seg {
+      width: 1.35rem;
+    }
+  }
+
+  /* ── typography scale — smaller, more air ──────────────────── */
+  .ds-h1 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(30px, 3.2vw, 46px);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    color: hsl(var(--foreground));
+    margin: 0;
+    text-wrap: balance;
+  }
+  .ds-h2 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: clamp(24px, 2.5vw, 36px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: hsl(var(--foreground));
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .ds-h2.left {
+    text-align: left;
+  }
+  .chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid hsl(var(--border));
+    border-radius: 999px;
+    background: hsl(var(--card) / 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: hsl(var(--muted-foreground));
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── hero ───────────────────────────────────────────────────── */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+  }
+  .hero-inner {
+    width: 100%;
+    max-width: 490px;
+  }
+  .hero-eyebrow {
+    margin: 0 0 18px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: hsl(var(--muted-foreground));
+  }
+  .hero-sub {
+    margin: 1.35rem 0 0;
+    max-width: 430px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: hsl(var(--muted-foreground));
+    text-wrap: pretty;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 2rem;
+  }
+  :global(.pill-primary) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 999px;
+  }
+  :global(.pill-ghost) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 999px;
+    border-color: hsl(var(--border));
+    background: hsl(var(--card) / 0.35);
+    color: hsl(var(--foreground));
+  }
+  :global(.pill-ghost:hover) {
+    background: hsl(var(--card) / 0.35);
+  }
+  /* DS button glow-orb — color fade only, no scale growth */
+  :global(.pill-primary::after),
+  :global(.pill-ghost::after) {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 150ms ease;
+  }
+  :global(.pill-primary::after) {
+    background: hsl(var(--background) / 0.18);
+  }
+  :global(.pill-ghost::after) {
+    background: hsl(var(--foreground) / 0.07);
+  }
+  :global(.pill-primary:hover::after),
+  :global(.pill-ghost:hover::after) {
+    opacity: 1;
+  }
+  :global(.nav-cta) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+  :global(.nav-cta::after) {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    z-index: -1;
+    background: hsl(var(--background) / 0.18);
+    transition: opacity 150ms ease;
+  }
+  :global(.nav-cta:hover::after) {
+    opacity: 1;
+  }
+
+  /* staggered boot — blur-in like the pill fade */
+  .hero-copy .boot {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(8px);
+    transition:
+      opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 800ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hero-copy.is-booted .boot {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+  .boot-1 { transition-delay: 80ms; }
+  .boot-2 { transition-delay: 160ms; }
+  .boot-3 { transition-delay: 240ms; }
+  .boot-4 { transition-delay: 320ms; }
+
+  /* scroll reveal — blur-in */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(10px);
+    transition:
+      opacity 750ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 750ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 750ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal:global(.is-in) {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
   @media (prefers-reduced-motion: reduce) {
-    :global(html) {
-      scroll-behavior: auto;
+    .nav-wrap,
+    .boot,
+    .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      filter: none !important;
+      transition: none !important;
+    }
+    :global(.start-card::before) {
+      animation: none;
+    }
+  }
+
+  /* ── manifesto ──────────────────────────────────────────────── */
+  .manifesto {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 128px 0 120px;
+  }
+  .manifesto-line {
+    margin: 0;
+    font-size: 17px;
+    color: hsl(var(--foreground));
+  }
+  .manifesto-line.muted {
+    color: hsl(var(--muted-foreground));
+    margin-top: -8px;
+  }
+
+  /* ── feature trio ───────────────────────────────────────────── */
+  .trio {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding-bottom: 96px;
+  }
+  @media (max-width: 900px) {
+    .trio {
+      grid-template-columns: 1fr;
+    }
+  }
+  :global(.feature-card) {
+    background: hsl(var(--card) / 0.42);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition:
+      border-color 250ms,
+      transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      background 250ms,
+      box-shadow 250ms;
+  }
+  :global(.feature-card:hover) {
+    border-color: hsl(var(--border-strong));
+    background: hsl(var(--card) / 0.6);
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.4),
+      0 0 48px hsl(var(--foreground) / 0.06),
+      0 16px 40px hsl(0 0% 0% / 0.25);
+  }
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    background: hsl(var(--background) / 0.6);
+    color: hsl(var(--muted-foreground));
+  }
+  .feature-title {
+    margin: 0;
+  }
+  .feature-body {
+    max-width: 22rem;
+  }
+
+  /* ── how it works — sticky swapping media + scrolling copy ──── */
+  .how {
+    padding: 48px 0 136px;
+  }
+  .how-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    max-width: 980px;
+    margin: 0 auto 72px;
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(32px, 4vw, 72px);
+    align-items: start;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  @media (max-width: 860px) {
+    .how-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .how-copy {
+    /* trailing space so the last step can reach viewport center before the sticky unpins */
+    padding-bottom: 26vh;
+    /* top padding keeps step 01 clear of the mask's top fade */
+    padding-top: 110px;
+    /* gradient fade at edges while scrolling through steps */
+    mask-image: linear-gradient(to bottom, transparent 0, black 110px, black calc(100% - 26vh), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 110px, black calc(100% - 26vh), transparent 100%);
+  }
+  .step {
+    min-height: 42vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 440px;
+    opacity: 0.3;
+    transition: opacity 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .step:first-child {
+    min-height: 36vh;
+  }
+  .step:last-child {
+    min-height: 36vh;
+  }
+  .step.active {
+    opacity: 1;
+  }
+  .step-media {
+    display: none;
+  }
+  @media (max-width: 860px) {
+    .step {
+      min-height: 0;
+      padding-block: 1.4rem;
+      opacity: 1;
+      max-width: none;
+    }
+    .how-copy {
+      padding: 0;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+    .how-media {
+      display: none;
+    }
+    .step-media {
+      display: grid;
+      place-items: center;
+      margin-top: 1.4rem;
+    }
+  }
+  .step-n {
+    display: block;
+    margin-bottom: 9px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: hsl(var(--muted-foreground));
+  }
+  .step-title {
+    margin: 0 0 9px;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+    color: hsl(var(--foreground));
+  }
+  .step-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: hsl(var(--muted-foreground));
+  }
+  .how-media {
+    position: sticky;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .media-frame {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card) / 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    /* DS demo-video-frame halo */
+    box-shadow:
+      0 0 0 1px hsl(var(--foreground) / 0.04),
+      0 0 80px hsl(var(--foreground) / 0.06),
+      0 24px 64px hsl(0 0% 0% / 0.3);
+  }
+  .media-pane {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(1.03);
+    filter: blur(6px);
+    transition:
+      opacity 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 550ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .media-pane.pane-active {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  .media-label {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: hsl(var(--muted-foreground));
+    opacity: 0.7;
+  }
+
+  /* ── get started — compact horizontal cards ─────────────────── */
+  .start {
+    padding-bottom: 136px;
+  }
+  .start-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  @media (max-width: 720px) {
+    .start-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  :global(.start-card) {
+    position: relative;
+    background: hsl(var(--card) / 0.42);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition:
+      background 200ms ease,
+      border-color 200ms ease;
+  }
+  :global(.start-card:hover) {
+    background: hsl(var(--card) / 0.6);
+    border-color: transparent;
+  }
+  /* DS rotating conic light-ring, revealed on hover */
+  :global(.start-card::before) {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from var(--border-angle),
+      hsl(var(--primary) / 0.12) 0%,
+      hsl(var(--primary) / 0.55) 25%,
+      hsl(var(--primary) / 0.12) 50%,
+      hsl(var(--primary) / 0.55) 75%,
+      hsl(var(--primary) / 0.12) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+    animation: rotating-border 6s linear infinite;
+  }
+  :global(.start-card:hover::before) {
+    opacity: 1;
+  }
+
+  /* ── footer — DS-style columns ──────────────────────────────── */
+  .footer {
+    padding-bottom: 1.6rem;
+  }
+  .footer-sep {
+    background: hsl(var(--border));
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+    gap: 40px;
+    padding: 52px 0 44px;
+  }
+  @media (max-width: 800px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 480px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 1.6rem;
+    }
+  }
+  .footer-brand-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+  .footer-logo {
+    height: 1.15rem;
+    width: auto;
+  }
+  .footer-word {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+  .footer-tagline {
+    margin: 12px 0 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: hsl(var(--muted-foreground));
+  }
+  .footer-gh {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 999px;
+    color: hsl(var(--muted-foreground));
+    transition:
+      color 200ms,
+      border-color 200ms;
+  }
+  .footer-gh:hover {
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border-strong));
+  }
+  .footer-head {
+    margin: 0 0 14px;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: hsl(var(--muted-foreground));
+    opacity: 0.8;
+  }
+  .footer-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .footer-link {
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    transition: color 180ms;
+  }
+  .footer-link:hover {
+    color: hsl(var(--foreground));
+  }
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 22px;
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+  }
+  .footer-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: hsl(var(--success));
+    box-shadow: 0 0 0 3px hsl(var(--success) / 0.18);
+  }
+  @media (max-width: 640px) {
+    main,
+    footer {
+      padding-inline: 20px;
+    }
+    .manifesto,
+    .how,
+    .start {
+      padding-top: 64px;
+      padding-bottom: 72px;
+    }
+    .trio {
+      padding-bottom: 72px;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>
