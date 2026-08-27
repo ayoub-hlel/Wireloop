@@ -10,6 +10,9 @@ const config = {
   compilerOptions: {
     compatibility: {
       componentApi: 4
+    },
+    warningFilter: (warning) => {
+      return warning.code !== 'css_unused_selector';
     }
   },
 

@@ -34,5 +34,5 @@ export default defineConfig(
   { files: ["**/*.jsonc"], plugins: { json }, language: "json/jsonc", extends: ["json/recommended"] },
   { files: ["**/*.json5"], plugins: { json }, language: "json/json5", extends: ["json/recommended"] },
   { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"] },
-  { files: ["src/globals.css"], plugins: { css }, language: "css/css", rules: { "css/no-invalid-at-rules": "off", "css/no-important": "off", "css/use-baseline": "off" } },
+  { ignores: ["src/app.css"] },
 );
