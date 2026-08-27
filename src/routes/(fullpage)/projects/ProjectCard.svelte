@@ -143,13 +143,13 @@
   .project-card {
     display: flex;
     flex-direction: column;
-    width: min(var(--project-card-width), 100%);
-    max-width: 100%;
+    width: 100%;
+    max-width: var(--project-card-width);
     height: var(--project-card-height);
-    border-radius: 0.75rem;
+    border-radius: var(--ds-radius-lg);
     overflow: hidden;
     background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    border: var(--ds-border-width) solid hsl(var(--border));
     cursor: pointer;
     justify-self: center;
     transition: border-color 150ms, box-shadow 150ms;
@@ -190,15 +190,15 @@
 
   /* Info */
   .card-info {
-    padding: 0.75rem 0.875rem 0.5rem;
+    padding: var(--ds-space-3) calc(var(--ds-space-3) + 2px) var(--ds-space-2);
     flex: 1;
   }
 
   .card-top-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    gap: var(--ds-space-2);
+    margin-bottom: var(--ds-space-1);
   }
 
   .card-name {
@@ -209,28 +209,28 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--ds-tracking-snug);
   }
 
   .card-badge {
     font-size: 0.625rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: var(--ds-tracking-badge);
     color: hsl(var(--muted-foreground));
     background-color: hsl(var(--secondary));
     padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
+    border-radius: var(--ds-radius-xs);
     flex-shrink: 0;
   }
 
   .card-meta {
     margin: 0;
-    font-size: 0.75rem;
+    font-size: var(--ds-text-micro);
     color: hsl(var(--muted-foreground));
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--ds-space-2);
   }
 
   .card-board {
@@ -257,8 +257,8 @@
     display: flex;
     align-items: center;
     gap: 0;
-    padding: 0.375rem 0.5rem 0.5rem;
-    border-top: 1px solid hsl(var(--border));
+    padding: var(--ds-space-2) var(--ds-space-2) var(--ds-space-2);
+    border-top: var(--ds-border-width) solid hsl(var(--border));
   }
 
   .card-action-btn {
@@ -268,7 +268,7 @@
     width: 32px;
     height: 32px;
     border: none;
-    border-radius: 0.375rem;
+    border-radius: var(--ds-radius-sm);
     background: transparent;
     color: hsl(var(--muted-foreground) / 0.6);
     cursor: pointer;

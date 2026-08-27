@@ -33,6 +33,8 @@
   let createOrgOpen = $state(false);
   let trashConfirmId = $state<string | null>(null);
   let mobileStudioOpen = $state(false);
+  // rail state lives here so the content shell can follow the sidebar
+  let collapsed = $state(false);
 
   // ponytail: canCreate = personal (always) OR org where role >= admin.
   // viewers and users can't create; button is hidden.
@@ -144,6 +146,7 @@
   {userImage}
   {orgs}
   bind:selectedOrgId
+  bind:collapsed
   filter={dashboard.filter}
   {canCreate}
   {onSelectOrg}
@@ -196,7 +199,7 @@
   </Dialog.Portal>
 </Dialog.Root>
 
-<div class="main-area">
+<div class="main-area" class:collapsed>
   <header class="main-header">
     <div class="header-left">
       <h1 class="page-title desktop-page-title">{pageTitle}</h1>
@@ -292,27 +295,67 @@
 </div>
 
 <style>
-  .main-area { margin-left: 200px; display: flex; flex-direction: column; height: 100dvh; min-height: 100dvh; overflow: hidden; background-color: hsl(var(--background)); transition: margin-left 200ms ease; }
-  .main-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid hsl(var(--border)); background-color: hsl(var(--background)); }
-  .header-left { display: flex; align-items: center; gap: 0.75rem; }
-  .page-title { font-size: 1.5rem; font-weight: 600; margin: 0; color: hsl(var(--foreground)); letter-spacing: -0.02em; }
-  .main-content { flex: 1; min-height: 0; padding: 2rem; overflow-y: auto; padding-bottom: 5rem; }
+  /* ── Main area: margin follows sidebar state mathematically ── */
+  .main-area {
+    margin-left: var(--sb-width);
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background-color: hsl(var(--background));
+    transition: margin-left 200ms var(--ds-ease-out);
+  }
 
-  .skeleton-grid {
+  /* desktop only — collapsed rail shifts content left by exactly (width - rail) */
+  @media (min-width: 769px) {
+    .main-area.collapsed { margin-left: var(--sb-rail); }
+  }
+
+  /* ─ Header: height = --sb-header, padding shifts with sidebar ── */
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--sb-header);
+    padding: 0 var(--layout-header-pad-x);
+    border-bottom: 1px solid hsl(var(--border));
+    background-color: hsl(var(--background));
+    flex-shrink: 0;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 0.75rem; }
+
+  .page-title {
+    font-size: var(--ds-text-subtitle);
+    font-weight: 600;
+    margin: 0;
+    color: hsl(var(--foreground));
+    letter-spacing: var(--ds-tracking-heading);
+  }
+
+  /* ── Main content: fluid padding, scrollable ── */
+  .main-content {
+    flex: 1;
+    min-height: 0;
+    padding: var(--layout-content-pad-x);
+    padding-bottom: calc(var(--layout-content-pad-x) + 2rem);
+    overflow-y: auto;
+  }
+
+  /* ── Grid: mathematically responsive ──
+     Cards fill available width, shrink to min 260px before wrapping.
+     gap scales with viewport: 1rem on small, 1.5rem on wide.
+     No magic breakpoints — the grid reflows purely from container width. */
+  .skeleton-grid,
+  :global(.project-grid) {
     display: grid;
-    grid-template-columns: repeat(auto-fill, var(--project-card-width));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--project-card-width), 100%), 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
     justify-content: start;
   }
 
-  @media (max-width: 768px) {
-    .skeleton-grid {
-      grid-template-columns: minmax(0, 100%);
-      gap: 1rem;
-      justify-content: center;
-    }
-  }
-
+  /* ── Empty state ── */
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -328,7 +371,7 @@
     justify-content: center;
     width: 64px;
     height: 64px;
-    border-radius: 1rem;
+    border-radius: var(--ds-radius-xl);
     background-color: hsl(var(--muted));
     color: hsl(var(--muted-foreground));
     margin-bottom: 1.25rem;
@@ -336,14 +379,14 @@
 
   .empty-title {
     margin: 0 0 0.375rem;
-    font-size: 1rem;
+    font-size: var(--ds-text-body);
     font-weight: 600;
     color: hsl(var(--foreground));
   }
 
   .empty-subtitle {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: var(--ds-text-caption);
     color: hsl(var(--muted-foreground));
     max-width: 20rem;
   }
@@ -352,21 +395,36 @@
     margin-top: 1.5rem;
   }
 
-  .header-org-switcher {
-    display: none;
-  }
+  /* ── Header org switcher visibility ── */
+  .header-org-switcher { display: none; }
+  .mobile-scope-switcher { display: none; }
 
-  .mobile-scope-switcher {
-    display: none;
-  }
-
+  /* ── Mobile: sidebar hidden, full-width content ── */
   @media (max-width: 768px) {
     .main-area { margin-left: 0; }
-    .main-header { padding: 0.5rem 0.75rem; gap: 0.5rem; }
+
+    .main-header {
+      padding: 0.5rem 0.75rem;
+      gap: 0.5rem;
+      height: auto;
+      min-height: var(--sb-header);
+    }
+
     .desktop-page-title,
     .header-org-switcher { display: none; }
+
     .header-left,
     .mobile-scope-switcher { display: flex; min-width: 0; flex: 1; }
-    .main-content { padding: 0 1rem; padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
+
+    .main-content {
+      padding: 0 0.75rem;
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .skeleton-grid,
+    :global(.project-grid) {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
   }
 </style>

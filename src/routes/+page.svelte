@@ -2,8 +2,6 @@
   import { onMount } from "svelte";
   import * as Card from "$lib/components/ui/card/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Badge } from "$lib/components/ui/badge/index.js";
-  import { Separator } from "$lib/components/ui/separator/index.js";
   import SunIcon from "@lucide/svelte/icons/sun";
   import MoonIcon from "@lucide/svelte/icons/moon";
   import { toggleTheme, getTheme } from "$lib/theme.js";
@@ -58,12 +56,6 @@
       title: "Upload to your board",
       body: "Plug in your Arduino and flash your project with a single click. No extra tools, no configuration — your creation runs on real hardware in seconds.",
     },
-  ];
-
-  const footerCols = [
-    { head: "Product", links: ["Studio", "Examples", "Changelog"] },
-    { head: "Resources", links: ["Docs", "Site map", "Community"] },
-    { head: "Legal", links: ["Terms of Service", "Privacy Policy", "Safe Use Policy"] },
   ];
 
   onMount(() => {
@@ -133,7 +125,7 @@
     <a href="/" class="nav-logo" aria-label="Wireloop home">
       <img src="/LOGO.svg" alt="" class="nav-logo-img" />
       <span class="nav-word">Wireloop</span>
-      <Badge variant="outline" class="nav-beta">Beta</Badge>
+      <span class="badge-halo badge-sm"><span class="badge-halo-in">Beta</span></span>
     </a>
 
     <div class="nav-right">
@@ -182,13 +174,13 @@
           Drag blocks together, watch your circuit run, and upload to your board — right from the browser.
         </p>
         <div class="hero-actions boot boot-4">
-          <Button href="/signup" class="pill-primary h-9 px-4 text-[15px] font-medium">Start Building</Button>
-          <Button variant="outline" href="/studio" class="pill-ghost h-9 px-4 text-[15px] font-medium">Open Studio</Button>
+          <Button href="/signup" class="pill-primary h-10 px-[18px] text-[15px] font-medium">Start Building</Button>
+          <Button variant="outline" href="/studio" class="pill-ghost h-10 px-[18px] text-[15px] font-medium">Open Studio</Button>
           <a
             href="https://github.com/ayoub-hlel/Wireloop"
             target="_blank"
             rel="noopener noreferrer"
-            class="pill-ghost inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-4 text-[15px] font-medium text-foreground"
+            class="pill-ghost inline-flex h-10 items-center gap-1.5 rounded-full border border-border px-[18px] text-[15px] font-medium text-foreground"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
             GitHub
@@ -201,7 +193,7 @@
 
   <!-- ── Manifesto ──────────────────────────────────────────────── -->
   <section class="manifesto reveal">
-    <span class="chip font-mono">BUILD · SIMULATE · FLASH</span>
+    <span class="badge-halo"><span class="badge-halo-in">BUILD · SIMULATE · FLASH</span></span>
     <h2 class="ds-h2">From first block to running board.</h2>
     <p class="manifesto-line">No syntax to learn. No drivers to install.</p>
     <p class="manifesto-line muted">Your idea, working on real hardware, in minutes.</p>
@@ -209,9 +201,9 @@
 
   <!-- ── Feature trio ───────────────────────────────────────────── -->
   <section class="trio reveal" aria-label="Features">
-    {#each features as f (f.title)}
-      <Card.Root class="feature-card rounded-[10px] border-border shadow-none py-0 gap-0 overflow-hidden">
-        <Card.Content class="p-5 flex flex-col items-center text-center gap-3">
+    {#each features as f, i (f.title)}
+      <Card.Root class="feature-card card-enter rounded-[10px] border-border shadow-none py-0 gap-0 overflow-hidden" style="--d:{i * 100}ms">
+        <Card.Content class="p-8 pb-9 flex flex-col items-center text-center gap-3">
           <div class="feature-icon" aria-hidden="true">
             {#if f.icon === "blocks"}
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="4" y="4" width="6" height="6" rx="1" /><rect x="14" y="4" width="6" height="6" rx="1" /><rect x="4" y="14" width="6" height="6" rx="1" /><rect x="14" y="14" width="6" height="6" rx="1" /></svg>
@@ -221,8 +213,8 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             {/if}
           </div>
-          <Card.Title class="feature-title text-[16px] font-medium tracking-[-0.01em]">{f.title}</Card.Title>
-          <Card.Description class="feature-body text-[14px] leading-relaxed text-muted-foreground m-0">{f.body}</Card.Description>
+          <Card.Title class="feature-title text-[18px] font-medium tracking-[-0.01em]">{f.title}</Card.Title>
+          <Card.Description class="feature-body text-[14px] leading-[1.65] text-muted-foreground m-0">{f.body}</Card.Description>
         </Card.Content>
       </Card.Root>
     {/each}
@@ -231,7 +223,7 @@
   <!-- ── How it works — sticky media swaps while text scrolls ──── -->
   <section class="how" id="how-it-works">
     <div class="how-head reveal">
-      <span class="chip font-mono">HOW IT WORKS</span>
+      <span class="badge-halo"><span class="badge-halo-in">HOW IT WORKS</span></span>
       <h2 class="ds-h2 left">Four steps. Zero setup.</h2>
     </div>
     <div class="how-grid">
@@ -264,26 +256,22 @@
   <!-- ── Get started ────────────────────────────────────────────── -->
   <section class="start">
     <div class="how-head reveal">
-      <span class="chip font-mono">GET STARTED</span>
+      <span class="badge-halo"><span class="badge-halo-in">GET STARTED</span></span>
       <h2 class="ds-h2 left">Try it now.</h2>
     </div>
     <div class="start-grid">
-      <Card.Root class="feature-card start-card rounded-[10px] border-border shadow-none py-0 gap-0">
-        <Card.Content class="p-4 flex items-center justify-between gap-4">
-          <div class="min-w-0">
-            <Card.Title class="text-sm font-medium mb-0.5">Open Studio</Card.Title>
-            <Card.Description class="text-xs leading-snug text-muted-foreground m-0">Autosaved workspace — blocks, wiring and code in sync.</Card.Description>
-          </div>
-          <Button href="/studio" class="pill-primary h-8 shrink-0 rounded-full px-3.5 text-[14px] font-medium">Open</Button>
+      <Card.Root class="feature-card start-card card-enter rounded-[10px] border-border shadow-none py-0 gap-0" style="--d:0ms">
+        <Card.Content class="p-8 flex flex-col items-stretch text-left gap-2.5 h-full">
+          <Card.Title class="text-[18px] font-medium tracking-[-0.01em]">Open Studio</Card.Title>
+          <Card.Description class="text-[14px] leading-[1.65] text-muted-foreground m-0">Autosaved workspace — blocks, wiring and code in sync.</Card.Description>
+          <Button href="/studio" class="pill-primary mt-auto h-10 w-full rounded-full text-[15px] font-medium">Open Studio</Button>
         </Card.Content>
       </Card.Root>
-      <Card.Root class="feature-card start-card rounded-[10px] border-border shadow-none py-0 gap-0">
-        <Card.Content class="p-4 flex items-center justify-between gap-4">
-          <div class="min-w-0">
-            <Card.Title class="text-sm font-medium mb-0.5">Create a free account</Card.Title>
-            <Card.Description class="text-xs leading-snug text-muted-foreground m-0">Save projects and continue on any device.</Card.Description>
-          </div>
-          <Button href="/signup" class="pill-primary h-8 shrink-0 rounded-full px-3.5 text-[14px] font-medium">Sign up</Button>
+      <Card.Root class="feature-card start-card card-enter rounded-[10px] border-border shadow-none py-0 gap-0" style="--d:100ms">
+        <Card.Content class="p-8 flex flex-col items-stretch text-left gap-2.5 h-full">
+          <Card.Title class="text-[18px] font-medium tracking-[-0.01em]">Create a free account</Card.Title>
+          <Card.Description class="text-[14px] leading-[1.65] text-muted-foreground m-0">Save projects and continue on any device.</Card.Description>
+          <Button href="/signup" class="pill-primary mt-auto h-10 w-full rounded-full text-[15px] font-medium">Sign up</Button>
         </Card.Content>
       </Card.Root>
     </div>
@@ -292,14 +280,13 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <Separator class="footer-sep" />
-    <div class="footer-grid">
-      <div class="footer-brand-col">
-        <a href="/" class="footer-brand-row" aria-label="Wireloop home">
+    <div class="footer-rule"></div>
+    <div class="footer-row">
+      <div class="footer-brand-row">
+        <a href="/" class="footer-brand" aria-label="Wireloop home">
           <img src="/LOGO.svg" alt="" class="footer-logo" />
           <span class="footer-word">Wireloop</span>
         </a>
-        <p class="footer-tagline">Visual Arduino programming,<br />right in your browser.</p>
         <a
           href="https://github.com/ayoub-hlel/Wireloop"
           target="_blank"
@@ -310,21 +297,14 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
         </a>
       </div>
-      {#each footerCols as col (col.head)}
-        <nav class="footer-col" aria-label={col.head}>
-          <h4 class="footer-head font-mono">{col.head.toUpperCase()}</h4>
-          <ul class="footer-list">
-            {#each col.links as link (link)}
-              <li><a href="#top" class="footer-link">{link}</a></li>
-            {/each}
-          </ul>
-        </nav>
-      {/each}
-    </div>
-    <Separator class="footer-sep" />
-    <div class="footer-bottom">
-      <span>© {new Date().getFullYear()} Wireloop — All rights reserved.</span>
-      <span class="font-mono footer-status"><span class="status-dot"></span>All systems operational</span>
+      <p class="footer-copy">© {new Date().getFullYear()} Wireloop · All rights reserved.</p>
+      <nav class="footer-links" aria-label="Policies and statements">
+        <a href="#top" class="footer-link">Terms of Service</a>
+        <span aria-hidden="true" class="footer-dot">·</span>
+        <a href="#top" class="footer-link">Privacy Policy</a>
+        <span aria-hidden="true" class="footer-dot">·</span>
+        <a href="#top" class="footer-link">Safe Use Policy</a>
+      </nav>
     </div>
   </div>
 </footer>
@@ -348,9 +328,14 @@
   /* ── tokens ─────────────────────────────────────────────────── */
   main,
   footer {
-    width: min(100%, 1240px);
+    width: min(100% - var(--ds-gutter) * 2, var(--ds-container));
     margin: 0 auto;
-    padding-inline: 1.5rem;
+  }
+  @media (min-width: 1280px) {
+    main,
+    footer {
+      width: min(100% - var(--ds-gutter-wide) * 2, var(--ds-container-wide));
+    }
   }
   main {
     scroll-margin-top: 5.5rem;
@@ -516,8 +501,8 @@
     color: hsl(var(--primary-foreground));
   }
   @media (max-width: 420px) {
-    :global(.nav-beta) {
-      display: none !important;
+    .badge-halo {
+      display: none;
     }
     .nav-word {
       font-size: 0.85rem;
@@ -547,9 +532,9 @@
   .ds-h1 {
     font-family: var(--font-heading);
     font-weight: 500;
-    font-size: clamp(30px, 3.2vw, 46px);
-    line-height: 1.12;
-    letter-spacing: -0.025em;
+    font-size: clamp(32px, 3.6vw, 46px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     color: hsl(var(--foreground));
     margin: 0;
     text-wrap: balance;
@@ -557,8 +542,8 @@
   .ds-h2 {
     font-family: var(--font-heading);
     font-weight: 500;
-    font-size: clamp(24px, 2.5vw, 36px);
-    line-height: 1.2;
+    font-size: clamp(26px, 2.8vw, 36px);
+    line-height: 1.45;
     letter-spacing: -0.02em;
     color: hsl(var(--foreground));
     margin: 0;
@@ -568,20 +553,6 @@
   .ds-h2.left {
     text-align: left;
   }
-  .chip {
-    display: inline-block;
-    padding: 4px 10px;
-    border: 1px solid hsl(var(--border));
-    border-radius: 999px;
-    background: hsl(var(--card) / 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: hsl(var(--muted-foreground));
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-  }
-
   /* ── hero ───────────────────────────────────────────────────── */
   .hero {
     min-height: 100svh;
@@ -594,16 +565,16 @@
   }
   .hero-eyebrow {
     margin: 0 0 18px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
-    letter-spacing: 0.02em;
-    color: hsl(var(--muted-foreground));
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
   }
   .hero-sub {
     margin: 1.35rem 0 0;
-    max-width: 430px;
-    font-size: 17px;
-    line-height: 1.65;
+    max-width: 560px;
+    font-size: 16px;
+    line-height: 1.7;
     color: hsl(var(--muted-foreground));
     text-wrap: pretty;
   }
@@ -723,6 +694,32 @@
     :global(.start-card::before) {
       animation: none;
     }
+    :global(.card-enter) {
+      opacity: 1 !important;
+      animation: none !important;
+    }
+  }
+
+  /* staggered card entrance once the parent reveals — DS card cascade */
+  .reveal :global(.card-enter) {
+    opacity: 0;
+  }
+  .reveal:global(.is-in) :global(.card-enter) {
+    opacity: 1;
+    animation: card-in 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--d, 0ms);
+  }
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
   }
 
   /* ── manifesto ──────────────────────────────────────────────── */
@@ -738,7 +735,8 @@
   }
   .manifesto-line {
     margin: 0;
-    font-size: 17px;
+    font-size: 16px;
+    line-height: 1.6;
     color: hsl(var(--foreground));
   }
   .manifesto-line.muted {
@@ -750,7 +748,7 @@
   .trio {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 24px;
     padding-bottom: 96px;
   }
   @media (max-width: 900px) {
@@ -888,7 +886,7 @@
   }
   .step-text {
     margin: 0;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.7;
     color: hsl(var(--muted-foreground));
   }
@@ -944,7 +942,7 @@
   .start-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+    gap: 24px;
     max-width: 980px;
     margin: 0 auto;
   }
@@ -998,35 +996,39 @@
     opacity: 1;
   }
 
-  /* ── footer — DS-style columns ──────────────────────────────── */
+  /* ── footer — DS minimal hairline + centered 1fr/auto/1fr row ── */
   .footer {
-    padding-bottom: 1.6rem;
+    padding-bottom: 1.75rem;
   }
-  .footer-sep {
+  .footer-rule {
+    width: 100%;
+    height: 1px;
     background: hsl(var(--border));
   }
-  .footer-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
-    gap: 40px;
-    padding: 52px 0 44px;
+  .footer-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
   }
-  @media (max-width: 800px) {
-    .footer-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  @media (min-width: 1024px) {
+    .footer-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
     }
-  }
-  @media (max-width: 480px) {
-    .footer-grid {
-      grid-template-columns: 1fr;
-      gap: 1.6rem;
+    .footer-brand-row {
+      justify-self: start;
+    }
+    .footer-links {
+      justify-self: end;
     }
   }
   .footer-brand-row {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
+    gap: 14px;
   }
   .footer-logo {
     height: 1.15rem;
@@ -1036,12 +1038,6 @@
     color: hsl(var(--foreground));
     font-weight: 600;
     font-size: 0.88rem;
-  }
-  .footer-tagline {
-    margin: 12px 0 16px;
-    font-size: 14px;
-    line-height: 1.55;
-    color: hsl(var(--muted-foreground));
   }
   .footer-gh {
     display: inline-grid;
@@ -1059,59 +1055,37 @@
     color: hsl(var(--foreground));
     border-color: hsl(var(--border-strong));
   }
-  .footer-head {
-    margin: 0 0 14px;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    color: hsl(var(--muted-foreground));
-    opacity: 0.8;
-  }
-  .footer-list {
-    list-style: none;
+  .footer-copy {
     margin: 0;
-    padding: 0;
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+    white-space: nowrap;
+  }
+  .footer-links {
     display: flex;
-    flex-direction: column;
-    gap: 9px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 12px;
+    row-gap: 8px;
   }
   .footer-link {
     font-size: 14px;
-    color: hsl(var(--muted-foreground));
+    line-height: 150%;
+    color: hsl(var(--foreground));
     text-decoration: none;
-    transition: color 180ms;
+    transition: opacity 180ms;
+    white-space: nowrap;
   }
   .footer-link:hover {
-    color: hsl(var(--foreground));
+    opacity: 0.7;
   }
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-top: 22px;
-    font-size: 13px;
+  .footer-dot {
+    font-size: 14px;
     color: hsl(var(--muted-foreground));
   }
-  .footer-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.64rem;
-    letter-spacing: 0.06em;
-  }
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: hsl(var(--success));
-    box-shadow: 0 0 0 3px hsl(var(--success) / 0.18);
-  }
   @media (max-width: 640px) {
-    main,
-    footer {
-      padding-inline: 20px;
-    }
     .manifesto,
     .how,
     .start {
@@ -1120,10 +1094,6 @@
     }
     .trio {
       padding-bottom: 72px;
-    }
-    .footer-bottom {
-      flex-direction: column;
-      align-items: flex-start;
     }
   }
 </style>

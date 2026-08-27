@@ -53,16 +53,15 @@
 <style>
   .project-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, var(--project-card-width));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--project-card-width), 100%), 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
     justify-content: start;
   }
 
   @media (max-width: 768px) {
     .project-grid {
-      grid-template-columns: minmax(0, 100%);
+      grid-template-columns: 1fr;
       gap: 1rem;
-      justify-content: center;
     }
   }
 

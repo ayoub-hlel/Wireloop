@@ -181,8 +181,8 @@
     gap: 0.5rem;
     flex: 1;
     width: 100%;
-    min-height: 2.25rem;
-    padding: 0 0.5rem;
+    height: var(--sb-item);
+    padding: 0 var(--sb-pad);
     border: none;
     border-radius: 0.375rem;
     background: transparent;
@@ -191,6 +191,12 @@
     font-size: 0.8125rem;
     text-align: left;
     line-height: 1.25rem;
+  }
+
+  :global(.org-row.collapsed .org-trigger) {
+    justify-content: center;
+    gap: 0;
+    padding-inline: 0;
   }
 
   :global(.org-trigger:hover) {
@@ -212,9 +218,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
+    width: var(--sb-icon);
+    height: var(--sb-icon);
+    border-radius: var(--ds-radius-xs);
     background-color: hsl(var(--muted));
     font-size: 10px;
     font-weight: 600;
@@ -223,8 +229,8 @@
   }
 
   .org-icon-svg {
-    width: 16px;
-    height: 16px;
+    width: var(--sb-icon);
+    height: var(--sb-icon);
     flex-shrink: 0;
     color: hsl(var(--sidebar-foreground) / 0.6);
   }
@@ -238,13 +244,17 @@
     transition: opacity 150ms;
   }
 
+  .org-row.collapsed {
+    /* icon becomes the exact center of the rail: item = --sb-item, no padding */
+    justify-content: center;
+  }
   .org-row.collapsed .org-name {
-    opacity: 0;
+    display: none;
   }
 
   .org-chevron {
-    width: 16px;
-    height: 16px;
+    width: var(--sb-icon);
+    height: var(--sb-icon);
     flex-shrink: 1;
     min-width: 0;
     opacity: 0.5;
@@ -253,7 +263,7 @@
   }
 
   .org-row.collapsed .org-chevron {
-    opacity: 0;
+    display: none;
   }
 
   :global(.mobile-org-trigger) {

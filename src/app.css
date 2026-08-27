@@ -1,17 +1,685 @@
 @import "tailwindcss";
-@import "./globals.css";
-/* eslint-disable-next-line css/no-invalid-at-rules */
-@config "../tailwind.config.ts";
 
 /* ═══════════════════════════════════════════════════════════════════
-   Theme: Import shadcn/ui-compatible globals
-   
-   src/globals.css defines ALL design tokens as CSS variables in
-   shadcn/ui format. This file layers Tailwind v4 on top.
+   app.css — THE single design-token file for Wireloop.
+
+   Design philosophy (from the DeepSeek Harness reference):
+   neutral near-black/near-white surfaces, hairline borders, soft
+   geometric radii, a restrained accent blue, generous spacing,
+   medium-weight type on a strict scale, and quiet motion.
+
+   Everything is declared here, once, as a CSS custom property.
+   Components never hardcode colors, radii, shadows or easings.
+
+     • Light palette in :root, dark palette in [data-theme="dark"]
+     • Theme is applied via data-theme on <html> (zero-glitch inline
+       script in app.html sets it before first paint)
+     • Color vars are HSL triplets so Tailwind composes
+       `hsl(var(--var) / <alpha>)`
    ═══════════════════════════════════════════════════════════════════ */
 
-/* View Transitions API: progressive page-transition enhancement. Widely
-   supported in browsers but not yet baseline-wide per css/use-baseline. */
+/* dark: variant follows the app's data-theme attribute (not OS pref) */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ═══════════════════════════════════════════════════════════════════
+   1 · COLOR TOKENS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  /* ── LIGHT (default) ─────────────────────────────────────────── */
+  :root {
+    color-scheme: light;
+
+    /* Background & foreground */
+    --background: 0 0% 100%;           /* #FFFFFF */
+    --foreground: 0 0% 4%;             /* #0A0A0A */
+
+    /* Card & surface layers */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 4%;
+
+    /* Primary (dark button on light, inverse of dark theme) */
+    --primary: 0 0% 9%;                /* #171717 */
+    --primary-foreground: 0 0% 98%;
+
+    /* Secondary / muted */
+    --secondary: 0 0% 91%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 91%;
+    --muted-foreground: 0 0% 30%;
+
+    /* Accent — the one saturated color in the system */
+    --accent: 224 100% 50%;            /* #0044FF */
+    --accent-foreground: 0 0% 98%;
+
+    /* Feedback */
+    --destructive: 0 84% 60%;          /* #E53E3E */
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 76% 36%;
+    --warning: 32 95% 44%;
+
+    /* Borders, inputs, focus rings — hairline by default */
+    --border: 0 0% 0% / 0.16;
+    --border-strong: 0 0% 0% / 0.32;
+    --input: 0 0% 0% / 0.16;
+    --ring: 224 100% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 9%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 88%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 0% / 0.14;
+    --sidebar-ring: 224 100% 50%;
+
+    /* Surface extension */
+    --bg-surface: 0 0% 96%;
+    --bg-elevated: 0 0% 94%;
+    --bg-overlay-hsl: 0 0% 100%;
+    --text-muted: 0 0% 30%;
+    --text-subtle: 0 0% 42%;
+    --text-code: 0 0% 40%;
+    --primary-dim: 0 0% 85%;
+    --primary-dark: 0 0% 92%;
+
+    /* Elevation */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-inset-trace: none;
+
+    /* Project card geometry — fluid width, height derives from ratio.
+       min = 260px (readable on small screens), max = 320px (premium on wide). */
+    --project-card-width: clamp(260px, 22vw, 320px);
+    --project-card-height: calc(var(--project-card-width) * 0.95);
+  }
+
+  /* ── DARK ────────────────────────────────────────────────────── */
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    --background: 0 0% 4%;             /* #0A0A0A */
+    --foreground: 0 0% 98%;            /* #FAFAFA */
+
+    --card: 0 0% 15%;                  /* #262626 */
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 13%;               /* #212121 */
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 74%;
+
+    --accent: 224 100% 50%;            /* #0044FF */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 76% 45%;
+    --warning: 38 92% 50%;
+
+    --border: 0 0% 100% / 0.14;
+    --border-strong: 0 0% 100% / 0.32;
+    --input: 0 0% 100% / 0.14;
+    --ring: 224 100% 50%;
+
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 100% / 0.14;
+    --sidebar-ring: 224 100% 50%;
+
+    --bg-surface: 0 0% 12%;
+    --bg-elevated: 0 0% 15%;
+    --bg-overlay-hsl: 0 0% 4%;
+    --text-muted: 0 0% 74%;
+    --text-subtle: 0 0% 60%;
+    --text-code: 0 0% 74%;
+    --primary-dim: 0 0% 20%;
+    --primary-dark: 0 0% 13%;
+
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-inset-trace: none;
+  }
+
+  /* ── SHARED (theme-independent) ──────────────────────────────── */
+  :root {
+    /* Glow hues (LED indicators) */
+    --glow-blue: 224 100% 50%;
+    --glow-green: 142 76% 45%;
+    --glow-amber: 38 92% 50%;
+    --glow-red: 0 84% 60%;
+
+    /* ════════════════════════════════════════════════════════════
+       2 · TYPOGRAPHY SCALE (DeepSeek reference)
+       Strict scale, medium weight, tight tracking on headings,
+       relaxed leading on body. Root is 16px — all rem sizes follow.
+       ════════════════════════════════════════════════════════════ */
+    --ds-text-hero: 2.875rem;          /* 46px — landing hero */
+    --ds-text-h1: 2.25rem;             /* 36px */
+    --ds-text-h2: 1.75rem;             /* 28px */
+    --ds-text-subtitle: 1.25rem;       /* 20px */
+    --ds-text-title: 1.125rem;         /* 18px */
+    --ds-text-body: 1rem;              /* 16px */
+    --ds-text-caption: 0.875rem;       /* 14px */
+    --ds-text-micro: 0.75rem;          /* 12px — badges, labels */
+
+    --ds-leading-hero: 1.2;
+    --ds-leading-heading: 1.4;
+    --ds-leading-body: 1.6;
+    --ds-leading-caption: 1.5;
+    --ds-tracking-heading: -0.02em;
+    --ds-tracking-snug: -0.01em;
+    --ds-tracking-badge: 0.08em;
+
+    /* Font families */
+    --font-sans: "Inter", -apple-system, system-ui, BlinkMacSystemFont,
+                 "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Consolas,
+                 "Fira Code", "Cascadia Code", monospace;
+    --font-display: "JetBrains Mono", "SF Mono", monospace;
+    --font-heading: "Inter", -apple-system, system-ui, sans-serif;
+    --font-icon: "FontAwesome", "Font Awesome 4.7.0", sans-serif;
+
+    /* Mono micro-type (pin labels, readouts) */
+    --font-size-xs-mono: 0.65rem;
+    --font-size-sm-mono: 0.75rem;
+    --font-size-base-mono: 0.875rem;
+    --line-height-xs-mono: 1rem;
+    --line-height-sm-mono: 1.25rem;
+    --line-height-base-mono: 1.5rem;
+    --letter-spacing-xs-mono: 0.05em;
+    --letter-spacing-sm-mono: 0.04em;
+    --letter-spacing-base-mono: 0.03em;
+
+    /* ════════════════════════════════════════════════════════════
+       3 · SPACING SCALE (DeepSeek: 4 → 240, geometric steps)
+       ════════════════════════════════════════════════════════════ */
+    --ds-space-1: 4px;
+    --ds-space-2: 8px;
+    --ds-space-3: 12px;
+    --ds-space-4: 16px;
+    --ds-space-5: 24px;
+    --ds-space-6: 32px;
+    --ds-space-7: 40px;
+    --ds-space-8: 56px;
+    --ds-space-9: 80px;
+    --ds-space-10: 120px;
+    --ds-space-11: 160px;
+    --ds-space-12: 200px;
+    --ds-space-13: 240px;
+
+    /* ════════════════════════════════════════════════════════════
+       4 · RADII (soft geometry — pills for actions, 8–16 for UI)
+       ════════════════════════════════════════════════════════════ */
+    --ds-radius-pill: 999px;
+    --ds-radius-3xl: 24px;             /* hero cards */
+    --ds-radius-2xl: 16px;             /* panels, dropdowns */
+    --ds-radius-xl: 14px;              /* media frames */
+    --ds-radius-lg: 10px;              /* cards, inputs, buttons-media */
+    --ds-radius-md: 8px;               /* badges, small controls */
+    --ds-radius-sm: 6px;
+    --ds-radius-xs: 4px;
+    --radius: 0.5rem;                  /* legacy alias — do not use in new code */
+
+    /* ════════════════════════════════════════════════════════════
+       5 · BORDERS — hairline everywhere
+       ════════════════════════════════════════════════════════════ */
+    --ds-border-width: 1px;
+    --ds-border-width-strong: 1.5px;
+
+    /* ════════════════════════════════════════════════════════════
+       6 · MOTION — quiet, one easing, three durations
+       ════════════════════════════════════════════════════════════ */
+    --ds-duration-fast: 150ms;
+    --ds-duration: 300ms;
+    --ds-duration-slow: 700ms;
+    --ds-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ds-blur-glass: 12px;
+    --ds-enter-y: 24px;                /* reveal rise distance */
+    --ds-enter-blur: 10px;             /* reveal blur */
+
+    /* ════════════════════════════════════════════════════════════
+       7 · LAYOUT — container rhythm
+       ════════════════════════════════════════════════════════════ */
+    --ds-container: 1140px;
+    --ds-container-wide: 1280px;
+    --ds-gutter: 24px;
+    --ds-gutter-wide: 48px;
+
+    /* Sidebar rail — every dimension derives from the icon.
+       rail = hit-target + 2 gutters; nothing is a magic number. */
+    --sb-icon: 20px;   /* glyph size (lucide size=20) — premium weight */
+    --sb-item: 44px;   /* square hit target = icon + 12px breathing per side */
+    --sb-pad: 8px;     /* rail gutter on both sides */
+    --sb-width: 200px; /* expanded rail */
+    --sb-rail: calc(var(--sb-item) + 2 * var(--sb-pad)); /* collapsed = 60px */
+    --sb-header: 60px; /* shared top band (sidebar user row + page header) */
+
+    /* Layout padding — derived from sidebar state for consistent alignment */
+    --layout-content-pad-x: clamp(1rem, 3vw, 2rem);
+    --layout-header-pad-x: var(--layout-content-pad-x);
+
+    /* ════════════════════════════════════════════════════════════
+       8 · SIGNATURE RECIPES — the gradient-halo badge
+       ════════════════════════════════════════════════════════════ */
+    --ds-badge-gradient: linear-gradient(
+      135deg,
+      hsl(var(--foreground) / 0.42) 0%,
+      hsl(var(--foreground) / 0.08) 35%,
+      hsl(var(--foreground) / 0.04) 65%,
+      hsl(var(--foreground) / 0.28) 100%
+    );
+    --ds-badge-glow: 0 0 16px hsl(var(--foreground) / 0.08),
+      0 0 32px hsl(var(--foreground) / 0.04);
+
+    /* Focus glow rings */
+    --shadow-glow-blue: 0 0 0 1px hsla(var(--ring) / 0.3);
+    --shadow-glow-green: 0 0 0 1px hsla(var(--success) / 0.3);
+    --shadow-glow-amber: 0 0 0 1px hsla(var(--warning) / 0.3);
+    --shadow-glow-red: 0 0 0 1px hsla(var(--destructive) / 0.3);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   9 · TAILWIND THEME MAPPING — every utility routes through tokens
+   ═══════════════════════════════════════════════════════════════════ */
+
+@theme inline {
+  /* Colors (shadcn core) */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Colors (sidebar) */
+  --color-sidebar-background: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  /* Colors (surface extension + legacy PCB-era names → tokens) */
+  --color-bg: hsl(var(--background));
+  --color-bg-surface: hsl(var(--bg-surface));
+  --color-bg-elevated: hsl(var(--bg-elevated));
+  --color-bg-overlay: hsla(var(--bg-overlay-hsl) / 0.8);
+  --color-border-strong: hsl(var(--border-strong));
+  --color-text-muted: hsl(var(--text-muted));
+  --color-text-subtle: hsl(var(--text-subtle));
+  --color-text-code: hsl(var(--text-code));
+  --color-primary-dim: hsl(var(--primary-dim));
+  --color-primary-dark: hsl(var(--primary-dark));
+  --color-danger: hsl(var(--destructive));
+
+  /* Fonts */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
+  --font-display: var(--font-display);
+
+  /* Type scale — utilities: text-hero, text-h1, text-h2, text-subtitle,
+     text-title, text-body, text-caption, text-micro */
+  --text-hero: var(--ds-text-hero);
+  --text-hero--line-height: var(--ds-leading-hero);
+  --text-hero--letter-spacing: var(--ds-tracking-heading);
+  --text-hero--font-weight: 500;
+  --text-h1: var(--ds-text-h1);
+  --text-h1--line-height: var(--ds-leading-heading);
+  --text-h1--letter-spacing: var(--ds-tracking-heading);
+  --text-h1--font-weight: 500;
+  --text-h2: var(--ds-text-h2);
+  --text-h2--line-height: var(--ds-leading-heading);
+  --text-h2--letter-spacing: var(--ds-tracking-heading);
+  --text-h2--font-weight: 500;
+  --text-subtitle: var(--ds-text-subtitle);
+  --text-subtitle--line-height: var(--ds-leading-caption);
+  --text-subtitle--letter-spacing: var(--ds-tracking-snug);
+  --text-subtitle--font-weight: 500;
+  --text-title: var(--ds-text-title);
+  --text-title--line-height: var(--ds-leading-caption);
+  --text-title--letter-spacing: var(--ds-tracking-snug);
+  --text-title--font-weight: 500;
+  --text-body: var(--ds-text-body);
+  --text-body--line-height: var(--ds-leading-body);
+  --text-caption: var(--ds-text-caption);
+  --text-caption--line-height: var(--ds-leading-caption);
+  --text-micro: var(--ds-text-micro);
+  --text-micro--line-height: 1.2;
+  --text-micro--letter-spacing: var(--ds-tracking-badge);
+  --text-micro--font-weight: 500;
+
+  /* Radii — DS scale overrides Tailwind defaults app-wide */
+  --radius-xs: var(--ds-radius-xs);
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-xl: var(--ds-radius-xl);
+  --radius-2xl: var(--ds-radius-2xl);
+  --radius-3xl: var(--ds-radius-3xl);
+
+  /* Shadows */
+  --shadow-glow-blue: var(--shadow-glow-blue);
+  --shadow-glow-green: var(--shadow-glow-green);
+  --shadow-glow-amber: var(--shadow-glow-amber);
+  --shadow-glow-red: var(--shadow-glow-red);
+  --shadow-inset-trace: var(--shadow-inset-trace);
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+
+  /* Schematic grid backgrounds — neutral hairlines, theme-aware */
+  --background-image-grid-schematic: linear-gradient(
+      hsl(var(--foreground) / 0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px);
+  --background-image-grid-schematic-dense: linear-gradient(
+      hsl(var(--foreground) / 0.03) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.03) 1px, transparent 1px);
+  --background-size-grid-schematic: 24px 24px;
+  --background-size-grid-schematic-dense: 12px 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   10 · BASE STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  html {
+    font-size: 100%; /* 16px root — the whole rem scale follows DS body size */
+  }
+
+  html,
+  body {
+    @apply bg-background text-foreground font-sans;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: var(--ds-leading-body);
+  }
+
+  /* Headings — medium weight, tight tracking, DS scale */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    line-height: var(--ds-leading-heading);
+    letter-spacing: var(--ds-tracking-heading);
+    margin: 0 0 0.5em 0;
+    text-wrap: balance;
+  }
+  h1 { font-size: var(--ds-text-h1); }
+  h2 { font-size: var(--ds-text-h2); }
+  h3 { font-size: var(--ds-text-subtitle); letter-spacing: var(--ds-tracking-snug); }
+  h4, h5, h6 { font-size: var(--ds-text-title); letter-spacing: var(--ds-tracking-snug); }
+
+  p {
+    margin: 0;
+    font-size: var(--ds-text-body);
+    line-height: var(--ds-leading-body);
+    text-wrap: pretty;
+  }
+
+  a {
+    color: hsl(var(--foreground));
+    text-decoration: none;
+    transition: color var(--ds-duration-fast) ease;
+  }
+  a:hover {
+    color: hsl(var(--accent));
+  }
+
+  code:not(.shiki *) {
+    @apply font-mono text-sm;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--ds-radius-xs);
+    color: hsl(var(--text-code));
+    background: hsl(var(--foreground) / 0.06);
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  /* Scrollbar — hairline, unobtrusive */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--foreground) / 0.18);
+    border-radius: var(--ds-radius-pill);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground) / 0.32);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   11 · SHARED COMPONENT CLASSES — built from tokens only
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Card / panel — hairline border, soft radius, quiet elevation */
+  .card-schematic,
+  .panel-schematic {
+    background: hsl(var(--card));
+    border: var(--ds-border-width) solid hsl(var(--border));
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .card-schematic {
+    @apply relative overflow-hidden;
+  }
+  .card-schematic.active,
+  .card-schematic:focus-within {
+    border-color: hsl(var(--border-strong));
+  }
+
+  /* Buttons — DS pills: sans, medium, 15px, 11×18 padding */
+  .btn-schematic,
+  .btn-schematic-ghost,
+  .btn-schematic-danger {
+    @apply inline-flex cursor-pointer select-none items-center justify-center font-sans;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 11px 18px;
+    border-radius: var(--ds-radius-pill);
+    transition:
+      background var(--ds-duration-fast) ease,
+      border-color var(--ds-duration-fast) ease,
+      color var(--ds-duration-fast) ease,
+      opacity var(--ds-duration-fast) ease,
+      scale var(--ds-duration-fast) ease;
+  }
+  .btn-schematic:active,
+  .btn-schematic-ghost:active,
+  .btn-schematic-danger:active {
+    scale: 0.98;
+  }
+  .btn-schematic {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+  }
+  .btn-schematic:hover {
+    opacity: 0.9;
+  }
+  .btn-schematic-ghost {
+    color: hsl(var(--foreground));
+    background: hsl(var(--foreground) / 0.06);
+    border: var(--ds-border-width) solid hsl(var(--border));
+  }
+  .btn-schematic-ghost:hover {
+    background: hsl(var(--foreground) / 0.12);
+  }
+  .btn-schematic-danger {
+    color: hsl(var(--destructive));
+    background: transparent;
+    border: var(--ds-border-width) solid hsl(var(--destructive));
+  }
+  .btn-schematic-danger:hover {
+    background: hsl(var(--destructive) / 0.1);
+  }
+
+  /* Input — 10px radius, hairline, focus ring in accent */
+  .input-schematic {
+    @apply font-sans;
+    font-size: 15px;
+    line-height: 1.5;
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+    border: var(--ds-border-width) solid hsl(var(--border));
+    border-radius: var(--ds-radius-lg);
+    padding: 11px 14px;
+    transition:
+      border-color var(--ds-duration-fast) ease,
+      box-shadow var(--ds-duration-fast) ease;
+  }
+  .input-schematic::placeholder {
+    color: hsl(var(--text-subtle));
+  }
+  .input-schematic:focus {
+    outline: none;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 1px hsl(var(--ring) / 0.5);
+  }
+
+  /* Pin label — mono micro-type chip */
+  .pin-label {
+    @apply font-mono uppercase;
+    font-size: var(--font-size-xs-mono);
+    line-height: var(--line-height-xs-mono);
+    letter-spacing: var(--letter-spacing-xs-mono);
+    color: hsl(var(--foreground));
+    background: hsl(var(--accent) / 0.08);
+    border: var(--ds-border-width) solid hsl(var(--border-strong));
+    border-radius: var(--ds-radius-sm);
+    padding: 0.125rem 0.25rem;
+  }
+
+  /* Data readout — mono tabular */
+  .data-readout {
+    @apply font-mono tabular-nums;
+    font-size: var(--font-size-base-mono);
+    line-height: var(--line-height-base-mono);
+    letter-spacing: var(--letter-spacing-base-mono);
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+    border: var(--ds-border-width) solid hsl(var(--border));
+    border-radius: var(--ds-radius-md);
+    padding: 0.5rem 0.75rem;
+    box-shadow: var(--shadow-inset-trace);
+  }
+
+  /* Code blocks */
+  .shiki,
+  pre:has(code) {
+    @apply font-mono text-sm overflow-x-auto;
+    border-radius: var(--ds-radius-lg);
+    background: hsl(var(--background)) !important;
+    border: var(--ds-border-width) solid hsl(var(--border));
+    padding: 1rem;
+  }
+
+  /* LED indicator dots */
+  .led {
+    @apply inline-block rounded-full;
+    width: 8px;
+    height: 8px;
+  }
+  .led-green { background: hsl(var(--success)); }
+  .led-blue { background: hsl(var(--accent)); }
+  .led-amber { background: hsl(var(--warning)); }
+  .led-red { background: hsl(var(--destructive)); }
+
+  /* ── Signature DS pattern: gradient-halo badge ──────────────────
+     Outer span carries the gradient rim + glow; inner span is the
+     inset chip. Use: <span class="badge-halo"><span class="badge-halo-in">…</span></span>
+  */
+  .badge-halo {
+    display: inline-flex;
+    padding: 1px;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-badge-gradient);
+    box-shadow: var(--ds-badge-glow);
+  }
+  .badge-halo-in {
+    display: inline-block;
+    padding: 6px 9px 5px;
+    border-radius: calc(var(--ds-radius-md) - 1px);
+    background: hsl(var(--card) / 0.6);
+    color: hsl(var(--foreground) / 0.95);
+    font-family: var(--font-mono);
+    font-size: var(--ds-text-micro);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: var(--ds-tracking-badge);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .badge-halo.badge-sm {
+    border-radius: var(--ds-radius-md);
+  }
+  .badge-halo.badge-sm .badge-halo-in {
+    padding: 3px 7px 2px;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+  }
+
+  /* Virtual-circuit wiring cursor */
+  .wire-connection {
+    cursor: pointer;
+  }
+
+  /* Blockly: prevent scrollbar flash when a block menu opens */
+  .blocklyWidgetDiv .blocklyMenu {
+    overflow-y: hidden;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   12 · VIEW TRANSITIONS — quiet 150ms cross-fade between pages
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* View Transitions API: progressive enhancement, not yet baseline-wide. */
 /* eslint-disable css/use-baseline */
 @view-transition {
   navigation: auto;
@@ -35,4 +703,3 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-

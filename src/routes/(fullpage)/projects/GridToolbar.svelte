@@ -83,14 +83,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    padding: 1rem 0;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-4) 0;
   }
 
   .toolbar-left {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--ds-space-1);
     flex-shrink: 0;
   }
 
@@ -99,23 +99,21 @@
     align-items: center;
   }
 
-  /* ponytail: :global because these classes land on bits-ui/lucide children,
-     which never carry this component's scope hash. */
   :global(.search-input) {
-    width: 220px;
+    width: clamp(140px, 20vw, 220px);
     min-width: 0;
   }
 
   :global(.sort-trigger) {
     display: inline-flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: var(--ds-space-2);
     padding: 0.375rem 0.75rem;
-    border: 1px solid hsl(var(--border));
-    border-radius: 0.375rem;
+    border: var(--ds-border-width) solid hsl(var(--border));
+    border-radius: var(--ds-radius-sm);
     background: transparent;
     color: hsl(var(--foreground));
-    font-size: 0.8125rem;
+    font-size: var(--ds-text-caption);
     cursor: pointer;
     margin-left: 0.25rem;
   }
@@ -133,14 +131,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.375rem;
-    min-height: 2.25rem;
+    gap: var(--ds-space-2);
+    height: 2.25rem;
     padding: 0.375rem 0.625rem;
-    border: 1px solid hsl(var(--border));
-    border-radius: 0.375rem;
+    border: var(--ds-border-width) solid hsl(var(--border));
+    border-radius: var(--ds-radius-sm);
     background: hsl(var(--secondary));
     color: hsl(var(--foreground));
-    font-size: 0.8125rem;
+    font-size: var(--ds-text-caption);
     cursor: pointer;
   }
 
@@ -157,7 +155,7 @@
   .sort-options {
     display: flex;
     flex-direction: column;
-    padding: 0.25rem;
+    padding: var(--ds-space-1);
   }
 
   .sort-option {
@@ -166,10 +164,10 @@
     width: 100%;
     padding: 0.375rem 0.5rem;
     border: none;
-    border-radius: 0.25rem;
+    border-radius: var(--ds-radius-xs);
     background: transparent;
     color: hsl(var(--foreground));
-    font-size: 0.8125rem;
+    font-size: var(--ds-text-caption);
     cursor: pointer;
     text-align: left;
   }
@@ -186,12 +184,12 @@
 
   @media (max-width: 640px) {
     .toolbar {
-      gap: 0.375rem;
-      padding: 0.75rem 0;
+      gap: var(--ds-space-2);
+      padding: var(--ds-space-3) 0;
     }
 
     .toolbar-left {
-      gap: 0.375rem;
+      gap: var(--ds-space-2);
     }
 
     .toolbar-right {
@@ -204,7 +202,7 @@
     }
 
     :global(.sort-trigger) {
-      min-height: 2.25rem;
+      height: 2.25rem;
       padding: 0.375rem 0.5rem;
       margin-left: 0;
     }

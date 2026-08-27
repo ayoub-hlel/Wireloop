@@ -139,17 +139,17 @@
 
   .project-table th {
     text-align: left;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
+    padding: var(--ds-space-2) var(--ds-space-3);
+    font-size: var(--ds-text-caption);
     font-weight: 600;
     color: hsl(var(--muted-foreground));
-    border-bottom: 1px solid hsl(var(--border));
+    border-bottom: var(--ds-border-width) solid hsl(var(--border));
   }
 
   .project-table td {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    border-bottom: 1px solid hsl(var(--border));
+    padding: var(--ds-space-2) var(--ds-space-3);
+    font-size: var(--ds-text-caption);
+    border-bottom: var(--ds-border-width) solid hsl(var(--border));
   }
 
   .project-table tbody tr:hover {
@@ -159,11 +159,11 @@
   .sort-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: var(--ds-space-1);
     border: none;
     background: transparent;
     color: hsl(var(--muted-foreground));
-    font-size: 0.8rem;
+    font-size: var(--ds-text-caption);
     font-weight: 600;
     cursor: pointer;
     padding: 0;
@@ -185,7 +185,7 @@
     border: none;
     background: transparent;
     color: hsl(var(--foreground));
-    font-size: 0.875rem;
+    font-size: var(--ds-text-caption);
     font-weight: 500;
     cursor: pointer;
     padding: 0;
@@ -213,7 +213,7 @@
     width: 2rem;
     height: 2rem;
     border: none;
-    border-radius: 0.375rem;
+    border-radius: var(--ds-radius-sm);
     background: transparent;
     color: hsl(var(--muted-foreground));
     cursor: pointer;

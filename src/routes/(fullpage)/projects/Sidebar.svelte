@@ -27,6 +27,7 @@
     selectedOrgId?: string | null;
     filter?: DashboardFilter;
     canCreate?: boolean;
+    collapsed?: boolean;
     onSelectOrg?: (orgId: string | null) => void;
     onFilterChange?: (filter: DashboardFilter) => void;
     onSignOut?: () => Promise<void>;
@@ -43,6 +44,7 @@
     selectedOrgId = $bindable(null as string | null),
     filter = 'projects' as DashboardFilter,
     canCreate = true,
+    collapsed = $bindable(false),
     onSelectOrg = () => {},
     onFilterChange = () => {},
     onSignOut = async () => {},
@@ -50,8 +52,6 @@
     onNewProject = () => {},
     onCreateOrg = () => {},
   }: Props = $props();
-
-  let collapsed = $state(false);
 
   function getInitials(name: string): string {
     return name.split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
@@ -133,7 +133,7 @@
               onclick={() => onFilterChange(item.id)}
               aria-label={item.label}
             >
-              <item.icon size={18} />
+              <item.icon size={20} />
               <span class="sidebar-nav-label">{item.label}</span>
             </Tooltip.Trigger>
             {#if collapsed}
@@ -159,7 +159,7 @@
               onclick={() => onFilterChange(item.id)}
               aria-label={item.label}
             >
-              <item.icon size={18} />
+              <item.icon size={20} />
               <span class="sidebar-nav-label">{item.label}</span>
             </Tooltip.Trigger>
             {#if collapsed}
@@ -178,7 +178,7 @@
           onclick={onNewProject}
           aria-label="New project"
         >
-          <Plus size={18} />
+          <Plus size={20} />
           <span class="sidebar-nav-label">New project</span>
         </Tooltip.Trigger>
         {#if collapsed}
@@ -198,8 +198,8 @@
           onclick={toggleTheme}
           aria-label="Toggle theme"
         >
-          <Sun size={18} class="theme-icon-sun" />
-          <Moon size={18} class="theme-icon-moon" />
+          <Sun size={20} class="theme-icon-sun" />
+          <Moon size={20} class="theme-icon-moon" />
           <span class="sidebar-nav-label">Toggle theme</span>
         </Tooltip.Trigger>
         {#if collapsed}
@@ -216,9 +216,9 @@
           aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
         >
           {#if collapsed}
-            <PanelLeftOpen size={18} />
+            <PanelLeftOpen size={20} />
           {:else}
-            <PanelLeftClose size={18} />
+            <PanelLeftClose size={20} />
           {/if}
           <span class="sidebar-nav-label">Collapse menu</span>
         </Tooltip.Trigger>
@@ -259,23 +259,27 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 200px;
-    height: 100vh;
+    width: var(--sb-width);
+    height: 100dvh;
     border-right: 1px solid hsl(var(--border));
     background-color: hsl(var(--background));
     z-index: 40;
-    transition: width 200ms ease;
+    transition: width 200ms var(--ds-ease-out);
   }
 
+  /* collapsed rail = hit-target + 2 gutters — icons center exactly.
+     rail(--sb-rail) = item(--sb-item) + 2 × pad(--sb-pad)
+     icon centers in item: (item - icon) / 2 = (44 - 20) / 2 = 12px breathing
+     item centers in rail: (rail - item) / 2 = (60 - 44) / 2 = 8px = --sb-pad ✓ */
   .sidebar.collapsed {
-    width: 64px;
+    width: var(--sb-rail);
   }
 
   .sidebar-inner {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0.75rem 0.5rem;
+    padding: 0 var(--sb-pad) 0.75rem;
     gap: 0.25rem;
     overflow: hidden;
   }
@@ -300,7 +304,7 @@
   }
 
   .collapsed .sidebar-section-label {
-    opacity: 0;
+    display: none;
   }
 
   /* Nav items */
@@ -315,8 +319,8 @@
     align-items: center;
     gap: 0.625rem;
     width: 100%;
-    min-height: 2.25rem;
-    padding: 0 0.5rem;
+    height: var(--sb-item);
+    padding: 0 var(--sb-pad);
     border: none;
     border-radius: 0.375rem;
     background: transparent;
@@ -345,9 +349,9 @@
 
   :global(.sidebar-nav-item svg),
   :global(.sidebar-new-btn svg) {
-    width: 18px;
-    height: 18px;
-    flex: 0 0 18px;
+    width: var(--sb-icon);
+    height: var(--sb-icon);
+    flex: 0 0 var(--sb-icon);
   }
 
   .sidebar-nav-label {
@@ -356,8 +360,18 @@
     transition: opacity 150ms;
   }
 
+  /* collapsed: kill the label box entirely so the icon is the exact
+     center of the rail — item width = rail inner width = --sb-item */
   .collapsed .sidebar-nav-label {
-    opacity: 0;
+    display: none;
+  }
+  .collapsed :global(.sidebar-nav-item),
+  .collapsed :global(.sidebar-new-btn),
+  .collapsed :global(.sidebar-user-trigger),
+  .collapsed :global(.org-trigger) {
+    justify-content: center;
+    gap: 0;
+    padding-inline: 0;
   }
 
   /* New project button */
@@ -366,8 +380,8 @@
     align-items: center;
     gap: 0.625rem;
     width: 100%;
-    min-height: 2.25rem;
-    padding: 0 0.5rem;
+    height: var(--sb-item);
+    padding: 0 var(--sb-pad);
     margin-top: 0.25rem;
     border: none;
     border-radius: 0.375rem;
@@ -389,11 +403,12 @@
     flex: 1;
   }
 
-  /* User trigger (top) */
+  /* User trigger (top) — fixed band so its rule lines up with the main header's */
   .sidebar-top {
     display: flex;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.25rem;
+    align-items: center;
+    height: var(--sb-header);
+    flex-shrink: 0;
     border-bottom: 1px solid hsl(var(--border));
   }
 
@@ -402,8 +417,8 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
-    min-height: 2.25rem;
-    padding: 0 0.5rem;
+    height: var(--sb-item);
+    padding: 0 var(--sb-pad);
     border-radius: 0.375rem;
     border: none;
     background: transparent;
@@ -433,7 +448,15 @@
   }
 
   .collapsed .sidebar-user-name {
-    opacity: 0;
+    display: none;
+  }
+
+  /* avatar = glyph + 8px — stays proportional as icon token changes.
+     20 + 8 = 28px, same visual weight as before. */
+  :global(.sidebar-avatar) {
+    width: calc(var(--sb-icon) + 8px) !important;
+    height: calc(var(--sb-icon) + 8px) !important;
+    flex-shrink: 0;
   }
 
   /* User dropdown */
