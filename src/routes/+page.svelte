@@ -13,7 +13,6 @@
     currentTheme = getTheme();
   }
 
-  let booted = $state(false);
   let scrolled = $state(false);
   let activeStep = $state(0);
 
@@ -59,9 +58,6 @@
   ];
 
   onMount(() => {
-    requestAnimationFrame(() => (booted = true));
-
-    // nav morph — transparent over hero, frosty pill narrows past threshold
     let ticking = false;
     let stepEls: HTMLElement[] = [];
     const onScroll = () => {
@@ -120,7 +116,7 @@
 </svelte:head>
 
 <!-- ── Nav — part of the hero at top, narrows into a frosty pill ── -->
-<nav class="nav-wrap" class:is-booted={booted} aria-label="Primary">
+<nav class="nav-wrap" aria-label="Primary">
   <div class="nav-pill" class:is-scrolled={scrolled} style:max-width={scrolled ? "980px" : "1280px"}>
     <a href="/" class="nav-logo" aria-label="Wireloop home">
       <img src="/LOGO.svg" alt="" class="nav-logo-img" />
@@ -167,7 +163,7 @@
   <!-- ── Hero ───────────────────────────────────────────────────── -->
   <section class="hero" id="top">
     <div class="hero-inner">
-      <div class="hero-copy" class:is-booted={booted}>
+      <div class="hero-copy">
         <p class="hero-eyebrow boot boot-1">Visual Arduino programming</p>
         <h1 class="ds-h1 boot boot-2">Build Arduino projects<br />without writing code.</h1>
         <p class="hero-sub boot boot-3">
@@ -393,15 +389,13 @@
     position: relative;
   }
   .nav-wrap {
-    opacity: 0;
-    transform: translateY(-0.4rem);
-    transition:
-      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation: nav-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
-  .nav-wrap.is-booted {
-    opacity: 1;
-    transform: none;
+  @keyframes nav-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.4rem);
+    }
   }
   .nav-logo {
     display: flex;
@@ -647,25 +641,21 @@
     opacity: 1;
   }
 
-  /* staggered boot — blur-in like the pill fade */
+  /* staggered boot — CSS-only, no JS hydration needed */
   .hero-copy .boot {
-    opacity: 0;
-    transform: translateY(12px);
-    filter: blur(8px);
-    transition:
-      opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 800ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation: boot-in 800ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
-  .hero-copy.is-booted .boot {
-    opacity: 1;
-    transform: none;
-    filter: blur(0);
+  .boot-1 { animation-delay: 80ms; }
+  .boot-2 { animation-delay: 160ms; }
+  .boot-3 { animation-delay: 240ms; }
+  .boot-4 { animation-delay: 320ms; }
+  @keyframes boot-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(8px);
+    }
   }
-  .boot-1 { transition-delay: 80ms; }
-  .boot-2 { transition-delay: 160ms; }
-  .boot-3 { transition-delay: 240ms; }
-  .boot-4 { transition-delay: 320ms; }
 
   /* scroll reveal — blur-in */
   .reveal {
@@ -689,6 +679,7 @@
       opacity: 1 !important;
       transform: none !important;
       filter: none !important;
+      animation: none !important;
       transition: none !important;
     }
     :global(.start-card::before) {
