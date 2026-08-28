@@ -92,6 +92,15 @@
     if (arduinoStatus !== PortState.CLOSE) return;
     arduinoStore.set(PortState.UPLOADING);
     try {
+      if (!window.AvrgirlArduino) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = '/avrgirl-arduino.js';
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error('Failed to load avrgirl-arduino.js'));
+          document.head.appendChild(s);
+        });
+      }
       const avrgirl = new AvrgirlArduino({ board: boardType, debug: true }) as Parameters<typeof upload>[1];
       await upload(code, avrgirl, boardType);
       onSuccess("Your code is uploaded!! :)");

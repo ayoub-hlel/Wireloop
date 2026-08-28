@@ -40,6 +40,10 @@ declare class AvrgirlArduino {
   constructor(options: { board: string; debug?: boolean });
 }
 
+interface Window {
+  AvrgirlArduino: typeof AvrgirlArduino;
+}
+
 interface Navigator {
   readonly serial: WebSerialAPI;
 }
