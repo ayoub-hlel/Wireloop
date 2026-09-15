@@ -45,8 +45,7 @@ import type { Project } from "../../../types/models";
     try {
       const proj = $projectStore.project as Record<string, unknown> | null;
       if (proj?.orgId) { collaborators = []; return; } // org projects: sharing disabled
-      // ponytail: shared projects list is fetched via a lightweight join; for now show owner-only.
-      collaborators = [];
+      collaborators = (await getApiClient().query('projects:getSharedMembers', { projectId })) as Array<{ userId: string; name: string; role: string }>;
     } catch { /* non-fatal */ }
   }
 
@@ -156,7 +155,7 @@ import type { Project } from "../../../types/models";
             {#each collaborators as c (c.userId)}
               <div class="share-row">
                 <span class="share-name">{c.name}</span>
-                <span class="share-role">{c.role}</span>
+                <span class="share-role">{c.role === 'edit' ? 'Editor' : 'Viewer'}</span>
                 <button class="share-remove" onclick={() => unshare(c.userId)}>Remove</button>
               </div>
             {/each}

@@ -165,7 +165,7 @@
     <div class="hero-inner">
       <div class="hero-copy">
         <p class="hero-eyebrow boot boot-1">Visual Arduino programming</p>
-        <h1 class="ds-h1 boot boot-2">Build Arduino projects<br />without writing code.</h1>
+        <h1 class="ds-h1">Build Arduino projects<br />without writing code.</h1>
         <p class="hero-sub boot boot-3">
           Drag blocks together, watch your circuit run, and upload to your board — right from the browser.
         </p>
@@ -389,13 +389,7 @@
     position: relative;
   }
   .nav-wrap {
-    animation: nav-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-  @keyframes nav-in {
-    from {
-      opacity: 0;
-      transform: translateY(-0.4rem);
-    }
+    /* visible by default, no animation that blocks LCP */
   }
   .nav-logo {
     display: flex;
@@ -641,20 +635,9 @@
     opacity: 1;
   }
 
-  /* staggered boot — CSS-only, no JS hydration needed */
+  /* boot classes — no animation to avoid LCP penalty */
   .hero-copy .boot {
-    animation: boot-in 800ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-  .boot-1 { animation-delay: 80ms; }
-  .boot-2 { animation-delay: 160ms; }
-  .boot-3 { animation-delay: 240ms; }
-  .boot-4 { animation-delay: 320ms; }
-  @keyframes boot-in {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-      filter: blur(8px);
-    }
+    /* visible by default */
   }
 
   /* scroll reveal — blur-in */
@@ -673,8 +656,6 @@
     filter: blur(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .nav-wrap,
-    .boot,
     .reveal {
       opacity: 1 !important;
       transform: none !important;

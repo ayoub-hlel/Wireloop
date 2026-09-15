@@ -218,31 +218,59 @@ export async function POST({ request, locals, getClientAddress, platform }) {
 
       case 'org:getUserOrgs': {
         if (!locals.user) throw error(401, 'Unauthorized');
-        const userOrgs = await db.select().from(organizations)
-          .innerJoin(orgMembers, eq(organizations.id, orgMembers.orgId))
-          .where(eq(orgMembers.userId, locals.user.id))
-          .orderBy(desc(organizations.createdAt));
-        return json(userOrgs.map(r => r.organizations));
+        // Owner is stored on organizations.owner_id (no org_members row), so
+        // include owned orgs alongside the ones the user is a member of.
+        const [owned, memberRows] = await Promise.all([
+          db.select().from(organizations).where(eq(organizations.ownerId, locals.user.id)),
+          db.select().from(organizations)
+            .innerJoin(orgMembers, eq(organizations.id, orgMembers.orgId))
+            .where(eq(orgMembers.userId, locals.user.id)),
+        ]);
+        const merged = new Map<string, typeof owned[number]>();
+        for (const o of owned) merged.set(o.id, o);
+        for (const r of memberRows) merged.set(r.organizations.id, r.organizations);
+        return json(Array.from(merged.values()));
       }
 
       case 'org:getMembers': {
         if (!locals.user) throw error(401, 'Unauthorized');
-        const memberCheck = await getOrgRole(db, data.orgId as string, locals.user.id);
-        console.warn('[QUERY] case:org:getMembers', { orgId: data.orgId, isMember: !!memberCheck, user: locals.user.id });
+        const orgId = data.orgId as string;
+        const memberCheck = await getOrgRole(db, orgId, locals.user.id);
+        console.warn('[QUERY] case:org:getMembers', { orgId, isMember: !!memberCheck, user: locals.user.id });
         if (!memberCheck) return json([]);
+        const org = await db.select().from(organizations).where(eq(organizations.id, orgId)).then(r => r[0]);
         const members = await db.select().from(orgMembers)
           .innerJoin(profiles, eq(orgMembers.userId, profiles.userId))
-          .where(eq(orgMembers.orgId, data.orgId as string))
+          .where(eq(orgMembers.orgId, orgId))
           .orderBy(orgMembers.createdAt);
-        return json(members.map(r => ({
-          userId: r.org_members.userId,
-          role: r.org_members.role,
-          createdAt: r.org_members.createdAt,
-          name: r.profiles.name,
-          email: r.profiles.email,
-          profileImage: r.profiles.profileImage,
-          username: r.profiles.username,
-        })));
+        // Owner authority lives on organizations.owner_id — org:create also writes
+        // a redundant 'owner' member row, so drop it here to keep exactly one owner.
+        const rows = members
+          .filter(r => !org || r.org_members.userId !== org.ownerId)
+          .map(r => ({
+            userId: r.org_members.userId,
+            role: r.org_members.role,
+            createdAt: r.org_members.createdAt,
+            name: r.profiles.name,
+            email: r.profiles.email,
+            profileImage: r.profiles.profileImage,
+            username: r.profiles.username,
+          }));
+        // Always resolve the owner from organizations.owner_id so it appears even
+        // when the owner has no org_members row.
+        if (org) {
+          const owner = await db.select().from(profiles).where(eq(profiles.userId, org.ownerId)).then(r => r[0]);
+          rows.unshift({
+            userId: org.ownerId,
+            role: 'owner',
+            createdAt: org.createdAt,
+            name: owner?.name ?? 'Owner',
+            email: owner?.email ?? '',
+            profileImage: owner?.profileImage ?? null,
+            username: owner?.username ?? null,
+          });
+        }
+        return json(rows);
       }
 
       case 'org:getOrgProjects': {

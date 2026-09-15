@@ -3,6 +3,7 @@
   import * as Command from "$lib/components/ui/command/index.js";
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import * as Tooltip from "$lib/components/ui/tooltip/index.js";
+  import { goto } from "$app/navigation";
   import type { OrgInfo } from "../../../stores/org.store";
 
   type Props = {
@@ -103,6 +104,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           <span>Create organization</span>
         </button>
+        {#if currentOrg}
+          <button class="mobile-org-create" onclick={() => { open = false; goto(`/org/${currentOrg.slug}/settings`); }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Organization settings</span>
+          </button>
+        {/if}
       </Dialog.Content>
     </Dialog.Portal>
   </Dialog.Root>
@@ -165,6 +172,18 @@
     </button>
   </Popover.Content>
   </Popover.Root>
+
+  {#if currentOrg && !collapsed}
+    <button
+      class="org-settings-btn"
+      type="button"
+      aria-label="Organization settings"
+      title="Organization settings"
+      onclick={() => goto(`/org/${currentOrg.slug}/settings`)}
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  {/if}
 </div>
 {/if}
 
@@ -264,6 +283,31 @@
 
   .org-row.collapsed .org-chevron {
     display: none;
+  }
+
+  .org-settings-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: hsl(var(--sidebar-foreground) / 0.6);
+    cursor: pointer;
+    transition: color 150ms, background-color 150ms;
+  }
+
+  .org-settings-btn:hover {
+    color: hsl(var(--sidebar-foreground));
+    background-color: hsl(var(--sidebar-accent));
+  }
+
+  .org-settings-btn:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: -1px;
   }
 
   :global(.mobile-org-trigger) {
